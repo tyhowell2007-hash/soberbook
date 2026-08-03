@@ -1,0 +1,130 @@
+/* =====================================================================
+   THE WALL
+
+   A corkboard, not a column. Two things make it work:
+
+   1. THE DOM IS IN READING ORDER — newest first, then by weight. Position
+      is applied purely with CSS. A screen reader gets a sensible list; a
+      screen gets a wall. Never build the DOM in visual order.
+
+   2. ROTATION IS SEEDED FROM THE POST ID, not random. A given post always
+      sits at the same angle, so the wall doesn't reshuffle on every render.
+      Random rotation looks the same in a screenshot and is unusable in life.
+   ===================================================================== */
+.wall{
+  padding:14px 12px 100px;
+  display:grid;
+  grid-template-columns:repeat(2, 1fr);
+  gap:16px 12px;
+  align-items:start;
+}
+
+.item{
+  position:relative;
+  background:var(--paper2);
+  border:3px solid var(--x);
+  box-shadow:5px 5px 0 var(--x);
+  padding:11px 12px;
+  transform:rotate(var(--rot));
+}
+/* the newest thing always takes the top-left slot. Position carries
+   importance; the timestamp carries time. Don't make position do both. */
+.item.newest{ order:-1; }
+
+/* POSTER — milestones, and anything left unanswered too long.
+   An unanswered post gets physically bigger. That's "nobody posts into
+   silence" enforced by layout instead of by good intentions. */
+.item.poster{
+  grid-column:1 / -1;
+  background:var(--acid);
+  background-image:var(--wear);
+  background-size:240px;
+  background-blend-mode:screen;
+  border-width:4px;
+  box-shadow:7px 7px 0 var(--x);
+  padding:15px;
+}
+.item.poster .nm{ font-size:26px; }
+.item.poster .bd{ color:var(--acid-ink); font-weight:600; font-size:15px; }
+.item.poster .mt{ color:#3A4200; }
+
+/* SCRAP — short things, logistics */
+.item.scrap{ padding:9px 10px; }
+.item.scrap .bd{ font-size:13px; }
+
+/* SCREENED — anonymous. A halftone screen, not a colour.
+   "Screened" is the print term, and it reads as obscured rather than
+   decorated. Survives a black-and-white copier, which is the honest test. */
+.item.screened{ background:var(--paper); border-style:dashed; }
+.item.screened::after{
+  content:""; position:absolute; inset:0; pointer-events:none;
+  background-image:radial-gradient(rgba(10,10,9,.30) 1.3px, transparent 1.5px);
+  background-size:6px 6px;
+}
+.item.screened > *{ position:relative; z-index:1; }
+
+.item .nm{
+  font-family:'Anton',Impact,sans-serif; font-weight:400; font-size:15px;
+  text-transform:uppercase; color:var(--x); line-height:1.05;
+}
+.item .mt{
+  font-family:'Courier Prime',monospace; font-size:9.5px; letter-spacing:.1em;
+  text-transform:uppercase; color:var(--soft); margin-top:3px;
+}
+.item .bd{ font-size:14px; color:var(--body); margin-top:7px; overflow-wrap:anywhere; }
+.item .ft{
+  display:flex; gap:12px; margin-top:9px; padding-top:7px; border-top:2px solid var(--x);
+  font-family:'Courier Prime',monospace; font-size:10px; font-weight:700;
+  letter-spacing:.06em; text-transform:uppercase; color:var(--soft);
+}
+.item .ft .mine{ margin-left:auto; color:var(--x); }
+
+/* pins and tape — decoration only, never over text */
+.item .pin{
+  position:absolute; top:-7px; left:50%; margin-left:-6px; width:12px; height:12px;
+  border-radius:50%; background:#C2410C; box-shadow:0 2px 3px rgba(0,0,0,.4); z-index:3;
+}
+.item .tape{
+  position:absolute; top:-9px; left:14px; width:62px; height:19px;
+  background:rgba(214,255,46,.5);
+  border-left:1px dashed rgba(0,0,0,.3); border-right:1px dashed rgba(0,0,0,.3);
+  transform:rotate(-5deg); z-index:3;
+}
+
+/* the empty wall. 12 members means this WILL be seen — it should feel
+   like a quiet room, not a broken app. */
+.empty{
+  grid-column:1 / -1; text-align:center; padding:44px 18px;
+  border:3px dashed var(--x); background:var(--paper);
+}
+.empty .h{ font-family:'Permanent Marker',cursive; font-size:22px; color:var(--x); }
+.empty .p{ font-family:'Courier Prime',monospace; font-size:12.5px; color:var(--soft); margin-top:8px; }
+
+/* composer, pinned to the bottom */
+.composer{
+  position:fixed; bottom:0; left:0; right:0; max-width:520px; margin:0 auto;
+  background:var(--x); padding:11px 12px; display:flex; gap:9px; z-index:50;
+  border-top:4px solid var(--x);
+}
+.composer input{
+  flex:1; border:3px solid var(--acid); background:#F2EFE6; padding:11px;
+  font-family:'Courier Prime',monospace; font-size:15px; color:var(--x); outline:none; min-width:0;
+}
+.composer input:focus-visible{ outline:3px solid var(--acid); outline-offset:2px; }
+.composer button{
+  background:var(--acid); color:var(--acid-ink); border:none; padding:11px 15px;
+  font-family:'Anton',Impact,sans-serif; font-size:16px; text-transform:uppercase;
+  letter-spacing:.04em; cursor:pointer; white-space:nowrap;
+}
+.composer button[disabled]{ opacity:.5; }
+.anontoggle{
+  position:fixed; bottom:62px; left:0; right:0; max-width:520px; margin:0 auto;
+  padding:6px 12px; z-index:50; display:flex; justify-content:flex-end;
+}
+.anontoggle button{
+  background:var(--paper2); border:3px solid var(--x); box-shadow:3px 3px 0 var(--x);
+  font-family:'Courier Prime',monospace; font-size:10px; font-weight:700;
+  letter-spacing:.1em; text-transform:uppercase; padding:6px 10px; cursor:pointer;
+  color:var(--x);
+}
+.anontoggle button.on{ background:var(--x); color:var(--acid); }
