@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { browserClient } from '../../lib/supabase-browser';
+import Thread from './Thread';
 
 /* Deterministic rotation from the post id.
    Random angles look fine in a screenshot and are unusable in practice —
@@ -42,6 +43,19 @@ export default function Wall({ initial }) {
   const [text, setText] = useState('');
   const [anon, setAnon] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [open, setOpen] = useState(null);     // the post whose thread is open
+
+  // Re-read the wall so the reply count (and therefore the scrap's SIZE)
+  // updates. Worth noting: answering a post can shrink it — an unanswered
+  // post is a poster, an answered one is a card. The layout is the promise.
+  async function refresh() {
+    const { data } = await supabase
+      .from('feed_posts').select('*').order('created_at', { ascending: false }).limit(60);
+    if (data) {
+      setPosts(data);
+      setOpen((o) => (o ? data.find((p) => p.id === o.id) || o : o));
+    }
+  }
 
   async function post(e) {
     e.preventDefault();
@@ -106,7 +120,14 @@ export default function Wall({ initial }) {
 
               <div className="ft">
                 <span>♥ {p.like_count}</span>
-                <span>{p.comment_count === 0 ? 'no replies yet' : p.comment_count + ' replies'}</span>
+                {/* The reply count is the tap target. Deliberately worded as
+                    an invitation when it's zero — that's the post that most
+                    needs someone, and it's the one already sized biggest. */}
+                <button className="replies" onClick={() => setOpen(p)}>
+                  {p.comment_count === 0
+                    ? 'say something'
+                    : p.comment_count + (p.comment_count === 1 ? ' reply' : ' replies')}
+                </button>
                 {/* is_mine, never author_id — an anonymous post still shows
                     the author their own controls without exposing them */}
                 {p.is_mine && <span className="mine">yours</span>}
@@ -131,6 +152,14 @@ export default function Wall({ initial }) {
           {busy ? '…' : 'Pin it'}
         </button>
       </form>
+
+      {open && (
+        <Thread
+          post={open}
+          onClose={() => setOpen(null)}
+          onCountChange={refresh}
+        />
+      )}
     </>
   );
 }
