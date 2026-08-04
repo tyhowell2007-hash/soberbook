@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation';
+import Link from 'next/link';
 import { serverClient, assertReadable } from '../../lib/supabase-server';
 import Wall from './Wall';
 
@@ -29,7 +30,12 @@ export default async function WallPage() {
     <>
       <div className="mast">
         <span className="lg">🌱 SOBER BOOK</span>
-        <span className="rt">{days !== null ? `day ${days}` : profile.handle}</span>
+        {/* The day count was already here doing nothing. Making it the way
+            into your own page means no new chrome on the masthead — the
+            thing you look at anyway becomes the thing you tap. */}
+        <Link href="/me" className="rt melink">
+          {days !== null ? `day ${days}` : profile.handle} ›
+        </Link>
       </div>
       <div className="bar">No steps to prove · no gaps to explain</div>
       {error
