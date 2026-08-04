@@ -207,3 +207,81 @@
   padding:11px 16px; font-family:'Anton',Impact,sans-serif; font-size:16px;
   text-transform:uppercase; letter-spacing:.04em; cursor:pointer; white-space:nowrap; }
 .replybar button[type=submit][disabled]{ opacity:.5; }
+
+/* =====================================================================
+   YOUR OWN PAGE  (/me)
+
+   Small on purpose. Sign out, how you show up, your date, your posts.
+   Everything else that could live here was cut so the sign-out button
+   could ship tonight instead of next week.
+   ===================================================================== */
+
+/* Two spans inside .choice were styled with margin-top, which does
+   NOTHING on an inline element — no error, no warning, it just silently
+   doesn't happen, and the title ran into the description on /welcome.
+   Making them blocks is the fix, and it repairs the signup page too. */
+.choice .ct, .choice .cd{ display:block; }
+
+.mast .back{
+  color:var(--acid); text-decoration:none; font-size:22px; line-height:1;
+  padding:2px 8px 4px 0; font-family:'Anton',Impact,sans-serif;
+}
+.mast .back:focus-visible{ outline:3px solid var(--acid); outline-offset:2px; }
+
+/* the count. The only thing on this page that gets to be loud. */
+.count{
+  border:4px solid var(--x); background:var(--acid); background-image:var(--wear);
+  background-size:240px; background-blend-mode:screen;
+  box-shadow:7px 7px 0 var(--x); padding:20px 16px; text-align:center;
+  margin-bottom:26px; transform:rotate(-.6deg);
+}
+.count .cn{
+  font-family:'Anton',Impact,sans-serif; font-size:62px; line-height:.9;
+  color:var(--acid-ink); letter-spacing:-.01em;
+}
+.count .cl{
+  font-family:'Courier Prime',monospace; font-size:11px; font-weight:700;
+  letter-spacing:.18em; text-transform:uppercase; color:#3A4200; margin-top:8px;
+}
+
+h2.sec{
+  font-family:'Anton',Impact,sans-serif; font-weight:400; font-size:22px;
+  text-transform:uppercase; color:var(--x); letter-spacing:.01em;
+  margin:30px 0 12px; padding-bottom:6px; border-bottom:4px solid var(--x);
+}
+
+/* your posts — a receipt, not a feed. No rotation, no pins: this is the
+   list you scan, not the wall you look at. */
+ul.mine{ list-style:none; }
+ul.mine li{
+  border-left:5px solid var(--x); background:var(--paper2);
+  padding:10px 12px; margin-bottom:10px; position:relative;
+}
+ul.mine li.screened{ background:var(--paper); border-left-style:dashed; }
+ul.mine li.screened::after{
+  content:""; position:absolute; inset:0; pointer-events:none;
+  background-image:radial-gradient(rgba(10,10,9,.22) 1.2px, transparent 1.4px);
+  background-size:6px 6px;
+}
+ul.mine li > *{ position:relative; z-index:1; }
+.mb{ font-size:14.5px; color:var(--body); overflow-wrap:anywhere; }
+.mm{
+  font-family:'Courier Prime',monospace; font-size:9.5px; letter-spacing:.1em;
+  text-transform:uppercase; color:var(--soft); margin-top:6px;
+}
+
+/* the door out. Quiet until armed, then it means it. */
+.btn.out{ background:var(--paper2); color:var(--x); border:4px solid var(--x); }
+.btn.out:hover{ background:var(--x); color:var(--acid); }
+.btn.out.arm{ background:#9A3412; color:#FFF1E7; border-color:var(--x); }
+.btn.out.arm:hover{ background:#7C2D12; color:#FFF1E7; }
+.nvm{
+  display:block; margin:10px auto 0; background:none; border:none; cursor:pointer;
+  font-family:'Courier Prime',monospace; font-size:12px; color:var(--soft);
+  text-decoration:underline; text-underline-offset:3px; padding:6px;
+}
+
+/* the day count in the masthead is now the way in to /me */
+.mast .melink{ text-decoration:none; padding:4px 0 4px 6px; }
+.mast .melink:hover{ text-decoration:underline; text-underline-offset:3px; }
+.mast .melink:focus-visible{ outline:3px solid var(--acid); outline-offset:2px; }
