@@ -44,6 +44,10 @@ export default function Wall({ initial }) {
   const [anon, setAnon] = useState(false);
   const [busy, setBusy] = useState(false);
   const [open, setOpen] = useState(null);     // the post whose thread is open
+  // post ids with a like request in the air. Without this, an impatient
+  // double-tap fires insert AND delete at once and the heart ends up
+  // disagreeing with the database.
+  const [pending, setPending] = useState(() => new Set());
 
   // Re-read the wall so the reply count (and therefore the scrap's SIZE)
   // updates. Worth noting: answering a post can shrink it — an unanswered
@@ -54,6 +58,45 @@ export default function Wall({ initial }) {
     if (data) {
       setPosts(data);
       setOpen((o) => (o ? data.find((p) => p.id === o.id) || o : o));
+    }
+  }
+
+  /* LIKE — optimistic.
+
+     The heart flips BEFORE the database is asked. A like that waits ~300ms
+     for a round trip feels broken, and people tap it again, which is how
+     you get double-fires. So: move the UI now, send the request, and put
+     it back only if the request actually failed.
+
+     The trade is that for a moment the screen shows something that isn't
+     true yet. That's fine for a heart. It would NOT be fine for anything
+     with consequences — a post, a payment, a sign-out. */
+  async function like(p) {
+    if (pending.has(p.id)) return;                 // already in flight
+    const nowLiked = !p.liked_by_me;
+
+    setPending((s) => new Set(s).add(p.id));
+    setPosts((list) => list.map((x) => x.id === p.id
+      ? { ...x, liked_by_me: nowLiked, like_count: x.like_count + (nowLiked ? 1 : -1) }
+      : x));
+
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      const { error } = nowLiked
+        ? await supabase.from('likes').insert({ post_id: p.id, user_id: user.id })
+        /* The .eq() here is NOT the security check — RLS already refuses to
+           delete anyone else's like. It answers a different question:
+           "which of MY likes?" Authorisation and selection are separate
+           jobs, and the database only does the first one. */
+        : await supabase.from('likes').delete().eq('post_id', p.id);
+      if (error) throw error;
+    } catch (e) {
+      // put the heart back exactly where it was
+      setPosts((list) => list.map((x) => x.id === p.id
+        ? { ...x, liked_by_me: !nowLiked, like_count: x.like_count + (nowLiked ? -1 : 1) }
+        : x));
+    } finally {
+      setPending((s) => { const n = new Set(s); n.delete(p.id); return n; });
     }
   }
 
@@ -119,7 +162,16 @@ export default function Wall({ initial }) {
               <p className="bd">{p.body}</p>
 
               <div className="ft">
-                <span>♥ {p.like_count}</span>
+                {/* aria-pressed is what tells a screen reader this is a
+                    toggle that's currently on, rather than just a button. */}
+                <button
+                  className={'heart' + (p.liked_by_me ? ' on' : '')}
+                  aria-pressed={!!p.liked_by_me}
+                  aria-label={p.liked_by_me ? 'Undo like' : 'Like this'}
+                  onClick={() => like(p)}
+                >
+                  {p.liked_by_me ? '♥' : '♡'} {p.like_count}
+                </button>
                 {/* The reply count is the tap target. Deliberately worded as
                     an invitation when it's zero — that's the post that most
                     needs someone, and it's the one already sized biggest. */}
