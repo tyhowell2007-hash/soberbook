@@ -128,3 +128,82 @@
   color:var(--x);
 }
 .anontoggle button.on{ background:var(--x); color:var(--acid); }
+
+/* =====================================================================
+   THREAD — a post, opened.
+
+   Slides up over the wall rather than navigating away, so you don't lose
+   your place on the board. The wall is a physical object; walking away
+   from it and back would break that.
+   ===================================================================== */
+.replies{
+  background:none; border:none; padding:0; cursor:pointer;
+  font-family:'Courier Prime',monospace; font-size:10px; font-weight:700;
+  letter-spacing:.06em; text-transform:uppercase; color:var(--x);
+  text-decoration:underline; text-underline-offset:3px;
+}
+.replies:focus-visible{ outline:3px solid var(--x); outline-offset:3px; }
+
+.sheetwrap{ position:fixed; inset:0; z-index:200; display:flex; align-items:flex-end;
+  justify-content:center; }
+.scrim{ position:absolute; inset:0; background:rgba(10,10,9,.62); border:none;
+  padding:0; cursor:pointer; }
+.thread{
+  position:relative; width:100%; max-width:520px; max-height:88vh;
+  background:var(--paper); border:4px solid var(--x); border-bottom:none;
+  box-shadow:0 -10px 0 rgba(10,10,9,.35);
+  display:flex; flex-direction:column;
+}
+.threadbar{ background:var(--x); padding:11px 13px; display:flex; align-items:center; gap:10px; }
+.threadbar .tt{ font-family:'Anton',Impact,sans-serif; font-size:19px; text-transform:uppercase;
+  color:var(--paper); letter-spacing:.02em; }
+.threadbar .x{ margin-left:auto; background:none; border:none; color:var(--acid);
+  font-size:19px; cursor:pointer; line-height:1; padding:2px 6px; }
+.threadbar .x:focus-visible{ outline:3px solid var(--acid); outline-offset:2px; }
+
+.threadbody{ padding:14px 13px 8px; overflow-y:auto; flex:1; }
+.orig{ font-size:16px; color:var(--body); }
+.origmeta{ font-family:'Courier Prime',monospace; font-size:10px; letter-spacing:.1em;
+  text-transform:uppercase; color:var(--soft); margin:6px 0 14px;
+  padding-bottom:12px; border-bottom:3px solid var(--x); }
+
+.loading{ font-family:'Courier Prime',monospace; font-size:12px; color:var(--soft);
+  padding:14px 0; }
+/* The empty state IS the product promise. It says the rule out loud at the
+   exact moment someone is deciding whether to bother replying. */
+.nosilence{ border:3px dashed var(--x); background:var(--paper2); padding:16px;
+  font-family:'Courier Prime',monospace; font-size:12.5px; color:var(--soft);
+  line-height:1.7; text-align:center; }
+.nosilence b{ font-family:'Permanent Marker',cursive; font-size:16px; color:var(--x);
+  display:inline-block; margin-top:5px; }
+
+.reply{ border-left:4px solid var(--x); padding:9px 0 9px 12px; margin-bottom:12px; }
+.reply.screened{ border-left-style:dashed; position:relative; }
+.reply.screened::after{ content:""; position:absolute; inset:0; pointer-events:none;
+  background-image:radial-gradient(rgba(10,10,9,.22) 1.2px, transparent 1.4px);
+  background-size:6px 6px; }
+.reply.screened > *{ position:relative; z-index:1; }
+.rwho{ font-family:'Anton',Impact,sans-serif; font-size:15px; text-transform:uppercase;
+  color:var(--x); }
+.rwhen{ font-family:'Courier Prime',monospace; font-size:9.5px; letter-spacing:.1em;
+  color:var(--soft); margin-left:8px; text-transform:uppercase; }
+.rbody{ font-size:14.5px; color:var(--body); margin-top:4px; overflow-wrap:anywhere; }
+.rerr{ border:3px solid #9A3412; background:#FFF1E7; color:#7C2D12; padding:10px 12px;
+  font-size:13px; margin-top:10px; }
+
+.replybar{ border-top:4px solid var(--x); background:var(--paper2); padding:9px 12px 12px; }
+.ranon{ background:var(--paper); border:3px solid var(--x); box-shadow:3px 3px 0 var(--x);
+  font-family:'Courier Prime',monospace; font-size:10px; font-weight:700;
+  letter-spacing:.1em; text-transform:uppercase; padding:6px 10px; cursor:pointer;
+  color:var(--x); margin-bottom:9px; }
+.ranon.on{ background:var(--x); color:var(--acid); }
+.ranon:focus-visible{ outline:3px solid var(--x); outline-offset:3px; }
+.replybar form{ display:flex; gap:8px; }
+.replybar input{ flex:1; border:3px solid var(--x); background:#F2EFE6; padding:11px;
+  font-family:'Courier Prime',monospace; font-size:15px; color:var(--x); outline:none;
+  min-width:0; }
+.replybar input:focus-visible{ outline:3px solid var(--acid); outline-offset:-3px; }
+.replybar button[type=submit]{ background:var(--x); color:var(--acid); border:none;
+  padding:11px 16px; font-family:'Anton',Impact,sans-serif; font-size:16px;
+  text-transform:uppercase; letter-spacing:.04em; cursor:pointer; white-space:nowrap; }
+.replybar button[type=submit][disabled]{ opacity:.5; }
