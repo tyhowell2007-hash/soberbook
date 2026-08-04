@@ -285,3 +285,26 @@ ul.mine li > *{ position:relative; z-index:1; }
 .mast .melink{ text-decoration:none; padding:4px 0 4px 6px; }
 .mast .melink:hover{ text-decoration:underline; text-underline-offset:3px; }
 .mast .melink:focus-visible{ outline:3px solid var(--acid); outline-offset:2px; }
+
+/* the heart. A button now, not a label.
+
+   Acid is a FILL, never text on paper (#D6FF2E on #E4DFD3 is 1.2:1 and
+   invisible). So a liked heart gets a black chip with acid on top —
+   17.2:1 — instead of turning the text acid-coloured. Same rule the
+   milestone posters follow. */
+.heart{
+  background:none; border:none; padding:0; cursor:pointer;
+  font-family:'Courier Prime',monospace; font-size:10px; font-weight:700;
+  letter-spacing:.06em; text-transform:uppercase; color:var(--soft);
+  line-height:1.4;
+}
+.heart:hover{ color:var(--x); }
+.heart.on{
+  background:var(--x); color:var(--acid);
+  padding:2px 6px; margin:-2px -2px -2px -6px;
+}
+.heart:focus-visible{ outline:3px solid var(--x); outline-offset:3px; }
+/* the poster variant sits on acid, so invert the chip there */
+.item.poster .heart{ color:#3A4200; }
+.item.poster .heart:hover{ color:var(--acid-ink); }
+.item.poster .heart.on{ background:var(--acid-ink); color:var(--acid); }
