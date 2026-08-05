@@ -35,16 +35,23 @@ body::before{
 /* ---------- chrome ---------- */
 .mast{ background:var(--x); color:var(--paper); padding:13px 15px;
   display:flex; align-items:center; gap:10px; position:sticky; top:0; z-index:40; }
-/* The wordmark and its acid ghost. Both need nowrap: the ghost is an
-   absolutely-positioned copy of the same text, and on a narrow phone it
-   wrapped to two lines while the real one didn't — leaving a stray "BOOK"
-   hanging below the black bar. flex-shrink:0 stops the masthead squeezing
-   it in the first place. */
+/* The wordmark and its acid offset.
+
+   This WAS a ::before holding a second literal copy of "SOBER BOOK",
+   positioned 2px behind the real one. Two problems with that:
+
+   1. It's real text, so it lays out on its own — on a narrow phone it
+      wrapped where the real wordmark didn't, dropping a stray "BOOK"
+      below the black bar.
+   2. Two sets of letterforms overlapping at 20px is just harder to read.
+
+   text-shadow is the same look with neither problem: a shadow is painted,
+   not laid out, so it can never wrap or overflow, and it needs no
+   duplicate text for a screen reader to trip over. */
 .mast .lg{ font-family:'Anton',Impact,sans-serif; font-size:20px; letter-spacing:.02em;
-  text-transform:uppercase; position:relative; transform:rotate(-1deg); display:inline-block;
-  white-space:nowrap; flex-shrink:0; }
-.mast .lg::before{ content:"🌱 SOBER BOOK" / ""; position:absolute; left:2px; top:2px;
-  color:var(--acid); opacity:.8; z-index:-1; white-space:nowrap; }
+  text-transform:uppercase; transform:rotate(-1deg); display:inline-block;
+  white-space:nowrap; flex-shrink:0;
+  text-shadow:2px 2px 0 rgba(214,255,46,.85); }
 .mast .rt{ margin-left:auto; font-family:'Courier Prime',monospace; font-size:10px;
   letter-spacing:.14em; text-transform:uppercase; color:var(--acid); }
 .bar{ background:var(--acid); color:var(--acid-ink); font-family:'Courier Prime',monospace;
