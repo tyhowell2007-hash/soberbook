@@ -35,10 +35,16 @@ body::before{
 /* ---------- chrome ---------- */
 .mast{ background:var(--x); color:var(--paper); padding:13px 15px;
   display:flex; align-items:center; gap:10px; position:sticky; top:0; z-index:40; }
+/* The wordmark and its acid ghost. Both need nowrap: the ghost is an
+   absolutely-positioned copy of the same text, and on a narrow phone it
+   wrapped to two lines while the real one didn't — leaving a stray "BOOK"
+   hanging below the black bar. flex-shrink:0 stops the masthead squeezing
+   it in the first place. */
 .mast .lg{ font-family:'Anton',Impact,sans-serif; font-size:20px; letter-spacing:.02em;
-  text-transform:uppercase; position:relative; transform:rotate(-1deg); display:inline-block; }
+  text-transform:uppercase; position:relative; transform:rotate(-1deg); display:inline-block;
+  white-space:nowrap; flex-shrink:0; }
 .mast .lg::before{ content:"🌱 SOBER BOOK" / ""; position:absolute; left:2px; top:2px;
-  color:var(--acid); opacity:.8; z-index:-1; }
+  color:var(--acid); opacity:.8; z-index:-1; white-space:nowrap; }
 .mast .rt{ margin-left:auto; font-family:'Courier Prime',monospace; font-size:10px;
   letter-spacing:.14em; text-transform:uppercase; color:var(--acid); }
 .bar{ background:var(--acid); color:var(--acid-ink); font-family:'Courier Prime',monospace;
