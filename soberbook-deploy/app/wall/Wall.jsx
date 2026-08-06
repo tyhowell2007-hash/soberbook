@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { browserClient } from '../../lib/supabase-browser';
 import Thread from './Thread';
+import PostMenu from './PostMenu';
 
 /* Deterministic rotation from the post id.
    Random angles look fine in a screenshot and are unusable in practice —
@@ -44,6 +45,7 @@ export default function Wall({ initial }) {
   const [anon, setAnon] = useState(false);
   const [busy, setBusy] = useState(false);
   const [open, setOpen] = useState(null);     // the post whose thread is open
+  const [menu, setMenu] = useState(null);     // the post whose ⋯ menu is open
   // post ids with a like request in the air. Without this, an impatient
   // double-tap fires insert AND delete at once and the heart ends up
   // disagreeing with the database.
@@ -182,7 +184,14 @@ export default function Wall({ initial }) {
                 </button>
                 {/* is_mine, never author_id — an anonymous post still shows
                     the author their own controls without exposing them */}
-                {p.is_mine && <span className="mine">yours</span>}
+                {p.is_mine
+                  ? <span className="mine">yours</span>
+                  : (
+                    /* No ⋯ on your own post: there is nobody to report or
+                       block but yourself, and offering it would be noise. */
+                    <button className="dots" aria-label="Report or block"
+                            onClick={() => setMenu(p)}>⋯</button>
+                  )}
               </div>
             </article>
           );
@@ -210,6 +219,14 @@ export default function Wall({ initial }) {
           post={open}
           onClose={() => setOpen(null)}
           onCountChange={refresh}
+        />
+      )}
+
+      {menu && (
+        <PostMenu
+          post={menu}
+          onClose={() => setMenu(null)}
+          onBlocked={refresh}
         />
       )}
     </>
