@@ -87,6 +87,22 @@ export default function Welcome() {
             you can add it later, and nothing else depends on it.
           </p>
 
+          {/* The one thing about this place that isn't like the others,
+              said plainly, at the moment someone is deciding whether to
+              bother. It was true in the code from day one and had never
+              once been said out loud to a member. */}
+          <div className="rule">
+            <span className="rt2">One thing before you go in</span>
+            <p>
+              Everywhere else, a post nobody answers sinks and disappears.
+              Here it does the opposite — <b>it gets bigger</b>, and keeps
+              getting bigger, until somebody says something.
+            </p>
+            <p>
+              That&apos;s the whole deal. Nobody posts into silence.
+            </p>
+          </div>
+
           <button className="btn" type="submit" disabled={busy || handle.length < 3}>
             {busy ? 'Setting up…' : 'Come in'}
           </button>
