@@ -17,7 +17,7 @@ export default async function MePage() {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('handle, display_name, sober_since, privacy_mode, created_at')
+    .select('handle, display_name, sober_since, privacy_mode, created_at, anthem_url, anthem_title')
     .eq('id', user.id)
     .maybeSingle();
   if (!profile) redirect('/welcome');
