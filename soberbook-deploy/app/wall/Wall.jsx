@@ -26,15 +26,28 @@ function ago(iso) {
   return Math.floor(h / 24) + 'd';
 }
 
+const TWO_HOURS = 2 * 60 * 60 * 1000;
+
 /* The sizing rule from the spec. Deliberately dumb and legible.
    The second clause is the important one: an unanswered post gets BIGGER. */
 function weight(p) {
-  const twoHours = 2 * 60 * 60 * 1000;
-  const old = Date.now() - new Date(p.created_at).getTime() > twoHours;
+  const old = Date.now() - new Date(p.created_at).getTime() > TWO_HOURS;
   if (p.milestone_days) return 'poster';
   if (p.comment_count === 0 && old) return 'poster';
   if (p.comment_count > 0) return 'card';
   return p.body.length < 90 ? 'scrap' : 'card';
+}
+
+/* A SEPARATE question from weight(): is this big because it's a milestone,
+   or big because nobody answered?
+
+   They look identical on screen and they mean opposite things — one is a
+   celebration, the other is a person being ignored. We only ever say the
+   second one out loud, and only to other people. */
+function unanswered(p) {
+  return !p.milestone_days
+    && p.comment_count === 0
+    && Date.now() - new Date(p.created_at).getTime() > TWO_HOURS;
 }
 
 export default function Wall({ initial }) {
@@ -160,6 +173,18 @@ export default function Wall({ initial }) {
                 {p.milestone_days ? p.display_name + ' · ' : ''}{ago(p.created_at)}
                 {p.is_anonymous ? ' · anonymous' : ''}
               </div>
+
+              {/* The rule, explained at the one moment it's visible.
+
+                  ⚠️ NEVER on your own post. You'd be reading "nobody
+                  answered you" in 26px about the thing you just worked up
+                  the nerve to share. The post still grows for everyone else
+                  — that's the point — you just don't get told why. */}
+              {w === 'poster' && unanswered(p) && !p.is_mine && (
+                <div className="waiting">
+                  ↑ big because nobody&apos;s answered it yet
+                </div>
+              )}
 
               <p className="bd">{p.body}</p>
 
