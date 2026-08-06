@@ -391,3 +391,62 @@ ul.mine li > *{ position:relative; z-index:1; }
 .rule p{ font-size:14px; color:var(--acid-ink); line-height:1.55; }
 .rule p + p{ margin-top:9px; }
 .rule b{ font-family:'Permanent Marker',cursive; font-size:16px; font-weight:400; }
+
+/* =====================================================================
+   THE PLAYLIST (/songs)
+
+   Records on a shelf, not a feed. Each one is somebody's testimony, so
+   the title is the loud part and the person is the quiet part —
+   deliberately the opposite way round from the Wall, where the person
+   comes first.
+   ===================================================================== */
+ul.songs{ list-style:none; margin-bottom:24px; }
+.rec{
+  border:3px solid var(--x); background:var(--paper2);
+  box-shadow:5px 5px 0 var(--x); padding:12px 13px; margin-bottom:14px;
+}
+.rec.mine{ background:var(--acid); background-image:var(--wear);
+  background-size:240px; background-blend-mode:screen; }
+
+.rechead{ margin-bottom:9px; }
+.rtitle{
+  display:block; font-family:'Anton',Impact,sans-serif; font-size:19px;
+  text-transform:uppercase; color:var(--x); line-height:1.1;
+  overflow-wrap:anywhere;
+}
+.rwho2{
+  display:block; font-family:'Courier Prime',monospace; font-size:9.5px;
+  letter-spacing:.12em; text-transform:uppercase; color:var(--soft); margin-top:4px;
+}
+.rec.mine .rwho2{ color:#3A4200; }
+
+.recfoot{ display:flex; align-items:center; gap:14px; flex-wrap:wrap;
+  border-top:2px solid var(--x); padding-top:9px; }
+.play{
+  background:var(--x); color:var(--acid); border:none; cursor:pointer;
+  font-family:'Anton',Impact,sans-serif; font-size:14px; letter-spacing:.05em;
+  text-transform:uppercase; padding:7px 13px;
+}
+.play:hover{ background:var(--acid); color:var(--acid-ink);
+  box-shadow:inset 0 0 0 3px var(--x); }
+.play:focus-visible{ outline:3px solid var(--x); outline-offset:3px; }
+.opento, .noembed{
+  font-family:'Courier Prime',monospace; font-size:10px; font-weight:700;
+  letter-spacing:.06em; text-transform:uppercase; color:var(--soft);
+}
+.opento{ text-decoration:underline; text-underline-offset:3px; }
+.opento:hover{ color:var(--x); }
+
+/* the service's own player, dropped in only after a tap */
+.player{
+  width:100%; height:152px; border:3px solid var(--x); background:var(--x);
+  display:block;
+}
+
+/* the way to the playlist from the Wall */
+.mast .songlink{
+  color:var(--acid); text-decoration:none; font-size:17px; line-height:1;
+  padding:3px 6px; flex-shrink:0;
+}
+.mast .songlink:hover{ background:var(--acid); color:var(--x); }
+.mast .songlink:focus-visible{ outline:3px solid var(--acid); outline-offset:2px; }
