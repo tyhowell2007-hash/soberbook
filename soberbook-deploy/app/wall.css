@@ -308,3 +308,57 @@ ul.mine li > *{ position:relative; z-index:1; }
 .item.poster .heart{ color:#3A4200; }
 .item.poster .heart:hover{ color:var(--acid-ink); }
 .item.poster .heart.on{ background:var(--acid-ink); color:var(--acid); }
+
+/* =====================================================================
+   THE ⋯ MENU — report and block
+
+   Reuses .sheetwrap / .scrim / .thread from the thread panel, so it slides
+   up from the same place and feels like the same object. Only the body
+   differs.
+   ===================================================================== */
+.dots{
+  margin-left:auto; background:none; border:none; cursor:pointer;
+  font-family:'Anton',Impact,sans-serif; font-size:16px; line-height:1;
+  color:var(--soft); padding:0 2px 4px; letter-spacing:.08em;
+}
+.dots:hover{ color:var(--x); }
+.dots:focus-visible{ outline:3px solid var(--x); outline-offset:3px; }
+.item.poster .dots{ color:#3A4200; }
+.item.poster .dots:hover{ color:var(--acid-ink); }
+
+/* the sheet is shorter than a thread — let it size to its content */
+.thread.menu{ max-height:none; }
+.menubody{ padding:14px 13px 18px; }
+
+/* each choice is a whole tappable block, not a line of text. On a phone,
+   in a moment someone is upset, the target should be impossible to miss. */
+.mrow{
+  display:block; width:100%; text-align:left; background:var(--paper2);
+  border:3px solid var(--x); box-shadow:4px 4px 0 var(--x);
+  padding:13px; margin-bottom:12px; cursor:pointer; font:inherit;
+  color:var(--body);
+}
+.mrow:hover{ background:var(--acid); }
+.mrow:focus-visible{ outline:4px solid var(--x); outline-offset:4px; }
+.mrow[disabled]{ opacity:.55; cursor:default; }
+.mrow.danger{ background:var(--paper); }
+.mrow.danger:hover{ background:#FFF1E7; border-color:#9A3412; }
+.mt2{
+  display:block; font-family:'Anton',Impact,sans-serif; font-size:17px;
+  text-transform:uppercase; color:var(--x); letter-spacing:.01em;
+}
+.md{ display:block; font-size:13px; margin-top:5px; color:var(--body); }
+
+.mnote{
+  font-family:'Courier Prime',monospace; font-size:13px; line-height:1.65;
+  color:var(--body); border-left:5px solid var(--x); padding:2px 0 2px 12px;
+  margin-bottom:16px;
+}
+.mnote.soft{ color:var(--soft); border-left-color:var(--line); }
+.mnote b{ font-size:15px; color:var(--x); }
+
+.back2{
+  display:block; margin:4px auto 0; background:none; border:none; cursor:pointer;
+  font-family:'Courier Prime',monospace; font-size:12px; color:var(--soft);
+  text-decoration:underline; text-underline-offset:3px; padding:8px;
+}
