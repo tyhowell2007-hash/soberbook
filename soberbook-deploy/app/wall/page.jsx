@@ -30,6 +30,10 @@ export default async function WallPage() {
     <>
       <div className="mast">
         <span className="lg">🌱 SOBER BOOK</span>
+        {/* The playlist has to be reachable from the Wall or it may as well
+            not exist — "add your song" is the low-stakes first thing a new
+            member can do, and it's buried if it only lives on /me. */}
+        <Link href="/songs" className="songlink" aria-label="The playlist">♫</Link>
         {/* The day count was already here doing nothing. Making it the way
             into your own page means no new chrome on the masthead — the
             thing you look at anyway becomes the thing you tap. */}
