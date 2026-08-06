@@ -25,6 +25,8 @@ export default function Me({ email, profile, posts }) {
 
   const [privacy, setPrivacy] = useState(profile.privacy_mode);
   const [since, setSince] = useState(profile.sober_since || '');
+  const [song, setSong] = useState(profile.anthem_url || '');
+  const [songTitle, setSongTitle] = useState(profile.anthem_title || '');
   const [note, setNote] = useState('');       // the one status line, shared
   const [err, setErr] = useState('');
   const [busy, setBusy] = useState(false);
@@ -49,7 +51,25 @@ export default function Me({ email, profile, posts }) {
       setNote(said);
       router.refresh();          // so the Wall picks the change up
     } catch (e) {
-      setErr(e.message);
+      /* Translate the database's words into a person's.
+
+         A constraint violation reads like
+           new row violates check constraint "anthem_url_shape"
+         which tells a member nothing and looks like the app broke. The
+         check is doing exactly its job; it just doesn't speak English.
+
+         Same principle as the block-RPC leak on Aug 6, pointed the other
+         way: an error message is an output channel, so decide what it
+         says instead of letting Postgres decide for you. */
+      const m = String(e.message || '');
+      if (m.includes('anthem_url_shape')) {
+        setErr('That link isn’t one we can play. Use a share link from '
+             + 'Spotify, YouTube or Apple Music — it should start with https://');
+      } else if (m.includes('anthem_title_len')) {
+        setErr('That title is a bit long — 120 characters or fewer.');
+      } else {
+        setErr(m);
+      }
     } finally {
       setBusy(false);
     }
@@ -132,6 +152,37 @@ export default function Me({ email, profile, posts }) {
                 onClick={() => save({ sober_since: since || null },
                                      since ? 'Date saved.' : 'Date cleared.')}>
           {busy ? 'Saving…' : 'Save date'}
+        </button>
+
+        {/* ---- your song ---- */}
+        <h2 className="sec">Your song</h2>
+        <p className="hint" style={{ marginTop: 0 }}>
+          The one that got you through. It goes on the shared playlist with
+          everyone else&apos;s — <Link href="/songs">have a look</Link>.
+        </p>
+
+        <label htmlFor="su">Link from Spotify, YouTube or Apple Music</label>
+        <input id="su" type="text" value={song} disabled={busy} inputMode="url"
+               autoComplete="off" spellCheck={false}
+               onChange={(e) => setSong(e.target.value.trim())}
+               placeholder="https://open.spotify.com/track/…" />
+        <p className="hint">
+          Paste the share link. We never upload or store the audio itself —
+          it plays from the service, under their licence.
+        </p>
+
+        <label htmlFor="st">What is it?</label>
+        <input id="st" type="text" value={songTitle} maxLength={120} disabled={busy}
+               onChange={(e) => setSongTitle(e.target.value)}
+               placeholder="Alive — P.O.D." />
+
+        <button className="btn" type="button"
+                disabled={busy || (song === (profile.anthem_url || '')
+                                && songTitle === (profile.anthem_title || ''))}
+                onClick={() => save(
+                  { anthem_url: song || null, anthem_title: songTitle.trim() || null },
+                  song ? 'Song saved. It’s on the playlist.' : 'Song removed.')}>
+          {busy ? 'Saving…' : 'Save song'}
         </button>
 
         {note && <div className="ok">{note}</div>}
