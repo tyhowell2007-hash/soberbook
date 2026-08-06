@@ -392,56 +392,89 @@ ul.mine li > *{ position:relative; z-index:1; }
 .rule p + p{ margin-top:9px; }
 .rule b{ font-family:'Permanent Marker',cursive; font-size:16px; font-weight:400; }
 
-/* =====================================================================
+
+/* ====================================================================
    THE PLAYLIST (/songs)
 
-   Records on a shelf, not a feed. Each one is somebody's testimony, so
-   the title is the loud part and the person is the quiet part —
-   deliberately the opposite way round from the Wall, where the person
-   comes first.
+   A deck, not a list. Each card is somebody's testimony, so the artwork
+   is the loud part and the person is the quiet part — the opposite way
+   round from the Wall, where the person comes first.
    ===================================================================== */
 ul.songs{ list-style:none; margin-bottom:24px; }
 .rec{
-  border:3px solid var(--x); background:var(--paper2);
-  box-shadow:5px 5px 0 var(--x); padding:12px 13px; margin-bottom:14px;
+  border:4px solid var(--x); background:var(--x);
+  box-shadow:6px 6px 0 var(--x); margin-bottom:16px; overflow:hidden;
 }
-.rec.mine{ background:var(--acid); background-image:var(--wear);
-  background-size:240px; background-blend-mode:screen; }
 
-.rechead{ margin-bottom:9px; }
+/* the tappable face of the record */
+.deck{
+  display:flex; align-items:center; gap:12px; width:100%;
+  background:var(--x); border:none; cursor:pointer;
+  padding:16px 14px; min-height:96px;
+}
+.deck[disabled]{ cursor:default; opacity:.6; }
+.deck:focus-visible{ outline:4px solid var(--acid); outline-offset:-4px; }
+.cue{
+  flex-shrink:0; width:40px; height:40px; border-radius:50%;
+  background:var(--acid); color:var(--acid-ink);
+  display:flex; align-items:center; justify-content:center;
+  font-size:16px; line-height:1; padding-left:3px;
+}
+.deck:hover .cue{ background:#fff; }
+.rec.mine .cue{ background:#fff; }
+
+/* the waveform — a signature drawn from the title, not real analysis */
+.wave{
+  flex:1; display:flex; align-items:center; gap:2px; height:56px; min-width:0;
+}
+.bar2{
+  flex:1; min-width:2px; border-radius:1px;
+  background:var(--acid); opacity:.55;
+}
+.deck:hover .bar2{ opacity:.9; }
+.rec.mine .bar2{ opacity:.85; }
+
+.recmeta{ background:var(--paper2); padding:10px 13px 11px; border-top:4px solid var(--x); }
+.rec.mine .recmeta{ background:var(--acid); background-image:var(--wear);
+  background-size:240px; background-blend-mode:screen; }
 .rtitle{
   display:block; font-family:'Anton',Impact,sans-serif; font-size:19px;
   text-transform:uppercase; color:var(--x); line-height:1.1;
   overflow-wrap:anywhere;
 }
 .rwho2{
-  display:block; font-family:'Courier Prime',monospace; font-size:9.5px;
-  letter-spacing:.12em; text-transform:uppercase; color:var(--soft); margin-top:4px;
+  display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+  font-family:'Courier Prime',monospace; font-size:9.5px;
+  letter-spacing:.12em; text-transform:uppercase; color:var(--soft); margin-top:5px;
 }
 .rec.mine .rwho2{ color:#3A4200; }
-
-.recfoot{ display:flex; align-items:center; gap:14px; flex-wrap:wrap;
-  border-top:2px solid var(--x); padding-top:9px; }
-.play{
-  background:var(--x); color:var(--acid); border:none; cursor:pointer;
-  font-family:'Anton',Impact,sans-serif; font-size:14px; letter-spacing:.05em;
-  text-transform:uppercase; padding:7px 13px;
-}
-.play:hover{ background:var(--acid); color:var(--acid-ink);
-  box-shadow:inset 0 0 0 3px var(--x); }
-.play:focus-visible{ outline:3px solid var(--x); outline-offset:3px; }
-.opento, .noembed{
-  font-family:'Courier Prime',monospace; font-size:10px; font-weight:700;
-  letter-spacing:.06em; text-transform:uppercase; color:var(--soft);
-}
-.opento{ text-decoration:underline; text-underline-offset:3px; }
+.opento{ margin-left:auto; text-decoration:underline; text-underline-offset:3px;
+  color:inherit; }
 .opento:hover{ color:var(--x); }
 
-/* the service's own player, dropped in only after a tap */
-.player{
-  width:100%; height:152px; border:3px solid var(--x); background:var(--x);
-  display:block;
+/* while it's playing */
+.nowplaying{
+  font-family:'Courier Prime',monospace; font-size:10px; font-weight:700;
+  letter-spacing:.12em; text-transform:uppercase; color:var(--acid);
+  padding:11px 13px 9px; display:flex; align-items:center; gap:8px;
+  overflow-wrap:anywhere;
 }
+.npdot{
+  width:8px; height:8px; border-radius:50%; background:var(--acid);
+  flex-shrink:0; animation:pulse 1.4s ease-in-out infinite;
+}
+@keyframes pulse{ 0%,100%{ opacity:1; } 50%{ opacity:.25; } }
+/* someone who has asked for less motion should not get a blinking dot */
+@media (prefers-reduced-motion: reduce){ .npdot{ animation:none; } }
+
+.player{ width:100%; height:152px; border:none; display:block; }
+.stopit{
+  display:block; width:100%; background:var(--x); color:var(--soft); border:none;
+  border-top:2px solid var(--soft); cursor:pointer; padding:9px;
+  font-family:'Courier Prime',monospace; font-size:10px; font-weight:700;
+  letter-spacing:.1em; text-transform:uppercase;
+}
+.stopit:hover{ color:var(--acid); }
 
 /* the way to the playlist from the Wall */
 .mast .songlink{
