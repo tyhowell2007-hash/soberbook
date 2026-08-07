@@ -25,7 +25,7 @@ export function browserClient() {
    fails rather than silently leaking. This exists so the rule is visible
    at the call site too.
    ===================================================================== */
-export const READABLE_VIEWS = ['feed_posts', 'feed_comments'];
+export const READABLE_VIEWS = ['feed_posts', 'feed_comments', 'public_profiles'];
 
 export function assertReadable(name) {
   if (!READABLE_VIEWS.includes(name)) {
