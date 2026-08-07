@@ -30,10 +30,13 @@ export default async function WallPage() {
     <>
       <div className="mast">
         <span className="lg">🌱 SOBER BOOK</span>
-        {/* The playlist has to be reachable from the Wall or it may as well
-            not exist — "add your song" is the low-stakes first thing a new
-            member can do, and it's buried if it only lives on /me. */}
-        <Link href="/songs" className="songlink" aria-label="The playlist">♫</Link>
+        {/* The ♫ used to open a shared playlist — a page listing everyone's
+            song. That was the wrong container: a song isn't a row in a
+            directory, it's what's playing when you walk into someone's
+            room. So it now opens YOUR page, where your song lives, and
+            everyone else's lives on theirs. */}
+        <Link href={`/u/${profile.handle}`} className="songlink"
+              aria-label="Your page">♫</Link>
         {/* The day count was already here doing nothing. Making it the way
             into your own page means no new chrome on the masthead — the
             thing you look at anyway becomes the thing you tap. */}
