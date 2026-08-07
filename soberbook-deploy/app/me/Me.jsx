@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { browserClient } from '../../lib/supabase-browser';
+import SongPicker from './SongPicker';
 
 function days(since) {
   if (!since) return null;
@@ -25,8 +26,15 @@ export default function Me({ email, profile, posts }) {
 
   const [privacy, setPrivacy] = useState(profile.privacy_mode);
   const [since, setSince] = useState(profile.sober_since || '');
-  const [song, setSong] = useState(profile.anthem_url || '');
-  const [songTitle, setSongTitle] = useState(profile.anthem_title || '');
+  /* The whole song, as one object. It used to be two loose strings the
+     member had to fill in by hand; now the search hands back all four
+     fields at once and this just holds them until Save. */
+  const [song, setSong] = useState({
+    anthem_url: profile.anthem_url || null,
+    anthem_title: profile.anthem_title || null,
+    anthem_art: profile.anthem_art || null,
+    anthem_preview: profile.anthem_preview || null,
+  });
   const [note, setNote] = useState('');       // the one status line, shared
   const [err, setErr] = useState('');
   const [busy, setBusy] = useState(false);
@@ -177,29 +185,22 @@ export default function Me({ email, profile, posts }) {
           everyone else&apos;s — <Link href="/songs">have a look</Link>.
         </p>
 
-        <label htmlFor="su">Link from Spotify, YouTube or Apple Music</label>
-        <input id="su" type="text" value={song} disabled={busy} inputMode="url"
-               autoComplete="off" spellCheck={false}
-               onChange={(e) => setSong(e.target.value.trim())}
-               placeholder="https://open.spotify.com/track/…" />
-        <p className="hint">
-          Paste the share link. We never upload or store the audio itself —
-          it plays from the service, under their licence.
-        </p>
-
-        <label htmlFor="st">What is it?</label>
-        <input id="st" type="text" value={songTitle} maxLength={120} disabled={busy}
-               onChange={(e) => setSongTitle(e.target.value)}
-               placeholder="Alive — P.O.D." />
+        <SongPicker value={song} onPick={setSong} disabled={busy} />
 
         <button className="btn" type="button"
-                disabled={busy || (song === (profile.anthem_url || '')
-                                && songTitle === (profile.anthem_title || ''))}
-                onClick={() => save(
-                  { anthem_url: song || null, anthem_title: songTitle.trim() || null },
-                  song ? 'Song saved. It’s on the playlist.' : 'Song removed.')}>
+                disabled={busy || song.anthem_url === (profile.anthem_url || null)}
+                onClick={() => save(song, song.anthem_url
+                  ? 'Song saved. It\u2019s on the playlist.' : 'Song removed.')}>
           {busy ? 'Saving…' : 'Save song'}
         </button>
+
+        {song.anthem_url && (
+          <button className="nvm" type="button" disabled={busy}
+                  onClick={() => setSong({ anthem_url: null, anthem_title: null,
+                                           anthem_art: null, anthem_preview: null })}>
+            take my song off the playlist
+          </button>
+        )}
 
         {note && <div className="ok">{note}</div>}
         {err && <div className="err">{err}</div>}
