@@ -392,89 +392,106 @@ ul.mine li > *{ position:relative; z-index:1; }
 .rule p + p{ margin-top:9px; }
 .rule b{ font-family:'Permanent Marker',cursive; font-size:16px; font-weight:400; }
 
-
-/* ====================================================================
-   THE PLAYLIST (/songs)
-
-   A deck, not a list. Each card is somebody's testimony, so the artwork
-   is the loud part and the person is the quiet part — the opposite way
-   round from the Wall, where the person comes first.
+/* =====================================================================
+   THE PLAYLIST (/songs)  — records, with real artwork where we have it
    ===================================================================== */
 ul.songs{ list-style:none; margin-bottom:24px; }
 .rec{
-  border:4px solid var(--x); background:var(--x);
-  box-shadow:6px 6px 0 var(--x); margin-bottom:16px; overflow:hidden;
+  border:4px solid var(--x); background:var(--paper2);
+  box-shadow:6px 6px 0 var(--x); margin-bottom:14px; overflow:hidden;
 }
+.rec.mine{ background:var(--acid); background-image:var(--wear);
+  background-size:240px; background-blend-mode:screen; }
+.rec.on{ box-shadow:6px 6px 0 var(--acid); }
 
-/* the tappable face of the record */
-.deck{
-  display:flex; align-items:center; gap:12px; width:100%;
-  background:var(--x); border:none; cursor:pointer;
-  padding:16px 14px; min-height:96px;
+.recrow{ display:flex; align-items:stretch; gap:0; }
+
+/* the sleeve — artwork if we have it, the drawn shape if we don't */
+.art{
+  position:relative; flex-shrink:0; width:96px; height:96px;
+  border:none; border-right:4px solid var(--x); background:var(--x);
+  padding:0; cursor:pointer; overflow:hidden;
 }
-.deck[disabled]{ cursor:default; opacity:.6; }
-.deck:focus-visible{ outline:4px solid var(--acid); outline-offset:-4px; }
+.art img{ width:100%; height:100%; object-fit:cover; display:block; }
+.art.noplay{ cursor:default; }
+.art:focus-visible{ outline:4px solid var(--acid); outline-offset:-4px; }
+.art .wave{
+  display:flex; align-items:center; gap:2px; height:100%; padding:0 8px;
+}
+.art .bar2{ flex:1; min-width:2px; background:var(--acid); opacity:.6; border-radius:1px; }
+
+/* the play badge, sitting on the corner of the sleeve */
 .cue{
-  flex-shrink:0; width:40px; height:40px; border-radius:50%;
+  position:absolute; right:5px; bottom:5px;
+  width:30px; height:30px; border-radius:50%;
   background:var(--acid); color:var(--acid-ink);
   display:flex; align-items:center; justify-content:center;
-  font-size:16px; line-height:1; padding-left:3px;
+  font-size:12px; line-height:1; letter-spacing:-1px;
+  box-shadow:0 0 0 2px var(--x);
 }
-.deck:hover .cue{ background:#fff; }
-.rec.mine .cue{ background:#fff; }
+.art:hover .cue{ background:#fff; }
 
-/* the waveform — a signature drawn from the title, not real analysis */
-.wave{
-  flex:1; display:flex; align-items:center; gap:2px; height:56px; min-width:0;
-}
-.bar2{
-  flex:1; min-width:2px; border-radius:1px;
-  background:var(--acid); opacity:.55;
-}
-.deck:hover .bar2{ opacity:.9; }
-.rec.mine .bar2{ opacity:.85; }
-
-.recmeta{ background:var(--paper2); padding:10px 13px 11px; border-top:4px solid var(--x); }
-.rec.mine .recmeta{ background:var(--acid); background-image:var(--wear);
-  background-size:240px; background-blend-mode:screen; }
+.recmeta{ flex:1; min-width:0; padding:10px 12px; display:flex;
+  flex-direction:column; justify-content:center; gap:3px; }
 .rtitle{
-  display:block; font-family:'Anton',Impact,sans-serif; font-size:19px;
-  text-transform:uppercase; color:var(--x); line-height:1.1;
-  overflow-wrap:anywhere;
+  font-family:'Anton',Impact,sans-serif; font-size:17px; line-height:1.12;
+  text-transform:uppercase; color:var(--x); overflow-wrap:anywhere;
 }
 .rwho2{
-  display:flex; align-items:center; gap:10px; flex-wrap:wrap;
-  font-family:'Courier Prime',monospace; font-size:9.5px;
-  letter-spacing:.12em; text-transform:uppercase; color:var(--soft); margin-top:5px;
+  font-family:'Courier Prime',monospace; font-size:9.5px; letter-spacing:.12em;
+  text-transform:uppercase; color:var(--soft);
 }
 .rec.mine .rwho2{ color:#3A4200; }
-.opento{ margin-left:auto; text-decoration:underline; text-underline-offset:3px;
-  color:inherit; }
+.opento{
+  font-family:'Courier Prime',monospace; font-size:9.5px; letter-spacing:.06em;
+  text-transform:uppercase; color:var(--soft);
+  text-decoration:underline; text-underline-offset:3px; margin-top:2px;
+}
 .opento:hover{ color:var(--x); }
+.rec.mine .opento{ color:#3A4200; }
 
-/* while it's playing */
-.nowplaying{
-  font-family:'Courier Prime',monospace; font-size:10px; font-weight:700;
-  letter-spacing:.12em; text-transform:uppercase; color:var(--acid);
-  padding:11px 13px 9px; display:flex; align-items:center; gap:8px;
-  overflow-wrap:anywhere;
-}
-.npdot{
-  width:8px; height:8px; border-radius:50%; background:var(--acid);
-  flex-shrink:0; animation:pulse 1.4s ease-in-out infinite;
-}
-@keyframes pulse{ 0%,100%{ opacity:1; } 50%{ opacity:.25; } }
-/* someone who has asked for less motion should not get a blinking dot */
-@media (prefers-reduced-motion: reduce){ .npdot{ animation:none; } }
+/* the 30 seconds, running */
+.prog{ height:6px; background:var(--x); }
+.prog span{ display:block; height:100%; background:var(--acid); transition:width .25s linear; }
 
-.player{ width:100%; height:152px; border:none; display:block; }
-.stopit{
-  display:block; width:100%; background:var(--x); color:var(--soft); border:none;
-  border-top:2px solid var(--soft); cursor:pointer; padding:9px;
-  font-family:'Courier Prime',monospace; font-size:10px; font-weight:700;
-  letter-spacing:.1em; text-transform:uppercase;
+/* ---- the picker on /me ---- */
+ul.hits{ list-style:none; margin:4px 0 6px; }
+ul.hits li{ margin-bottom:8px; }
+.hit{
+  display:flex; align-items:center; gap:11px; width:100%; text-align:left;
+  background:var(--paper2); border:3px solid var(--x); box-shadow:3px 3px 0 var(--x);
+  padding:8px; cursor:pointer; font:inherit; color:var(--body);
 }
-.stopit:hover{ color:var(--acid); }
+.hit:hover{ background:var(--acid); }
+.hit:focus-visible{ outline:4px solid var(--x); outline-offset:3px; }
+.hit img{ flex-shrink:0; width:48px; height:48px; display:block; border:2px solid var(--x); }
+.hitmeta{ min-width:0; }
+.hittitle{
+  display:block; font-family:'Anton',Impact,sans-serif; font-size:15px;
+  text-transform:uppercase; color:var(--x); line-height:1.15; overflow-wrap:anywhere;
+}
+.hitartist{
+  display:block; font-family:'Courier Prime',monospace; font-size:10px;
+  letter-spacing:.08em; text-transform:uppercase; color:var(--soft); margin-top:2px;
+}
+
+.picked{
+  display:flex; align-items:center; gap:12px; margin-top:14px;
+  border:4px solid var(--x); background:var(--acid); background-image:var(--wear);
+  background-size:240px; background-blend-mode:screen;
+  box-shadow:5px 5px 0 var(--x); padding:10px;
+}
+.picked img{ flex-shrink:0; width:56px; height:56px; display:block; border:3px solid var(--x); }
+.pickedmeta{ min-width:0; }
+.pickedlab{
+  display:block; font-family:'Courier Prime',monospace; font-size:9.5px;
+  font-weight:700; letter-spacing:.16em; text-transform:uppercase; color:#3A4200;
+}
+.pickedtitle{
+  display:block; font-family:'Anton',Impact,sans-serif; font-size:17px;
+  text-transform:uppercase; color:var(--acid-ink); line-height:1.15;
+  overflow-wrap:anywhere; margin-top:3px;
+}
 
 /* the way to the playlist from the Wall */
 .mast .songlink{
