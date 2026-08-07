@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { browserClient } from '../../lib/supabase-browser';
 import SongPicker from './SongPicker';
+import SongPlayer from '../components/SongPlayer';
 
 function days(since) {
   if (!since) return null;
@@ -181,16 +182,27 @@ export default function Me({ email, profile, posts }) {
         {/* ---- your song ---- */}
         <h2 className="sec">Your song</h2>
         <p className="hint" style={{ marginTop: 0 }}>
-          The one that got you through. It goes on the shared playlist with
-          everyone else&apos;s — <Link href="/songs">have a look</Link>.
+          The one that got you through. It plays on your page —{' '}
+          <Link href={`/u/${profile.handle}`}>see how it looks</Link>.
         </p>
 
         <SongPicker value={song} onPick={setSong} disabled={busy} />
 
+        {/* Hear it before you commit to it.
+
+            `key` forces a brand-new player whenever the pick changes.
+            Without it React reuses the same <audio> element, and the
+            audio pipeline is built ONCE per element — so the old preview
+            would keep playing underneath the new artwork. The props
+            moved; the wiring didn't. */}
+        {song.anthem_preview && (
+          <SongPlayer key={song.anthem_preview} song={song} whose="preview" />
+        )}
+
         <button className="btn" type="button"
                 disabled={busy || song.anthem_url === (profile.anthem_url || null)}
                 onClick={() => save(song, song.anthem_url
-                  ? 'Song saved. It\u2019s on the playlist.' : 'Song removed.')}>
+                  ? 'Song saved. It\u2019s on your page now.' : 'Song removed.')}>
           {busy ? 'Saving…' : 'Save song'}
         </button>
 
@@ -198,7 +210,7 @@ export default function Me({ email, profile, posts }) {
           <button className="nvm" type="button" disabled={busy}
                   onClick={() => setSong({ anthem_url: null, anthem_title: null,
                                            anthem_art: null, anthem_preview: null })}>
-            take my song off the playlist
+            take my song off my page
           </button>
         )}
 
