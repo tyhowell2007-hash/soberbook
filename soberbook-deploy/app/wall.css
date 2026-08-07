@@ -392,67 +392,133 @@ ul.mine li > *{ position:relative; z-index:1; }
 .rule p + p{ margin-top:9px; }
 .rule b{ font-family:'Permanent Marker',cursive; font-size:16px; font-weight:400; }
 
+
 /* =====================================================================
-   THE PLAYLIST (/songs)  — records, with real artwork where we have it
+   SOMEBODY'S PAGE  (/u/<handle>)  and THE PLAYER
+
+   Replaces the shared playlist. A song is not a row in a directory —
+   it's what's playing when you walk into someone's room.
    ===================================================================== */
-ul.songs{ list-style:none; margin-bottom:24px; }
-.rec{
+
+/* who it is */
+.pcard{
+  display:flex; align-items:center; gap:14px;
   border:4px solid var(--x); background:var(--paper2);
-  box-shadow:6px 6px 0 var(--x); margin-bottom:14px; overflow:hidden;
+  box-shadow:6px 6px 0 var(--x); padding:14px; margin-bottom:20px;
+  transform:rotate(-.5deg);
 }
-.rec.mine{ background:var(--acid); background-image:var(--wear);
-  background-size:240px; background-blend-mode:screen; }
-.rec.on{ box-shadow:6px 6px 0 var(--acid); }
-
-.recrow{ display:flex; align-items:stretch; gap:0; }
-
-/* the sleeve — artwork if we have it, the drawn shape if we don't */
-.art{
-  position:relative; flex-shrink:0; width:96px; height:96px;
-  border:none; border-right:4px solid var(--x); background:var(--x);
-  padding:0; cursor:pointer; overflow:hidden;
+.pav{
+  flex-shrink:0; width:60px; height:60px; display:flex;
+  align-items:center; justify-content:center; font-size:30px; line-height:1;
+  border:3px solid var(--x); background:var(--acid);
+  background-image:var(--wear); background-size:240px; background-blend-mode:screen;
 }
-.art img{ width:100%; height:100%; object-fit:cover; display:block; }
-.art.noplay{ cursor:default; }
-.art:focus-visible{ outline:4px solid var(--acid); outline-offset:-4px; }
-.art .wave{
-  display:flex; align-items:center; gap:2px; height:100%; padding:0 8px;
+.pwho{ min-width:0; }
+.pname{
+  display:block; font-family:'Anton',Impact,sans-serif; font-size:24px;
+  text-transform:uppercase; color:var(--x); line-height:1.05; overflow-wrap:anywhere;
 }
-.art .bar2{ flex:1; min-width:2px; background:var(--acid); opacity:.6; border-radius:1px; }
+.phandle{
+  display:block; font-family:'Courier Prime',monospace; font-size:10px;
+  letter-spacing:.14em; text-transform:uppercase; color:var(--soft); margin-top:4px;
+}
 
-/* the play badge, sitting on the corner of the sleeve */
-.cue{
-  position:absolute; right:5px; bottom:5px;
-  width:30px; height:30px; border-radius:50%;
-  background:var(--acid); color:var(--acid-ink);
+/* the day count, quieter than the one on your own page — this is
+   somebody else's number and it isn't the headline of their page */
+.count.small{ padding:14px; margin-bottom:22px; transform:rotate(.5deg); }
+.count.small .cn{ font-size:44px; }
+
+/* the name on a post, now a door. Underlined rather than coloured:
+   acid on paper is 1.2:1 and invisible, same rule as the hearts. */
+.wholink{
+  color:inherit; text-decoration:underline; text-underline-offset:3px;
+  text-decoration-thickness:2px; text-decoration-color:var(--line);
+}
+.wholink:hover{ text-decoration-color:var(--x); }
+.wholink:focus-visible{ outline:3px solid var(--x); outline-offset:3px; }
+.item.poster .wholink{ text-decoration-color:rgba(20,24,0,.4); }
+
+/* ---------------------------------------------------------------------
+   THE PLAYER
+   --------------------------------------------------------------------- */
+.player{
+  border:4px solid var(--x); background:var(--paper2);
+  box-shadow:6px 6px 0 var(--x); padding:13px; margin-top:6px;
+}
+/* while it's playing the whole slab lifts — the shadow goes acid.
+   Cheap, and it makes the page feel like it's doing something. */
+.player.live{ box-shadow:6px 6px 0 var(--acid); }
+
+.pltop{ display:flex; align-items:center; gap:13px; }
+.plart{
+  flex-shrink:0; width:76px; height:76px; display:block;
+  border:3px solid var(--x); object-fit:cover;
+}
+.player.big .plart{ width:96px; height:96px; }
+.plnone{
   display:flex; align-items:center; justify-content:center;
-  font-size:12px; line-height:1; letter-spacing:-1px;
-  box-shadow:0 0 0 2px var(--x);
+  background:var(--x); color:var(--acid); font-size:30px;
 }
-.art:hover .cue{ background:#fff; }
-
-.recmeta{ flex:1; min-width:0; padding:10px 12px; display:flex;
-  flex-direction:column; justify-content:center; gap:3px; }
-.rtitle{
-  font-family:'Anton',Impact,sans-serif; font-size:17px; line-height:1.12;
+.plmeta{ min-width:0; display:flex; flex-direction:column; gap:2px; }
+.pllab{
+  font-family:'Courier Prime',monospace; font-size:9px; font-weight:700;
+  letter-spacing:.16em; text-transform:uppercase; color:var(--soft);
+}
+.pltitle{
+  font-family:'Anton',Impact,sans-serif; font-size:18px; line-height:1.12;
   text-transform:uppercase; color:var(--x); overflow-wrap:anywhere;
 }
-.rwho2{
-  font-family:'Courier Prime',monospace; font-size:9.5px; letter-spacing:.12em;
-  text-transform:uppercase; color:var(--soft);
-}
-.rec.mine .rwho2{ color:#3A4200; }
-.opento{
+.player.big .pltitle{ font-size:21px; }
+.plout{
   font-family:'Courier Prime',monospace; font-size:9.5px; letter-spacing:.06em;
   text-transform:uppercase; color:var(--soft);
-  text-decoration:underline; text-underline-offset:3px; margin-top:2px;
+  text-decoration:underline; text-underline-offset:3px; margin-top:3px;
 }
-.opento:hover{ color:var(--x); }
-.rec.mine .opento{ color:#3A4200; }
+.plout:hover{ color:var(--x); }
 
-/* the 30 seconds, running */
-.prog{ height:6px; background:var(--x); }
-.prog span{ display:block; height:100%; background:var(--acid); transition:width .25s linear; }
+/* THE SOUND WAVES. Black trough, acid bars. Heights are written straight
+   onto these nodes by requestAnimationFrame — no transition, because a
+   transition would smear 60 frames a second into mush. The smoothing
+   that makes it readable happens in the analyser instead. */
+.waves{
+  display:flex; align-items:flex-end; gap:2px;
+  height:56px; margin-top:12px; padding:5px 7px;
+  background:var(--x); overflow:hidden;
+}
+.player.big .waves{ height:74px; }
+.wv{
+  flex:1; min-width:2px; height:6%;
+  background:var(--acid); border-radius:1px 1px 0 0;
+  opacity:.45;
+}
+.player.live .wv{ opacity:1; }
+
+.plbar{ display:flex; align-items:center; gap:11px; margin-top:11px; }
+.plbtn{
+  flex-shrink:0; background:var(--x); color:var(--acid); border:none;
+  padding:10px 15px; cursor:pointer;
+  font-family:'Anton',Impact,sans-serif; font-size:15px;
+  text-transform:uppercase; letter-spacing:.05em; white-space:nowrap;
+}
+.plbtn.on{ background:var(--acid); color:var(--acid-ink); box-shadow:inset 0 0 0 3px var(--x); }
+.plbtn[disabled]{ opacity:.45; cursor:default; }
+.plbtn:focus-visible{ outline:4px solid var(--x); outline-offset:3px; }
+
+.plprog{ flex:1; height:6px; background:var(--line); }
+.plprog span{ display:block; height:100%; background:var(--x); transition:width .25s linear; }
+
+.plnote{
+  font-family:'Courier Prime',monospace; font-size:10.5px; letter-spacing:.04em;
+  color:var(--soft); margin-top:9px; line-height:1.5;
+}
+
+/* the ♫ in the masthead — now the way to your own page */
+.mast .songlink{
+  color:var(--acid); text-decoration:none; font-size:17px; line-height:1;
+  padding:3px 6px; flex-shrink:0;
+}
+.mast .songlink:hover{ background:var(--acid); color:var(--x); }
+.mast .songlink:focus-visible{ outline:3px solid var(--acid); outline-offset:2px; }
 
 /* ---- the picker on /me ---- */
 ul.hits{ list-style:none; margin:4px 0 6px; }
@@ -493,10 +559,17 @@ ul.hits li{ margin-bottom:8px; }
   overflow-wrap:anywhere; margin-top:3px;
 }
 
-/* the way to the playlist from the Wall */
-.mast .songlink{
-  color:var(--acid); text-decoration:none; font-size:17px; line-height:1;
-  padding:3px 6px; flex-shrink:0;
+/* somebody who isn't there */
+.gone{ text-align:center; padding:52px 18px; }
+.gone .h{ font-family:'Permanent Marker',cursive; font-size:26px; color:var(--x); }
+.gone .p{
+  font-family:'Courier Prime',monospace; font-size:12.5px; color:var(--soft);
+  margin-top:10px; line-height:1.7;
 }
-.mast .songlink:hover{ background:var(--acid); color:var(--x); }
-.mast .songlink:focus-visible{ outline:3px solid var(--acid); outline-offset:2px; }
+
+/* Somebody with motion sensitivity should not get a strobe. The bars
+   still move — they're the point — but everything else stops. */
+@media (prefers-reduced-motion: reduce){
+  .plprog span{ transition:none; }
+  .pcard, .count.small{ transform:none; }
+}
