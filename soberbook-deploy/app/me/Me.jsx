@@ -35,18 +35,34 @@ export default function Me({ email, profile, posts }) {
   const d = days(since);
   const today = new Date().toISOString().slice(0, 10);
 
-  /* One save function for both settings instead of two nearly-identical
-     ones. `patch` is just an object of columns → new values, which is what
-     Supabase wants anyway.
+  /* One save function for every setting on this page. `patch` is just an
+     object of columns → new values.
 
-     Note there is no .eq('id', ...) here. There doesn't need to be: the RLS
-     policy on profiles already restricts every UPDATE to your own row. If I
-     added the filter it would be a comment, not a control — and the day I
-     mistyped it, the database would still be the thing saving me. */
+     ⚠️ THE .eq() IS NOT OPTIONAL, AND I LEARNED THAT THE HARD WAY.
+
+     I originally left it out and argued it was redundant: RLS already
+     restricts every UPDATE to your own row, so a filter would be a comment
+     rather than a control. That security reasoning is correct — and it is
+     also not the layer that matters here.
+
+     PostgREST refuses ANY update without a filter:
+
+         UPDATE requires a WHERE clause
+
+     It's a blanket guard against someone accidentally rewriting a whole
+     table, and it fires before your database rules ever get consulted. So
+     the save silently failed for two days: privacy toggle, sober date, and
+     song, all of them.
+
+     THE LESSON: "the database would stop it anyway" is an argument about
+     safety. It is not an argument about whether the request is well-formed.
+     Two different questions, two different layers, and being right about
+     one told me nothing about the other. */
   async function save(patch, said) {
     setErr(''); setNote(''); setBusy(true);
     try {
-      const { error } = await supabase.from('profiles').update(patch);
+      const { data: { user } } = await supabase.auth.getUser();
+      const { error } = await supabase.from('profiles').update(patch).eq('id', user.id);
       if (error) throw error;
       setNote(said);
       router.refresh();          // so the Wall picks the change up
