@@ -25,7 +25,7 @@ export default async function SongsPage() {
 
   const { data: songs, error } = await supabase
     .from('member_songs')
-    .select('display_name, anthem_url, anthem_title, is_mine, joined_at')
+    .select('display_name, anthem_url, anthem_title, anthem_art, anthem_preview, is_mine, joined_at')
     .order('joined_at', { ascending: true });
 
   if (error) {
