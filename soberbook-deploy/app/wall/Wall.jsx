@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { browserClient } from '../../lib/supabase-browser';
 import Thread from './Thread';
 import PostMenu from './PostMenu';
@@ -48,6 +49,31 @@ function unanswered(p) {
   return !p.milestone_days
     && p.comment_count === 0
     && Date.now() - new Date(p.created_at).getTime() > TWO_HOURS;
+}
+
+/* The name on a post, linked to that person's page — or NOT linked, which
+   is the part that matters.
+
+   `author_handle` comes out of feed_posts nulled on exactly the same
+   condition as author_id: anonymous post, no handle. So this function
+   cannot accidentally build a link to an anonymous author even if someone
+   later changes the markup around it — there is simply nothing to link
+   with.
+
+   Doing it the obvious way — linking `/u/${p.display_name}` — would have
+   been a disaster in two directions at once. For an anonymous post,
+   display_name is a per-thread alias, so the link would be broken AND
+   would announce that an alias maps to a real address. For an open member
+   it's their real name, which isn't their handle, so the link would 404
+   for everyone with a space in their name. The rule is: never build an
+   identity link out of a display string. */
+function who(p) {
+  if (!p.author_handle) return p.display_name;
+  return (
+    <Link href={`/u/${p.author_handle}`} className="wholink">
+      {p.display_name}
+    </Link>
+  );
 }
 
 export default function Wall({ initial }) {
@@ -167,10 +193,10 @@ export default function Wall({ initial }) {
               {w === 'poster' ? <span className="tape" /> : <span className="pin" />}
 
               <div className="nm">
-                {p.milestone_days ? `🏅 ${p.milestone_days} DAYS` : p.display_name}
+                {p.milestone_days ? `🏅 ${p.milestone_days} DAYS` : who(p)}
               </div>
               <div className="mt">
-                {p.milestone_days ? p.display_name + ' · ' : ''}{ago(p.created_at)}
+                {p.milestone_days ? <>{who(p)} · </> : null}{ago(p.created_at)}
                 {p.is_anonymous ? ' · anonymous' : ''}
               </div>
 
