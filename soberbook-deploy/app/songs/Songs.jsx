@@ -1,63 +1,29 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 
-/* Turn a pasted link into the service's own licensed embed.
-
-   WHY EMBEDS AND NOT AUDIO FILES: we never host or stream the track. The
-   iframe is Spotify's / YouTube's / Apple's own player, playing under
-   their licence, from their servers. Hosting the audio ourselves would be
-   a rights problem this project is in no position to have.
-
-   Returns null for anything unrecognised. The row still renders; it just
-   links out instead of embedding. Failing soft matters — a member pasting
-   an odd link should get a working row, not a broken screen. */
-function embedSrc(url) {
-  try {
-    const u = new URL(url);
-    if (u.hostname === 'open.spotify.com') return `https://open.spotify.com/embed${u.pathname}`;
-    if (u.hostname === 'youtu.be')         return `https://www.youtube.com/embed${u.pathname}`;
-    if (u.hostname.endsWith('youtube.com')) {
-      const v = u.searchParams.get('v');
-      return v ? `https://www.youtube.com/embed/${v}` : null;
-    }
-    if (u.hostname === 'music.apple.com')  return `https://embed.music.apple.com${u.pathname}${u.search}`;
-  } catch { /* not a URL we can parse */ }
-  return null;
-}
-
-function service(url) {
+function service(url = '') {
   if (url.includes('spotify')) return 'Spotify';
   if (url.includes('youtu'))   return 'YouTube';
   if (url.includes('apple'))   return 'Apple Music';
-  return 'link';
+  return 'the service';
 }
 
-/* The waveform.
+/* The fallback shape, for songs added by pasting a link before the search
+   existed — those have no artwork.
 
-   ⚠️ BE HONEST ABOUT WHAT THIS IS. It is NOT the real waveform of the
-   track — it can't be. Reading a real waveform means having the audio
-   file, and we deliberately never touch the audio. That's the licensing
-   decision, and drawing a "real" waveform would mean undoing it.
-
-   So this is a signature, not a measurement: the bar heights are derived
-   from the song's own title, the same way a post's rotation is derived
-   from its id. Consequences of doing it that way:
-
-     • the same song always draws the same shape, on every phone, forever
-     • two different songs never look alike
-     • it costs nothing and never lies about being analysis
-
-   Random bars would look identical in a screenshot and reshuffle on every
-   render, which reads as decoration. A stable shape reads as identity. */
-function bars(seedText, count = 44) {
+   ⚠️ IT IS NOT A REAL WAVEFORM and never was. Reading a real one needs the
+   audio file, which we deliberately never touch. The bars come from the
+   song's own title, the way a post's rotation comes from its id: the same
+   song always draws the same shape, two songs never match, and it never
+   pretends to be analysis. */
+function bars(seed, count = 32) {
   let h = 0;
-  for (let i = 0; i < seedText.length; i++) h = (h * 31 + seedText.charCodeAt(i)) | 0;
+  for (let i = 0; i < seed.length; i++) h = (h * 31 + seed.charCodeAt(i)) | 0;
   const out = [];
   for (let i = 0; i < count; i++) {
     h = (h * 1103515245 + 12345) & 0x7fffffff;
-    // a gentle arc so the middle is louder than the ends, like a real track
     const arc = Math.sin((i / (count - 1)) * Math.PI) * 0.55 + 0.45;
     out.push(Math.round((18 + (h % 82)) * arc));
   }
@@ -65,15 +31,43 @@ function bars(seedText, count = 44) {
 }
 
 export default function Songs({ songs }) {
-  /* Which row has its player open. ONE at a time, and none on load.
+  /* Which card is playing. ONE at a time, none on load.
 
-     Two reasons, and the second is the real one:
-     1. A dozen iframes on a phone is a slow, heavy page.
-     2. Nothing in this app makes a sound you didn't ask for. Someone
-        opens Sober Book at 2am next to a partner, or on a break at work.
-        Audio nobody requested could out them. Mobile browsers block
-        autoplay anyway — but we'd refuse it even if they didn't. */
+     Nothing here makes a sound you didn't ask for. Someone opens Sober
+     Book at 2am next to a partner, or on a break at work — audio nobody
+     requested could out them. Mobile browsers block autoplay anyway; we'd
+     refuse it regardless. */
   const [playing, setPlaying] = useState(null);
+  const [progress, setProgress] = useState(0);
+  const audio = useRef(null);
+
+  /* One <audio> element for the whole page, not one per card.
+
+     Doing it per-card would mean a dozen audio elements each holding a
+     buffer, and — worse — two could end up playing at once if a tap
+     landed during a transition. A single element makes "only one thing is
+     playing" true by construction rather than by careful bookkeeping. */
+  useEffect(() => {
+    const a = audio.current;
+    if (!a) return;
+    const onTime = () => setProgress(a.duration ? a.currentTime / a.duration : 0);
+    const onEnd = () => { setPlaying(null); setProgress(0); };
+    a.addEventListener('timeupdate', onTime);
+    a.addEventListener('ended', onEnd);
+    return () => {
+      a.removeEventListener('timeupdate', onTime);
+      a.removeEventListener('ended', onEnd);
+    };
+  }, []);
+
+  function toggle(i, previewUrl) {
+    const a = audio.current;
+    if (!a || !previewUrl) return;
+    if (playing === i) { a.pause(); setPlaying(null); return; }
+    a.src = previewUrl;
+    a.play().then(() => setPlaying(i)).catch(() => setPlaying(null));
+    setProgress(0);
+  }
 
   return (
     <>
@@ -83,6 +77,9 @@ export default function Songs({ songs }) {
         <span className="rt">songs</span>
       </div>
       <div className="bar">The songs that got this room here</div>
+
+      {/* the single shared player */}
+      <audio ref={audio} preload="none" />
 
       <div className="pad">
         {songs.length === 0 ? (
@@ -96,60 +93,48 @@ export default function Songs({ songs }) {
         ) : (
           <ul className="songs">
             {songs.map((s, i) => {
-              const src = embedSrc(s.anthem_url);
-              const open = playing === i;
               const title = s.anthem_title || 'Untitled';
-              const wave = bars(title + s.display_name);
+              const on = playing === i;
+              const canPlay = !!s.anthem_preview;
 
               return (
-                <li key={i} className={'rec' + (s.is_mine ? ' mine' : '')}>
-                  {open && src ? (
-                    <>
-                      <div className="nowplaying">
-                        <span className="npdot" /> now playing · {title}
-                      </div>
-                      <iframe
-                        className="player"
-                        src={src}
-                        title={`${title} on ${service(s.anthem_url)}`}
-                        allow="encrypted-media; clipboard-write"
-                        loading="lazy"
-                      />
-                      <button className="stopit" onClick={() => setPlaying(null)}>
-                        ✕ close player
-                      </button>
-                    </>
-                  ) : (
-                    <>
-                      {/* The whole card is the play target, not a small
-                          button in a corner. On a phone that matters more
-                          than it looks like it should. */}
-                      <button
-                        className="deck"
-                        onClick={() => src && setPlaying(i)}
-                        disabled={!src}
-                        aria-label={src ? `Play ${title}` : `${title} — can't play here`}
-                      >
-                        <span className="cue">{src ? '▶' : '♪'}</span>
-
+                <li key={i} className={'rec' + (s.is_mine ? ' mine' : '') + (on ? ' on' : '')}>
+                  <div className="recrow">
+                    <button
+                      className={'art' + (canPlay ? '' : ' noplay')}
+                      onClick={() => toggle(i, s.anthem_preview)}
+                      disabled={!canPlay}
+                      aria-label={canPlay ? (on ? `Pause ${title}` : `Play ${title}`) : title}
+                    >
+                      {s.anthem_art ? (
+                        /* eslint-disable-next-line @next/next/no-img-element */
+                        <img src={s.anthem_art} alt="" />
+                      ) : (
                         <span className="wave" aria-hidden="true">
-                          {wave.map((b, k) => (
+                          {bars(title).map((b, k) => (
                             <span key={k} className="bar2" style={{ height: b + '%' }} />
                           ))}
                         </span>
-                      </button>
+                      )}
+                      {canPlay && <span className="cue">{on ? '❙❙' : '▶'}</span>}
+                    </button>
 
-                      <div className="recmeta">
-                        <span className="rtitle">{title}</span>
-                        <span className="rwho2">
-                          {s.display_name}{s.is_mine ? ' · yours' : ''}
-                          <a className="opento" href={s.anthem_url}
-                             target="_blank" rel="noopener noreferrer">
-                            {service(s.anthem_url)} ↗
-                          </a>
-                        </span>
-                      </div>
-                    </>
+                    <div className="recmeta">
+                      <span className="rtitle">{title}</span>
+                      <span className="rwho2">
+                        {s.display_name}{s.is_mine ? ' · yours' : ''}
+                      </span>
+                      <a className="opento" href={s.anthem_url}
+                         target="_blank" rel="noopener noreferrer">
+                        full song on {service(s.anthem_url)} ↗
+                      </a>
+                    </div>
+                  </div>
+
+                  {on && (
+                    <div className="prog" aria-hidden="true">
+                      <span style={{ width: (progress * 100).toFixed(1) + '%' }} />
+                    </div>
                   )}
                 </li>
               );
@@ -160,10 +145,9 @@ export default function Songs({ songs }) {
         <Link href="/me" className="btn">Add or change your song</Link>
 
         <p className="hint">
-          One song each. Nobody is told what you picked and nobody can change
-          it but you. The shape on each card is drawn from the song&apos;s
-          name — it isn&apos;t the real waveform, because we never touch the
-          audio itself.
+          One song each. Nobody is told what you picked and nobody can change it
+          but you. Tapping plays a 30-second preview from Apple — the full song
+          is one tap further, in whatever you already use.
         </p>
       </div>
     </>
