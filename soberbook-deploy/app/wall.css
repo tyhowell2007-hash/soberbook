@@ -439,137 +439,106 @@ ul.mine li > *{ position:relative; z-index:1; }
 .item.poster .wholink{ text-decoration-color:rgba(20,24,0,.4); }
 
 /* ---------------------------------------------------------------------
-   THE PLAYER
+   THE SLEEVE — one square, two acts.
+   Act one: Apple's preview with a REAL waveform.
+   Act two: the whole song, same frame.
    --------------------------------------------------------------------- */
-.player{
-  border:4px solid var(--x); background:var(--paper2);
-  box-shadow:6px 6px 0 var(--x); padding:13px; margin-top:6px;
+.sleeve{
+  border:4px solid var(--x); background:var(--x);
+  box-shadow:7px 7px 0 var(--x); overflow:hidden; margin-top:6px;
 }
-/* while it's playing the whole slab lifts — the shadow goes acid.
-   Cheap, and it makes the page feel like it's doing something. */
-.player.live{ box-shadow:6px 6px 0 var(--acid); }
+.sleeve.live{ box-shadow:7px 7px 0 var(--acid); }
 
-.pltop{ display:flex; align-items:center; gap:13px; }
-.plart{
-  flex-shrink:0; width:76px; height:76px; display:block;
-  border:3px solid var(--x); object-fit:cover;
+.sframe{ position:relative; aspect-ratio:1/1; background:var(--x); overflow:hidden; }
+.sart{ width:100%; height:100%; object-fit:cover; display:block;
+  transition:filter .45s ease, transform .45s ease; }
+.sart.snone{ display:flex; align-items:center; justify-content:center;
+  color:var(--acid); font-size:64px; }
+/* while it plays the art pulls back so the waveform is the subject */
+.sleeve.live .sart{ filter:grayscale(.35) brightness(.42) contrast(1.1); transform:scale(1.04); }
+.sfull{ position:absolute; inset:0; width:100%; height:100%; border:0; display:block; }
+
+/* the waveform — mirrored from the centre line, which is the shape
+   people read as SOUND. Bars standing on a floor read as a chart. */
+.swave{
+  position:absolute; left:0; right:0; top:50%; transform:translateY(-50%);
+  height:56%; display:flex; align-items:center; justify-content:center;
+  gap:2px; padding:0 16px; pointer-events:none;
+  opacity:0; transition:opacity .3s ease;
 }
-.player.big .plart{ width:96px; height:96px; }
-.plnone{
+.swave.on{ opacity:1; }
+.sbar{
+  flex:1; min-width:2px; height:4%;
+  background:var(--acid); border-radius:1px;
+  /* NO transition. A transition would smear sixty frames a second into
+     mush; the smoothing that makes it readable happens in the analyser. */
+  box-shadow:0 0 10px rgba(214,255,46,.45);
+}
+
+.sveil{ position:absolute; inset:0; pointer-events:none;
+  background:linear-gradient(to top, rgba(10,10,9,.94) 0%, rgba(10,10,9,.28) 38%, transparent 62%); }
+.stitle{
+  position:absolute; left:0; right:0; bottom:0; padding:14px 15px 15px;
+  font-family:'Anton',Impact,sans-serif; font-size:24px; line-height:1.05;
+  text-transform:uppercase; color:var(--paper); overflow-wrap:anywhere;
+  text-shadow:0 2px 0 rgba(0,0,0,.55); pointer-events:none;
+}
+.sleeve.big .stitle{ font-size:28px; }
+
+.sbtn{
+  position:absolute; inset:0; margin:auto; width:76px; height:76px; border-radius:50%;
+  background:var(--acid); color:var(--acid-ink); border:4px solid var(--x);
+  cursor:pointer; font-size:25px; line-height:1; padding:0 0 0 5px;
   display:flex; align-items:center; justify-content:center;
-  background:var(--x); color:var(--acid); font-size:30px;
+  box-shadow:0 6px 0 rgba(0,0,0,.4); transition:transform .12s ease;
 }
-.plmeta{ min-width:0; display:flex; flex-direction:column; gap:2px; }
-.pllab{
-  font-family:'Courier Prime',monospace; font-size:9px; font-weight:700;
-  letter-spacing:.16em; text-transform:uppercase; color:var(--soft);
-}
-.pltitle{
-  font-family:'Anton',Impact,sans-serif; font-size:18px; line-height:1.12;
-  text-transform:uppercase; color:var(--x); overflow-wrap:anywhere;
-}
-.player.big .pltitle{ font-size:21px; }
-.plout{
-  font-family:'Courier Prime',monospace; font-size:9.5px; letter-spacing:.06em;
-  text-transform:uppercase; color:var(--soft);
-  text-decoration:underline; text-underline-offset:3px; margin-top:3px;
-}
-.plout:hover{ color:var(--x); }
+.sbtn.on{ padding-left:0; font-size:19px; letter-spacing:-2px;
+  background:transparent; color:var(--acid); border-color:var(--acid);
+  box-shadow:none; width:52px; height:52px; opacity:.75; }
+.sbtn:hover{ transform:scale(1.06); }
+.sbtn:focus-visible{ outline:4px solid var(--acid); outline-offset:4px; }
 
-/* THE SOUND WAVES. Black trough, acid bars. Heights are written straight
-   onto these nodes by requestAnimationFrame — no transition, because a
-   transition would smear 60 frames a second into mush. The smoothing
-   that makes it readable happens in the analyser instead. */
-.waves{
-  display:flex; align-items:flex-end; gap:2px;
-  height:56px; margin-top:12px; padding:5px 7px;
-  background:var(--x); overflow:hidden;
+/* the handoff — the preview running out is a cue, not a dead end */
+.soffer{
+  position:absolute; inset:0; margin:auto; width:82%; max-width:300px; height:auto;
+  background:var(--acid); color:var(--acid-ink); border:4px solid var(--x);
+  box-shadow:0 6px 0 rgba(0,0,0,.4); cursor:pointer; padding:14px 12px;
+  display:flex; flex-direction:column; align-items:center; gap:5px;
 }
-.player.big .waves{ height:74px; }
-.wv{
-  flex:1; min-width:2px; height:6%;
-  background:var(--acid); border-radius:1px 1px 0 0;
-  opacity:.45;
-}
-.player.live .wv{ opacity:1; }
+.soffer:hover{ background:#fff; }
+.soffer:focus-visible{ outline:4px solid var(--acid); outline-offset:4px; }
+.sok{ font-family:'Courier Prime',monospace; font-size:9.5px; font-weight:700;
+  letter-spacing:.16em; text-transform:uppercase; color:#3A4200; }
+.sgo{ font-family:'Anton',Impact,sans-serif; font-size:17px; text-transform:uppercase;
+  letter-spacing:.03em; }
 
-.plbar{ display:flex; align-items:center; gap:11px; margin-top:11px; }
-.plbtn{
-  flex-shrink:0; background:var(--x); color:var(--acid); border:none;
-  padding:10px 15px; cursor:pointer;
-  font-family:'Anton',Impact,sans-serif; font-size:15px;
-  text-transform:uppercase; letter-spacing:.05em; white-space:nowrap;
-}
-.plbtn.on{ background:var(--acid); color:var(--acid-ink); box-shadow:inset 0 0 0 3px var(--x); }
-.plbtn[disabled]{ opacity:.45; cursor:default; }
-.plbtn:focus-visible{ outline:4px solid var(--x); outline-offset:3px; }
+.sfoot{ background:var(--x); display:flex; align-items:center; gap:11px; padding:11px 13px; }
+.swho{ font-family:'Courier Prime',monospace; font-size:9px; font-weight:700;
+  letter-spacing:.16em; text-transform:uppercase; color:var(--acid); flex-shrink:0;
+  max-width:38%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.sline{ flex:1; height:4px; background:#2A2A26; }
+.sline span{ display:block; height:100%; background:var(--acid); transition:width .25s linear; }
+.stag.full{ flex:1; font-family:'Courier Prime',monospace; font-size:9px; font-weight:700;
+  letter-spacing:.16em; text-transform:uppercase; color:var(--paper); text-align:center; }
+.sout{ font-family:'Courier Prime',monospace; font-size:9px; letter-spacing:.1em;
+  text-transform:uppercase; color:var(--soft); text-decoration:none; flex-shrink:0; }
+.sout:hover{ color:var(--acid); }
 
-.plprog{ flex:1; height:6px; background:var(--line); }
-.plprog span{ display:block; height:100%; background:var(--x); transition:width .25s linear; }
+.snote{ font-family:'Courier Prime',monospace; font-size:10.5px; color:var(--soft);
+  background:var(--paper2); padding:9px 13px; line-height:1.55; }
 
-.plnote{
-  font-family:'Courier Prime',monospace; font-size:10.5px; letter-spacing:.04em;
-  color:var(--soft); margin-top:9px; line-height:1.5;
-}
-
-/* the ♫ in the masthead — now the way to your own page */
-.mast .songlink{
-  color:var(--acid); text-decoration:none; font-size:17px; line-height:1;
-  padding:3px 6px; flex-shrink:0;
-}
-.mast .songlink:hover{ background:var(--acid); color:var(--x); }
-.mast .songlink:focus-visible{ outline:3px solid var(--acid); outline-offset:2px; }
-
-/* ---- the picker on /me ---- */
-ul.hits{ list-style:none; margin:4px 0 6px; }
-ul.hits li{ margin-bottom:8px; }
-.hit{
-  display:flex; align-items:center; gap:11px; width:100%; text-align:left;
-  background:var(--paper2); border:3px solid var(--x); box-shadow:3px 3px 0 var(--x);
-  padding:8px; cursor:pointer; font:inherit; color:var(--body);
-}
-.hit:hover{ background:var(--acid); }
-.hit:focus-visible{ outline:4px solid var(--x); outline-offset:3px; }
-.hit img{ flex-shrink:0; width:48px; height:48px; display:block; border:2px solid var(--x); }
-.hitmeta{ min-width:0; }
-.hittitle{
-  display:block; font-family:'Anton',Impact,sans-serif; font-size:15px;
-  text-transform:uppercase; color:var(--x); line-height:1.15; overflow-wrap:anywhere;
-}
-.hitartist{
-  display:block; font-family:'Courier Prime',monospace; font-size:10px;
-  letter-spacing:.08em; text-transform:uppercase; color:var(--soft); margin-top:2px;
-}
-
-.picked{
-  display:flex; align-items:center; gap:12px; margin-top:14px;
-  border:4px solid var(--x); background:var(--acid); background-image:var(--wear);
-  background-size:240px; background-blend-mode:screen;
-  box-shadow:5px 5px 0 var(--x); padding:10px;
-}
-.picked img{ flex-shrink:0; width:56px; height:56px; display:block; border:3px solid var(--x); }
-.pickedmeta{ min-width:0; }
-.pickedlab{
-  display:block; font-family:'Courier Prime',monospace; font-size:9.5px;
-  font-weight:700; letter-spacing:.16em; text-transform:uppercase; color:#3A4200;
-}
-.pickedtitle{
-  display:block; font-family:'Anton',Impact,sans-serif; font-size:17px;
-  text-transform:uppercase; color:var(--acid-ink); line-height:1.15;
-  overflow-wrap:anywhere; margin-top:3px;
-}
-
-/* somebody who isn't there */
-.gone{ text-align:center; padding:52px 18px; }
-.gone .h{ font-family:'Permanent Marker',cursive; font-size:26px; color:var(--x); }
-.gone .p{
-  font-family:'Courier Prime',monospace; font-size:12.5px; color:var(--soft);
-  margin-top:10px; line-height:1.7;
-}
-
-/* Somebody with motion sensitivity should not get a strobe. The bars
-   still move — they're the point — but everything else stops. */
 @media (prefers-reduced-motion: reduce){
-  .plprog span{ transition:none; }
-  .pcard, .count.small{ transform:none; }
+  .sart{ transition:none; }
+  .sline span{ transition:none; }
 }
+
+/* the way to the whole song — a chip, because the preview loops and
+   therefore never "ends" to interrupt */
+.schip{
+  position:absolute; top:11px; right:11px; z-index:2;
+  background:var(--x); color:var(--acid); border:2px solid var(--acid);
+  font-family:'Courier Prime',monospace; font-size:9.5px; font-weight:700;
+  letter-spacing:.14em; text-transform:uppercase; padding:7px 10px; cursor:pointer;
+}
+.schip:hover{ background:var(--acid); color:var(--acid-ink); }
+.schip:focus-visible{ outline:3px solid var(--acid); outline-offset:3px; }
