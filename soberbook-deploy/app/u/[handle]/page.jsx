@@ -33,10 +33,17 @@ export default async function ProfilePage({ params }) {
      NOT .ilike() — a handle may contain an underscore, and an underscore
      is a wildcard in LIKE patterns, so `ty_howell` would also match
      `tyXhowell`. Two plain strings, compared. See 0008. */
+  /* The VISITOR's own preference — read from their row, not from the
+     profile they're looking at. public_profiles deliberately does not
+     carry it: what somebody has their autoplay set to is nobody's
+     business but theirs. */
+  const { data: mine } = await supabase
+    .from('profiles').select('autoplay_songs').eq('id', user.id).maybeSingle();
+
   const { data: p } = await supabase
     .from(assertReadable('public_profiles'))
     .select('handle, display_name, display_avatar, day_count, ' +
-            'anthem_url, anthem_title, anthem_art, anthem_preview, is_mine, joined_at')
+            'anthem_url, anthem_title, anthem_art, anthem_preview, anthem_youtube, is_mine, joined_at')
     .eq('handle_key', handle.toLowerCase())
     .maybeSingle();
 
@@ -51,6 +58,7 @@ export default async function ProfilePage({ params }) {
     anthem_title: p.anthem_title,
     anthem_art: p.anthem_art,
     anthem_preview: p.anthem_preview,
+    anthem_youtube: p.anthem_youtube,
   } : null;
 
   const joined = new Date(p.joined_at).toLocaleDateString('en-US',
@@ -89,6 +97,7 @@ export default async function ProfilePage({ params }) {
             <SongPlayer
               song={song}
               whose={p.is_mine ? 'your song' : p.display_name + '’s song'}
+              autoplay={!!mine?.autoplay_songs}
               big
             />
           </>
