@@ -35,7 +35,9 @@ export default function Me({ email, profile, posts }) {
     anthem_title: profile.anthem_title || null,
     anthem_art: profile.anthem_art || null,
     anthem_preview: profile.anthem_preview || null,
+    anthem_youtube: profile.anthem_youtube || null,
   });
+  const [auto, setAuto] = useState(!!profile.autoplay_songs);
   const [note, setNote] = useState('');       // the one status line, shared
   const [err, setErr] = useState('');
   const [busy, setBusy] = useState(false);
@@ -200,7 +202,8 @@ export default function Me({ email, profile, posts }) {
         )}
 
         <button className="btn" type="button"
-                disabled={busy || song.anthem_url === (profile.anthem_url || null)}
+                disabled={busy || song.anthem_url === (profile.anthem_url || null)
+                          && song.anthem_youtube === (profile.anthem_youtube || null)}
                 onClick={() => save(song, song.anthem_url
                   ? 'Song saved. It\u2019s on your page now.' : 'Song removed.')}>
           {busy ? 'Saving…' : 'Save song'}
@@ -209,13 +212,37 @@ export default function Me({ email, profile, posts }) {
         {song.anthem_url && (
           <button className="nvm" type="button" disabled={busy}
                   onClick={() => setSong({ anthem_url: null, anthem_title: null,
-                                           anthem_art: null, anthem_preview: null })}>
+                                           anthem_art: null, anthem_preview: null,
+                                           anthem_youtube: null })}>
             take my song off my page
           </button>
         )}
 
         {note && <div className="ok">{note}</div>}
         {err && <div className="err">{err}</div>}
+
+        {/* ---- autoplay ---- */}
+        <h2 className="sec">When you visit someone</h2>
+        <button type="button"
+                className={'choice' + (auto ? ' sel' : '')}
+                aria-pressed={auto} disabled={busy}
+                onClick={() => { const n = !auto; setAuto(n);
+                  save({ autoplay_songs: n }, n
+                    ? 'On. Songs will start on their own.'
+                    : 'Off. Nothing plays until you press it.'); }}>
+          <span className="ct">{auto ? '🔊 Songs start on their own' : '🔇 Songs wait for you'}</span>
+          <span className="cd">
+            {auto
+              ? 'When you open somebody\u2019s page their song begins playing.'
+              : 'Nothing on this app makes a sound until you press play.'}
+          </span>
+        </button>
+        <p className="hint">
+          This is your setting, about your own ears &mdash; it has nothing to do with
+          what happens when other people visit <em>you</em>. Off by default on
+          purpose: a song you didn&rsquo;t ask for, coming out of a recovery app in a
+          quiet room, tells whoever is nearby something you didn&rsquo;t choose to say.
+        </p>
 
         {/* ---- your posts ---- */}
         <h2 className="sec">What you&apos;ve put up</h2>
