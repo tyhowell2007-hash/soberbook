@@ -31,6 +31,13 @@ export default function SongPicker({ value, onPick, disabled }) {
   const [hits, setHits] = useState(null);   // null = haven't searched yet
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState('');
+  const [ytText, setYtText] = useState('');
+  const [ytErr, setYtErr] = useState('');
+
+  /* A ready-made YouTube search for the exact song they just picked, so
+     "find the link" is one tap and a copy rather than a hunt. */
+  const ytSearch = 'https://www.youtube.com/results?search_query='
+    + encodeURIComponent(value?.anthem_title || '');
 
   /* One timer, reused. Without this, "alive pod" fires nine searches —
      one per keystroke — and the answers can arrive out of order, so the
@@ -63,7 +70,44 @@ export default function SongPicker({ value, onPick, disabled }) {
     }, 350);
   }
 
+  /* Pull the 11-character video id out of whatever the member pasted.
+
+     YouTube hands out at least five shapes of link depending on where
+     you copied it from — the watch page, the share button, a mobile
+     app, a playlist, an embed. Rather than trying to recognise each one,
+     this asks the browser to parse the URL properly and then looks in
+     the two places an id can be. Anything left over is rejected.
+
+     WHY WE STORE THE ID AND NOT THE LINK: the id ends up inside an
+     iframe's src. A whole URL that someone typed is a string that
+     decides where the browser goes; eleven characters from a fixed
+     alphabet can only ever be a video. Narrow the thing before you
+     trust it, not after. */
+  function ytId(raw) {
+    const s = (raw || '').trim();
+    if (!s) return null;
+    if (/^[A-Za-z0-9_-]{11}$/.test(s)) return s;      // they pasted just the id
+    let u;
+    try { u = new URL(s); } catch { return null; }
+    if (!/(^|\.)youtube\.com$|(^|\.)youtu\.be$|(^|\.)youtube-nocookie\.com$/
+          .test(u.hostname)) return null;
+    const v = u.hostname.endsWith('youtu.be')
+      ? u.pathname.slice(1)
+      : (u.searchParams.get('v') || u.pathname.split('/').pop());
+    return /^[A-Za-z0-9_-]{11}$/.test(v) ? v : null;
+  }
+
+  function onYt(text) {
+    setYtText(text);
+    if (!text.trim()) { setYtErr(''); onPick({ ...value, anthem_youtube: null }); return; }
+    const id = ytId(text);
+    if (!id) { setYtErr('That doesn’t look like a YouTube link. It should have youtube.com or youtu.be in it.'); return; }
+    setYtErr('');
+    onPick({ ...value, anthem_youtube: id });
+  }
+
   function choose(t) {
+    setYtText(''); setYtErr('');
     onPick({
       // trackViewUrl is a music.apple.com link, which is what the
       // anthem_url constraint already allows
@@ -116,16 +160,43 @@ export default function SongPicker({ value, onPick, disabled }) {
       )}
 
       {value?.anthem_title && (
-        <div className="picked">
-          {value.anthem_art && (
-            /* eslint-disable-next-line @next/next/no-img-element */
-            <img src={value.anthem_art} alt="" width={56} height={56} />
+        <>
+          <div className="picked">
+            {value.anthem_art && (
+              /* eslint-disable-next-line @next/next/no-img-element */
+              <img src={value.anthem_art} alt="" width={56} height={56} />
+            )}
+            <span className="pickedmeta">
+              <span className="pickedlab">your song</span>
+              <span className="pickedtitle">{value.anthem_title}</span>
+            </span>
+          </div>
+
+          {/* ---- the whole song ---- */}
+          <label htmlFor="yt" style={{ marginTop: 16 }}>
+            Paste the YouTube link {value.anthem_youtube ? '' : '(optional)'}
+          </label>
+          <input
+            id="yt" type="text" disabled={disabled}
+            autoComplete="off" spellCheck={false}
+            placeholder="https://www.youtube.com/watch?v=…"
+            value={ytText}
+            onChange={(e) => onYt(e.target.value)}
+          />
+          <p className="hint">
+            Apple only lets us play 30 seconds. A YouTube link makes it the{' '}
+            <b>whole song</b>, for anyone who visits you — no account, no
+            subscription.{' '}
+            <a href={ytSearch} target="_blank" rel="noopener noreferrer">
+              Find it on YouTube ↗
+            </a>{' '}
+            then copy the address from the bar and paste it here.
+          </p>
+          {ytErr && <div className="err">{ytErr}</div>}
+          {value.anthem_youtube && !ytErr && (
+            <div className="ok">Got it — visitors will hear the whole song.</div>
           )}
-          <span className="pickedmeta">
-            <span className="pickedlab">your song</span>
-            <span className="pickedtitle">{value.anthem_title}</span>
-          </span>
-        </div>
+        </>
       )}
     </>
   );
