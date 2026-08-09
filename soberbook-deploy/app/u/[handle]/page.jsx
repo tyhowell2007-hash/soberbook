@@ -43,7 +43,8 @@ export default async function ProfilePage({ params }) {
   const { data: p } = await supabase
     .from(assertReadable('public_profiles'))
     .select('handle, display_name, display_avatar, day_count, ' +
-            'anthem_url, anthem_title, anthem_art, anthem_preview, anthem_youtube, is_mine, joined_at')
+            'anthem_url, anthem_title, anthem_art, anthem_preview, anthem_youtube, ' +
+            'is_mine, joined_at, total_days')
     .eq('handle_key', handle.toLowerCase())
     .maybeSingle();
 
@@ -90,6 +91,17 @@ export default async function ProfilePage({ params }) {
             <div className="cl">{p.day_count === 1 ? 'day' : 'days'}</div>
           </div>
         )}
+
+        {/* The lifetime total, and ONLY if they chose to show it.
+            The view hands back null both when it's switched off and when
+            there's nothing to show, so this page cannot tell the two
+            apart — which is the entire point. See 0010. */}
+        {p.total_days ? (
+          <div className="total">
+            <span className="tn">{p.total_days.toLocaleString()}</span>
+            <span className="tl">days total, all of it</span>
+          </div>
+        ) : null}
 
         {song ? (
           <>
