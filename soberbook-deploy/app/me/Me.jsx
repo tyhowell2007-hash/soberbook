@@ -43,8 +43,45 @@ export default function Me({ email, profile, posts }) {
   const [busy, setBusy] = useState(false);
   const [confirmOut, setConfirmOut] = useState(false);
 
+  /* ---- the lifetime total ---- */
+  const [lifetime, setLifetime] = useState(profile.lifetime_days || 0);
+  const [showLife, setShowLife] = useState(!!profile.show_lifetime);
+  /* 'no'  — nothing to ask
+     'ask' — moved the date forward, we don't know why yet
+     'run' — they said they started over; now naming the run's length */
+  const [reset, setReset] = useState('no');
+  const [runLen, setRunLen] = useState('');
+
   const d = days(since);
   const today = new Date().toISOString().slice(0, 10);
+  const savedSince = profile.sober_since || '';
+
+  /* Moving the date FORWARD is the only shape that can mean a relapse:
+     it's the only edit that takes days away. Moving it backward is
+     somebody claiming MORE time — a correction, never a loss — so it
+     saves silently and is never questioned.
+
+     ⚠️ Compared as strings on purpose. These are 'YYYY-MM-DD', which
+     sorts correctly as text, and building Date objects here would drag
+     in the browser's timezone: `new Date('2026-08-09')` is midnight UTC,
+     which in Ohio is the evening of the 8th. Two dates that differ only
+     by that shift would compare wrong for a few hours a day — the kind
+     of bug that reproduces at 9pm and never at noon. */
+  const movedForward = !!savedSince && !!since && since > savedSince;
+
+  /* The pre-filled guess: the gap between the old date and the new one.
+     This is an UPPER bound, because part of that gap was the relapse
+     itself, and only they know where the line was. So it is a starting
+     number in an editable box, never a fact we assert. The alternative
+     was asking somebody to type the date they relapsed, and nobody
+     should have to timestamp the worst week of their year to use a
+     settings page. */
+  const guess = movedForward
+    ? Math.max(0, Math.round((new Date(since + 'T00:00:00')
+        - new Date(savedSince + 'T00:00:00')) / 86400000))
+    : 0;
+
+  const totalNow = lifetime + (d || 0);
 
   /* One save function for every setting on this page. `patch` is just an
      object of columns → new values.
@@ -171,15 +208,106 @@ export default function Me({ email, profile, posts }) {
         <h2 className="sec">Your date</h2>
         <label htmlFor="sd">Sober since</label>
         <input id="sd" type="date" value={since} max={today} disabled={busy}
-               onChange={(e) => setSince(e.target.value)} />
+               onChange={(e) => { setSince(e.target.value); setReset('no'); }} />
         <p className="hint">
           Only used to count days. Leave it empty if you&apos;d rather not have a number.
         </p>
-        <button className="btn" type="button" disabled={busy || since === (profile.sober_since || '')}
-                onClick={() => save({ sober_since: since || null },
-                                     since ? 'Date saved.' : 'Date cleared.')}>
-          {busy ? 'Saving…' : 'Save date'}
-        </button>
+
+        {reset === 'no' && (
+          <button className="btn" type="button" disabled={busy || since === savedSince}
+                  onClick={() => {
+                    if (movedForward) { setRunLen(String(guess)); setReset('ask'); return; }
+                    save({ sober_since: since || null },
+                         since ? 'Date saved.' : 'Date cleared.');
+                  }}>
+            {busy ? 'Saving…' : 'Save date'}
+          </button>
+        )}
+
+        {/* Two questions, never more, and neither of them asks what
+            happened. The app does not need to know. */}
+        {reset === 'ask' && (
+          <div className="ask">
+            <p className="askq">You moved your date forward. Which is it?</p>
+            <button className="btn" type="button" disabled={busy}
+                    onClick={() => setReset('run')}>
+              I started over
+            </button>
+            <button className="btn ghost" type="button" disabled={busy}
+                    onClick={() => { setReset('no');
+                      save({ sober_since: since || null }, 'Date fixed.'); }}>
+              I&apos;m just fixing the date
+            </button>
+            <p className="hint">
+              Nothing you&apos;ve already done gets erased either way. This only
+              decides whether those days get added to your total.
+            </p>
+          </div>
+        )}
+
+        {reset === 'run' && (
+          <div className="ask">
+            <p className="askq">How long was that run?</p>
+            <label htmlFor="rl">Days</label>
+            <input id="rl" type="number" inputMode="numeric" min="0" max="40000"
+                   value={runLen} disabled={busy}
+                   onChange={(e) => setRunLen(e.target.value)} />
+            <p className="hint">
+              We guessed from your old date. Change it if we got it wrong &mdash;
+              you know where the line was and we don&apos;t.
+            </p>
+            <button className="btn" type="button" disabled={busy}
+                    onClick={() => {
+                      const add = Math.max(0, Math.min(40000, parseInt(runLen, 10) || 0));
+                      const next = Math.min(40000, lifetime + add);
+                      setLifetime(next);
+                      setReset('no');
+                      save({ sober_since: since || null, lifetime_days: next },
+                           'Saved. Those ' + add.toLocaleString()
+                           + ' days are yours for good.');
+                    }}>
+              {busy ? 'Saving…' : 'Add it and save'}
+            </button>
+            <button className="nvm" type="button" disabled={busy}
+                    onClick={() => setReset('ask')}>
+              back
+            </button>
+          </div>
+        )}
+
+        {/* ---- the total ---- */}
+        {lifetime > 0 && (
+          <>
+            <div className="total">
+              <span className="tn">{totalNow.toLocaleString()}</span>
+              <span className="tl">days total, all of it</span>
+            </div>
+            <p className="hint">
+              This number only ever goes up. Starting over resets the count
+              at the top of this page; it has never once reset this one.
+            </p>
+            <button type="button"
+                    className={'choice' + (showLife ? ' sel' : '')}
+                    aria-pressed={showLife} disabled={busy}
+                    onClick={() => { const n = !showLife; setShowLife(n);
+                      save({ show_lifetime: n }, n
+                        ? 'Your total is on your page now.'
+                        : 'Hidden. Only you can see it.'); }}>
+              <span className="ct">{showLife ? '👁 On your page' : '🔒 Just for you'}</span>
+              <span className="cd">
+                {showLife
+                  ? 'Anyone visiting your page sees your total as well as your count.'
+                  : 'Nobody but you sees this number.'}
+              </span>
+            </button>
+            <p className="hint">
+              Worth knowing before you flip it: a total bigger than your
+              current count tells anyone who does the subtraction that you
+              started over once. That&apos;s yours to share, not ours &mdash; which
+              is why it&apos;s off until you say so.
+            </p>
+          </>
+        )}
 
         {/* ---- your song ---- */}
         <h2 className="sec">Your song</h2>
