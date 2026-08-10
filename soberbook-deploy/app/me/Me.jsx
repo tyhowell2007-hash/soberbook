@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { browserClient } from '../../lib/supabase-browser';
 import SongPicker from './SongPicker';
 import SongPlayer from '../components/SongPlayer';
+import Milestones from '../components/Milestones';
 
 function days(since) {
   if (!since) return null;
@@ -51,6 +52,21 @@ export default function Me({ email, profile, posts }) {
      'run' — they said they started over; now naming the run's length */
   const [reset, setReset] = useState('no');
   const [runLen, setRunLen] = useState('');
+
+  /* ---- the rest of the profile (0011) ---- */
+  const [bio, setBio] = useState(profile.bio || '');
+  const [town, setTown] = useState(profile.town || '');
+  const [state, setState] = useState(profile.state || '');
+  const [showLoc, setShowLoc] = useState(!!profile.show_location);
+  const [programs, setPrograms] = useState(profile.programs || '');
+  const [interests, setInterests] = useState(profile.interests || '');
+  const [sponsor, setSponsor] = useState(profile.sponsor_status || 'private');
+
+  const anon = privacy === 'anonymous';
+  const deetsDirty =
+    bio !== (profile.bio || '') || town !== (profile.town || '') ||
+    state !== (profile.state || '') || programs !== (profile.programs || '') ||
+    interests !== (profile.interests || '');
 
   const d = days(since);
   const today = new Date().toISOString().slice(0, 10);
@@ -131,6 +147,8 @@ export default function Me({ email, profile, posts }) {
              + 'Spotify, YouTube or Apple Music — it should start with https://');
       } else if (m.includes('anthem_title_len')) {
         setErr('That title is a bit long — 120 characters or fewer.');
+      } else if (m.includes('bio_len')) {
+        setErr('That bio is over 200 characters.');
       } else {
         setErr(m);
       }
@@ -166,19 +184,8 @@ export default function Me({ email, profile, posts }) {
       <div className="pad">
 
         {/* ---- the count ---- */}
-        <div className="count">
-          {d === null ? (
-            <>
-              <div className="cn">—</div>
-              <div className="cl">no date set yet</div>
-            </>
-          ) : (
-            <>
-              <div className="cn">{d.toLocaleString()}</div>
-              <div className="cl">{d === 1 ? 'day' : 'days'} · @{profile.handle}</div>
-            </>
-          )}
-        </div>
+        <Milestones since={since || null} days={d}
+                    sub={(d === 1 ? 'day' : 'days') + ' · @' + profile.handle} />
 
         {/* ---- privacy ---- */}
         <h2 className="sec">How you show up</h2>
@@ -307,6 +314,120 @@ export default function Me({ email, profile, posts }) {
               is why it&apos;s off until you say so.
             </p>
           </>
+        )}
+
+        {/* ---- about you ---- */}
+        <h2 className="sec">About you</h2>
+
+        {/* One notice, stated once, rather than the same warning stapled
+            to five fields. If none of this shows, say so plainly and
+            offer the one tap that changes it — don't just grey things
+            out and let somebody wonder why they typed for nothing. */}
+        {anon && (
+          <div className="err">
+            You&apos;re set to Anonymous, so none of this shows anywhere —
+            your page carries your handle, your count and your song, and
+            nothing else. You can still fill it in and it&apos;ll be waiting
+            if you ever switch to Open.
+          </div>
+        )}
+
+        <label htmlFor="bio">A line about you</label>
+        <textarea id="bio" rows={3} maxLength={200} value={bio} disabled={busy}
+                  placeholder="In recovery and open about it. Here to make real friends."
+                  onChange={(e) => setBio(e.target.value)} />
+        <p className="hint">{200 - bio.length} characters left.</p>
+
+        <label htmlFor="prog">Your programs</label>
+        <input id="prog" type="text" maxLength={120} value={programs} disabled={busy}
+               placeholder="AA · SMART · MAT friendly"
+               onChange={(e) => setPrograms(e.target.value)} />
+        <p className="hint">
+          However you word it. All paths count here, and nobody has to justify theirs.
+        </p>
+
+        <label htmlFor="int">What you&apos;re into</label>
+        <input id="int" type="text" maxLength={120} value={interests} disabled={busy}
+               placeholder="Fishing · Gaming · Podcasts"
+               onChange={(e) => setInterests(e.target.value)} />
+        <p className="hint">
+          The thing people actually message you about. Worth more than the rest of this put together.
+        </p>
+
+        <button className="btn" type="button" disabled={busy || !deetsDirty}
+                onClick={() => save({
+                  bio: bio.trim() || null,
+                  programs: programs.trim() || null,
+                  interests: interests.trim() || null,
+                  town: town.trim() || null,
+                  state: state.trim() || null,
+                }, 'Saved.')}>
+          {busy ? 'Saving…' : 'Save'}
+        </button>
+
+        {/* ---- where you are ---- */}
+        <h2 className="sec">Where you are</h2>
+        <div className="tworow">
+          <div>
+            <label htmlFor="town">Town</label>
+            <input id="town" type="text" maxLength={60} value={town} disabled={busy}
+                   placeholder="Cadiz" onChange={(e) => setTown(e.target.value)} />
+          </div>
+          <div>
+            <label htmlFor="st">State</label>
+            <input id="st" type="text" maxLength={40} value={state} disabled={busy}
+                   placeholder="Ohio" onChange={(e) => setState(e.target.value)} />
+          </div>
+        </div>
+
+        <button type="button"
+                className={'choice' + (showLoc ? ' sel' : '')}
+                aria-pressed={showLoc} disabled={busy}
+                onClick={() => { const n = !showLoc; setShowLoc(n);
+                  save({ show_location: n }, n
+                    ? 'On. Your town shows on your page.'
+                    : 'Off. Nobody sees where you are.'); }}>
+          <span className="ct">{showLoc ? '📍 Showing your town' : '🔒 Town hidden'}</span>
+          <span className="cd">
+            {showLoc
+              ? 'Anyone who opens your page sees the town you typed.'
+              : 'Saved, but not shown to anyone.'}
+          </span>
+        </button>
+        <p className="hint">
+          Off by default, and worth a thought before you turn it on. A handle,
+          a day count and a small town is close enough to a name that somebody
+          could work out who you are &mdash; and in a town this size, that might
+          be your boss. Big city, much less of a problem.
+        </p>
+
+        {/* ---- sponsoring ---- */}
+        <h2 className="sec">Sponsoring</h2>
+        <button type="button"
+                className={'choice' + (sponsor === 'available' ? ' sel' : '')}
+                aria-pressed={sponsor === 'available'} disabled={busy}
+                onClick={() => { const n = sponsor === 'available' ? 'private' : 'available';
+                  setSponsor(n);
+                  save({ sponsor_status: n }, n === 'available'
+                    ? 'Saved. You show as available.'
+                    : 'Saved. Taken back off your page.'); }}>
+          <span className="ct">
+            {sponsor === 'available' ? '🛟 Available to sponsor' : '🤝 Not sponsoring right now'}
+          </span>
+          <span className="cd">
+            {sponsor === 'available'
+              ? 'Your page tells people you have room for somebody.'
+              : 'Nothing about sponsoring shows on your page.'}
+          </span>
+        </button>
+        {sponsor === 'available' && d !== null && d < 365 && (
+          <p className="hint">
+            Saved &mdash; but it won&apos;t show on your page until you&apos;ve got a
+            year, which is {(365 - d).toLocaleString()} days away. That&apos;s the
+            same line the rooms draw, and it&apos;s here for the person on the
+            other end of it: the people most likely to say yes to an offer
+            like this are the ones with the least time.
+          </p>
         )}
 
         {/* ---- your song ---- */}
