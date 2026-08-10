@@ -686,3 +686,43 @@ textarea:focus-visible{ outline:4px solid var(--x); outline-offset:3px; }
    state name would quietly steal width from the town. */
 .tworow{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
 .tworow input{ width:100%; box-sizing:border-box; }
+
+/* =====================================================================
+   THE FACE PICKER
+
+   A grid of real targets, not a row of tiny glyphs. On a phone, in a
+   moment somebody is deciding how they want to be seen, every option
+   should be impossible to miss — same reasoning as .mrow in the report
+   sheet.
+   ===================================================================== */
+.faces{
+  display:grid; grid-template-columns:repeat(6,1fr); gap:8px;
+  list-style:none; padding:0; margin:8px 0 4px;
+}
+.face{
+  width:100%; aspect-ratio:1; display:flex; align-items:center; justify-content:center;
+  font-size:24px; line-height:1; cursor:pointer;
+  border:3px solid var(--x); background:var(--paper2); padding:0;
+}
+.face:hover{ background:var(--acid); }
+/* Chosen is a filled acid slab with a hard shadow — the same treatment
+   an earned milestone chip gets, so "selected" means one thing
+   everywhere in the app rather than a different thing per screen. */
+.face.sel{
+  background:var(--acid); box-shadow:3px 3px 0 var(--x);
+  transform:translate(-1px,-1px);
+}
+.face:focus-visible{ outline:4px solid var(--x); outline-offset:3px; }
+.face[disabled]{ opacity:.55; cursor:default; }
+
+@media (max-width:380px){
+  .faces{ grid-template-columns:repeat(5,1fr); }
+}
+/* group headings inside the face picker — quiet, monospace, the same
+   voice the app uses for system notes rather than for a person's words */
+.facegrp{
+  font-family:'Courier Prime',monospace; font-size:10px; font-weight:700;
+  letter-spacing:.18em; text-transform:uppercase; color:var(--soft);
+  margin:16px 0 0;
+}
+.facegrp:first-of-type{ margin-top:10px; }
