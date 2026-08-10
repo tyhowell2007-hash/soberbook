@@ -17,7 +17,7 @@ export default async function MePage() {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('handle, display_name, sober_since, privacy_mode, created_at, anthem_url, anthem_title, anthem_art, anthem_preview, anthem_youtube, autoplay_songs, lifetime_days, show_lifetime')
+    .select('handle, display_name, sober_since, privacy_mode, created_at, anthem_url, anthem_title, anthem_art, anthem_preview, anthem_youtube, autoplay_songs, lifetime_days, show_lifetime, bio, town, state, show_location, programs, interests, sponsor_status')
     .eq('id', user.id)
     .maybeSingle();
   if (!profile) redirect('/welcome');
