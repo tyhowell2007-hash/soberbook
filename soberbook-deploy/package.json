@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "test:anon": "node supabase/test-anonymity.mjs",
-    "test:lifetime": "node supabase/test-lifetime.mjs"
+    "test:lifetime": "node supabase/test-lifetime.mjs",
+    "test:details": "node supabase/test-profile-details.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.7.0",
