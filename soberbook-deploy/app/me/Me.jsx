@@ -8,6 +8,27 @@ import SongPicker from './SongPicker';
 import SongPlayer from '../components/SongPlayer';
 import Milestones from '../components/Milestones';
 
+/* The faces you can pick from.
+
+   A FIXED LIST, not a free text box. A text field accepts anything —
+   a paragraph, or something ugly spelled out in symbols — and whatever
+   goes in renders at 60px on every post that person ever made, on other
+   people's screens. Fifty-four choices is not a limitation worth
+   arguing about; it's the moderation queue nobody has to staff.
+
+   ⚠️ WHAT'S DELIBERATELY MISSING, and it isn't squeamishness:
+   🥴 reads as drunk. 🥳 comes with a party hat. 🍻 🍷 🚬 💊 are obvious.
+   Every one of those is a normal emoji somewhere else and a bad joke
+   here, and the person it lands worst on is somebody four days in
+   scrolling their first thread. */
+const FACE_GROUPS = [
+  { name: 'Faces',   items: ['🙂','😀','😎','😌','🙃','🤔','😴','🥲','😇','🫡','🤠','😤'] },
+  { name: 'Animals', items: ['🐺','🦊','🐻','🦌','🦅','🦉','🐢','🐧','🐬','🐝',
+                             '🦋','🐎','🐕','🐈','🐟','🦁','🐘','🦔'] },
+  { name: 'Outside', items: ['🌱','🌿','🍀','🌵','🌻','🌲','🌊','🌙','☀️','⭐','🔥','🗻'] },
+  { name: 'Things',  items: ['⚓','🧭','🕯','☕','📻','🎧','🎸','🥁','🎣','🎮','🚂','🛠'] },
+];
+
 function days(since) {
   if (!since) return null;
   return Math.floor((Date.now() - new Date(since).getTime()) / 86400000);
@@ -61,6 +82,10 @@ export default function Me({ email, profile, posts }) {
   const [programs, setPrograms] = useState(profile.programs || '');
   const [interests, setInterests] = useState(profile.interests || '');
   const [sponsor, setSponsor] = useState(profile.sponsor_status || 'private');
+
+  /* ---- name and face (0012) ---- */
+  const [dname, setDname] = useState(profile.display_name || '');
+  const [avatar, setAvatar] = useState(profile.avatar || '');
 
   const anon = privacy === 'anonymous';
   const deetsDirty =
@@ -186,6 +211,75 @@ export default function Me({ email, profile, posts }) {
         {/* ---- the count ---- */}
         <Milestones since={since || null} days={d}
                     sub={(d === 1 ? 'day' : 'days') + ' · @' + profile.handle} />
+
+        {/* ---- name and face ---- */}
+        <h2 className="sec">Your name and face</h2>
+
+        <div className="pcard">
+          <div className="pav" aria-hidden="true">{avatar || '🌱'}</div>
+          <div className="pwho">
+            <span className="pname">{anon ? profile.handle : (dname || profile.handle)}</span>
+            <span className="phandle">@{profile.handle}</span>
+          </div>
+        </div>
+        <p className="hint" style={{ marginTop: -12 }}>
+          {anon
+            ? 'You’re Anonymous, so people see your handle and the seedling — the name and face below are saved but not shown.'
+            : 'This is exactly how your card looks to everybody else.'}
+        </p>
+
+        <label htmlFor="dn">What people call you</label>
+        <input id="dn" type="text" maxLength={40} value={dname} disabled={busy}
+               autoComplete="off"
+               placeholder={profile.handle}
+               onChange={(e) => setDname(e.target.value)} />
+        <p className="hint">
+          A first name or a nickname &mdash; whatever you&apos;d say in a room. Leave it
+          empty and people just see @{profile.handle}, which is what everyone has been
+          seeing until now.
+        </p>
+
+        <label>Pick a face</label>
+        {/* Why a fixed list and not a text box: see FACE_GROUPS up top.
+            And no photographs here on purpose — a face on a recovery app
+            is permanent and screenshot-able. That option is coming, but
+            it gets built carefully rather than bolted on. */}
+        {FACE_GROUPS.map((g) => (
+          <div key={g.name}>
+            <h3 className="facegrp">{g.name}</h3>
+            <ul className="faces">
+              {g.items.map((e) => (
+                <li key={e}>
+                  <button type="button"
+                          className={'face' + (avatar === e ? ' sel' : '')}
+                          aria-label={'Use this as your face'}
+                          aria-pressed={avatar === e}
+                          disabled={busy}
+                          onClick={() => setAvatar(avatar === e ? '' : e)}>
+                    <span aria-hidden="true">{e}</span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+
+        <button className="btn" type="button"
+                disabled={busy || (dname === (profile.display_name || '')
+                                   && avatar === (profile.avatar || ''))}
+                onClick={() => save({
+                  display_name: dname.trim() || null,
+                  avatar: avatar || null,
+                  avatar_kind: avatar ? 'emoji' : 'none',
+                }, 'Saved. That’s you now.')}>
+          {busy ? 'Saving…' : 'Save name and face'}
+        </button>
+
+        <p className="hint">
+          Photos are coming, and they&apos;ll be your choice too &mdash; but a real face on
+          a recovery app is permanent and easy to screenshot, so that one gets built
+          carefully rather than quickly.
+        </p>
 
         {/* ---- privacy ---- */}
         <h2 className="sec">How you show up</h2>
