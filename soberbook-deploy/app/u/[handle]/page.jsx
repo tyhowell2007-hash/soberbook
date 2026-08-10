@@ -2,6 +2,8 @@ import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
 import { serverClient, assertReadable } from '../../../lib/supabase-server';
 import SongPlayer from '../../components/SongPlayer';
+import Milestones from '../../components/Milestones';
+import { sinceFromCount } from '../../../lib/milestones';
 
 export const dynamic = 'force-dynamic';
 
@@ -15,13 +17,23 @@ export const dynamic = 'force-dynamic';
 
    WHAT THIS PAGE CANNOT DO, BY CONSTRUCTION:
      • It has no profile id, so it cannot join this person to anything.
-     • It has no sober date, only a count.
      • It has no privacy_mode, so it cannot tell you who is anonymous.
+     • Anonymous profiles carry no prose at all — bio, town, programs
+       and interests all come back null. See 0011.
 
-   The last one is worth sitting with. If this page could say "this member
-   posts anonymously", then anyone could check a handle and learn which
-   posts on the Wall to go looking through. So it doesn't know, and the
-   name it shows is produced by the same expression the Wall uses. */
+   ⚠️ THIS LIST USED TO CLAIM A FOURTH THING — "it has no sober date,
+   only a count" — AND THAT WAS NEVER TRUE. day_count is
+   `current_date - sober_since`, so the count and the date are the same
+   fact wearing different clothes; sinceFromCount() converts one to the
+   other in four lines. Removed rather than reworded, because a false
+   reassurance about privacy is worse than saying nothing: the next
+   person builds on it. The three above are real.
+
+   The privacy_mode one is worth sitting with. If this page could say
+   "this member posts anonymously", then anyone could check a handle and
+   learn which posts on the Wall to go looking through. So it doesn't
+   know, and the name it shows is produced by the same expression the
+   Wall uses. */
 export default async function ProfilePage({ params }) {
   const supabase = serverClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -44,7 +56,8 @@ export default async function ProfilePage({ params }) {
     .from(assertReadable('public_profiles'))
     .select('handle, display_name, display_avatar, day_count, ' +
             'anthem_url, anthem_title, anthem_art, anthem_preview, anthem_youtube, ' +
-            'is_mine, joined_at, total_days')
+            'is_mine, joined_at, total_days, ' +
+            'bio, location, programs, interests, sponsor_open')
     .eq('handle_key', handle.toLowerCase())
     .maybeSingle();
 
@@ -84,11 +97,46 @@ export default async function ProfilePage({ params }) {
           </div>
         </div>
 
-        {/* The count. A number, never a date — see 0008. */}
-        {p.day_count !== null && p.day_count !== undefined && (
-          <div className="count small">
-            <div className="cn">{p.day_count.toLocaleString()}</div>
-            <div className="cl">{p.day_count === 1 ? 'day' : 'days'}</div>
+        {/* The count, now with somewhere to be going.
+            `sinceFromCount` rebuilds the date the chips need — and see
+            the note on that function: the count and the date were
+            always the same fact, so nothing new is being handed out
+            here that the number didn't already give away. */}
+        <Milestones
+          since={sinceFromCount(p.day_count)}
+          days={p.day_count}
+          sub={p.day_count === 1 ? 'day' : 'days'}
+          small
+        />
+
+        {p.bio && <p className="bio">{p.bio}</p>}
+
+        {(p.sponsor_open || p.programs || p.location || p.interests) && (
+          <div className="deets">
+            {p.sponsor_open && (
+              <div className="deet sponsor">
+                <span className="di" aria-hidden="true">🛟</span>
+                <span>Available to sponsor</span>
+              </div>
+            )}
+            {p.programs && (
+              <div className="deet">
+                <span className="di" aria-hidden="true">🧭</span>
+                <span>{p.programs}</span>
+              </div>
+            )}
+            {p.location && (
+              <div className="deet">
+                <span className="di" aria-hidden="true">📍</span>
+                <span>{p.location}</span>
+              </div>
+            )}
+            {p.interests && (
+              <div className="deet">
+                <span className="di" aria-hidden="true">🎣</span>
+                <span>{p.interests}</span>
+              </div>
+            )}
           </div>
         )}
 
