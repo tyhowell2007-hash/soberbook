@@ -593,3 +593,96 @@ ul.mine li > *{ position:relative; z-index:1; }
   box-shadow:none;
 }
 .btn.ghost:hover{ background:var(--x); color:var(--acid); }
+
+/* =====================================================================
+   THE BAR AND THE CHIPS
+
+   Both live inside or under .count, which is an acid slab, so every
+   colour here is ink-on-acid. --acid-ink (#141800) on --acid is 14.9:1;
+   the same acid on paper would be 1.2:1 and gone. That is the one rule
+   this palette has and it is the one that keeps getting tested.
+   ===================================================================== */
+.count .mbar{
+  height:10px; margin:16px auto 0; max-width:280px;
+  border:3px solid var(--acid-ink); background:transparent;
+  /* no radius anywhere — this is the same flat, hard-edged language as
+     the slabs and the tear-offs, not a rounded app progress bar */
+}
+.count .mfill{
+  display:block; height:100%; background:var(--acid-ink);
+  /* No transition. The bar is redrawn once per page load and moves by
+     roughly a third of a percent a day; animating it would invent
+     motion that isn't happening. */
+}
+.count .mnext{
+  font-family:'Courier Prime',monospace; font-size:11px; font-weight:700;
+  letter-spacing:.1em; text-transform:uppercase; color:#3A4200; margin-top:9px;
+}
+
+.chips{
+  display:flex; flex-wrap:wrap; gap:7px; justify-content:center;
+  list-style:none; padding:0; margin:-16px 0 26px;
+}
+.chip{
+  font-family:'Courier Prime',monospace; font-size:11px; font-weight:700;
+  letter-spacing:.1em; text-transform:uppercase;
+  padding:7px 11px; border:3px solid var(--x); background:var(--paper2);
+  color:var(--soft);
+}
+/* Earned reads as SOLID — filled acid with black type and a hard
+   shadow, the same treatment the count itself gets. */
+.chip.on{
+  background:var(--acid); color:var(--acid-ink);
+  box-shadow:3px 3px 0 var(--x);
+}
+/* The one you're walking toward is outlined, not greyed. Grey would
+   read as disabled — as if it were off limits — and it isn't, it's
+   just ahead of you. Dashed says "not yet" without saying "no". */
+.chip.next{
+  background:transparent; color:var(--x);
+  border-style:dashed; border-color:var(--x);
+}
+
+/* =====================================================================
+   THE DETAILS CARD — bio, town, programs, interests, sponsor
+   ===================================================================== */
+.bio{
+  font-size:15px; line-height:1.5; text-align:center; color:var(--body);
+  margin:0 0 20px; padding:0 6px;
+}
+.deets{
+  border:4px solid var(--x); background:var(--paper2);
+  box-shadow:5px 5px 0 var(--x); padding:4px 14px; margin-bottom:22px;
+}
+.deets h3{
+  font-family:'Anton',Impact,sans-serif; font-size:15px; text-transform:uppercase;
+  letter-spacing:.04em; color:var(--x); margin:12px 0 4px;
+}
+.deet{
+  display:flex; align-items:center; gap:11px; padding:11px 0;
+  border-top:2px solid var(--line); font-size:14px; color:var(--body);
+}
+.deet:first-of-type{ border-top:none; }
+.deet .di{ font-size:17px; line-height:1; flex:none; }
+/* The sponsor line is the only one that is an OFFER rather than a fact,
+   so it is the only one that gets weight. */
+.deet.sponsor{
+  font-family:'Anton',Impact,sans-serif; font-size:17px; text-transform:uppercase;
+  color:var(--x); letter-spacing:.02em;
+}
+
+/* Textareas inherit nothing from the input rules in globals.css, so the
+   bio box would have arrived as a browser-default grey rectangle in the
+   middle of a hand-set page. */
+textarea{
+  width:100%; box-sizing:border-box; font:inherit; font-size:15px;
+  padding:11px 12px; border:3px solid var(--x); background:var(--paper);
+  color:var(--body); resize:vertical; min-height:76px;
+}
+textarea:focus-visible{ outline:4px solid var(--x); outline-offset:3px; }
+
+/* Town and state side by side. Grid rather than flex so the two halves
+   stay equal regardless of what's typed in them — with flex, a long
+   state name would quietly steal width from the town. */
+.tworow{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.tworow input{ width:100%; box-sizing:border-box; }
