@@ -22,7 +22,22 @@ export async function middleware(request) {
   );
 
   const { data: { user } } = await supabase.auth.getUser();
-  const open = ['/login', '/auth'];
+
+  /* ⚠️ /reset MUST BE OPEN, AND THIS IS NOT A CONVENIENCE — WITHOUT IT
+     PASSWORD RESET CANNOT WORK AT ALL.
+
+     Supabase puts the recovery token in the URL **fragment**
+     (#access_token=…). A fragment is never sent to the server, so this
+     middleware sees a person with no session and bounces them to
+     /login — and the redirect throws the fragment away. The token is
+     gone, the link is spent, and the person is back where they started
+     with no idea why.
+
+     The exchange has to happen in the browser, which means the page has
+     to be allowed to load first. It is safe: arriving at /reset with no
+     valid token gets you a form that can't do anything, because
+     updateUser needs a session the token is the only way to obtain. */
+  const open = ['/login', '/auth', '/reset'];
   const isOpen = open.some((p) => request.nextUrl.pathname.startsWith(p));
 
   if (!user && !isOpen) {
