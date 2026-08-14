@@ -29,14 +29,50 @@ function ago(iso) {
 
 const TWO_HOURS = 2 * 60 * 60 * 1000;
 
-/* The sizing rule from the spec. Deliberately dumb and legible.
-   The second clause is the important one: an unanswered post gets BIGGER. */
-function weight(p) {
-  const old = Date.now() - new Date(p.created_at).getTime() > TWO_HOURS;
+/* The sizing rule. The second clause is the important one: an unanswered
+   post gets BIGGER.
+
+   ⚠️ BUT ONLY ONE AT A TIME, AND THAT LIMIT IS THE WHOLE MECHANIC.
+
+   The first version grew EVERY unanswered post over two hours old. On a
+   busy wall that's rare and it works. On a wall with six posts and two
+   members, almost nothing has a reply yet — so three quarters of the
+   page turned into full-width acid slabs and the special state became
+   the ordinary one.
+
+   A signal that fires constantly is not a signal. It's wallpaper. And
+   worse than wallpaper here: a wall of giant unanswered posts reads as
+   "this place is dead", which is the exact opposite of what the rule
+   was built to say.
+
+   So exactly one post is ever promoted for being ignored — the one that
+   has been waiting LONGEST. Not the newest: the promise is "nobody
+   posts into silence", and the person who has been sitting there
+   unanswered the longest is the one that promise is about.
+
+   Milestones are exempt from the cap. They're rare by nature, and a
+   celebration and a plea should never compete for the same slot. */
+function weight(p, isLoneliest) {
   if (p.milestone_days) return 'poster';
-  if (p.comment_count === 0 && old) return 'poster';
+  if (isLoneliest) return 'poster';
   if (p.comment_count > 0) return 'card';
   return p.body.length < 90 ? 'scrap' : 'card';
+}
+
+/* Which single post has been waiting longest with nobody answering.
+   Returns an id, or null when the wall is fully answered — which is the
+   state we actually want and the one where nothing shouts at all. */
+function loneliest(list) {
+  const now = Date.now();
+  const waiting = list.filter(
+    (p) => !p.milestone_days
+        && p.comment_count === 0
+        && now - new Date(p.created_at).getTime() > TWO_HOURS
+  );
+  if (!waiting.length) return null;
+  return waiting.reduce((oldest, p) =>
+    new Date(p.created_at) < new Date(oldest.created_at) ? p : oldest
+  ).id;
 }
 
 /* A SEPARATE question from weight(): is this big because it's a milestone,
@@ -164,6 +200,10 @@ export default function Wall({ initial }) {
     }
   }
 
+  /* Worked out once per render, not per post — otherwise every card would
+     scan the whole list to answer the same question. */
+  const lonelyId = loneliest(posts);
+
   return (
     <>
       <div className="wall">
@@ -179,7 +219,7 @@ export default function Wall({ initial }) {
 
         {/* DOM order is reading order: newest first. Position is CSS only. */}
         {posts.map((p, i) => {
-          const w = weight(p);
+          const w = weight(p, p.id === lonelyId);
           return (
             <article
               key={p.id}
