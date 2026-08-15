@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { browserClient } from '../../lib/supabase-browser';
@@ -105,13 +105,31 @@ export default function Me({ email, profile, posts }) {
      same gesture as committing. */
   const [faceOpen, setFaceOpen] = useState(false);
   const faceBtn = useRef(null);
+  /* A counter, not a boolean. Two picks in a row would both set `true`,
+     React would see no change, and the effect wouldn't run the second
+     time — the focus would work once and then quietly stop. */
+  const [refocus, setRefocus] = useState(0);
+
+  /* ⚠️ THIS HAS TO BE useEffect, AND THE FIRST VERSION GOT IT WRONG.
+     I originally called focus() inside requestAnimationFrame, shipped it,
+     and then measured: focus landed on <body>. It looked right in the
+     code and did nothing on the screen.
+
+     The reason is that rAF and React run on different clocks. rAF fires
+     before the next PAINT; React commits its DOM changes on its own
+     schedule. So the callback fired while the old tree was still up, and
+     whatever it focused got thrown away moments later.
+
+     useEffect is the one hook that is guaranteed to run AFTER React has
+     written to the DOM. That's the whole reason to reach for it here. */
+  useEffect(() => {
+    if (refocus) faceBtn.current?.focus();
+  }, [refocus]);
 
   function pickFace(e) {
     setAvatar(avatar === e ? '' : e);
     setFaceOpen(false);
-    /* Next frame, not this one: the panel is still on screen until React
-       re-renders, and focusing the opener before it's back does nothing. */
-    requestAnimationFrame(() => faceBtn.current?.focus());
+    setRefocus((n) => n + 1);
   }
 
   const anon = privacy === 'anonymous';
