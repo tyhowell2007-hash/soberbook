@@ -7,11 +7,11 @@
    ===================================================================== */
 :root{
   --x:#0A0A09;
-  --paper:#E4DFD3;
-  --paper2:#D2CBB8;
+  --paper:#F2F0E9;
+  --paper2:#FFFFFF;
   --body:#26251F;
-  --soft:#4E4B42;
-  --line:#A39C89;
+  --soft:#5F5B50;
+  --line:#DAD5C7;
   --acid:#D6FF2E;
   --acid-ink:#141800;
   --wear:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='w'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.035 .07' numOctaves='4' seed='7'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23w)'/%3E%3C/svg%3E");
@@ -25,12 +25,21 @@ body{
   max-width:520px; margin:0 auto; min-height:100vh; position:relative;
   border-left:4px solid var(--x); border-right:4px solid var(--x);
 }
-/* the copier, clipped to the sheet rather than the viewport */
-body::before{
-  content:""; position:fixed; inset:0; max-width:520px; margin:0 auto;
-  z-index:60; pointer-events:none; opacity:.13; mix-blend-mode:multiply;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)'/%3E%3C/svg%3E");
-}
+/* THE COPIER TEXTURE IS GONE, AND THAT WAS THE WHOLE COMPLAINT.
+
+   It was a full-page noise layer at 13% multiply. On a phone it read as
+   "photocopied". On a laptop it read as dirty — a grey-green mottling
+   over every screen in the app, which is what "it looks messy" was
+   actually pointing at.
+
+   The identity was never the grime. It's the black masthead, the acid
+   strip, Anton, and hard square corners. Those all stay. The paper is
+   simply clean paper now.
+
+   ⚠️ --wear still exists and is still used deliberately on the acid
+   slabs (the count, the rule card), where a little wear on a small
+   block of colour reads as ink rather than as dirt. Do not put it back
+   on <body>. */
 
 /* ---------- chrome ---------- */
 .mast{ background:var(--x); color:var(--paper); padding:13px 15px;
