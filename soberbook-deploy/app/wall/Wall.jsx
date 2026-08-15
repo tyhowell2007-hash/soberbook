@@ -7,17 +7,6 @@ import { browserClient } from '../../lib/supabase-browser';
 import Thread from './Thread';
 import PostMenu from './PostMenu';
 
-/* Deterministic rotation from the post id.
-   Random angles look fine in a screenshot and are unusable in practice —
-   the whole wall reshuffles on every render. Seeding from the id means a
-   given scrap always sits at the same angle. */
-function rot(id) {
-  let h = 0;
-  for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) | 0;
-  const deg = ((Math.abs(h) % 400) / 100) - 2;   // −2.00° … +1.99°
-  return deg.toFixed(2) + 'deg';
-}
-
 function ago(iso) {
   const mins = Math.floor((Date.now() - new Date(iso).getTime()) / 60000);
   if (mins < 1) return 'just now';
@@ -126,9 +115,10 @@ export default function Wall({ initial }) {
   // disagreeing with the database.
   const [pending, setPending] = useState(() => new Set());
 
-  // Re-read the wall so the reply count (and therefore the scrap's SIZE)
-  // updates. Worth noting: answering a post can shrink it — an unanswered
-  // post is a poster, an answered one is a card. The layout is the promise.
+  // Re-read the wall so the reply count updates — and with it, which post
+  // carries the acid edge. Answering somebody literally takes the mark off
+  // their post and moves it to whoever has been waiting next longest.
+  // The layout is the promise.
   async function refresh() {
     const { data } = await supabase
       .from('feed_posts').select('*').order('created_at', { ascending: false }).limit(60);
@@ -228,10 +218,7 @@ export default function Wall({ initial }) {
                 (p.is_anonymous ? ' screened' : '') +
                 (i === 0 ? ' newest' : '')
               }
-              style={{ '--rot': rot(p.id) }}
             >
-              {w === 'poster' ? <span className="tape" /> : <span className="pin" />}
-
               <div className="nm">
                 {p.milestone_days ? `🏅 ${p.milestone_days} DAYS` : who(p)}
               </div>
@@ -248,7 +235,7 @@ export default function Wall({ initial }) {
                   — that's the point — you just don't get told why. */}
               {w === 'poster' && unanswered(p) && !p.is_mine && (
                 <div className="waiting">
-                  ↑ big because nobody&apos;s answered it yet
+                  Nobody&apos;s answered this one yet
                 </div>
               )}
 
