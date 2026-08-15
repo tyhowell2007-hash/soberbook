@@ -1,67 +1,85 @@
 /* =====================================================================
-   THE WALL
+   THE NEWS FEED
 
-   A corkboard, not a column. Two things make it work:
+   WAS A CORKBOARD. IT ISN'T ANY MORE, AND THAT WASN'T a style change —
+   it was the fix for "it looks messy".
 
-   1. THE DOM IS IN READING ORDER — newest first, then by weight. Position
-      is applied purely with CSS. A screen reader gets a sensible list; a
-      screen gets a wall. Never build the DOM in visual order.
+   Three things were doing the damage, all of them charming in a mockup
+   and chaotic with six real posts in them:
 
-   2. ROTATION IS SEEDED FROM THE POST ID, not random. A given post always
-      sits at the same angle, so the wall doesn't reshuffle on every render.
-      Random rotation looks the same in a screenshot and is unusable in life.
+     1. EVERY CARD WAS ROTATED a degree or two, seeded from the post id.
+        Nothing lined up with anything, so the eye never settled.
+     2. TWO RAGGED COLUMNS of different heights, so reading order was
+        genuinely ambiguous — you had to work out where to look next.
+     3. PINS AND TAPE on every single card. Decoration that reads as
+        detail once and as litter six times over.
+
+   Now: one column, one width, no rotation, no props. Your eye goes
+   straight down and always knows where the next post starts. That also
+   quietly solved the "how do I know what order to read these in"
+   problem without adding a single mark to the screen.
+
+   WHAT STAYED, because this is still Sober Book and not a template:
+   the black masthead with its acid offset, the acid strip, Anton names,
+   Courier Prime labels, hard 3px borders, square corners, and the flat
+   offset shadow. Built, rather than scattered.
    ===================================================================== */
 .wall{
-  padding:14px 12px 100px;
-  display:grid;
-  grid-template-columns:repeat(2, 1fr);
-  gap:16px 12px;
-  align-items:start;
+  padding:16px 14px 104px;
+  display:flex;
+  flex-direction:column;
+  gap:13px;
 }
 
 .item{
   position:relative;
   background:var(--paper2);
   border:3px solid var(--x);
-  box-shadow:5px 5px 0 var(--x);
-  padding:11px 12px;
-  transform:rotate(var(--rot));
+  box-shadow:4px 4px 0 var(--x);
+  padding:14px 15px;
 }
-/* the newest thing always takes the top-left slot. Position carries
-   importance; the timestamp carries time. Don't make position do both. */
+/* Newest first. `order` is kept because the DOM is in reading order for a
+   screen reader and position is CSS's job — that rule survives the
+   redesign even though the layout no longer needs to move anything. */
 .item.newest{ order:-1; }
 
-/* POSTER — milestones, and anything left unanswered too long.
-   An unanswered post gets physically bigger. That's "nobody posts into
-   silence" enforced by layout instead of by good intentions. */
-.item.poster{
-  grid-column:1 / -1;
-  background:var(--acid);
-  background-image:var(--wear);
-  background-size:240px;
-  background-blend-mode:screen;
-  border-width:4px;
-  box-shadow:7px 7px 0 var(--x);
-  padding:15px;
-}
-.item.poster .nm{ font-size:26px; }
-.item.poster .bd{ color:var(--acid-ink); font-weight:600; font-size:15px; }
-.item.poster .mt{ color:#3A4200; }
+/* WAITING — the one post that has gone longest with nobody answering.
 
-/* SCRAP — short things, logistics */
-.item.scrap{ padding:9px 10px; }
-.item.scrap .bd{ font-size:13px; }
+   It used to be a full acid slab. With three of them on screen the
+   loud state became the ordinary state, which is the opposite of the
+   point (see weight() in Wall.jsx — only ONE post is ever promoted
+   now).
+
+   So it's a heavy acid rule down the left edge and a small tag. Findable
+   in half a second, and it sits BESIDE the other posts instead of
+   shouting over them. Quiet enough that a wall full of them would never
+   read as "this place is dead". */
+.item.poster{
+  border-left-width:9px;
+  border-left-color:var(--acid);
+  background:#FBFAF6;
+}
+.item.poster .nm{ font-size:17px; }
+.item.poster .bd{ font-size:15.5px; }
+
+/* SCRAP — short things. Same box, lighter type. No longer a different
+   SIZE, because varying widths were half the mess. */
+.item.scrap .bd{ font-size:14.5px; }
 
 /* SCREENED — anonymous. A halftone screen, not a colour.
    "Screened" is the print term, and it reads as obscured rather than
-   decorated. Survives a black-and-white copier, which is the honest test. */
-.item.screened{ background:var(--paper); border-style:dashed; }
+   decorated. Survives a black-and-white copier, which is the honest
+   test. Kept exactly as it was — it was never part of the problem. */
+.item.screened{ background:#F6F4EC; border-style:dashed; }
 .item.screened::after{
   content:""; position:absolute; inset:0; pointer-events:none;
-  background-image:radial-gradient(rgba(10,10,9,.30) 1.3px, transparent 1.5px);
+  background-image:radial-gradient(rgba(10,10,9,.16) 1.2px, transparent 1.5px);
   background-size:6px 6px;
 }
 .item.screened > *{ position:relative; z-index:1; }
+
+/* the pin and the tape are gone — see the note at the top */
+.pin, .tape{ display:none; }
 
 .item .nm{
   font-family:'Anton',Impact,sans-serif; font-weight:400; font-size:15px;
