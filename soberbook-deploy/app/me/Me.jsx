@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { browserClient } from '../../lib/supabase-browser';
@@ -86,6 +86,33 @@ export default function Me({ email, profile, posts }) {
   /* ---- name and face (0012) ---- */
   const [dname, setDname] = useState(profile.display_name || '');
   const [avatar, setAvatar] = useState(profile.avatar || '');
+
+  /* The face picker is CLOSED by default and shuts itself again the moment
+     you choose. Fifty-four squares sitting open is most of the page, and
+     the thing you actually came here to see — the card at the top showing
+     how you look to everyone else — gets pushed off screen by the menu
+     you use once.
+
+     ⚠️ THE REF IS NOT DECORATION. When the panel closes, the button you
+     just clicked stops existing. Browsers respond to focus disappearing by
+     dumping it back to the top of the document, so a keyboard user picks a
+     face and silently loses their place — they're suddenly tabbing through
+     the masthead again with no idea why. Moving focus back to the opener
+     is what makes it a menu instead of a trapdoor.
+
+     Nothing here saves. Picking a face still only stages it; Save is still
+     the thing that writes. Opening and closing a menu must never be the
+     same gesture as committing. */
+  const [faceOpen, setFaceOpen] = useState(false);
+  const faceBtn = useRef(null);
+
+  function pickFace(e) {
+    setAvatar(avatar === e ? '' : e);
+    setFaceOpen(false);
+    /* Next frame, not this one: the panel is still on screen until React
+       re-renders, and focusing the opener before it's back does nothing. */
+    requestAnimationFrame(() => faceBtn.current?.focus());
+  }
 
   const anon = privacy === 'anonymous';
   const deetsDirty =
@@ -239,30 +266,63 @@ export default function Me({ email, profile, posts }) {
           seeing until now.
         </p>
 
-        <label>Pick a face</label>
+        <label id="facelab">Pick a face</label>
         {/* Why a fixed list and not a text box: see FACE_GROUPS up top.
             And no photographs here on purpose — a face on a recovery app
             is permanent and screenshot-able. That option is coming, but
             it gets built carefully rather than bolted on. */}
-        {FACE_GROUPS.map((g) => (
-          <div key={g.name}>
-            <h3 className="facegrp">{g.name}</h3>
-            <ul className="faces">
-              {g.items.map((e) => (
-                <li key={e}>
-                  <button type="button"
-                          className={'face' + (avatar === e ? ' sel' : '')}
-                          aria-label={'Use this as your face'}
-                          aria-pressed={avatar === e}
-                          disabled={busy}
-                          onClick={() => setAvatar(avatar === e ? '' : e)}>
-                    <span aria-hidden="true">{e}</span>
-                  </button>
-                </li>
-              ))}
-            </ul>
+        <button type="button" className={'facepick' + (faceOpen ? ' open' : '')}
+                ref={faceBtn}
+                aria-expanded={faceOpen}
+                aria-controls="facegrid"
+                aria-labelledby="facelab"
+                disabled={busy}
+                onClick={() => setFaceOpen(!faceOpen)}>
+          <span className="fpnow" aria-hidden="true">{avatar || '🌱'}</span>
+          <span className="fplab">
+            {avatar ? 'This is your face' : 'No face picked yet'}
+            <span className="fpsub">
+              {faceOpen ? 'Close without changing it'
+                        : avatar ? 'Tap to pick a different one'
+                                 : 'Tap to pick one — the seedling is the default'}
+            </span>
+          </span>
+          <span className="fpcaret" aria-hidden="true">{faceOpen ? '▲' : '▼'}</span>
+        </button>
+
+        {faceOpen && (
+          <div id="facegrid" className="facegrid">
+            {FACE_GROUPS.map((g) => (
+              <div key={g.name}>
+                <h3 className="facegrp">{g.name}</h3>
+                <ul className="faces">
+                  {g.items.map((e) => (
+                    <li key={e}>
+                      <button type="button"
+                              className={'face' + (avatar === e ? ' sel' : '')}
+                              aria-label={'Use this as your face'}
+                              aria-pressed={avatar === e}
+                              disabled={busy}
+                              onClick={() => pickFace(e)}>
+                        <span aria-hidden="true">{e}</span>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+            {/* The way back out. Tapping your own face again also clears it,
+                but nobody discovers that, and "how do I undo this" is not a
+                puzzle worth setting on a page about how you appear to
+                people. */}
+            {avatar && (
+              <button type="button" className="facenone" disabled={busy}
+                      onClick={() => pickFace(avatar)}>
+                Go back to the seedling
+              </button>
+            )}
           </div>
-        ))}
+        )}
 
         <button className="btn" type="button"
                 disabled={busy || (dname === (profile.display_name || '')
