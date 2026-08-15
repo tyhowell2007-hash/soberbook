@@ -713,6 +713,53 @@ textarea:focus-visible{ outline:4px solid var(--x); outline-offset:3px; }
    should be impossible to miss — same reasoning as .mrow in the report
    sheet.
    ===================================================================== */
+/* THE OPENER — what you see when the picker is shut, which is nearly
+   always. It shows the face you currently have, so the row is an ANSWER
+   ("this is you") that happens to also be a control, rather than a button
+   labelled "pick a face" that tells you nothing about your own profile.
+
+   Sized and bordered like the input above it on purpose: it sits in a
+   column of form fields, so it should read as one of them. */
+.facepick{
+  display:flex; align-items:center; gap:12px; width:100%; text-align:left;
+  border:3px solid var(--x); background:var(--paper2);
+  padding:9px 12px; margin:8px 0 4px; cursor:pointer;
+}
+.facepick:hover{ background:#FBFAF6; }
+.facepick:focus-visible{ outline:4px solid var(--x); outline-offset:3px; }
+.facepick[disabled]{ opacity:.55; cursor:default; }
+/* Open gets the same acid-slab shadow a selected face gets, so "this is
+   the thing currently active" looks identical everywhere in the app. */
+.facepick.open{ box-shadow:4px 4px 0 var(--x); }
+
+.fpnow{
+  flex-shrink:0; width:42px; height:42px; display:flex;
+  align-items:center; justify-content:center; font-size:22px; line-height:1;
+  border:3px solid var(--x); background:var(--acid);
+}
+.fplab{
+  flex:1; min-width:0; display:block;
+  font-family:'Anton',Impact,sans-serif; font-size:15px;
+  text-transform:uppercase; letter-spacing:.02em; color:var(--x); line-height:1.15;
+}
+/* The second line is the instruction. Monospace and quiet — the app's
+   voice for "this is the system talking", never for a person's words. */
+.fpsub{
+  display:block; margin-top:3px;
+  font-family:'Courier Prime',monospace; font-size:10px; font-weight:400;
+  letter-spacing:.10em; text-transform:uppercase; color:var(--soft);
+}
+.fpcaret{ flex-shrink:0; font-size:11px; color:var(--soft); }
+
+/* THE PANEL. Capped and scrollable rather than however tall 54 squares
+   happen to be — otherwise opening it pushes Save past the bottom of the
+   phone and the picker looks like it ate the page. */
+.facegrid{
+  border:3px solid var(--x); border-top:0; background:var(--paper2);
+  padding:4px 12px 14px; margin:0 0 4px;
+  max-height:46vh; overflow-y:auto;
+}
+
 .faces{
   display:grid; grid-template-columns:repeat(6,1fr); gap:8px;
   list-style:none; padding:0; margin:8px 0 4px;
@@ -744,3 +791,15 @@ textarea:focus-visible{ outline:4px solid var(--x); outline-offset:3px; }
   margin:16px 0 0;
 }
 .facegrp:first-of-type{ margin-top:10px; }
+
+/* The way out. Deliberately NOT styled as a face — it isn't one of the
+   choices, it's the absence of one, and making it look like a 55th
+   square would be a small lie. */
+.facenone{
+  display:block; width:100%; margin-top:14px; padding:9px;
+  border:3px dashed var(--x); background:transparent; cursor:pointer;
+  font-family:'Courier Prime',monospace; font-size:11px; font-weight:700;
+  letter-spacing:.14em; text-transform:uppercase; color:var(--soft);
+}
+.facenone:hover{ background:var(--paper); color:var(--x); }
+.facenone:focus-visible{ outline:4px solid var(--x); outline-offset:3px; }
