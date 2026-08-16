@@ -87,6 +87,27 @@ export default function Me({ email, profile, posts }) {
   const [dname, setDname] = useState(profile.display_name || '');
   const [avatar, setAvatar] = useState(profile.avatar || '');
 
+  /* ---- READ FIRST, EDIT ON PURPOSE (Ty's call, Aug 16) ----
+
+     This page used to be ten open forms stacked on top of each other:
+     name, face, privacy, date, lifetime, bio, location, sponsoring, song,
+     autoplay, account. Every one of them expanded, all shouting at once.
+     Ty: "it's really messy. there's too many drop down windows. it doesn't
+     make any sense."
+
+     He was right, and the reason is that /me was doing two unrelated jobs
+     under identical headings — THIS IS YOUR PAGE (what people see) and
+     THESE ARE YOUR SETTINGS (knobs nobody else will ever look at). Stacked
+     together there was no way to tell which was which.
+
+     So: the page you land on is now a page you READ. One pencil opens the
+     settings. Nothing was deleted — every field, every save path and every
+     piece of state below is untouched, just moved behind `editing`. That
+     was deliberate: a restructure that also rewrites the save logic is two
+     changes wearing one commit, and when it breaks you can't tell which
+     half did it. */
+  const [editing, setEditing] = useState(false);
+
   /* The face picker is CLOSED by default and shuts itself again the moment
      you choose. Fifty-four squares sitting open is most of the page, and
      the thing you actually came here to see — the card at the top showing
@@ -270,6 +291,101 @@ export default function Me({ email, profile, posts }) {
         {/* ---- the count ---- */}
         <Milestones since={since || null} days={d}
                     sub={(d === 1 ? 'day' : 'days') + ' · @' + profile.handle} />
+
+        {/* =================================================================
+            THE READ VIEW — your page as a page, not a form.
+
+            Only rendered when you are NOT editing, so the two states can
+            never both be on screen arguing about which value is current.
+            ================================================================= */}
+        {!editing && (
+          <>
+            <div className="phead">
+              <div className="pface" aria-hidden="true">{avatar || (anon ? '🤫' : 'TY')}</div>
+              <h2 className="pn">
+                {anon ? profile.handle : (dname || profile.handle)}
+                {!anon && showLoc && town ? <span className="pdot"> · {town}{state ? ', ' + state : ''}</span> : null}
+              </h2>
+              {/* ⚠️ NO PROSE ON AN ANONYMOUS PAGE. Free text is the easiest
+                  way to unmask yourself by accident — a bio naming your town,
+                  your job and your dog is an identification. Same rule the
+                  public profile already follows. */}
+              {!anon && bio ? <p className="pbio">{bio}</p> : null}
+            </div>
+
+            {/* ---- personal details, with the one pencil ---- */}
+            <div className="deets">
+              <div className="deets-hd">
+                <h3>Personal details</h3>
+                <button type="button" className="pencil" onClick={() => setEditing(true)}
+                        aria-label="Edit your details">✏️</button>
+              </div>
+
+              {/* ⚠️ The sponsor row is gated to 365 days. That gate was a
+                  safety call, not a product one: "available to sponsor" on a
+                  page belonging to somebody three weeks in is exactly the
+                  shape of a 13th-stepping problem. Do not lower it. */}
+              {/* ⚠️ .deet, NOT .mrow. `.mrow` looks similar and is a BUTTON
+                  style — it turns acid on hover and takes a focus ring. Read-only
+                  facts wearing it would look tappable and do nothing, which is
+                  how you teach somebody the app is broken. `.deet` is the same
+                  card the public profile at /u already uses, so the two views
+                  of the same information can't drift apart. */}
+              {!anon && sponsor === 'available' && d !== null && d >= 365 && (
+                <div className="deet sponsor">
+                  <span className="di" aria-hidden="true">🛟</span>
+                  <span>Available to sponsor</span>
+                </div>
+              )}
+              {!anon && programs && (
+                <div className="deet">
+                  <span className="di" aria-hidden="true">🧭</span><span>{programs}</span>
+                </div>
+              )}
+              {!anon && showLoc && town && (
+                <div className="deet">
+                  <span className="di" aria-hidden="true">📍</span>
+                  <span>{town}{state ? ', ' + state : ''}</span>
+                </div>
+              )}
+              {!anon && interests && (
+                <div className="deet">
+                  <span className="di" aria-hidden="true">🎣</span><span>{interests}</span>
+                </div>
+              )}
+
+              {/* An empty card with a pencil is a dead end — say what the
+                  pencil is for rather than showing four blank rows. */}
+              {(anon || (!programs && !interests && !(showLoc && town) && sponsor !== 'available')) && (
+                <p className="hint" style={{ margin: 0 }}>
+                  {anon
+                    ? 'You’re anonymous, so nothing here is shown to anybody. The pencil still opens your settings.'
+                    : 'Nothing filled in yet. The pencil adds your programs, where you are, and what you’re into.'}
+                </p>
+              )}
+            </div>
+
+            {/* ---- the anthem ---- */}
+            {song?.anthem_url ? (
+              <SongPlayer song={song} whose="my anthem" big />
+            ) : (
+              <p className="hint">
+                No song yet. The pencil adds one &mdash; the song that got you through.
+              </p>
+            )}
+          </>
+        )}
+
+        {/* =================================================================
+            EVERYTHING BELOW IS THE SETTINGS SIDE. Behind the pencil.
+            ================================================================= */}
+        {editing && (
+        <>
+        <div className="editbar">
+          <button type="button" className="btn ghost" onClick={() => setEditing(false)}>
+            ‹ Done
+          </button>
+        </div>
 
         {/* ---- name and face ---- */}
         <h2 className="sec">Your name and face</h2>
@@ -679,6 +795,30 @@ export default function Me({ email, profile, posts }) {
           here, or from the switch under any song, and it stays off for good.
         </p>
 
+        {/* ---- the door ----
+            Sign-out lives in settings now rather than on the page you land
+            on. It is the one control here you can't undo by tapping again,
+            and it does not belong next to your own face. */}
+        <h2 className="sec">Account</h2>
+        <p className="hint">Signed in as {email}</p>
+        <button className={'btn out' + (confirmOut ? ' arm' : '')} type="button"
+                disabled={busy} onClick={signOut}>
+          {confirmOut ? 'Tap again to sign out' : 'Sign out'}
+        </button>
+        {confirmOut && (
+          <button className="nvm" type="button" onClick={() => setConfirmOut(false)}>
+            never mind
+          </button>
+        )}
+
+        <div className="editbar">
+          <button type="button" className="btn" onClick={() => setEditing(false)}>
+            Done
+          </button>
+        </div>
+        </>
+        )}
+
         {/* ---- your posts ---- */}
         <h2 className="sec">What you&apos;ve put up</h2>
         {posts.length === 0 ? (
@@ -700,18 +840,6 @@ export default function Me({ email, profile, posts }) {
           </ul>
         )}
 
-        {/* ---- the door ---- */}
-        <h2 className="sec">Account</h2>
-        <p className="hint">Signed in as {email}</p>
-        <button className={'btn out' + (confirmOut ? ' arm' : '')} type="button"
-                disabled={busy} onClick={signOut}>
-          {confirmOut ? 'Tap again to sign out' : 'Sign out'}
-        </button>
-        {confirmOut && (
-          <button className="nvm" type="button" onClick={() => setConfirmOut(false)}>
-            never mind
-          </button>
-        )}
       </div>
     </>
   );

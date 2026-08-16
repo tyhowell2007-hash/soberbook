@@ -345,6 +345,19 @@ body{
 .facegrid{ border-color:var(--line); border-top:0; }
 
 /* the avatar on a profile card */
+/* Your page, in the room. The face becomes the soft circle from the July
+   prototype rather than an acid slab with a hard shadow. */
+.pface{
+  background:var(--gl); color:var(--gt); border:0; border-radius:50%;
+  box-shadow:none; font-family:'Archivo',system-ui,sans-serif; font-weight:700;
+  font-size:32px; letter-spacing:.02em;
+}
+.pn{ font-family:'Archivo',system-ui,sans-serif; font-weight:700; font-size:21px;
+  text-transform:none; letter-spacing:-.01em; color:var(--body); }
+.pbio{ color:var(--soft); }
+.pencil{ border-radius:99px; }
+.pencil:hover{ background:var(--gl); }
+
 .pav{ background:var(--gl); color:var(--gt); border:0; border-radius:50%;
   background-image:none; }
 
