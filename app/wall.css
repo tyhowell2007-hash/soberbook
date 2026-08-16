@@ -1,0 +1,805 @@
+/* =====================================================================
+   THE NEWS FEED
+
+   WAS A CORKBOARD. IT ISN'T ANY MORE, AND THAT WASN'T a style change —
+   it was the fix for "it looks messy".
+
+   Three things were doing the damage, all of them charming in a mockup
+   and chaotic with six real posts in them:
+
+     1. EVERY CARD WAS ROTATED a degree or two, seeded from the post id.
+        Nothing lined up with anything, so the eye never settled.
+     2. TWO RAGGED COLUMNS of different heights, so reading order was
+        genuinely ambiguous — you had to work out where to look next.
+     3. PINS AND TAPE on every single card. Decoration that reads as
+        detail once and as litter six times over.
+
+   Now: one column, one width, no rotation, no props. Your eye goes
+   straight down and always knows where the next post starts. That also
+   quietly solved the "how do I know what order to read these in"
+   problem without adding a single mark to the screen.
+
+   WHAT STAYED, because this is still Sober Book and not a template:
+   the black masthead with its acid offset, the acid strip, Anton names,
+   Courier Prime labels, hard 3px borders, square corners, and the flat
+   offset shadow. Built, rather than scattered.
+   ===================================================================== */
+.wall{
+  padding:16px 14px 104px;
+  display:flex;
+  flex-direction:column;
+  gap:13px;
+}
+
+.item{
+  position:relative;
+  background:var(--paper2);
+  border:3px solid var(--x);
+  box-shadow:4px 4px 0 var(--x);
+  padding:14px 15px;
+}
+/* Newest first. `order` is kept because the DOM is in reading order for a
+   screen reader and position is CSS's job — that rule survives the
+   redesign even though the layout no longer needs to move anything. */
+.item.newest{ order:-1; }
+
+/* WAITING — the one post that has gone longest with nobody answering.
+
+   It used to be a full acid slab. With three of them on screen the
+   loud state became the ordinary state, which is the opposite of the
+   point (see weight() in Wall.jsx — only ONE post is ever promoted
+   now).
+
+   So it's a heavy acid rule down the left edge and a small tag. Findable
+   in half a second, and it sits BESIDE the other posts instead of
+   shouting over them. Quiet enough that a wall full of them would never
+   read as "this place is dead". */
+.item.poster{
+  border-left-width:9px;
+  border-left-color:var(--acid);
+  background:#FBFAF6;
+}
+.item.poster .nm{ font-size:17px; }
+.item.poster .bd{ font-size:15.5px; }
+
+/* SCRAP — short things. Same box, lighter type. No longer a different
+   SIZE, because varying widths were half the mess. */
+.item.scrap .bd{ font-size:14.5px; }
+
+/* SCREENED — anonymous. A halftone screen, not a colour.
+   "Screened" is the print term, and it reads as obscured rather than
+   decorated. Survives a black-and-white copier, which is the honest
+   test. Kept exactly as it was — it was never part of the problem. */
+.item.screened{ background:#F6F4EC; border-style:dashed; }
+.item.screened::after{
+  content:""; position:absolute; inset:0; pointer-events:none;
+  background-image:radial-gradient(rgba(10,10,9,.16) 1.2px, transparent 1.5px);
+  background-size:6px 6px;
+}
+.item.screened > *{ position:relative; z-index:1; }
+
+/* the pin and the tape are gone — see the note at the top */
+.pin, .tape{ display:none; }
+
+.item .nm{
+  font-family:'Anton',Impact,sans-serif; font-weight:400; font-size:15px;
+  text-transform:uppercase; color:var(--x); line-height:1.05;
+}
+.item .mt{
+  font-family:'Courier Prime',monospace; font-size:9.5px; letter-spacing:.1em;
+  text-transform:uppercase; color:var(--soft); margin-top:3px;
+}
+.item .bd{ font-size:14px; color:var(--body); margin-top:7px; overflow-wrap:anywhere; }
+.item .ft{
+  display:flex; gap:12px; margin-top:9px; padding-top:7px; border-top:2px solid var(--x);
+  font-family:'Courier Prime',monospace; font-size:10px; font-weight:700;
+  letter-spacing:.06em; text-transform:uppercase; color:var(--soft);
+}
+.item .ft .mine{ margin-left:auto; color:var(--x); }
+
+/* pins and tape — decoration only, never over text */
+.item .pin{
+  position:absolute; top:-7px; left:50%; margin-left:-6px; width:12px; height:12px;
+  border-radius:50%; background:#C2410C; box-shadow:0 2px 3px rgba(0,0,0,.4); z-index:3;
+}
+.item .tape{
+  position:absolute; top:-9px; left:14px; width:62px; height:19px;
+  background:rgba(214,255,46,.5);
+  border-left:1px dashed rgba(0,0,0,.3); border-right:1px dashed rgba(0,0,0,.3);
+  transform:rotate(-5deg); z-index:3;
+}
+
+/* the empty wall. 12 members means this WILL be seen — it should feel
+   like a quiet room, not a broken app. */
+.empty{
+  grid-column:1 / -1; text-align:center; padding:44px 18px;
+  border:3px dashed var(--x); background:var(--paper);
+}
+.empty .h{ font-family:'Permanent Marker',cursive; font-size:22px; color:var(--x); }
+.empty .p{ font-family:'Courier Prime',monospace; font-size:12.5px; color:var(--soft); margin-top:8px; }
+
+/* composer, pinned to the bottom */
+.composer{
+  position:fixed; bottom:0; left:0; right:0; max-width:520px; margin:0 auto;
+  background:var(--x); padding:11px 12px; display:flex; gap:9px; z-index:50;
+  border-top:4px solid var(--x);
+}
+.composer input{
+  flex:1; border:3px solid var(--acid); background:#F2EFE6; padding:11px;
+  font-family:'Courier Prime',monospace; font-size:15px; color:var(--x); outline:none; min-width:0;
+}
+.composer input:focus-visible{ outline:3px solid var(--acid); outline-offset:2px; }
+.composer button{
+  background:var(--acid); color:var(--acid-ink); border:none; padding:11px 15px;
+  font-family:'Anton',Impact,sans-serif; font-size:16px; text-transform:uppercase;
+  letter-spacing:.04em; cursor:pointer; white-space:nowrap;
+}
+.composer button[disabled]{ opacity:.5; }
+.anontoggle{
+  position:fixed; bottom:62px; left:0; right:0; max-width:520px; margin:0 auto;
+  padding:6px 12px; z-index:50; display:flex; justify-content:flex-end;
+}
+.anontoggle button{
+  background:var(--paper2); border:3px solid var(--x); box-shadow:3px 3px 0 var(--x);
+  font-family:'Courier Prime',monospace; font-size:10px; font-weight:700;
+  letter-spacing:.1em; text-transform:uppercase; padding:6px 10px; cursor:pointer;
+  color:var(--x);
+}
+.anontoggle button.on{ background:var(--x); color:var(--acid); }
+
+/* =====================================================================
+   THREAD — a post, opened.
+
+   Slides up over the wall rather than navigating away, so you don't lose
+   your place on the board. The wall is a physical object; walking away
+   from it and back would break that.
+   ===================================================================== */
+.replies{
+  background:none; border:none; padding:0; cursor:pointer;
+  font-family:'Courier Prime',monospace; font-size:10px; font-weight:700;
+  letter-spacing:.06em; text-transform:uppercase; color:var(--x);
+  text-decoration:underline; text-underline-offset:3px;
+}
+.replies:focus-visible{ outline:3px solid var(--x); outline-offset:3px; }
+
+.sheetwrap{ position:fixed; inset:0; z-index:200; display:flex; align-items:flex-end;
+  justify-content:center; }
+.scrim{ position:absolute; inset:0; background:rgba(10,10,9,.62); border:none;
+  padding:0; cursor:pointer; }
+.thread{
+  position:relative; width:100%; max-width:520px; max-height:88vh;
+  background:var(--paper); border:4px solid var(--x); border-bottom:none;
+  box-shadow:0 -10px 0 rgba(10,10,9,.35);
+  display:flex; flex-direction:column;
+}
+.threadbar{ background:var(--x); padding:11px 13px; display:flex; align-items:center; gap:10px; }
+.threadbar .tt{ font-family:'Anton',Impact,sans-serif; font-size:19px; text-transform:uppercase;
+  color:var(--paper); letter-spacing:.02em; }
+.threadbar .x{ margin-left:auto; background:none; border:none; color:var(--acid);
+  font-size:19px; cursor:pointer; line-height:1; padding:2px 6px; }
+.threadbar .x:focus-visible{ outline:3px solid var(--acid); outline-offset:2px; }
+
+.threadbody{ padding:14px 13px 8px; overflow-y:auto; flex:1; }
+.orig{ font-size:16px; color:var(--body); }
+.origmeta{ font-family:'Courier Prime',monospace; font-size:10px; letter-spacing:.1em;
+  text-transform:uppercase; color:var(--soft); margin:6px 0 14px;
+  padding-bottom:12px; border-bottom:3px solid var(--x); }
+
+.loading{ font-family:'Courier Prime',monospace; font-size:12px; color:var(--soft);
+  padding:14px 0; }
+/* The empty state IS the product promise. It says the rule out loud at the
+   exact moment someone is deciding whether to bother replying. */
+.nosilence{ border:3px dashed var(--x); background:var(--paper2); padding:16px;
+  font-family:'Courier Prime',monospace; font-size:12.5px; color:var(--soft);
+  line-height:1.7; text-align:center; }
+.nosilence b{ font-family:'Permanent Marker',cursive; font-size:16px; color:var(--x);
+  display:inline-block; margin-top:5px; }
+
+.reply{ border-left:4px solid var(--x); padding:9px 0 9px 12px; margin-bottom:12px; }
+.reply.screened{ border-left-style:dashed; position:relative; }
+.reply.screened::after{ content:""; position:absolute; inset:0; pointer-events:none;
+  background-image:radial-gradient(rgba(10,10,9,.22) 1.2px, transparent 1.4px);
+  background-size:6px 6px; }
+.reply.screened > *{ position:relative; z-index:1; }
+.rwho{ font-family:'Anton',Impact,sans-serif; font-size:15px; text-transform:uppercase;
+  color:var(--x); }
+.rwhen{ font-family:'Courier Prime',monospace; font-size:9.5px; letter-spacing:.1em;
+  color:var(--soft); margin-left:8px; text-transform:uppercase; }
+.rbody{ font-size:14.5px; color:var(--body); margin-top:4px; overflow-wrap:anywhere; }
+.rerr{ border:3px solid #9A3412; background:#FFF1E7; color:#7C2D12; padding:10px 12px;
+  font-size:13px; margin-top:10px; }
+
+.replybar{ border-top:4px solid var(--x); background:var(--paper2); padding:9px 12px 12px; }
+.ranon{ background:var(--paper); border:3px solid var(--x); box-shadow:3px 3px 0 var(--x);
+  font-family:'Courier Prime',monospace; font-size:10px; font-weight:700;
+  letter-spacing:.1em; text-transform:uppercase; padding:6px 10px; cursor:pointer;
+  color:var(--x); margin-bottom:9px; }
+.ranon.on{ background:var(--x); color:var(--acid); }
+.ranon:focus-visible{ outline:3px solid var(--x); outline-offset:3px; }
+.replybar form{ display:flex; gap:8px; }
+.replybar input{ flex:1; border:3px solid var(--x); background:#F2EFE6; padding:11px;
+  font-family:'Courier Prime',monospace; font-size:15px; color:var(--x); outline:none;
+  min-width:0; }
+.replybar input:focus-visible{ outline:3px solid var(--acid); outline-offset:-3px; }
+.replybar button[type=submit]{ background:var(--x); color:var(--acid); border:none;
+  padding:11px 16px; font-family:'Anton',Impact,sans-serif; font-size:16px;
+  text-transform:uppercase; letter-spacing:.04em; cursor:pointer; white-space:nowrap; }
+.replybar button[type=submit][disabled]{ opacity:.5; }
+
+/* =====================================================================
+   YOUR OWN PAGE  (/me)
+
+   Small on purpose. Sign out, how you show up, your date, your posts.
+   Everything else that could live here was cut so the sign-out button
+   could ship tonight instead of next week.
+   ===================================================================== */
+
+/* Two spans inside .choice were styled with margin-top, which does
+   NOTHING on an inline element — no error, no warning, it just silently
+   doesn't happen, and the title ran into the description on /welcome.
+   Making them blocks is the fix, and it repairs the signup page too. */
+.choice .ct, .choice .cd{ display:block; }
+
+.mast .back{
+  color:var(--acid); text-decoration:none; font-size:22px; line-height:1;
+  padding:2px 8px 4px 0; font-family:'Anton',Impact,sans-serif;
+}
+.mast .back:focus-visible{ outline:3px solid var(--acid); outline-offset:2px; }
+
+/* the count. The only thing on this page that gets to be loud. */
+.count{
+  border:4px solid var(--x); background:var(--acid); background-image:var(--wear);
+  background-size:240px; background-blend-mode:screen;
+  box-shadow:7px 7px 0 var(--x); padding:20px 16px; text-align:center;
+  margin-bottom:26px; transform:rotate(-.6deg);
+}
+.count .cn{
+  font-family:'Anton',Impact,sans-serif; font-size:62px; line-height:.9;
+  color:var(--acid-ink); letter-spacing:-.01em;
+}
+.count .cl{
+  font-family:'Courier Prime',monospace; font-size:11px; font-weight:700;
+  letter-spacing:.18em; text-transform:uppercase; color:#3A4200; margin-top:8px;
+}
+
+h2.sec{
+  font-family:'Anton',Impact,sans-serif; font-weight:400; font-size:22px;
+  text-transform:uppercase; color:var(--x); letter-spacing:.01em;
+  margin:30px 0 12px; padding-bottom:6px; border-bottom:4px solid var(--x);
+}
+
+/* your posts — a receipt, not a feed. No rotation, no pins: this is the
+   list you scan, not the wall you look at. */
+ul.mine{ list-style:none; }
+ul.mine li{
+  border-left:5px solid var(--x); background:var(--paper2);
+  padding:10px 12px; margin-bottom:10px; position:relative;
+}
+ul.mine li.screened{ background:var(--paper); border-left-style:dashed; }
+ul.mine li.screened::after{
+  content:""; position:absolute; inset:0; pointer-events:none;
+  background-image:radial-gradient(rgba(10,10,9,.22) 1.2px, transparent 1.4px);
+  background-size:6px 6px;
+}
+ul.mine li > *{ position:relative; z-index:1; }
+.mb{ font-size:14.5px; color:var(--body); overflow-wrap:anywhere; }
+.mm{
+  font-family:'Courier Prime',monospace; font-size:9.5px; letter-spacing:.1em;
+  text-transform:uppercase; color:var(--soft); margin-top:6px;
+}
+
+/* the door out. Quiet until armed, then it means it. */
+.btn.out{ background:var(--paper2); color:var(--x); border:4px solid var(--x); }
+.btn.out:hover{ background:var(--x); color:var(--acid); }
+.btn.out.arm{ background:#9A3412; color:#FFF1E7; border-color:var(--x); }
+.btn.out.arm:hover{ background:#7C2D12; color:#FFF1E7; }
+.nvm{
+  display:block; margin:10px auto 0; background:none; border:none; cursor:pointer;
+  font-family:'Courier Prime',monospace; font-size:12px; color:var(--soft);
+  text-decoration:underline; text-underline-offset:3px; padding:6px;
+}
+
+/* the day count in the masthead is now the way in to /me */
+.mast .melink{ text-decoration:none; padding:4px 0 4px 6px; }
+.mast .melink:hover{ text-decoration:underline; text-underline-offset:3px; }
+.mast .melink:focus-visible{ outline:3px solid var(--acid); outline-offset:2px; }
+
+/* the heart. A button now, not a label.
+
+   Acid is a FILL, never text on paper (#D6FF2E on #E4DFD3 is 1.2:1 and
+   invisible). So a liked heart gets a black chip with acid on top —
+   17.2:1 — instead of turning the text acid-coloured. Same rule the
+   milestone posters follow. */
+.heart{
+  background:none; border:none; padding:0; cursor:pointer;
+  font-family:'Courier Prime',monospace; font-size:10px; font-weight:700;
+  letter-spacing:.06em; text-transform:uppercase; color:var(--soft);
+  line-height:1.4;
+}
+.heart:hover{ color:var(--x); }
+.heart.on{
+  background:var(--x); color:var(--acid);
+  padding:2px 6px; margin:-2px -2px -2px -6px;
+}
+.heart:focus-visible{ outline:3px solid var(--x); outline-offset:3px; }
+/* the poster variant sits on acid, so invert the chip there */
+.item.poster .heart{ color:#3A4200; }
+.item.poster .heart:hover{ color:var(--acid-ink); }
+.item.poster .heart.on{ background:var(--acid-ink); color:var(--acid); }
+
+/* =====================================================================
+   THE ⋯ MENU — report and block
+
+   Reuses .sheetwrap / .scrim / .thread from the thread panel, so it slides
+   up from the same place and feels like the same object. Only the body
+   differs.
+   ===================================================================== */
+.dots{
+  margin-left:auto; background:none; border:none; cursor:pointer;
+  font-family:'Anton',Impact,sans-serif; font-size:16px; line-height:1;
+  color:var(--soft); padding:0 2px 4px; letter-spacing:.08em;
+}
+.dots:hover{ color:var(--x); }
+.dots:focus-visible{ outline:3px solid var(--x); outline-offset:3px; }
+.item.poster .dots{ color:#3A4200; }
+.item.poster .dots:hover{ color:var(--acid-ink); }
+
+/* the sheet is shorter than a thread — let it size to its content */
+.thread.menu{ max-height:none; }
+.menubody{ padding:14px 13px 18px; }
+
+/* each choice is a whole tappable block, not a line of text. On a phone,
+   in a moment someone is upset, the target should be impossible to miss. */
+.mrow{
+  display:block; width:100%; text-align:left; background:var(--paper2);
+  border:3px solid var(--x); box-shadow:4px 4px 0 var(--x);
+  padding:13px; margin-bottom:12px; cursor:pointer; font:inherit;
+  color:var(--body);
+}
+.mrow:hover{ background:var(--acid); }
+.mrow:focus-visible{ outline:4px solid var(--x); outline-offset:4px; }
+.mrow[disabled]{ opacity:.55; cursor:default; }
+.mrow.danger{ background:var(--paper); }
+.mrow.danger:hover{ background:#FFF1E7; border-color:#9A3412; }
+.mt2{
+  display:block; font-family:'Anton',Impact,sans-serif; font-size:17px;
+  text-transform:uppercase; color:var(--x); letter-spacing:.01em;
+}
+.md{ display:block; font-size:13px; margin-top:5px; color:var(--body); }
+
+.mnote{
+  font-family:'Courier Prime',monospace; font-size:13px; line-height:1.65;
+  color:var(--body); border-left:5px solid var(--x); padding:2px 0 2px 12px;
+  margin-bottom:16px;
+}
+.mnote.soft{ color:var(--soft); border-left-color:var(--line); }
+.mnote b{ font-size:15px; color:var(--x); }
+
+.back2{
+  display:block; margin:4px auto 0; background:none; border:none; cursor:pointer;
+  font-family:'Courier Prime',monospace; font-size:12px; color:var(--soft);
+  text-decoration:underline; text-underline-offset:3px; padding:8px;
+}
+
+/* "big because nobody's answered it yet" — the rule, explained in situ.
+
+   Deliberately reads as a system note rather than the author's words:
+   monospace, small caps, sitting above the body instead of inside it.
+   Someone should never wonder whether the poster wrote this. */
+.waiting{
+  font-family:'Courier Prime',monospace; font-size:10px; font-weight:700;
+  letter-spacing:.08em; text-transform:uppercase; color:#3A4200;
+  border-top:2px dashed rgba(20,24,0,.35);
+  margin-top:9px; padding-top:7px;
+}
+
+/* the rule, stated on /welcome before someone commits */
+.rule{
+  border:4px solid var(--x); background:var(--acid);
+  background-image:var(--wear); background-size:240px;
+  background-blend-mode:screen;
+  box-shadow:6px 6px 0 var(--x); padding:16px 15px;
+  margin-top:26px; transform:rotate(-.4deg);
+}
+.rule .rt2{
+  display:block; font-family:'Anton',Impact,sans-serif; font-size:18px;
+  text-transform:uppercase; color:var(--acid-ink); letter-spacing:.01em;
+  margin-bottom:8px;
+}
+.rule p{ font-size:14px; color:var(--acid-ink); line-height:1.55; }
+.rule p + p{ margin-top:9px; }
+.rule b{ font-family:'Permanent Marker',cursive; font-size:16px; font-weight:400; }
+
+
+/* =====================================================================
+   SOMEBODY'S PAGE  (/u/<handle>)  and THE PLAYER
+
+   Replaces the shared playlist. A song is not a row in a directory —
+   it's what's playing when you walk into someone's room.
+   ===================================================================== */
+
+/* who it is */
+.pcard{
+  display:flex; align-items:center; gap:14px;
+  border:4px solid var(--x); background:var(--paper2);
+  box-shadow:6px 6px 0 var(--x); padding:14px; margin-bottom:20px;
+  transform:rotate(-.5deg);
+}
+.pav{
+  flex-shrink:0; width:60px; height:60px; display:flex;
+  align-items:center; justify-content:center; font-size:30px; line-height:1;
+  border:3px solid var(--x); background:var(--acid);
+  background-image:var(--wear); background-size:240px; background-blend-mode:screen;
+}
+.pwho{ min-width:0; }
+.pname{
+  display:block; font-family:'Anton',Impact,sans-serif; font-size:24px;
+  text-transform:uppercase; color:var(--x); line-height:1.05; overflow-wrap:anywhere;
+}
+.phandle{
+  display:block; font-family:'Courier Prime',monospace; font-size:10px;
+  letter-spacing:.14em; text-transform:uppercase; color:var(--soft); margin-top:4px;
+}
+
+/* the day count, quieter than the one on your own page — this is
+   somebody else's number and it isn't the headline of their page */
+.count.small{ padding:14px; margin-bottom:22px; transform:rotate(.5deg); }
+.count.small .cn{ font-size:44px; }
+
+/* the name on a post, now a door. Underlined rather than coloured:
+   acid on paper is 1.2:1 and invisible, same rule as the hearts. */
+.wholink{
+  color:inherit; text-decoration:underline; text-underline-offset:3px;
+  text-decoration-thickness:2px; text-decoration-color:var(--line);
+}
+.wholink:hover{ text-decoration-color:var(--x); }
+.wholink:focus-visible{ outline:3px solid var(--x); outline-offset:3px; }
+.item.poster .wholink{ text-decoration-color:rgba(20,24,0,.4); }
+
+/* ---------------------------------------------------------------------
+   THE SLEEVE — one square, two acts.
+   Act one: Apple's preview with a REAL waveform.
+   Act two: the whole song, same frame.
+   --------------------------------------------------------------------- */
+.sleeve{
+  border:4px solid var(--x); background:var(--x);
+  box-shadow:7px 7px 0 var(--x); overflow:hidden; margin-top:6px;
+}
+.sleeve.live{ box-shadow:7px 7px 0 var(--acid); }
+
+.sframe{ position:relative; aspect-ratio:1/1; background:var(--x); overflow:hidden; }
+.sart{ width:100%; height:100%; object-fit:cover; display:block;
+  transition:filter .45s ease, transform .45s ease; }
+.sart.snone{ display:flex; align-items:center; justify-content:center;
+  color:var(--acid); font-size:64px; }
+/* while it plays the art pulls back so the waveform is the subject */
+.sleeve.live .sart{ filter:grayscale(.35) brightness(.42) contrast(1.1); transform:scale(1.04); }
+.sfull{ position:absolute; inset:0; width:100%; height:100%; border:0; display:block; }
+
+/* the waveform — mirrored from the centre line, which is the shape
+   people read as SOUND. Bars standing on a floor read as a chart. */
+.swave{
+  position:absolute; left:0; right:0; top:50%; transform:translateY(-50%);
+  height:56%; display:flex; align-items:center; justify-content:center;
+  gap:2px; padding:0 16px; pointer-events:none;
+  opacity:0; transition:opacity .3s ease;
+}
+.swave.on{ opacity:1; }
+.sbar{
+  flex:1; min-width:2px; height:4%;
+  background:var(--acid); border-radius:1px;
+  /* NO transition. A transition would smear sixty frames a second into
+     mush; the smoothing that makes it readable happens in the analyser. */
+  box-shadow:0 0 10px rgba(214,255,46,.45);
+}
+
+.sveil{ position:absolute; inset:0; pointer-events:none;
+  background:linear-gradient(to top, rgba(10,10,9,.94) 0%, rgba(10,10,9,.28) 38%, transparent 62%); }
+.stitle{
+  position:absolute; left:0; right:0; bottom:0; padding:14px 15px 15px;
+  font-family:'Anton',Impact,sans-serif; font-size:24px; line-height:1.05;
+  text-transform:uppercase; color:var(--paper); overflow-wrap:anywhere;
+  text-shadow:0 2px 0 rgba(0,0,0,.55); pointer-events:none;
+}
+.sleeve.big .stitle{ font-size:28px; }
+
+.sbtn{
+  position:absolute; inset:0; margin:auto; width:76px; height:76px; border-radius:50%;
+  background:var(--acid); color:var(--acid-ink); border:4px solid var(--x);
+  cursor:pointer; font-size:25px; line-height:1; padding:0 0 0 5px;
+  display:flex; align-items:center; justify-content:center;
+  box-shadow:0 6px 0 rgba(0,0,0,.4); transition:transform .12s ease;
+}
+.sbtn.on{ padding-left:0; font-size:19px; letter-spacing:-2px;
+  background:transparent; color:var(--acid); border-color:var(--acid);
+  box-shadow:none; width:52px; height:52px; opacity:.75; }
+.sbtn:hover{ transform:scale(1.06); }
+.sbtn:focus-visible{ outline:4px solid var(--acid); outline-offset:4px; }
+
+/* the handoff — the preview running out is a cue, not a dead end */
+.soffer{
+  position:absolute; inset:0; margin:auto; width:82%; max-width:300px; height:auto;
+  background:var(--acid); color:var(--acid-ink); border:4px solid var(--x);
+  box-shadow:0 6px 0 rgba(0,0,0,.4); cursor:pointer; padding:14px 12px;
+  display:flex; flex-direction:column; align-items:center; gap:5px;
+}
+.soffer:hover{ background:#fff; }
+.soffer:focus-visible{ outline:4px solid var(--acid); outline-offset:4px; }
+.sok{ font-family:'Courier Prime',monospace; font-size:9.5px; font-weight:700;
+  letter-spacing:.16em; text-transform:uppercase; color:#3A4200; }
+.sgo{ font-family:'Anton',Impact,sans-serif; font-size:17px; text-transform:uppercase;
+  letter-spacing:.03em; }
+
+.sfoot{ background:var(--x); display:flex; align-items:center; gap:11px; padding:11px 13px; }
+.swho{ font-family:'Courier Prime',monospace; font-size:9px; font-weight:700;
+  letter-spacing:.16em; text-transform:uppercase; color:var(--acid); flex-shrink:0;
+  max-width:38%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.sline{ flex:1; height:4px; background:#2A2A26; }
+.sline span{ display:block; height:100%; background:var(--acid); transition:width .25s linear; }
+.stag.full{ flex:1; font-family:'Courier Prime',monospace; font-size:9px; font-weight:700;
+  letter-spacing:.16em; text-transform:uppercase; color:var(--paper); text-align:center; }
+.sout{ font-family:'Courier Prime',monospace; font-size:9px; letter-spacing:.1em;
+  text-transform:uppercase; color:var(--soft); text-decoration:none; flex-shrink:0; }
+.sout:hover{ color:var(--acid); }
+
+.snote{ font-family:'Courier Prime',monospace; font-size:10.5px; color:var(--soft);
+  background:var(--paper2); padding:9px 13px; line-height:1.55; }
+
+@media (prefers-reduced-motion: reduce){
+  .sart{ transition:none; }
+  .sline span{ transition:none; }
+}
+
+/* the way to the whole song — a chip, because the preview loops and
+   therefore never "ends" to interrupt */
+.schip{
+  position:absolute; top:11px; right:11px; z-index:2;
+  background:var(--x); color:var(--acid); border:2px solid var(--acid);
+  font-family:'Courier Prime',monospace; font-size:9.5px; font-weight:700;
+  letter-spacing:.14em; text-transform:uppercase; padding:7px 10px; cursor:pointer;
+}
+.schip:hover{ background:var(--acid); color:var(--acid-ink); }
+.schip:focus-visible{ outline:3px solid var(--acid); outline-offset:3px; }
+
+/* =====================================================================
+   THE LIFETIME TOTAL — the count's permanent twin.
+
+   Deliberately the photographic negative of .count: that one is a bright
+   acid slab tilted one way, this one is solid black tilted the other.
+   The visual argument is the product argument — the top number is
+   TODAY and it moves, this number is EVERYTHING and it doesn't.
+
+   Black slab, acid numerals: 14.8:1. Acid type on paper would have been
+   1.2:1 and invisible, which is the same trap the flyer palette has —
+   acid is a FILL or it's ink on black, never ink on paper.
+   ===================================================================== */
+.total{
+  display:flex; align-items:baseline; justify-content:center; gap:10px;
+  border:4px solid var(--x); background:var(--x);
+  box-shadow:7px 7px 0 var(--line); padding:14px 16px;
+  margin:-14px 0 22px; transform:rotate(.7deg);
+}
+.total .tn{
+  font-family:'Anton',Impact,sans-serif; font-size:34px; line-height:1;
+  color:var(--acid); letter-spacing:-.01em;
+}
+.total .tl{
+  font-family:'Courier Prime',monospace; font-size:10.5px; font-weight:700;
+  letter-spacing:.16em; text-transform:uppercase; color:#C9C4B7;
+}
+
+/* The two questions after somebody moves their date forward. Boxed and
+   set apart, because this is the one moment on the page where the app is
+   asking rather than telling, and it should not look like the rest of
+   the form. */
+.ask{
+  border:4px solid var(--x); background:var(--paper2);
+  box-shadow:5px 5px 0 var(--x); padding:16px; margin-top:22px;
+}
+.ask .askq{
+  font-family:'Anton',Impact,sans-serif; font-size:20px; text-transform:uppercase;
+  color:var(--x); margin:0 0 4px; line-height:1.15;
+}
+.ask .btn{ margin-top:14px; }
+.ask .hint{ margin-bottom:0; }
+
+/* The second option is a real choice, not a cancel — outlined rather
+   than filled so it reads as equal in weight but quieter in voice.
+   Somebody fixing a typo should not feel like they're backing out. */
+.btn.ghost{
+  background:transparent; color:var(--x); border:4px solid var(--x);
+  box-shadow:none;
+}
+.btn.ghost:hover{ background:var(--x); color:var(--acid); }
+
+/* =====================================================================
+   THE BAR AND THE CHIPS
+
+   Both live inside or under .count, which is an acid slab, so every
+   colour here is ink-on-acid. --acid-ink (#141800) on --acid is 14.9:1;
+   the same acid on paper would be 1.2:1 and gone. That is the one rule
+   this palette has and it is the one that keeps getting tested.
+   ===================================================================== */
+.count .mbar{
+  height:10px; margin:16px auto 0; max-width:280px;
+  border:3px solid var(--acid-ink); background:transparent;
+  /* no radius anywhere — this is the same flat, hard-edged language as
+     the slabs and the tear-offs, not a rounded app progress bar */
+}
+.count .mfill{
+  display:block; height:100%; background:var(--acid-ink);
+  /* No transition. The bar is redrawn once per page load and moves by
+     roughly a third of a percent a day; animating it would invent
+     motion that isn't happening. */
+}
+.count .mnext{
+  font-family:'Courier Prime',monospace; font-size:11px; font-weight:700;
+  letter-spacing:.1em; text-transform:uppercase; color:#3A4200; margin-top:9px;
+}
+
+.chips{
+  display:flex; flex-wrap:wrap; gap:7px; justify-content:center;
+  list-style:none; padding:0; margin:-16px 0 26px;
+}
+.chip{
+  font-family:'Courier Prime',monospace; font-size:11px; font-weight:700;
+  letter-spacing:.1em; text-transform:uppercase;
+  padding:7px 11px; border:3px solid var(--x); background:var(--paper2);
+  color:var(--soft);
+}
+/* Earned reads as SOLID — filled acid with black type and a hard
+   shadow, the same treatment the count itself gets. */
+.chip.on{
+  background:var(--acid); color:var(--acid-ink);
+  box-shadow:3px 3px 0 var(--x);
+}
+/* The one you're walking toward is outlined, not greyed. Grey would
+   read as disabled — as if it were off limits — and it isn't, it's
+   just ahead of you. Dashed says "not yet" without saying "no". */
+.chip.next{
+  background:transparent; color:var(--x);
+  border-style:dashed; border-color:var(--x);
+}
+
+/* =====================================================================
+   THE DETAILS CARD — bio, town, programs, interests, sponsor
+   ===================================================================== */
+.bio{
+  font-size:15px; line-height:1.5; text-align:center; color:var(--body);
+  margin:0 0 20px; padding:0 6px;
+}
+.deets{
+  border:4px solid var(--x); background:var(--paper2);
+  box-shadow:5px 5px 0 var(--x); padding:4px 14px; margin-bottom:22px;
+}
+.deets h3{
+  font-family:'Anton',Impact,sans-serif; font-size:15px; text-transform:uppercase;
+  letter-spacing:.04em; color:var(--x); margin:12px 0 4px;
+}
+.deet{
+  display:flex; align-items:center; gap:11px; padding:11px 0;
+  border-top:2px solid var(--line); font-size:14px; color:var(--body);
+}
+.deet:first-of-type{ border-top:none; }
+.deet .di{ font-size:17px; line-height:1; flex:none; }
+/* The sponsor line is the only one that is an OFFER rather than a fact,
+   so it is the only one that gets weight. */
+.deet.sponsor{
+  font-family:'Anton',Impact,sans-serif; font-size:17px; text-transform:uppercase;
+  color:var(--x); letter-spacing:.02em;
+}
+
+/* Textareas inherit nothing from the input rules in globals.css, so the
+   bio box would have arrived as a browser-default grey rectangle in the
+   middle of a hand-set page. */
+textarea{
+  width:100%; box-sizing:border-box; font:inherit; font-size:15px;
+  padding:11px 12px; border:3px solid var(--x); background:var(--paper);
+  color:var(--body); resize:vertical; min-height:76px;
+}
+textarea:focus-visible{ outline:4px solid var(--x); outline-offset:3px; }
+
+/* Town and state side by side. Grid rather than flex so the two halves
+   stay equal regardless of what's typed in them — with flex, a long
+   state name would quietly steal width from the town. */
+.tworow{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.tworow input{ width:100%; box-sizing:border-box; }
+
+/* =====================================================================
+   THE FACE PICKER
+
+   A grid of real targets, not a row of tiny glyphs. On a phone, in a
+   moment somebody is deciding how they want to be seen, every option
+   should be impossible to miss — same reasoning as .mrow in the report
+   sheet.
+   ===================================================================== */
+/* THE OPENER — what you see when the picker is shut, which is nearly
+   always. It shows the face you currently have, so the row is an ANSWER
+   ("this is you") that happens to also be a control, rather than a button
+   labelled "pick a face" that tells you nothing about your own profile.
+
+   Sized and bordered like the input above it on purpose: it sits in a
+   column of form fields, so it should read as one of them. */
+.facepick{
+  display:flex; align-items:center; gap:12px; width:100%; text-align:left;
+  border:3px solid var(--x); background:var(--paper2);
+  padding:9px 12px; margin:8px 0 4px; cursor:pointer;
+}
+.facepick:hover{ background:#FBFAF6; }
+.facepick:focus-visible{ outline:4px solid var(--x); outline-offset:3px; }
+.facepick[disabled]{ opacity:.55; cursor:default; }
+/* Open gets the same acid-slab shadow a selected face gets, so "this is
+   the thing currently active" looks identical everywhere in the app. */
+.facepick.open{ box-shadow:4px 4px 0 var(--x); }
+
+.fpnow{
+  flex-shrink:0; width:42px; height:42px; display:flex;
+  align-items:center; justify-content:center; font-size:22px; line-height:1;
+  border:3px solid var(--x); background:var(--acid);
+}
+.fplab{
+  flex:1; min-width:0; display:block;
+  font-family:'Anton',Impact,sans-serif; font-size:15px;
+  text-transform:uppercase; letter-spacing:.02em; color:var(--x); line-height:1.15;
+}
+/* The second line is the instruction. Monospace and quiet — the app's
+   voice for "this is the system talking", never for a person's words. */
+.fpsub{
+  display:block; margin-top:3px;
+  font-family:'Courier Prime',monospace; font-size:10px; font-weight:400;
+  letter-spacing:.10em; text-transform:uppercase; color:var(--soft);
+}
+.fpcaret{ flex-shrink:0; font-size:11px; color:var(--soft); }
+
+/* THE PANEL. Capped and scrollable rather than however tall 54 squares
+   happen to be — otherwise opening it pushes Save past the bottom of the
+   phone and the picker looks like it ate the page. */
+.facegrid{
+  border:3px solid var(--x); border-top:0; background:var(--paper2);
+  padding:4px 12px 14px; margin:0 0 4px;
+  max-height:46vh; overflow-y:auto;
+}
+
+.faces{
+  display:grid; grid-template-columns:repeat(6,1fr); gap:8px;
+  list-style:none; padding:0; margin:8px 0 4px;
+}
+.face{
+  width:100%; aspect-ratio:1; display:flex; align-items:center; justify-content:center;
+  font-size:24px; line-height:1; cursor:pointer;
+  border:3px solid var(--x); background:var(--paper2); padding:0;
+}
+.face:hover{ background:var(--acid); }
+/* Chosen is a filled acid slab with a hard shadow — the same treatment
+   an earned milestone chip gets, so "selected" means one thing
+   everywhere in the app rather than a different thing per screen. */
+.face.sel{
+  background:var(--acid); box-shadow:3px 3px 0 var(--x);
+  transform:translate(-1px,-1px);
+}
+.face:focus-visible{ outline:4px solid var(--x); outline-offset:3px; }
+.face[disabled]{ opacity:.55; cursor:default; }
+
+@media (max-width:380px){
+  .faces{ grid-template-columns:repeat(5,1fr); }
+}
+/* group headings inside the face picker — quiet, monospace, the same
+   voice the app uses for system notes rather than for a person's words */
+.facegrp{
+  font-family:'Courier Prime',monospace; font-size:10px; font-weight:700;
+  letter-spacing:.18em; text-transform:uppercase; color:var(--soft);
+  margin:16px 0 0;
+}
+.facegrp:first-of-type{ margin-top:10px; }
+
+/* The way out. Deliberately NOT styled as a face — it isn't one of the
+   choices, it's the absence of one, and making it look like a 55th
+   square would be a small lie. */
+.facenone{
+  display:block; width:100%; margin-top:14px; padding:9px;
+  border:3px dashed var(--x); background:transparent; cursor:pointer;
+  font-family:'Courier Prime',monospace; font-size:11px; font-weight:700;
+  letter-spacing:.14em; text-transform:uppercase; color:var(--soft);
+}
+.facenone:hover{ background:var(--paper); color:var(--x); }
+.facenone:focus-visible{ outline:4px solid var(--x); outline-offset:3px; }

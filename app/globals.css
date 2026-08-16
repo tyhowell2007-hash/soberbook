@@ -1,0 +1,111 @@
+/* =====================================================================
+   Sober Book — the grunge system, ported from the layouts test.
+
+   Two inks and one spot colour. Acid is a FILL, never text on paper —
+   #D6FF2E on #E4DFD3 is 1.2:1 and invisible. It runs as a block with
+   --acid-ink on top (15.7:1) or as text on toner (17.2:1).
+   ===================================================================== */
+:root{
+  --x:#0A0A09;
+  --paper:#F2F0E9;
+  --paper2:#FFFFFF;
+  --body:#26251F;
+  --soft:#5F5B50;
+  --line:#DAD5C7;
+  --acid:#D6FF2E;
+  --acid-ink:#141800;
+  --wear:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='w'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.035 .07' numOctaves='4' seed='7'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23w)'/%3E%3C/svg%3E");
+}
+*{ box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
+html{ background:#1A1917; }
+body{
+  font-family:'Archivo',system-ui,-apple-system,sans-serif;
+  background:var(--paper); color:var(--body); line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+  max-width:520px; margin:0 auto; min-height:100vh; position:relative;
+  border-left:4px solid var(--x); border-right:4px solid var(--x);
+}
+/* THE COPIER TEXTURE IS GONE, AND THAT WAS THE WHOLE COMPLAINT.
+
+   It was a full-page noise layer at 13% multiply. On a phone it read as
+   "photocopied". On a laptop it read as dirty — a grey-green mottling
+   over every screen in the app, which is what "it looks messy" was
+   actually pointing at.
+
+   The identity was never the grime. It's the black masthead, the acid
+   strip, Anton, and hard square corners. Those all stay. The paper is
+   simply clean paper now.
+
+   ⚠️ --wear still exists and is still used deliberately on the acid
+   slabs (the count, the rule card), where a little wear on a small
+   block of colour reads as ink rather than as dirt. Do not put it back
+   on <body>. */
+
+/* ---------- chrome ---------- */
+.mast{ background:var(--x); color:var(--paper); padding:13px 15px;
+  display:flex; align-items:center; gap:10px; position:sticky; top:0; z-index:40; }
+/* The wordmark and its acid offset.
+
+   This WAS a ::before holding a second literal copy of "SOBER BOOK",
+   positioned 2px behind the real one. Two problems with that:
+
+   1. It's real text, so it lays out on its own — on a narrow phone it
+      wrapped where the real wordmark didn't, dropping a stray "BOOK"
+      below the black bar.
+   2. Two sets of letterforms overlapping at 20px is just harder to read.
+
+   text-shadow is the same look with neither problem: a shadow is painted,
+   not laid out, so it can never wrap or overflow, and it needs no
+   duplicate text for a screen reader to trip over. */
+.mast .lg{ font-family:'Anton',Impact,sans-serif; font-size:20px; letter-spacing:.02em;
+  text-transform:uppercase; transform:rotate(-1deg); display:inline-block;
+  white-space:nowrap; flex-shrink:0;
+  text-shadow:2px 2px 0 rgba(214,255,46,.85); }
+.mast .rt{ margin-left:auto; font-family:'Courier Prime',monospace; font-size:10px;
+  letter-spacing:.14em; text-transform:uppercase; color:var(--acid); }
+.bar{ background:var(--acid); color:var(--acid-ink); font-family:'Courier Prime',monospace;
+  font-size:10px; font-weight:700; letter-spacing:.18em; text-transform:uppercase;
+  padding:7px 15px; text-align:center; border-bottom:4px solid var(--x);
+  background-image:var(--wear); background-size:240px; background-blend-mode:screen; }
+
+/* ---------- forms ---------- */
+.pad{ padding:20px 16px 90px; }
+h1{ font-family:'Anton',Impact,sans-serif; font-weight:400; font-size:34px;
+  text-transform:uppercase; color:var(--x); line-height:.98; margin-bottom:6px;
+  text-shadow:1.5px 0 0 rgba(10,10,9,.35), -1.5px 0 0 rgba(10,10,9,.2); }
+.sub{ font-family:'Courier Prime',monospace; font-size:12.5px; color:var(--soft);
+  margin-bottom:18px; line-height:1.6; }
+label{ display:block; font-family:'Courier Prime',monospace; font-size:11px; font-weight:700;
+  letter-spacing:.16em; text-transform:uppercase; color:var(--x); margin:18px 0 6px; }
+input[type=text], input[type=email], input[type=password], input[type=date]{
+  width:100%; border:4px solid var(--x); background:#F2EFE6; padding:13px;
+  font-size:16px; font-family:'Courier Prime',monospace; color:var(--x); outline:none; }
+input:focus{ background:#fff; }
+input:focus-visible{ outline:4px solid var(--acid); outline-offset:0; box-shadow:0 0 0 4px var(--x); }
+.hint{ font-family:'Courier Prime',monospace; font-size:11px; color:var(--soft); margin-top:7px; }
+.btn{ display:block; width:100%; background:var(--x); color:var(--acid); border:none;
+  padding:15px; font-size:18px; font-family:'Anton',Impact,sans-serif; letter-spacing:.05em;
+  text-transform:uppercase; cursor:pointer; margin-top:22px; box-shadow:5px 5px 0 rgba(10,10,9,.3);
+  text-align:center; text-decoration:none; }
+.btn:hover{ background:var(--acid); color:var(--acid-ink); }
+.btn:focus-visible{ outline:4px solid var(--x); outline-offset:3px; }
+.btn[disabled]{ opacity:.55; cursor:default; }
+.linkbtn{ background:none; border:none; font-family:'Courier Prime',monospace; font-size:12px;
+  color:var(--soft); text-decoration:underline; cursor:pointer; margin-top:14px; padding:4px; }
+.err{ border:3px solid #9A3412; background:#FFF1E7; color:#7C2D12; padding:11px 13px;
+  font-size:13.5px; margin-top:16px; }
+.ok{ border:3px solid var(--x); background:var(--acid); color:var(--acid-ink);
+  padding:11px 13px; font-size:13.5px; margin-top:16px; }
+
+.choice{ display:block; width:100%; text-align:left; background:var(--paper2);
+  border:4px solid var(--x); padding:14px; margin-bottom:12px; cursor:pointer;
+  box-shadow:5px 5px 0 var(--x); font:inherit; color:var(--body); }
+.choice .ct{ font-family:'Anton',Impact,sans-serif; font-size:21px; text-transform:uppercase;
+  color:var(--x); }
+.choice .cd{ font-size:13.5px; margin-top:5px; }
+.choice.sel{ background:var(--acid); }
+.choice.sel .cd{ color:var(--acid-ink); }
+.choice.sel.dark{ background:var(--x); }
+.choice.sel.dark .ct{ color:var(--acid); }
+.choice.sel.dark .cd{ color:#C9C4B7; }
+.choice:focus-visible{ outline:4px solid var(--x); outline-offset:4px; }

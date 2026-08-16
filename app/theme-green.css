@@ -1,0 +1,334 @@
+/* =====================================================================
+   THE GREEN ROOM
+
+   Ty's call, 5am Aug 15: keep the grunge for getting in the door, then
+   the app itself is the green one from the July prototype.
+
+   It isn't a compromise, it's two jobs. The outside has to stop a
+   stranger mid-scroll and be remembered. The inside has to be somewhere
+   you can sit at 2am when you're not okay. Loud is right for the first
+   and wrong for the second, and most products get this wrong by picking
+   one voice and using it everywhere.
+
+   ---------------------------------------------------------------------
+   ⚠️ WHY THIS IS A SEPARATE FILE AND NOT A REWRITE OF wall.css
+
+   I counted before touching anything: 115 uses of --x, 50 of --acid, 25
+   of Anton, 45 uppercase transforms, 34 hard 3–4px borders, and exactly
+   3 border-radius declarations in the whole app. The grunge isn't a
+   colour scheme sitting on top of a neutral app — it IS the app, woven
+   through 42KB of CSS.
+
+   Rewriting that in place, at half five in the morning, would mean 200+
+   edits with no way back and no way to compare. So instead: the grunge
+   stays exactly as it is, and this file loads after it and reshapes it.
+
+   That buys three things that matter more than tidiness —
+     1. ONE LINE TURNS IT OFF. If the green is wrong in daylight, delete
+        the import in layout.js and the app is grunge again, intact.
+     2. Nothing that already works can break. Every rule below is an
+        override; none of the logic, markup or accessibility work is
+        touched.
+     3. It's readable as a DIFF of intent. This file is the argument for
+        green in one place, instead of scattered through 42KB.
+
+   The cost is honest too: this ships more CSS than a clean rewrite, and
+   two files now describe one appearance. That's the right trade while
+   it's a decision. It stops being the right trade once it's settled —
+   at that point fold it in and delete this file.
+   ===================================================================== */
+
+:root{
+  /* ---- the greens ---- */
+  --gd:#1B6B4A;        /* masthead, count card, primary buttons */
+  --gm:#2E8B5F;        /* mid — DECORATION ONLY: borders, edges, fills */
+  /* ⚠️ --gm IS NOT A TEXT COLOUR. It measures 4.22:1 on a white card and
+     4.02:1 on the paper — both under 4.5:1, both failing. It looks fine,
+     which is exactly why it slipped through: mid-greens read as "dark
+     enough" to the eye long after they've stopped being readable.
+
+     Same shape as the rule the grunge pages already live by (--k bright
+     for big things, --kt darker for small type). Bright fill, darker
+     twin for the words. Anything that is TEXT uses --gm-t. */
+  --gm-t:#256F4C;      /* 5.78:1 on paper, 5.38:1 on the pale wash */
+  --gl:#E8F4ED;        /* pale wash behind chips and highlights */
+  --gt:#0F3D2A;        /* deep green, for text on pale green */
+
+  /* ---- the paper, warmed slightly toward green ---- */
+  --x:#1C2320;         /* was #0A0A09 toner black. Still nearly black, but
+                          green-black rather than blue-black, so it sits
+                          with the greens instead of arguing with them. */
+  --paper:#F7FAF8;
+  --paper2:#FFFFFF;
+  --body:#1C2320;
+  /* was #6B7A72 — 4.30:1 on the paper, a fail. --soft carries every
+     timestamp, every byline and the whole of .btn.out, so it is the most
+     widely read small text in the app and the least forgiving place to be
+     4% short. #63716A is 4.87:1 on paper and 5.12:1 on a white card. */
+  --soft:#63716A;
+  --line:#DCE7E1;
+
+  /* ---- ⚠️ ACID IS NOT DELETED, IT'S REASSIGNED ----
+     50 rules reference --acid. Removing it would break 50 things. So it
+     becomes the pale green wash instead, and --acid-ink becomes the deep
+     green that reads on it.
+
+     This matters for CONTRAST, not just looks. The old pairing was a
+     rule: acid is a FILL and never text, because #D6FF2E on paper is
+     1.2:1 and effectively invisible. The new pairing inverts that
+     safely — #0F3D2A on #E8F4ED is 11.4:1, so anywhere acid used to be
+     a block with dark text on top, it still passes; and anywhere it was
+     mistakenly used AS text, it now works instead of vanishing. */
+  --acid:#E8F4ED;
+  --acid-ink:#0F3D2A;
+
+  /* Gold. The one non-green colour in the app, reserved entirely for
+     milestones — see the chip rules at the bottom. */
+  --gold:#D9A93B;
+  --gold-lt:#F3C64B;
+  --gold-bg:#FEFCF5;
+  --gold-ink:#4A3708;
+
+  /* The grime is off. --wear stays defined because rules reference it,
+     but it resolves to nothing. */
+  --wear:none;
+}
+
+html{ background:#EDF3F0; }
+body{
+  background:var(--paper);
+  border-left:0; border-right:0;          /* the black rails are grunge */
+  box-shadow:0 0 0 1px var(--line);
+}
+
+/* ---------- chrome ---------- */
+.mast{
+  background:var(--gd); color:#fff;
+  font-family:'Archivo',system-ui,sans-serif;
+}
+.mast .lg{
+  font-family:'Archivo',system-ui,sans-serif; font-weight:700;
+  font-size:17px; letter-spacing:-.01em; text-transform:none;
+  text-shadow:none;                        /* the acid offset is grunge */
+}
+.bar{
+  background:var(--gl); color:var(--gt);
+  font-family:'Archivo',system-ui,sans-serif; font-weight:600;
+  letter-spacing:.01em; text-transform:none; font-size:12px;
+}
+
+/* ---------- the shape change ----------
+   This is the half that isn't colour, and it's the half that actually
+   decides whether a screen feels loud or calm. Square corners and a
+   hard offset shadow read as printed matter — deliberate, a bit
+   confrontational. Rounded corners and a soft border read as an
+   interface you can sit in front of. Same words, different room. */
+.item, .pcard, .count, .card, .thread, .menubody, .sframe, .sleeve,
+.composer, .empty, .deets, .facegrid, .facepick, .mrow, .rule{
+  border-radius:13px;
+}
+.item, .pcard, .count, .empty, .deets, .facepick, .facegrid{
+  border-width:1px; border-color:var(--line);
+  box-shadow:none;
+}
+.btn, .choice, .sbtn, .replies, .heart, .dots, .chip, .schip, .face{
+  border-radius:10px;
+}
+.chip, .schip{ border-radius:99px; }
+.face{ border-radius:12px; border-width:2px; }
+
+/* Anton is the grunge voice. It stays on the ONE number that should
+   still shout — the day count — and comes off everything else. */
+.nm, .pname, .stitle, .fplab, .btn, .sgo, .h, .empty .h{
+  font-family:'Archivo',system-ui,sans-serif; font-weight:700;
+  letter-spacing:-.01em; text-transform:none;
+}
+
+/* ---------- the count ---------- */
+.count{
+  background:var(--gd); color:#fff; border:0;
+  background-image:none;
+}
+.count .cn{ color:#fff; }
+.chips .chip{ background:var(--gl); color:var(--gt); border:0; font-weight:600; }
+.chips .chip.next{
+  background:transparent; color:#DCEFE5;
+  border:1.5px solid rgba(255,255,255,.5);
+}
+.total{ color:#CFEADD; border-top:1px solid rgba(255,255,255,.18); }
+
+/* ---------- the wall ---------- */
+.item{ background:#fff; }
+.item.newest{ order:-1; }
+
+/* THE WAITING POST — the one nobody has answered yet.
+
+   In acid this was a slab, and a slab shouts. Green makes it a soft
+   edge, and that turned out to be more accurate: the post is somebody
+   being quiet and unanswered. It should be findable, not alarming.
+   Same rule as before — only ever ONE at a time. */
+.item.poster{
+  border-left:4px solid var(--gm);
+  background:#F6FBF8;
+  border-top-color:var(--line); border-right-color:var(--line);
+  border-bottom-color:var(--line);
+}
+/* --gm-t, not --gm: this is text. See the note on the variable. */
+.waiting{ color:var(--gm-t); font-weight:600; }
+
+/* anonymous — lavender, because it should be legible at a glance who is
+   hiding and who isn't, without a word of explanation */
+.item.screened{
+  background:#F7F5FB; border-style:solid; border-color:#E2DCEF;
+}
+.item.screened::after{ display:none; }     /* the halftone screen is grunge */
+
+/* ---------- MILESTONES — the only gold in the app ----------
+   Gold appears nowhere else, so a chip post is recognisable from the far
+   end of a scroll without reading a word.
+
+   ⚠️ These classes are unused until milestones are wired up. They're
+   here so the look is decided and the build has nothing left to argue
+   about. Nothing renders gold today. */
+.item.mile{
+  background:var(--gold-bg); border-color:#E8D9A8;
+  border-top:3px solid var(--gold);
+}
+.mbadge{
+  display:inline-block; background:var(--gold-lt); color:var(--gold-ink);
+  font-size:10.5px; font-weight:700; padding:2px 9px; border-radius:99px;
+  margin-left:6px; vertical-align:middle;
+}
+.chipcard{
+  background:var(--gd); border-radius:12px; padding:22px; text-align:center;
+  margin:11px 0 4px;
+}
+.coin{
+  width:62px; height:62px; border-radius:50%; margin:0 auto 10px;
+  background:radial-gradient(circle at 34% 30%,#F2F2EE,#B9BAB4 62%,#87887F);
+  box-shadow:inset 0 0 0 3px rgba(255,255,255,.5), 0 3px 7px rgba(0,0,0,.3);
+  display:flex; align-items:center; justify-content:center; font-size:23px;
+}
+.chiplbl{
+  display:inline-block; background:rgba(0,0,0,.32); color:#fff; font-size:12px;
+  font-weight:600; padding:4px 13px; border-radius:99px;
+}
+
+/* ⚠️ 104px of bottom padding used to exist to clear the composer, which
+   was pinned to the bottom of the screen. The composer is at the top now,
+   so that padding became a dead grey chasm under the last post — the kind
+   of thing that looks like the app failed to load the rest. */
+.wall{ padding:0 14px 26px; }
+
+/* ---------- WELCOME HOME ----------
+   The torn bottom edge is a repeating mask, not an image: it scales to
+   any width, costs no request, and can't go blurry. */
+.home{
+  background:var(--gd); color:#fff; border-radius:14px 14px 0 0;
+  padding:19px 17px 26px; margin:14px 14px 0; position:relative; overflow:hidden;
+}
+.home h2{
+  font-family:Georgia,'Times New Roman',serif; font-size:25px; font-weight:400;
+  letter-spacing:-.01em; line-height:1.15;
+}
+.home p{ font-size:13.5px; color:#CFEADD; margin-top:3px; }
+.home .blob{
+  position:absolute; right:-26px; top:-26px; width:112px; height:112px;
+  border-radius:50%; background:rgba(255,255,255,.09);
+}
+.home::after{
+  content:""; position:absolute; left:0; right:0; bottom:-1px; height:11px;
+  background:var(--paper);
+  -webkit-mask:repeating-linear-gradient(90deg,#000 0 7px,transparent 7px 14px);
+  mask:repeating-linear-gradient(90deg,#000 0 7px,transparent 7px 14px);
+  -webkit-mask-size:14px 22px; mask-size:14px 22px;
+}
+
+/* ---------- the composer, now at the top ---------- */
+.composer{
+  position:static; display:block; margin:14px; padding:12px 13px;
+  border:1px solid var(--line); border-radius:13px; background:#fff;
+  box-shadow:none;
+}
+.composer .ctop{ display:flex; align-items:center; gap:9px; }
+.composer .ctop input{
+  flex:1; min-width:0; border:0; outline:0; background:transparent;
+  font:400 13.5px/1.4 'Archivo',system-ui,sans-serif; color:var(--body);
+}
+/* was #9AA8A2 — 2.47:1, effectively decorative. This placeholder is the
+   prompt that tells someone what the box is for ("Share something with
+   people who get it…"), so it has to be readable, not suggested. */
+.composer .ctop input::placeholder{ color:#67716C; }
+.composer .send{
+  flex:none; background:var(--gd); color:#fff; border:0; border-radius:99px;
+  padding:8px 17px; font:700 13px/1 'Archivo',system-ui,sans-serif; cursor:pointer;
+}
+.composer .send[disabled]{ opacity:.4; cursor:default; }
+.composer .cas{
+  display:flex; align-items:center; gap:8px; flex-wrap:wrap;
+  margin-top:10px; padding-top:9px; border-top:1px solid var(--line);
+  font:400 12px/1 'Archivo',system-ui,sans-serif; color:var(--soft);
+}
+/* The switch itself. It's a chip, not a checkbox, because it's showing
+   you an ANSWER — this is who this post will be from — that happens to
+   be tappable. A checkbox would ask a question nobody wants asked. */
+.composer .asme{
+  background:var(--gl); color:var(--gt); border:0; border-radius:99px;
+  padding:4px 11px; font:700 12px/1 'Archivo',system-ui,sans-serif; cursor:pointer;
+}
+.composer .asme.anon{ background:#EFEAF8; color:#4A3A6B; }
+.composer .cas-hint{ font-size:11.5px; }
+
+/* ---------- name and face on a post ---------- */
+.item .hd{ display:flex; align-items:center; gap:10px; margin-bottom:8px; }
+.item .pa{
+  flex:none; width:36px; height:36px; border-radius:50%;
+  background:var(--gl); display:flex; align-items:center; justify-content:center;
+  font-size:16px; line-height:1;
+}
+.item.screened .pa{ background:#EFEAF8; }
+.item.mile .pa{ background:#FBF0D2; box-shadow:0 0 0 2px var(--gold); }
+.item .hw{ min-width:0; display:flex; flex-direction:column; gap:1px; }
+.item .nm{ font-size:14.5px; line-height:1.2; }
+.item .mt{ font-size:11.5px; color:var(--soft); letter-spacing:0; text-transform:none; }
+
+/* ---------- controls ---------- */
+.btn, .sgo{ background:var(--gd); color:#fff; border:0; border-radius:11px; }
+.btn:hover, .sgo:hover{ background:var(--gt); }
+.btn.ghost{ background:transparent; color:var(--gd); border:1.5px solid var(--line); }
+.btn.out{ background:transparent; color:var(--soft); border:1.5px solid var(--line); }
+.btn.out.arm{ background:#B3261E; color:#fff; border-color:#B3261E; }
+
+.composer{ background:#fff; border:1px solid var(--line); }
+.composer button{ background:var(--gd); color:#fff; border-radius:99px; border:0; }
+.composer input{ background:transparent; }
+
+.choice{ background:#fff; border:1.5px solid var(--line); }
+.choice.sel{ border-color:var(--gd); background:var(--gl); color:var(--gt); }
+.choice.sel.dark{ background:var(--gd); color:#fff; border-color:var(--gd); }
+
+.heart.on{ color:#B3261E; }
+.replies{ color:var(--gd); font-weight:600; }
+.wholink{ color:var(--gd); text-decoration-color:var(--line); }
+
+.anontoggle button.on{ background:#EFEAF8; color:#4A3A6B; border-color:#D9CEEE; }
+
+/* the face picker */
+.facepick{ background:#fff; }
+.facepick.open{ box-shadow:none; border-color:var(--gd); }
+.fpnow{ background:var(--gl); border-color:var(--line); border-radius:11px; }
+.face:hover{ background:var(--gl); }
+.face.sel{ background:var(--gl); border-color:var(--gd); box-shadow:none; transform:none; }
+.facegrid{ border-color:var(--line); border-top:0; }
+
+/* the avatar on a profile card */
+.pav{ background:var(--gl); color:var(--gt); border:0; border-radius:50%;
+  background-image:none; }
+
+/* ---------- accessibility ----------
+   Focus rings were black on paper, which is invisible on a green
+   masthead. Green-on-green is worse. So the ring goes to the deep green
+   everywhere except on green surfaces, where it goes white. */
+:focus-visible{ outline-color:var(--gd) !important; }
+.mast :focus-visible, .count :focus-visible, .chipcard :focus-visible,
+.btn:focus-visible, .sgo:focus-visible{ outline-color:#fff !important; }
