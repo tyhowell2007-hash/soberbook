@@ -728,6 +728,51 @@ ul.mine li > *{ position:relative; z-index:1; }
   margin:0 0 20px; padding:0 6px;
 }
 /* =====================================================================
+   THE BOTTOM BAR.
+
+   Two tabs, because two destinations exist. See BottomNav.jsx for why it
+   isn't the seven from the prototype.
+
+   ⚠️ THE SAFE-AREA INSET IS NOT OPTIONAL. On any iPhone since the X there
+   is a home indicator sitting in the bottom ~34px of the screen. Without
+   env(safe-area-inset-bottom) the labels sit underneath it — legible in a
+   simulator, half-swallowed on a real phone, and the tap target overlaps
+   the system swipe. It costs one line and it is the difference between
+   this looking designed and looking ported.
+
+   ⚠️ z-index 60 is chosen, not arbitrary. Above the masthead (40) so it
+   never gets painted over on scroll; below .sheetwrap (200) so a report
+   or block sheet still covers it — a nav bar poking through a modal is
+   how somebody taps the wrong thing at the wrong moment.
+   ===================================================================== */
+.tabbar{
+  position:fixed; bottom:0; left:0; right:0; z-index:60;
+  max-width:520px; margin:0 auto;
+  display:flex; background:var(--paper2);
+  border-top:4px solid var(--x);
+  padding-bottom:env(safe-area-inset-bottom, 0px);
+}
+.tab{
+  flex:1; min-height:56px; display:flex; flex-direction:column;
+  align-items:center; justify-content:center; gap:2px;
+  text-decoration:none; color:var(--soft); padding:7px 4px;
+}
+.tab .ti{ font-size:21px; line-height:1; }
+.tab .tl{
+  font-family:'Courier Prime',monospace; font-size:10px; font-weight:700;
+  letter-spacing:.12em; text-transform:uppercase;
+}
+/* The active tab is marked by COLOUR AND WEIGHT, never by colour alone —
+   about one man in twelve can't rely on a hue shift. aria-current carries
+   it for screen readers. */
+.tab.on{ color:var(--x); background:var(--acid); }
+.tab.on .tl{ font-weight:700; }
+.tab:focus-visible{ outline:3px solid var(--x); outline-offset:-3px; }
+
+/* Keeps the last post clear of the fixed bar. Must track .tabbar's height. */
+.navpad{ height:60px; }
+
+/* =====================================================================
    YOUR PAGE — the read view at the top of /me.
 
    Ty, Aug 16, looking at ten stacked forms: "it's really messy. there's

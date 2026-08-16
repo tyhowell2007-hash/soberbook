@@ -345,6 +345,27 @@ body{
 .facegrid{ border-color:var(--line); border-top:0; }
 
 /* the avatar on a profile card */
+/* The bottom bar, in the room. White, hairline top edge, and the active
+   tab is a soft green pill rather than an acid slab — same shape as the
+   prototype Ty showed me. */
+.tabbar{
+  background:#fff; border-top:1px solid var(--line);
+  box-shadow:0 -1px 6px rgba(28,35,32,.05);
+}
+.tab{ color:var(--soft); }
+.tab .tl{
+  font-family:'Archivo',system-ui,sans-serif; font-size:11px; font-weight:600;
+  letter-spacing:.01em; text-transform:none;
+}
+/* The pill is inset so it reads as a highlight sitting inside the bar,
+   not as the bar itself changing colour. */
+.tab.on{ background:transparent; color:var(--gd); }
+.tab.on .ti{
+  background:var(--gl); border-radius:99px; padding:3px 15px; margin-bottom:1px;
+}
+.tab.on .tl{ font-weight:700; }
+.tab:focus-visible{ outline:3px solid var(--gd); outline-offset:-3px; }
+
 /* Your page, in the room. The face becomes the soft circle from the July
    prototype rather than an acid slab with a hard shadow. */
 .pface{

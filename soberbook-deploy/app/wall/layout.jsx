@@ -18,7 +18,18 @@
    to carry the stylesheet. It adds no markup, so it can't affect layout,
    focus order, or anything a screen reader walks. */
 import '../theme-green.css';
+import BottomNav from '../components/BottomNav';
 
 export default function WallLayout({ children }) {
-  return children;
+  return (
+    <>
+      {children}
+      {/* A spacer in the flow, because the bar itself is fixed and would
+          otherwise sit on top of the last post. Padding on <body> would
+          have done it too, but body belongs to the root layout and the
+          sign-in door has no bar to make room for. */}
+      <div className="navpad" aria-hidden="true" />
+      <BottomNav />
+    </>
+  );
 }
