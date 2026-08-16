@@ -950,3 +950,112 @@ textarea:focus-visible{ outline:4px solid var(--x); outline-offset:3px; }
 }
 .facenone:hover{ background:var(--paper); color:var(--x); }
 .facenone:focus-visible{ outline:4px solid var(--x); outline-offset:3px; }
+
+/* =====================================================================
+   CHAT — structure. Aug 16.
+
+   Colours here are the base-layer ones; the green room repaints them in
+   theme-green.css. Chat only ever renders inside the room, so what you
+   see on a phone is always the green version — this half exists so the
+   layout can't collapse if the skin ever fails to load.
+   ===================================================================== */
+
+/* one row of the inbox */
+.crow{ display:flex; gap:11px; align-items:center; padding:12px 13px;
+  border:3px solid var(--x); background:var(--paper2); margin-bottom:10px; }
+.clink{ display:block; text-decoration:none; color:inherit; }
+.clink:focus-visible{ outline:4px solid var(--x); outline-offset:3px; }
+
+.cav{ flex-shrink:0; width:42px; height:42px; display:flex; align-items:center;
+  justify-content:center; font-size:21px; line-height:1;
+  border:3px solid var(--x); background:var(--acid); }
+
+/* min-width:0 is load-bearing. A flex child defaults to min-width:auto,
+   which means it refuses to shrink below its content — so one long
+   message would push the unread dot off the screen instead of ellipsing.
+   This is the single most common flexbox bug there is. */
+.cwho{ min-width:0; flex:1; }
+.cname{ display:block; font-family:'Archivo',system-ui,sans-serif;
+  font-weight:700; font-size:15px; color:var(--x); overflow-wrap:anywhere; }
+.clast{ display:block; font-family:'Courier Prime',monospace; font-size:12px;
+  color:var(--soft); margin-top:2px;
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+
+.cdot{ flex-shrink:0; min-width:22px; height:22px; padding:0 6px; border-radius:99px;
+  display:flex; align-items:center; justify-content:center;
+  font-family:'Archivo',system-ui,sans-serif; font-size:11px; font-weight:700;
+  background:var(--x); color:var(--paper2); }
+.csent{ flex-shrink:0; font-family:'Courier Prime',monospace; font-size:10px;
+  letter-spacing:.1em; text-transform:uppercase; color:var(--soft); }
+
+/* the requests lane */
+.creq{ width:100%; display:flex; gap:11px; align-items:center; text-align:left;
+  padding:12px 13px; margin-bottom:10px; cursor:pointer;
+  border:3px dashed var(--x); background:var(--paper); }
+.cnum{ flex-shrink:0; width:30px; height:30px; border-radius:99px;
+  display:flex; align-items:center; justify-content:center;
+  font-family:'Archivo',system-ui,sans-serif; font-weight:700; font-size:13px;
+  background:var(--x); color:var(--paper2); }
+.creqt{ flex:1; font-family:'Archivo',system-ui,sans-serif; font-weight:700;
+  font-size:14px; color:var(--x); }
+.creqs{ display:block; font-family:'Courier Prime',monospace; font-weight:400;
+  font-size:11px; color:var(--soft); margin-top:1px; }
+.ccaret{ flex-shrink:0; color:var(--soft); font-size:14px; }
+.creqlist{ margin:0 0 16px; }
+
+/* ⚠️ ACCEPT AND IGNORE ARE THE SAME SIZE, and that is not a styling
+   preference — same rule as the two milestone buttons. Making Ignore the
+   small grey one is the app leaning on somebody to say yes to a stranger,
+   and the person most affected by that nudge is the newcomer this whole
+   gate exists to protect. */
+.cbtns{ display:flex; gap:7px; flex-shrink:0; }
+.cbtns button{ font-family:'Archivo',system-ui,sans-serif; font-weight:700;
+  font-size:12px; padding:9px 13px; cursor:pointer; border:3px solid var(--x); }
+.cyes{ background:var(--x); color:var(--paper2); }
+.cno{ background:var(--paper2); color:var(--x); }
+.cbtns button[disabled]{ opacity:.5; cursor:default; }
+
+.cgate{ font-family:'Courier Prime',monospace; font-size:11px; line-height:1.55;
+  color:var(--soft); padding:2px 4px 0; }
+
+/* the conversation */
+.convo{ padding:18px 16px 34px; display:flex; flex-direction:column; gap:9px; }
+.bub{ max-width:78%; align-self:flex-start; padding:10px 13px;
+  font-family:'Courier Prime',monospace; font-size:14px; line-height:1.5;
+  color:var(--x); background:var(--paper2); border:3px solid var(--x);
+  overflow-wrap:anywhere; }
+.bub.mine{ align-self:flex-end; background:var(--acid); color:var(--acid-ink); }
+.cnote{ align-self:center; text-align:center; max-width:80%;
+  font-family:'Courier Prime',monospace; font-size:11px; line-height:1.55;
+  color:var(--soft); padding:6px 0; }
+
+/* THE MESSAGE BAR — its own class, NOT .composer, and that is a bug fix
+   rather than a naming preference.
+
+   .composer is the wall's post box, and theme-green.css deliberately
+   re-declares it as `position:static` so it can sit at the TOP of the
+   feed. Reusing the class here would have inherited that: the message box
+   would have unpinned itself and scrolled away with the conversation,
+   only in the green room, only on this one page. Shared class names are
+   how a fix in one place becomes a bug in another. */
+.cbar{
+  position:fixed; left:0; right:0; max-width:520px; margin:0 auto; z-index:55;
+  /* sits ON TOP of the tab bar's 60px, so both are reachable. env() is
+     the iPhone home-indicator strip — without it the send button lands
+     under the little grey bar and can't be tapped. */
+  bottom:calc(60px + env(safe-area-inset-bottom, 0px));
+  display:flex; gap:9px; padding:11px 12px;
+  background:var(--x); border-top:4px solid var(--x);
+}
+.cbar input{
+  flex:1; min-width:0; border:3px solid var(--acid); background:#F2EFE6; padding:11px;
+  font-family:'Courier Prime',monospace; font-size:15px; color:var(--x); outline:none;
+}
+.cbar button{
+  background:var(--acid); color:var(--acid-ink); border:none; padding:11px 15px;
+  font-family:'Anton',Impact,sans-serif; font-size:16px; text-transform:uppercase;
+  letter-spacing:.04em; cursor:pointer; white-space:nowrap;
+}
+.cbar button[disabled], .cbar input[disabled]{ opacity:.55; }
+/* the conversation must clear the bar AND the tabs */
+.convopad{ height:76px; }

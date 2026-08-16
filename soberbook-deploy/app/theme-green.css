@@ -389,3 +389,67 @@ body{
 :focus-visible{ outline-color:var(--gd) !important; }
 .mast :focus-visible, .count :focus-visible, .chipcard :focus-visible,
 .btn:focus-visible, .sgo:focus-visible{ outline-color:#fff !important; }
+
+/* =====================================================================
+   CHAT, IN THE ROOM. Aug 16.
+
+   Soft edges and a green wash, same as everything else past the door.
+   Hard borders and drop shadows are the grunge language and they stay on
+   the sign-up page.
+   ===================================================================== */
+.crow, .creq{ border-width:1px; border-color:var(--line); border-radius:13px;
+  box-shadow:none; background:#fff; }
+.creq{ border-style:solid; background:var(--paper); }
+.crow{ margin-bottom:9px; }
+
+.cav{ border:0; border-radius:50%; background:var(--gl); color:var(--gt);
+  width:44px; height:44px; }
+.cname{ font-size:15px; color:var(--body); }
+/* --soft, not --gm: a mid-green measures 4.02:1 on paper and this is the
+   most-read small text on the screen. See the note at the top of this
+   file — bright fill, darker twin for the words. */
+.clast{ color:var(--soft); font-size:12px; }
+
+.cdot{ background:var(--gd); color:#fff; }
+.cnum{ background:var(--gd); color:#fff; }
+.creqt{ color:var(--body); }
+.cbtns button{ border-width:1px; border-radius:10px; padding:9px 14px; }
+.cyes{ background:var(--gd); color:#fff; border-color:var(--gd); }
+/* ⚠️ #4E9B78 AND NOT --line, WHICH IS WHAT I WROTE FIRST.
+   Ignore is a white box on near-white paper, so its border is the only
+   thing that says "this is a button". --line is 1.21:1 against the page —
+   WCAG 1.4.11 wants 3:1 for the boundary of a control you have to find,
+   and this measures 3.18:1. It failed on the ONE button in the app whose
+   whole job is to be as easy to press as Accept. */
+.cno{ background:#fff; color:var(--gm-t); border-color:#4E9B78; }
+.cno:hover{ background:var(--gl); }
+
+/* Their words on white with a green edge; yours filled. The difference is
+   fill AND alignment, never colour alone — about one man in twelve can't
+   rely on a hue shift, and "which of these did I say" is not a detail. */
+/* The hairline border here measures 1.21:1 against the page and stays
+   that way, deliberately. 1.4.11 covers controls and graphics you must
+   perceive to understand the content — a bubble is neither. What actually
+   separates one message from the next is the 9px gap, the left/right
+   alignment, and the solid fill on your own; none of those depend on
+   seeing a 1px line. Darkening it to pass a number would make chat the
+   one screen in the app that doesn't match .item and .pcard, and would
+   buy nobody anything. */
+.bub{ border-width:1px; border-color:var(--line); border-radius:15px;
+  background:#fff; color:var(--body); box-shadow:none; }
+.bub.mine{ background:var(--gd); color:#fff; border-color:var(--gd); }
+
+/* The message bar. Deep green, white field. Note this styles .cbar and
+   NOT .composer — see the long note in wall.css for why sharing that
+   class would have unpinned the box in this room only. */
+.cbar{ background:var(--gd); border-top:0; box-shadow:0 -1px 8px rgba(28,35,32,.14); }
+/* was #7FBBA1 — 2.93:1 on the green bar. Four percent short, which is
+   exactly the shape of the --gm and --soft misses earlier in this file.
+   #8CC4AC is 3.27:1. */
+.cbar input{ border:1px solid #8CC4AC; border-radius:11px; background:#fff;
+  font-family:'Archivo',system-ui,sans-serif; font-size:15px; color:var(--body); }
+.cbar input::placeholder{ color:var(--soft); }
+.cbar input[disabled]{ background:#EDF3F0; color:var(--soft); }
+.cbar button{ background:#fff; color:var(--gt); border-radius:11px;
+  font-family:'Archivo',system-ui,sans-serif; font-weight:700; font-size:14px;
+  text-transform:none; letter-spacing:0; }

@@ -9,10 +9,10 @@ import { usePathname } from 'next/navigation';
    Ty asked for this after showing me the prototype, which has seven tabs:
    Home · Groups · Support · Jobs · Chats · Meet · You.
 
-   ⚠️ THERE ARE TWO TABS HERE, NOT SEVEN, AND THAT IS DELIBERATE.
+   ⚠️ THERE ARE THREE TABS HERE, NOT SEVEN, AND THAT IS DELIBERATE.
 
-   Five of those seven are pictures of buttons. Groups, Support, Jobs,
-   Chats and Meet have no pages, no tables and no code behind them. Putting
+   Four of those seven are still pictures of buttons. Groups, Support,
+   Jobs and Meet have no pages, no tables and no code behind them. Putting
    them up would be the same category of mistake as "Verified, real
    people" — a promise the product can't keep, made to somebody who has no
    way of checking. Worse here, because a person in a bad moment tapping
@@ -21,7 +21,8 @@ import { usePathname } from 'next/navigation';
 
    So the bar carries the destinations that exist. As pages ship, tabs get
    added — and the bar grows into the shape of the prototype honestly,
-   instead of starting there and lying about it.
+   instead of starting there and lying about it. Chat is the first tab to
+   earn its way in, on Aug 16.
 
    ---------------------------------------------------------------------
    WHY A CLIENT COMPONENT WHEN IT RENDERS NO STATE
@@ -35,6 +36,7 @@ import { usePathname } from 'next/navigation';
 
 const TABS = [
   { href: '/wall', icon: '🏠', label: 'Home' },
+  { href: '/chat', icon: '💬', label: 'Chat' },
   { href: '/me',   icon: '🙂', label: 'You'  },
 ];
 

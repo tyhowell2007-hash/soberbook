@@ -9,7 +9,8 @@
     "test:anon": "node supabase/test-anonymity.mjs",
     "test:lifetime": "node supabase/test-lifetime.mjs",
     "test:details": "node supabase/test-profile-details.mjs",
-    "test:identity": "node supabase/test-identity.mjs"
+    "test:identity": "node supabase/test-identity.mjs",
+    "test:chat": "node supabase/test-chat.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.7.0",

@@ -25,7 +25,15 @@ export function browserClient() {
    fails rather than silently leaking. This exists so the rule is visible
    at the call site too.
    ===================================================================== */
-export const READABLE_VIEWS = ['feed_posts', 'feed_comments', 'public_profiles'];
+/* chat_threads and chat_messages joined the list on Aug 16. Same reason,
+   sharper: `messages` holds private conversations, and the database now
+   revokes SELECT on it entirely. The views are the only read path, and
+   they are where "you ignored this person" and "this person blocked you"
+   get filtered out before anything reaches a browser. */
+export const READABLE_VIEWS = [
+  'feed_posts', 'feed_comments', 'public_profiles',
+  'chat_threads', 'chat_messages',
+];
 
 export function assertReadable(name) {
   if (!READABLE_VIEWS.includes(name)) {

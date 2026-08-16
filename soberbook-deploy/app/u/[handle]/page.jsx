@@ -3,6 +3,7 @@ import { notFound, redirect } from 'next/navigation';
 import { serverClient, assertReadable } from '../../../lib/supabase-server';
 import SongPlayer from '../../components/SongPlayer';
 import Milestones from '../../components/Milestones';
+import MessageButton from './MessageButton';
 import { sinceFromCount } from '../../../lib/milestones';
 
 export const dynamic = 'force-dynamic';
@@ -174,9 +175,9 @@ export default async function ProfilePage({ params }) {
 
         <p className="hint">Here since {joined}.</p>
 
-        {p.is_mine && (
-          <Link href="/me" className="btn">Edit your page</Link>
-        )}
+        {p.is_mine
+          ? <Link href="/me" className="btn">Edit your page</Link>
+          : <MessageButton handle={p.handle} />}
       </div>
     </>
   );
