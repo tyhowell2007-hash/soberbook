@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { browserClient } from '../../lib/supabase-browser';
 
 const BARS = 56;
 
@@ -58,6 +59,7 @@ export default function SongPlayer({ song, whose, big = false, autoplay = false 
   const [stage, setStage] = useState('idle');   // idle · preview · full · offer
   const [pos, setPos] = useState(0);
   const [failed, setFailed] = useState(false);
+  const [offNow, setOffNow] = useState(false);
 
   const audio  = useRef(null);
   const wrap   = useRef(null);
@@ -181,14 +183,35 @@ export default function SongPlayer({ song, whose, big = false, autoplay = false 
     try { ctxRef.current?.close(); } catch {}
   }, []);
 
-  /* Opt-in autoplay, and it fails quietly on purpose.
+  /* Autoplay, and it fails quietly on purpose.
 
-     The visitor asked for this on their own settings page, so we try. But
-     browsers refuse audio until they've seen a gesture somewhere on the
-     site this session, and that refusal is CORRECT — it is the thing
-     standing between somebody and a room full of people who now know.
-     So we attempt it and, if it's refused, the big button is still
-     sitting there. No error, no nag. */
+     Browsers refuse audio until they've seen a gesture somewhere on the
+     site this session, and that refusal is CORRECT. So we attempt it and,
+     if it's refused, the big button is still sitting there. No error, no
+     nag. On iOS this will be refused more often than not, and that is not
+     a bug we can fix from here.
+
+     ---------------------------------------------------------------------
+     EVERY PROFILE PLAYS, INCLUDING THE FIRST ONE.
+
+     Ty's call, Aug 15. A first-page-of-the-session grace was built and
+     then removed at his direction — he wants it plain: you open a page,
+     the song starts. Recording that it was tried, so nobody re-proposes
+     it as a new idea.
+
+     The argument against it is still on the record in 0009 and it is not
+     silly: a song nobody asked for, out of a recovery app, in a quiet
+     room, says something about you that you didn't choose to say. Two
+     things carry that weight instead of a grace period —
+
+       1. THE BROWSER. Autoplay is refused until a site has earned enough
+          interaction, and a cold first page of a session is exactly the
+          case browsers refuse hardest. So in practice the riskiest
+          moment is still usually silent, enforced by Chrome and Safari
+          rather than by us. We are not relying on that — it just means
+          the real-world gap between this and the grace version is small.
+       2. THE OFF SWITCH, which is on the page rather than in settings,
+          and sticks for good. See stopAutoplaying below. */
   useEffect(() => {
     if (!autoplay || !canPreview || stage !== 'idle') return;
     let dead = false;
@@ -196,6 +219,29 @@ export default function SongPlayer({ song, whose, big = false, autoplay = false 
     return () => { dead = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [autoplay, canPreview]);
+
+  /* Turning autoplay off from the page you're standing on.
+
+     It already lives on /me, but a setting three taps away is no use to
+     somebody whose phone just started playing music in a quiet room. The
+     control has to be where the sound is.
+
+     Writes straight to the listener's own row — same column the /me
+     toggle uses, so the two can't disagree. Optimistic: the sound stops
+     immediately and the database catches up, because making a person
+     wait on a round trip to stop audio they didn't want is the wrong way
+     round. If the write fails they're still silenced for this page and
+     the /me toggle is still there. */
+  async function stopAutoplaying() {
+    try { audio.current?.pause(); } catch {}
+    setOffNow(true);
+    try {
+      const supabase = browserClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) await supabase.from('profiles')
+        .update({ autoplay_songs: false }).eq('id', user.id);
+    } catch {}
+  }
 
   if (!song?.anthem_url) return null;
 
@@ -274,6 +320,23 @@ export default function SongPlayer({ song, whose, big = false, autoplay = false 
           {service(song.anthem_url)} ↗
         </a>
       </div>
+
+      {/* The off switch, where the sound is.
+
+          Only shown to somebody who has autoplay on — there is nothing to
+          turn off on a page that was never going to play. Once tapped it
+          becomes a plain statement rather than vanishing, so the tap
+          visibly did something. */}
+      {autoplay && !offNow && (
+        <button type="button" className="soff" onClick={stopAutoplaying}>
+          Stop starting songs for me
+        </button>
+      )}
+      {offNow && (
+        <p className="snote">
+          Off. Nothing will play on its own now &mdash; press ▶ whenever you want it.
+        </p>
+      )}
 
       {failed && <p className="snote">Couldn&apos;t play it. The link above still works.</p>}
       {!canPreview && !canFull && (

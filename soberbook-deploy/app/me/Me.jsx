@@ -674,9 +674,9 @@ export default function Me({ email, profile, posts }) {
         </button>
         <p className="hint">
           This is your setting, about your own ears &mdash; it has nothing to do with
-          what happens when other people visit <em>you</em>. Off by default on
-          purpose: a song you didn&rsquo;t ask for, coming out of a recovery app in a
-          quiet room, tells whoever is nearby something you didn&rsquo;t choose to say.
+          what happens when other people visit <em>you</em>. It&rsquo;s on to start
+          with: open somebody&rsquo;s page and their song begins. You can turn it off
+          here, or from the switch under any song, and it stays off for good.
         </p>
 
         {/* ---- your posts ---- */}

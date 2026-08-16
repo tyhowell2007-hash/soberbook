@@ -135,6 +135,18 @@ body{
   border-radius:10px;
 }
 .chip, .schip{ border-radius:99px; }
+/* The off switch keeps its full width and its weight — it's a safety
+   control, not a chip. Only the hard black edge softens to match the room. */
+/* ⚠️ The border is --gd, NOT --line. The hairline is 1.27:1 against the
+   card and fails the 3:1 that WCAG asks of a control's boundary. Normally
+   a labelled button survives a soft edge because the words identify it —
+   but the whole argument for this control is that somebody has to find it
+   fast, in a quiet room, with sound already playing. A safety control
+   that's hard to see in a hurry is a decoration. --gd is 6.46:1. */
+.soff{ border:1.5px solid var(--gd); border-radius:11px;
+  background:#fff; color:var(--gd); letter-spacing:.02em; text-transform:none;
+  font-family:'Archivo',system-ui,sans-serif; font-size:13.5px; }
+.soff:hover{ background:var(--gd); color:#fff; border-color:var(--gd); }
 .face{ border-radius:12px; border-width:2px; }
 
 /* Anton is the grunge voice. It stays on the ONE number that should
