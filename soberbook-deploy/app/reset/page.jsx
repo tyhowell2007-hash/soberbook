@@ -88,8 +88,10 @@ export default function ResetPassword() {
     }
   }
 
+  /* Always the warm door. You can only be on this page if you already have
+     an account, so there's no first-timer case to switch on. See door.css. */
   return (
-    <>
+    <div className="door back">
       <div className="mast"><span className="lg">🌱 SOBER BOOK</span></div>
       <div className="bar">Nothing here is public</div>
       <div className="pad">
@@ -146,6 +148,6 @@ export default function ResetPassword() {
           </>
         )}
       </div>
-    </>
+    </div>
   );
 }

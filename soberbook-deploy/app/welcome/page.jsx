@@ -24,7 +24,11 @@ export default function Welcome() {
     setErr(''); setBusy(true);
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) { router.push('/login'); return; }
+      /* Hard navigation for the same two reasons as sign-out in Me.jsx:
+         it clears the router cache, and it drops the green stylesheet so
+         the door renders grunge. Soft-pushing here would leave /login
+         wearing the green room's clothes. */
+      if (!user) { window.location.assign('/login'); return; }
 
       const { error } = await supabase.from('profiles').insert({
         id: user.id,

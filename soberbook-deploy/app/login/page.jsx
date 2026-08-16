@@ -72,19 +72,58 @@ export default function Login() {
     }
   }
 
-  return (
+  /* WHICH DOOR.
+
+     'up' is the only mode a stranger is ever in, so it is the only mode
+     that gets the grunge. Signing in and resetting a password are both
+     things you can only do if you've been here before, so both get the
+     warm one. See app/door.css for why.
+
+     Deriving this from `mode` rather than storing it as its own piece of
+     state matters: two sources of truth for "which door" would eventually
+     disagree, and the failure would be a first-timer getting the warm
+     welcome-back screen — which is worse than ugly, it's a lie about
+     whether we know them. */
+  const firstTime = mode === 'up';
+
+  /* The heading is built once and placed in one of two containers, rather
+     than written out twice. Two copies would drift — the "Get in early"
+     line survived three months past the doors opening precisely because it
+     existed in more than one place and nobody held all of them in mind. */
+  const heading = (
     <>
+      <h1>
+        {reset ? 'Let’s get you back in'
+               : firstTime ? 'The doors are open.'
+               : 'Welcome back'}
+      </h1>
+      <p className="sub">
+        {reset
+          ? 'Put in your email and we’ll send you a link to set a new password.'
+          : firstTime
+            ? 'You pick how you show up next. Nothing is public yet.'
+            : 'Sign in to pick up where you left off.'}
+      </p>
+    </>
+  );
+
+  return (
+    <div className={'door ' + (firstTime ? 'first' : 'back')}>
       <div className="mast"><span className="lg">🌱 SOBER BOOK</span></div>
       <div className="bar">No steps to prove · no gaps to explain</div>
+
+      {/* First-timers get the acid slab: the heading sits in a full-bleed
+          field above the form instead of on the page. Everyone else gets
+          the heading inside .pad, where the warm door expects it. */}
+      {firstTime && (
+        <div className="slab">
+          <div className="kick">A home for people in recovery</div>
+          {heading}
+        </div>
+      )}
+
       <div className="pad">
-        <h1>{reset ? 'Let’s get you back in' : mode === 'up' ? 'Get in early' : 'Welcome back'}</h1>
-        <p className="sub">
-          {reset
-            ? 'Put in your email and we’ll send you a link to set a new password.'
-            : mode === 'up'
-              ? "You pick how you show up next. Nothing is public yet."
-              : 'Sign in to pick up where you left off.'}
-        </p>
+        {!firstTime && heading}
 
         <form onSubmit={submit}>
           <label htmlFor="em">Email</label>
@@ -128,7 +167,16 @@ export default function Login() {
             I forgot my password
           </button>
         )}
+
+        {/* Fills the dead space under the form on the warm door, and is
+            hidden on the grunge one. Not a pitch — nobody signing back in
+            needs selling. */}
+        {!firstTime && (
+          <p className="porch">
+            Nothing you missed needs explaining. Pick up wherever you left it.
+          </p>
+        )}
       </div>
-    </>
+    </div>
   );
 }

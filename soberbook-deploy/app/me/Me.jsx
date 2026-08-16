@@ -238,8 +238,22 @@ export default function Me({ email, profile, posts }) {
     if (!confirmOut) { setConfirmOut(true); return; }
     setBusy(true);
     await supabase.auth.signOut();
-    router.push('/login');
-    router.refresh();
+    /* HARD navigation, not router.push, and there are two separate reasons.
+
+       1. Security. router.push is a soft navigation — React stays mounted
+          and Next's client router cache keeps the already-fetched RSC
+          payloads for /wall and /me. Those were rendered for the account
+          that just signed out. Hitting Back could paint the previous
+          member's page from cache on a shared or borrowed phone, which is
+          the worst place for this app to leak. A full load throws all of
+          it away.
+
+       2. The door has to change colour. Sign-out is a green room → grunge
+          door crossing. On a soft navigation the browser keeps the green
+          stylesheet in the document, so /login would render green and the
+          whole grunge-door idea would silently break — no error, nothing
+          in the console, just a wrong-looking page. */
+    window.location.assign('/login');
   }
 
   return (

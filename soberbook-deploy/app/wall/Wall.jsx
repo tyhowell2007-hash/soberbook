@@ -101,7 +101,10 @@ function who(p) {
   );
 }
 
-export default function Wall({ initial }) {
+/* `me` defaults rather than being required, so this component still
+   renders if it's ever mounted without it — a missing name should cost
+   you a greeting, never a blank page. */
+export default function Wall({ initial, me = { name: null, avatar: null } }) {
   const router = useRouter();
   const supabase = browserClient();
   const [posts, setPosts] = useState(initial);
@@ -196,6 +199,64 @@ export default function Wall({ initial }) {
 
   return (
     <>
+      {/* ---- WELCOME HOME ----
+          The first thing on the page, every time. It's warm on purpose:
+          the moment somebody opens this app is often not a good moment,
+          and the first thing they read should be a chair being pulled
+          out rather than a metric.
+
+          ⚠️ Worth revisiting once there are real members. "You made it"
+          is lovely the first week and can land badly on a bad day in
+          month six. The honest fix later is to retire it after a while
+          or save it for milestone days — but that's a decision to make
+          with real people in here, not a guess made now. */}
+      <div className="home">
+        <span className="blob" aria-hidden="true" />
+        <h2>Welcome home{me.name ? ', ' + me.name : ''}.</h2>
+        <p>You made it. Pull up a chair.</p>
+      </div>
+
+      {/* ---- THE COMPOSER, MOVED TO THE TOP ----
+          It used to sit under the wall. Two reasons it belongs here:
+
+          1. On a phone you land at the top, and the thing this app most
+             needs people to do is post. A composer you have to scroll
+             past everyone else's words to reach is a composer that asks
+             you to lose your nerve first.
+          2. The anonymous switch now lives INSIDE it, on the line that
+             says who you're posting as. That used to be a separate
+             floating toggle, which meant the most consequential choice
+             on the screen was made somewhere other than where you were
+             typing. Decide how brave you're being at the moment you're
+             being it. */}
+      <form className="composer" onSubmit={post}>
+        <div className="ctop">
+          <input value={text} onChange={(e) => setText(e.target.value)} maxLength={5000}
+                 aria-label="Write something for the wall"
+                 placeholder={anon ? 'Nobody will see who wrote this…'
+                                   : 'Share something with people who get it…'} />
+          {/* Photos aren't built yet. The button is deliberately NOT here
+              rather than here-and-broken — a control that does nothing is
+              worse than a missing one, because it teaches people the app
+              is unreliable. It comes back when uploads ship, and never
+              on an anonymous post. */}
+          <button type="submit" className="send" disabled={busy || !text.trim()}>
+            {busy ? '…' : 'Post'}
+          </button>
+        </div>
+        <div className="cas">
+          <span>Posting as</span>
+          <button type="button" className={'asme' + (anon ? ' anon' : '')}
+                  aria-pressed={anon}
+                  onClick={() => setAnon(!anon)}>
+            {anon ? '🤫 anonymous' : '🌱 ' + (me.name || 'you')}
+          </button>
+          <span className="cas-hint">
+            {anon ? 'tap to use your name' : 'tap to post anonymously'}
+          </span>
+        </div>
+      </form>
+
       <div className="wall">
         {posts.length === 0 && (
           <div className="empty">
@@ -219,12 +280,30 @@ export default function Wall({ initial }) {
                 (i === 0 ? ' newest' : '')
               }
             >
-              <div className="nm">
-                {p.milestone_days ? `🏅 ${p.milestone_days} DAYS` : who(p)}
-              </div>
-              <div className="mt">
-                {p.milestone_days ? <>{who(p)} · </> : null}{ago(p.created_at)}
-                {p.is_anonymous ? ' · anonymous' : ''}
+              {/* NAME AND FACE ON ONE ROW.
+
+                  `display_avatar` comes out of the view nulled on exactly
+                  the same condition as the handle, so an anonymous post
+                  physically cannot carry its author's real face — there's
+                  nothing here to leak. The 🤫 is the fallback, and it's
+                  the fallback because the column is empty, not because
+                  the markup chose to hide something. */}
+              <div className="hd">
+                <span className="pa" aria-hidden="true">
+                  {p.is_anonymous ? '🤫' : (p.display_avatar || '🌱')}
+                </span>
+                <span className="hw">
+                  <span className="nm">
+                    {who(p)}
+                    {p.milestone_days ? (
+                      <span className="mbadge">🪙 {p.milestone_days} days</span>
+                    ) : null}
+                  </span>
+                  <span className="mt">
+                    {ago(p.created_at)}
+                    {p.is_anonymous ? ' · anonymous' : ''}
+                  </span>
+                </span>
               </div>
 
               {/* The rule, explained at the one moment it's visible.
@@ -240,6 +319,25 @@ export default function Wall({ initial }) {
               )}
 
               <p className="bd">{p.body}</p>
+
+              {/* THE CHIP — the only gold in the app.
+
+                  It's the actual object: the thing people carry in a
+                  pocket and turn over with a thumb. Nobody has ever
+                  screenshotted a progress bar; people have photographed
+                  that coin on a kitchen table for seventy years.
+
+                  ⚠️ This renders ONLY when milestone_days is set, and
+                  nothing sets it yet — sharing a milestone is a deliberate
+                  tap that hasn't been built. Which means: gold appears on
+                  this wall only because somebody chose to put it there.
+                  Never because the app noticed a date and announced it. */}
+              {p.milestone_days ? (
+                <div className="chipcard">
+                  <span className="coin" aria-hidden="true">🦅</span>
+                  <span className="chiplbl">{p.milestone_days}-day chip</span>
+                </div>
+              ) : null}
 
               <div className="ft">
                 {/* aria-pressed is what tells a screen reader this is a
@@ -276,21 +374,8 @@ export default function Wall({ initial }) {
         })}
       </div>
 
-      <div className="anontoggle">
-        <button type="button" className={anon ? 'on' : ''} aria-pressed={anon}
-                onClick={() => setAnon(!anon)}>
-          {anon ? '🤫 posting anonymously' : 'post anonymously?'}
-        </button>
-      </div>
-
-      <form className="composer" onSubmit={post}>
-        <input value={text} onChange={(e) => setText(e.target.value)} maxLength={5000}
-               aria-label="Write something for the wall"
-               placeholder={anon ? 'Nobody will see who wrote this…' : 'Put something up…'} />
-        <button type="submit" disabled={busy || !text.trim()}>
-          {busy ? '…' : 'Pin it'}
-        </button>
-      </form>
+      {/* The composer and the anonymous toggle used to live down here.
+          Both moved to the top of the page — see the note up there. */}
 
       {open && (
         <Thread

@@ -10,8 +10,18 @@ export default async function WallPage() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');
 
+  /* display_name and avatar are read here so the welcome line and the
+     "posting as" chip can say your name rather than your handle.
+
+     ⚠️ This is YOUR OWN row, read straight from `profiles`, which is the
+     one place that's always allowed — RLS scopes it to auth.uid(). It is
+     never used to render anybody else; every other name on this page
+     comes through the feed_posts view, which is what nulls the identity
+     on anonymous posts. Two different sources on purpose. */
   const { data: profile } = await supabase
-    .from('profiles').select('handle, sober_since').eq('id', user.id).maybeSingle();
+    .from('profiles')
+    .select('handle, sober_since, display_name, avatar')
+    .eq('id', user.id).maybeSingle();
   if (!profile) redirect('/welcome');
 
   // RULE 1: reads go through the view. assertReadable() makes the rule
@@ -47,7 +57,10 @@ export default async function WallPage() {
       <div className="bar">No steps to prove · no gaps to explain</div>
       {error
         ? <div className="pad"><div className="err">Couldn&apos;t load the wall: {error.message}</div></div>
-        : <Wall initial={posts || []} />}
+        : <Wall
+            initial={posts || []}
+            me={{ name: profile.display_name || null, avatar: profile.avatar || null }}
+          />}
     </>
   );
 }

@@ -1,0 +1,313 @@
+/* =====================================================================
+   THE DOOR — and there are two of them.
+
+   Ty's call, Aug 15 evening:
+     "For first time people that don't know anything about this Sober Book,
+      we will give them one of the grunge sign ups, and they will go through
+      that way. But for the sign back in, we will go with A."
+
+   A = landing-warm. So the same URL wears different clothes depending on
+   whether the person has been here before:
+
+     STRANGER  → grunge. Loud, photocopied, black and acid. Its job is to
+                 stop somebody mid-scroll and be remembered. That's the
+                 whole front door on netlify, and account creation should
+                 feel like the same building.
+
+     MEMBER    → warm. Cream, Fraunces italic, tangerine. Its job is the
+                 opposite: somebody typing a password at 2am on a bad
+                 night does not need to be shouted at. They need the porch
+                 light on.
+
+   Nothing in here is invented. Every value is lifted from
+   landing-warm.html so the two can't drift.
+
+   ---------------------------------------------------------------------
+   ⚠️ SCOPE. This file is imported by app/login/layout.jsx only, which
+   covers /login and — via its own layout — /reset. It must never be
+   imported by the root layout: that would paint the green rooms too, and
+   we just spent an evening taking the wrong stylesheet back off them.
+
+   The mirror image of app/theme-green.css, which does the same trick for
+   the inside. Root layout stays neutral; each area dresses itself.
+   ===================================================================== */
+
+.door{
+  /* ---- landing-warm, unchanged ---- */
+  --cream:#FFF8EC;
+  --card:#FFFDF8;
+  --wink:#2A1B0C;      /* ink. not --ink, which would collide with nothing
+                          today but is the kind of name that collides later */
+  --muted:#7A6249;     /* 5.42:1 on cream */
+  --wline:#E9D8BC;     /* hairlines and card edges — DECORATION. 1.32:1
+                          against the cream, which is fine for a rule that
+                          only groups things and carries no meaning. */
+  --wedge:#A38C66;     /* ⚠️ INPUT BORDERS USE THIS, NOT --wline.
+                          The edge of a text field isn't decoration — it's
+                          the only thing telling you where the control is.
+                          WCAG 1.4.11 wants 3:1 for that, and the pretty
+                          hairline is 1.31:1. It looked right on the
+                          marketing page because nothing there was a form
+                          you had to find in a hurry at 2am.
+                          #A38C66 is 3.18:1 on the card. */
+  --tang:#E8590C;      /* ⚠️ DISPLAY ONLY — 3.39:1 on cream. Fine for the
+                          20px bold wordmark (large text needs 3:1), a fail
+                          for anything smaller. */
+  --tang-t:#B84205;    /* the text twin — 5.21:1 on cream.
+                          Same rule the grunge pages live by (--k / --kt)
+                          and the green room now has (--gm / --gm-t).
+                          Three palettes, three times the same trap: a
+                          mid-tone that looks dark enough and isn't. */
+  --wok:#0A7350;       /* success green. The landing page's #0E9F6E is
+                          3.21:1 — it was decorative there and is text here. */
+}
+
+/* ---------------------------------------------------------------------
+   :has() rather than a class on <body>.
+
+   body is written by the ROOT layout, which is a server component and has
+   no idea which mode the login form is in. The obvious workaround is a
+   useEffect that adds a class to document.body — but an effect runs after
+   first paint, so the page would render grunge for a frame and then snap
+   to cream. On the screen whose entire job is to feel calm, a flash of
+   black-and-acid is the one thing it must not do.
+
+   :has() is evaluated during styling, so there is no frame where it's
+   wrong. It's the only way to reach UP the tree in CSS. */
+body:has(.door.back){
+  background:#FFF8EC;
+  border-left-color:transparent;
+  border-right-color:transparent;   /* the black rails are grunge */
+}
+
+/* =====================================================================
+   THE GRUNGE DOOR — first time here. "The slab."
+
+   Ty picked this over the taped flyer and the ransom note, Aug 15.
+
+   The move is an inversion: instead of black type on paper, the top third
+   is a solid acid field with a halftone screen over it and the headline
+   knocked into it in near-black. Then the form sits on a toner-black card
+   underneath. Record sleeve rather than photocopied flyer.
+
+   ⚠️ THE HEADLINE IS "THE DOORS ARE OPEN." It replaced "Get in early",
+   which Ty called out for two good reasons: it reads as startup scarcity
+   ("this thing might not be here next year"), and it was left over from
+   the waitlist — the doors opened on Aug 3 and the copy never caught up.
+   Do not put a scarcity line back on this page. There is no waiting list.
+   ===================================================================== */
+
+.door.first{ background:#E4DFD3; min-height:100vh; }
+/* Grain over the whole door. pointer-events:none so it can't eat a tap —
+   it sits at z-index 60, above the sticky masthead at 40, and a layer
+   that intercepted clicks here would break the only form on the page. */
+.door.first::before{
+  content:""; position:fixed; inset:0; z-index:60; pointer-events:none;
+  opacity:.12; mix-blend-mode:multiply;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='170' height='170'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.88' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='170' height='170' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+/* The acid strip is redundant once the slab is doing that job louder. */
+.door.first .bar{ display:none; }
+
+.door.first .slab{
+  background:var(--acid); padding:34px 18px 30px;
+  position:relative; border-bottom:5px solid var(--x);
+}
+/* Halftone. ::after with the content above it — a screen laid over type
+   would drop the headline's contrast; laid under, it can't. */
+.door.first .slab::after{
+  content:""; position:absolute; inset:0; pointer-events:none;
+  background-image:radial-gradient(rgba(0,0,0,.17) 1.2px, transparent 1.4px);
+  background-size:7px 7px;
+}
+.door.first .slab > *{ position:relative; z-index:1; }
+.door.first .slab .kick{
+  font-family:'Courier Prime',monospace; font-size:10.5px; font-weight:700;
+  letter-spacing:.24em; text-transform:uppercase; color:var(--acid-ink); margin-bottom:12px;
+}
+.door.first h1{
+  font-size:clamp(42px,12.5vw,60px); line-height:.88;
+  color:var(--acid-ink); text-shadow:none; margin:0;
+}
+.door.first .sub{ color:var(--acid-ink); opacity:.82; font-size:13px; margin-top:12px; }
+
+.door.first .pad{ padding:24px 18px 90px; }
+.door.first form{
+  background:var(--x); border:4px solid var(--x); padding:22px 18px;
+  box-shadow:8px 8px 0 rgba(10,10,9,.22);
+}
+.door.first form label{ color:var(--acid); }
+.door.first form .hint{ color:#B4AE9E; }   /* 8.95:1 on toner */
+
+/* ---------------------------------------------------------------------
+   THE FIELDS — Ty: "make the box with the email and password have that
+   clear look like Apple uses."
+
+   So: glass. A 10% white fill with a blur behind it, a hairline edge, and
+   real corner radius — the iOS dark-mode field, dropped into a xerox
+   flyer. The collision is the point; it reads as a modern control panel
+   bolted onto something handmade rather than a mistake.
+
+   ⚠️ EVERY COLOUR BELOW IS THE COMPOSITE, NOT THE RGBA.
+   rgba() text on a translucent surface is the easiest way in the world to
+   ship an invisible label, because the checker you paste hex into has no
+   idea what's underneath. 10% white over #0A0A09 resolves to #222222, and
+   that is the number every pair below was measured against.
+
+   ⚠️ THE BORDER IS NOT rgba(255,255,255,.28). That's the value that looks
+   right, and it composites to #4F4F4E — 1.94:1 against the field. The
+   edge of a text input is the only thing telling you where to tap, which
+   WCAG 1.4.11 puts at 3:1. .55 composites to #919190 and clears 5.04:1. */
+.door.first form input[type=text],
+.door.first form input[type=email],
+.door.first form input[type=password]{
+  background:rgba(255,255,255,.10);
+  -webkit-backdrop-filter:blur(14px) saturate(140%);
+  backdrop-filter:blur(14px) saturate(140%);
+  border:1px solid rgba(255,255,255,.55);   /* → #919190, 5.04:1 on the field */
+  border-radius:12px; padding:14px 15px;
+  color:#F4F2EA;                            /* 14.19:1 */
+  font-family:'Courier Prime',monospace; font-size:15.5px;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.12);
+}
+.door.first form input::placeholder{ color:#A5A196; }   /* 6.17:1 */
+.door.first form input:focus{ background:rgba(255,255,255,.16); }
+/* Acid ring, not a glow. Glass plus a soft halo would stop reading as
+   this app at the one moment the person is actually looking at it. */
+.door.first form input:focus-visible{
+  outline:3px solid var(--acid); outline-offset:2px; box-shadow:none;
+}
+
+.door.first .btn{ background:var(--acid); color:var(--acid-ink); margin-top:15px; }
+.door.first .btn:hover{ background:#E4FF6B; color:var(--acid-ink); }
+.door.first .linkbtn{ display:block; width:100%; text-align:center; color:var(--x); }
+
+/* =====================================================================
+   THE WARM DOOR — signing back in, and resetting a password.
+   Everything below is .door.back only. Sign-up keeps the grunge it
+   already has, untouched, by simply not matching any of these.
+   ===================================================================== */
+
+.door.back{ background:var(--cream); color:var(--wink);
+  font-family:'Space Grotesk',system-ui,sans-serif; min-height:100vh; }
+
+/* ---- masthead: the black slab becomes a letterhead ---- */
+.door.back .mast{
+  background:var(--cream); color:var(--tang);
+  border-bottom:1px solid var(--wline);
+  padding:26px 16px 14px;
+  display:block; text-align:center; position:static;
+}
+.door.back .mast .lg{
+  font-family:'Space Grotesk',system-ui,sans-serif;
+  font-weight:700; font-size:20px; letter-spacing:.22em;
+  text-transform:uppercase; color:var(--tang);
+  transform:none; text-shadow:none;   /* the acid misregistration is grunge */
+}
+/* ---- the acid strip becomes a quiet line of type ---- */
+.door.back .bar{
+  background:var(--cream); color:var(--muted);
+  font-family:'Space Grotesk',system-ui,sans-serif;
+  font-size:12px; font-weight:500; letter-spacing:.04em;
+  text-transform:none; border-bottom:1px solid var(--wline);
+  padding:0 16px 20px; background-image:none;   /* kills the --wear mottle */
+}
+
+.door.back .pad{ padding:30px 20px 90px; max-width:460px; margin:0 auto; }
+
+/* ---- "Welcome back" — Ty asked for the words, this is the voice ---- */
+.door.back h1{
+  font-family:'Fraunces',Georgia,serif; font-style:italic; font-weight:400;
+  font-size:40px; line-height:1.14; letter-spacing:-.5px;
+  text-transform:none; color:var(--wink); text-align:center;
+  margin:0 0 10px; text-shadow:none;
+}
+.door.back .sub{
+  font-family:'Space Grotesk',system-ui,sans-serif; font-size:15px;
+  color:var(--muted); text-align:center; letter-spacing:0;
+  text-transform:none; margin:0 auto 26px; max-width:34ch;
+}
+
+/* ---- the form becomes the card from the landing page ---- */
+.door.back form{
+  background:var(--card); border:1px solid var(--wline); border-radius:14px;
+  padding:22px 20px; box-shadow:0 1px 2px rgba(42,27,12,.04);
+}
+.door.back label{
+  font-family:'Space Grotesk',system-ui,sans-serif; font-size:11px;
+  font-weight:700; letter-spacing:.13em; text-transform:uppercase;
+  color:var(--muted); margin-bottom:6px;
+}
+.door.back input[type=text],
+.door.back input[type=email],
+.door.back input[type=password],
+.door.back input[type=date]{
+  background:#fff; border:1px solid var(--wedge); border-radius:8px;
+  padding:13px; font-family:'Space Grotesk',system-ui,sans-serif;
+  font-size:15.5px; color:var(--wink); box-shadow:none;
+}
+/* was #9A8464 — 3.58:1, which I'd guessed at rather than measured.
+   "you@email.com" and "at least 8 characters" are instructions, not
+   decoration; the second one is the only place the 8-character rule is
+   stated before you get an error. #826C50 is 4.99:1. */
+.door.back input::placeholder{ color:#826C50; }
+.door.back input:focus{ background:#fff; border-color:var(--tang-t); }
+.door.back input:focus-visible{
+  outline:3px solid var(--tang-t); outline-offset:1px; box-shadow:none;
+}
+.door.back .hint{
+  font-family:'Space Grotesk',system-ui,sans-serif; font-size:12.5px;
+  color:var(--muted); margin-top:9px;
+}
+.door.back .btn{
+  background:var(--wink); color:var(--cream); border-radius:9px;
+  font-family:'Space Grotesk',system-ui,sans-serif; font-weight:700;
+  font-size:15.5px; letter-spacing:.01em; text-transform:none;
+  padding:14px; margin-top:16px; box-shadow:none;
+}
+.door.back .btn:hover{ background:#43290F; color:var(--cream); }
+.door.back .btn:focus-visible{ outline:3px solid var(--tang-t); outline-offset:3px; }
+
+/* ---- the two ways back in ---- */
+.door.back .linkbtn{
+  font-family:'Space Grotesk',system-ui,sans-serif; font-size:13.5px;
+  font-weight:500; color:var(--tang-t); text-decoration:underline;
+  text-underline-offset:3px; text-transform:none; letter-spacing:0;
+  display:block; width:100%; text-align:center; margin-top:16px;
+}
+.door.back .linkbtn:focus-visible{ outline:3px solid var(--tang-t); outline-offset:3px; }
+
+/* ---- messages ---- */
+.door.back .err{
+  border:1px solid #E7B9A3; background:#FDF1EA; color:#7C2D12;
+  border-radius:10px; font-family:'Space Grotesk',system-ui,sans-serif;
+  font-size:14px;
+}
+.door.back .ok{
+  border:1px solid #B7DECB; background:#F0FAF5; color:var(--wok);
+  border-radius:10px; font-family:'Space Grotesk',system-ui,sans-serif;
+  font-size:14px;
+}
+
+/* ---- the porch light ----
+   The grunge login left a screen and a half of dead white below the form.
+   This fills it with the one thing worth saying to somebody coming back,
+   and it is deliberately NOT a pitch. Nobody signing in needs selling. */
+.door.back .porch{
+  margin:34px auto 0; max-width:36ch; text-align:center;
+  font-family:'Fraunces',Georgia,serif; font-style:italic;
+  font-size:17px; line-height:1.5; color:var(--muted);
+}
+.door.back .porch::before{
+  content:""; display:block; width:44px; height:1px;
+  background:var(--wline); margin:0 auto 18px;
+}
+
+/* The porch line belongs to the warm door only. On the grunge sign-up it
+   would be a soft serif sentence in the middle of a photocopy. */
+.door.first .porch{ display:none; }
+
+@media(max-width:600px){
+  .door.back h1{ font-size:32px; }
+  .door.back .pad{ padding:26px 18px 80px; }
+}
