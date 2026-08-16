@@ -166,6 +166,32 @@ export function sinceFromCount(count, now = new Date()) {
   return new Date(ms).toISOString().slice(0, 10);
 }
 
+/* IS TODAY A MILESTONE?
+
+   Returns the mark landing exactly today, or null. Used by the Wall to
+   decide whether to offer the celebration card.
+
+   ⚠️ daysAway === 0 and NOT "earned today or recently". The difference
+   matters: a looser test would greet somebody with "you hit 90 days!"
+   three days late, or worse, every day until they answered. This fires
+   on the day or not at all.
+
+   ⚠️ It also means a milestone that lands while somebody isn't looking is
+   simply missed, and that is the right trade. The alternative — holding
+   an unshown celebration and springing it later — means opening the app
+   after a hard week and being congratulated for a number that is no
+   longer true. Nothing here should ever tell somebody about their own
+   count on a delay.
+
+   Returns at most one mark. Two marks cannot share a date: the day marks
+   are 30/60/90/180 and the year marks are calendar anniversaries, and a
+   30-day and a 1-year cannot both be today unless someone's sober date is
+   in the future, which parseISO already refuses. */
+export function milestoneToday(sinceISO, now = new Date()) {
+  const all = milestones(sinceISO, now);
+  return all.find((mk) => mk.daysAway === 0) || null;
+}
+
 /* The chip row is capped so it stays one line on a phone: everything
    earned, plus the one being worked toward. Someone at 4,000 days does
    not need thirty grey circles trailing off the screen. */

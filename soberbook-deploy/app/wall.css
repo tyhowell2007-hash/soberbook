@@ -545,6 +545,44 @@ ul.mine li > *{ position:relative; z-index:1; }
 .snote{ font-family:'Courier Prime',monospace; font-size:10.5px; color:var(--soft);
   background:var(--paper2); padding:9px 13px; line-height:1.55; }
 
+/* =====================================================================
+   THE MILESTONE OFFER — "You hit 90 days today. Want to put it on
+   the wall?"
+
+   Gold, because gold means milestone everywhere else in this app and
+   nowhere else. Somebody who has scrolled past one gold post already
+   knows what this card is before reading it.
+
+   It sits between the welcome line and the composer, in the flow — not
+   fixed, not floating, not covering anything. You can scroll straight
+   past it and nothing chases you.
+
+   ⚠️ Both buttons are the same size. The obvious move is to make
+   "Share it" bigger and "Not this time" a small grey link, because that
+   is how every product on earth builds a choice it has a preference
+   about. This app does not get to have a preference here. Weighting the
+   buttons would be the app leaning on somebody about a disclosure, which
+   is the exact thing asking was supposed to avoid.
+   ===================================================================== */
+.mstone{
+  display:flex; flex-wrap:wrap; align-items:center; gap:12px;
+  margin:0 0 14px; padding:16px 15px;
+  background:#FBF0D2; border:3px solid var(--x); box-shadow:5px 5px 0 var(--x);
+}
+.mstone-coin{ font-size:30px; line-height:1; flex:none; }
+.mstone-body{ flex:1 1 190px; min-width:0; }
+.mstone-body h3{
+  font-family:'Anton',Impact,sans-serif; font-weight:400; font-size:23px;
+  text-transform:uppercase; color:var(--x); line-height:1.05;
+}
+.mstone-body p{
+  font-family:'Courier Prime',monospace; font-size:12.5px;
+  color:#5A4A18;                       /* 7.1:1 on the gold */
+  margin-top:4px;
+}
+.mstone-acts{ display:flex; gap:9px; flex:1 1 100%; }
+.mstone-acts .btn{ flex:1; min-height:44px; margin-top:0; }
+
 /* THE OFF SWITCH — "stop starting songs for me".
 
    Full width and directly under the sleeve on purpose. The person

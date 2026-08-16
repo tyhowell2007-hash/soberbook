@@ -135,6 +135,17 @@ body{
   border-radius:10px;
 }
 .chip, .schip{ border-radius:99px; }
+/* The milestone offer, in the room. Same gold — it's the one non-green
+   colour in here and it's reserved entirely for this — but soft-edged
+   like everything else inside. Both buttons stay equal weight; see the
+   note in wall.css for why that isn't a styling preference. */
+.mstone{ border:1px solid #E8D9A8; border-radius:14px; box-shadow:none;
+  background:var(--gold-bg); }
+.mstone-body h3{ font-family:'Archivo',system-ui,sans-serif; font-weight:700;
+  font-size:19px; text-transform:none; letter-spacing:-.01em; color:var(--body); }
+.mstone-body p{ font-family:'Archivo',system-ui,sans-serif; font-size:14px;
+  color:var(--soft); }
+
 /* The off switch keeps its full width and its weight — it's a safety
    control, not a chip. Only the hard black edge softens to match the room. */
 /* ⚠️ The border is --gd, NOT --line. The hairline is 1.27:1 against the

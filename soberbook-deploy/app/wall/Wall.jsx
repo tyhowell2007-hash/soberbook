@@ -104,9 +104,12 @@ function who(p) {
 /* `me` defaults rather than being required, so this component still
    renders if it's ever mounted without it — a missing name should cost
    you a greeting, never a blank page. */
-export default function Wall({ initial, me = { name: null, avatar: null } }) {
+export default function Wall({ initial, me = { name: null, avatar: null }, mark = null }) {
   const router = useRouter();
   const supabase = browserClient();
+  /* The milestone landing today, if there is one and it hasn't been
+     answered. Server decides whether to send it; this only renders it. */
+  const [offer, setOffer] = useState(mark);
   const [posts, setPosts] = useState(initial);
   const [text, setText] = useState('');
   const [anon, setAnon] = useState(false);
@@ -170,6 +173,77 @@ export default function Wall({ initial, me = { name: null, avatar: null } }) {
     }
   }
 
+  /* Answering the milestone offer — share it, or don't.
+
+     ⚠️ THE CARD DISAPPEARS FIRST, BEFORE ANY NETWORK CALL.
+     Whichever they pick, the answer has been given and the app should
+     stop asking immediately. Leaving it on screen spinning while a write
+     completes reads as the app not accepting "no" — which is the one
+     thing this whole design exists to avoid.
+
+     ⚠️ THE POST IS WRITTEN BEFORE THE ANSWER IS RECORDED, and the order
+     is deliberate. If recording the answer fails, they get asked again
+     tomorrow — annoying. If the post fails but the answer is recorded,
+     the celebration is silently lost and can never be offered again,
+     because the milestone only lands once. Better the recoverable
+     failure. */
+  async function answerMilestone(share) {
+    const mk = offer;
+    if (!mk) return;
+    setOffer(null);
+    setBusy(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      if (share) {
+        /* milestone_days carries the REAL day count, computed on the
+           SERVER from sober_since and handed down in `mark`. For '1 year'
+           that's 365 or 366 depending on whether a leap day fell inside
+           it — the true figure, and the same one their profile shows. A
+           hardcoded 365 would contradict their own counter on screen.
+
+           ⚠️ Not recomputed here from Date.now(). The client's clock and
+           timezone are not the server's, and a phone an hour ahead of UTC
+           would post a day count one off from the one it just displayed. */
+        const { error } = await supabase.from('posts').insert({
+          author_id: user.id,
+          body: `${mk.full} today.`,
+          /* NEVER anonymous. A milestone post is a disclosure by
+             definition — "someone hit 90 days" attached to no one is not
+             a celebration, it's noise. If they want it unattached they
+             can decline and write their own post. */
+          is_anonymous: false,
+          milestone_days: mk.days,
+        });
+        if (error) throw error;
+
+        const { data } = await supabase
+          .from('feed_posts').select('*').order('created_at', { ascending: false }).limit(60);
+        setPosts(data || []);
+      }
+
+      /* Record the answer either way. Read-then-append rather than
+         overwrite, so two tabs open at once can't wipe each other's
+         history. Not airtight against a true simultaneous write — the
+         honest fix is a Postgres array_append in an RPC — but the failure
+         mode is being asked about one old milestone again, which is
+         harmless enough not to justify the extra surface tonight. */
+      const { data: prof } = await supabase
+        .from('profiles').select('milestones_answered').eq('id', user.id).maybeSingle();
+      const seen = new Set(prof?.milestones_answered || []);
+      seen.add(mk.key);
+      await supabase.from('profiles')
+        .update({ milestones_answered: [...seen] }).eq('id', user.id);
+
+      router.refresh();
+    } catch (e2) {
+      alert(e2.message);
+    } finally {
+      setBusy(false);
+    }
+  }
+
   async function post(e) {
     e.preventDefault();
     const body = text.trim();
@@ -215,6 +289,38 @@ export default function Wall({ initial, me = { name: null, avatar: null } }) {
         <h2>Welcome home{me.name ? ', ' + me.name : ''}.</h2>
         <p>You made it. Pull up a chair.</p>
       </div>
+
+      {/* ---- THE MILESTONE OFFER ----
+
+          A CARD, NOT A MODAL. A modal on the morning you hit 90 days is
+          the app demanding a response before it will let you in. This can
+          be scrolled straight past, and scrolling past is a valid answer
+          — it just gets asked once more next time, because scrolling is
+          not the same as saying no.
+
+          ⚠️ THE ONLY THING THIS MAY EVER SAY IS CONGRATULATIONS.
+          The same arithmetic that knows somebody hit 90 days today knows
+          when somebody who was at 88 is suddenly at 3. The app must never
+          mention that. No "sorry to see it", no "start again", no gentle
+          little note. The relapse is already the loudest thing in that
+          person's life and this app's entire job that day is to be the
+          one place that doesn't bring it up. The lifetime total is the
+          only comment we make, and it's made without words. */}
+      {offer && (
+        <div className="mstone">
+          <span className="mstone-coin" aria-hidden="true">🪙</span>
+          <div className="mstone-body">
+            <h3>You hit {offer.full} today.</h3>
+            <p>Want to put it on the wall?</p>
+          </div>
+          <div className="mstone-acts">
+            <button type="button" className="btn" disabled={busy}
+                    onClick={() => answerMilestone(true)}>Share it</button>
+            <button type="button" className="btn ghost" disabled={busy}
+                    onClick={() => answerMilestone(false)}>Not this time</button>
+          </div>
+        </div>
+      )}
 
       {/* ---- THE COMPOSER, MOVED TO THE TOP ----
           It used to sit under the wall. Two reasons it belongs here:

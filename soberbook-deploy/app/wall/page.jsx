@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { serverClient, assertReadable } from '../../lib/supabase-server';
+import { milestoneToday, dayCount } from '../../lib/milestones';
 import Wall from './Wall';
 
 export const dynamic = 'force-dynamic';
@@ -20,7 +21,7 @@ export default async function WallPage() {
      on anonymous posts. Two different sources on purpose. */
   const { data: profile } = await supabase
     .from('profiles')
-    .select('handle, sober_since, display_name, avatar')
+    .select('handle, sober_since, display_name, avatar, milestones_answered')
     .eq('id', user.id).maybeSingle();
   if (!profile) redirect('/welcome');
 
@@ -35,6 +36,27 @@ export default async function WallPage() {
   const days = profile.sober_since
     ? Math.floor((Date.now() - new Date(profile.sober_since).getTime()) / 86400000)
     : null;
+
+  /* IS TODAY A MILESTONE, AND HAVE WE ALREADY ASKED?
+
+     Decided on the SERVER, for one reason: the day boundary. dayCount and
+     milestoneToday both work in UTC midnight, and doing this on the
+     client would hand the answer to whatever timezone the phone is set
+     to. Somebody in Ohio opening the app at 9pm would be told about
+     tomorrow's milestone tonight — and having been told, would never be
+     told again, because the offer only lands once.
+
+     ⚠️ Nothing here has a branch for a broken streak, and that absence is
+     the feature. milestoneToday() either finds a mark or returns null;
+     there is no third case and there must never be one. */
+  let mark = null;
+  if (profile.sober_since) {
+    const mk = milestoneToday(profile.sober_since);
+    const answered = profile.milestones_answered || [];
+    if (mk && !answered.includes(mk.key)) {
+      mark = { key: mk.key, full: mk.full, days: dayCount(profile.sober_since) };
+    }
+  }
 
   return (
     <>
@@ -60,6 +82,7 @@ export default async function WallPage() {
         : <Wall
             initial={posts || []}
             me={{ name: profile.display_name || null, avatar: profile.avatar || null }}
+            mark={mark}
           />}
     </>
   );
