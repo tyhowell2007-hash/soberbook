@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { browserClient } from '../../lib/supabase-browser';
+import Directory from './Directory';
 
 /* =====================================================================
    THE INBOX, AND THE REQUESTS LANE ABOVE IT.
@@ -35,7 +36,12 @@ function Row({ t, children }) {
   );
 }
 
-export default function Inbox({ inbox, requests }) {
+export default function Inbox({ inbox, requests, members = [] }) {
+  /* Two tabs, not two pages. Your conversations and everybody else are the
+     same question — "who can I talk to" — and splitting them across routes
+     would mean a person with no conversations lands on an empty screen and
+     has to go looking for the door. */
+  const [tab, setTab] = useState('chats');
   const [open, setOpen] = useState(false);
   const [pending, setPending] = useState(requests);
   const [busy, setBusy] = useState(null);
@@ -61,6 +67,20 @@ export default function Inbox({ inbox, requests }) {
 
   return (
     <div className="pad">
+      <div className="ctabs" role="tablist">
+        <button role="tab" aria-selected={tab === 'chats'}
+                className={'ctab' + (tab === 'chats' ? ' on' : '')}
+                onClick={() => setTab('chats')}>Conversations</button>
+        <button role="tab" aria-selected={tab === 'all'}
+                className={'ctab' + (tab === 'all' ? ' on' : '')}
+                onClick={() => setTab('all')}>
+          Everybody{members.length ? ` · ${members.length}` : ''}
+        </button>
+      </div>
+
+      {tab === 'all' && <Directory members={members} />}
+
+      {tab === 'chats' && <>
       {err && <div className="err">{err}</div>}
 
       {pending.length > 0 && (
@@ -112,11 +132,12 @@ export default function Inbox({ inbox, requests }) {
         <div className="empty">
           <div className="h">No conversations yet</div>
           <p className="p">
-            Open somebody&apos;s page from the wall and tap Message. Their first
-            message to you lands here as a request — yours to accept or not.
+            Tap <b>Everybody</b> above to see who&apos;s here. Their first message
+            to you lands as a request — yours to accept or not.
           </p>
         </div>
       )}
+      </>}
     </div>
   );
 }

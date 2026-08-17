@@ -461,3 +461,21 @@ body{
   font-weight:600; font-size:14px; padding:10px 16px;
 }
 .idea:hover{ background:var(--gd); color:#fff; border-color:var(--gd); }
+
+/* Chat tabs + directory, in the room. */
+.ctabs{ border-bottom:1px solid var(--line); margin-bottom:10px; }
+.ctab{
+  font-family:'Archivo',system-ui,sans-serif; font-size:13px; font-weight:600;
+  letter-spacing:0; text-transform:none; color:var(--soft);
+}
+.ctab.on{ color:var(--gd); font-weight:700; box-shadow:inset 0 -2px 0 var(--gd); }
+
+.drow{ background:#fff; }
+.drow:hover{ background:var(--gl); }
+/* --gm-t, not --gm: a mid-green is 4.02:1 on paper and this is small text.
+   See the note at the top of this file — bright fill, darker twin for words. */
+.dgo{ color:var(--gm-t); font-family:'Archivo',system-ui,sans-serif;
+  font-size:12px; font-weight:600; letter-spacing:0; text-transform:none; }
+.dchip{ font-family:'Archivo',system-ui,sans-serif; font-size:10px; letter-spacing:0; }
+.dchip.new{ background:var(--gl); color:var(--gt); }
+.dchip.mark{ background:var(--gold-bg); color:var(--gold-ink); border-color:#E8D9A8; }

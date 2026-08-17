@@ -1,0 +1,155 @@
+'use client';
+
+import { useState } from 'react';
+import { browserClient } from '../../lib/supabase-browser';
+
+/* =====================================================================
+   EVERYBODY — the member directory inside Chat.
+
+   Ty, Aug 17: "everybody that's in Sober Book should be in the chat. We
+   need to make it look more lively."
+
+   The list solves a real problem: before this, the only way to message
+   somebody was to stumble across one of their posts and tap through to
+   their profile. If you hadn't seen them post, they didn't exist.
+
+   ---------------------------------------------------------------------
+   ⚠️ WHY THERE ARE NO GREEN AND RED DOTS
+
+   Ty asked for online/offline indicators. We talked it through and he
+   chose this version instead. Writing down why, so nobody adds them back
+   in six months thinking it's an obvious missing feature:
+
+   1. `[C] Building for Women.md` calls a public day-count badge the
+      sharpest risk in the whole app — "predators filter for newcomers,
+      take away the filter." A green dot is that filter with a clock on
+      it. It doesn't only say who is vulnerable, it says WHEN they are
+      awake and alone. Green at 2am is the exact person and the exact
+      moment a 13th stepper looks for.
+
+   2. Over a week, presence publishes somebody's whole schedule. For a
+      person avoiding an ex or a dealer, that is genuinely dangerous.
+
+   3. We already refused the two quiet versions of this — no typing dots,
+      no "seen" ticks — because both announce that you opened the app.
+      A presence dot is the loud version of the same signal.
+
+   4. And the practical one: with four members, three grey dots make the
+      room look DEAD. Presence only reads as lively at a few hundred
+      people. It would have achieved the opposite of what was asked.
+
+   ---------------------------------------------------------------------
+   WHAT MAKES IT FEEL ALIVE INSTEAD
+
+   Every signal on this page comes from something the person chose to do
+   in public — never from whether the app is open on their phone.
+
+     "new here"      → joined in the last 7 days
+     milestone chip  → derived from their own day count
+     "Posted today"  → their newest post UNDER THEIR OWN HANDLE
+                       (anonymous posts are excluded in the view — see
+                        0017; counting them would leak that an anonymous
+                        member was active)
+
+   "New here" is the one that matters most. A green dot marks a newcomer
+   as findable. "New here" asks somebody to go and welcome her. Same
+   fact, opposite instruction.
+   ===================================================================== */
+
+/* The chip is the highest mark they've actually passed — not the next one
+   coming. A directory is not the place to tell somebody they're 4 days
+   short of anything. */
+function markFor(days) {
+  if (days == null) return null;
+  if (days >= 3650) return '10 years';
+  if (days >= 1825) return '5 years';
+  if (days >= 730)  return '2 years';
+  if (days >= 365)  return '1 year';
+  if (days >= 180)  return '6 months';
+  if (days >= 90)   return '90 days';
+  if (days >= 60)   return '60 days';
+  if (days >= 30)   return '30 days';
+  return null;
+}
+
+function daysSince(iso) {
+  if (!iso) return null;
+  return Math.floor((Date.now() - new Date(iso).getTime()) / 86400000);
+}
+
+/* The one line under the name. Order matters: the most human fact wins.
+   Somebody's first week is more worth saying than what they posted. */
+function line(m) {
+  const joined = daysSince(m.joined_at);
+  if (joined !== null && joined < 1) return 'Joined today';
+  if (joined !== null && joined < 7) return 'Joined this week';
+
+  const posted = daysSince(m.last_public_post);
+  if (posted !== null) {
+    if (posted < 1)  return 'Posted today';
+    if (posted < 7)  return 'Here this week';
+    if (posted < 30) return 'Here this month';
+  }
+  if (m.day_count != null) return `Day ${m.day_count.toLocaleString()}`;
+  return 'Member';
+}
+
+export default function Directory({ members }) {
+  const [busy, setBusy] = useState(null);
+  const [err, setErr] = useState('');
+
+  /* By handle, never by id — public_profiles deliberately doesn't carry
+     anybody's uuid. start_thread() is the only thing allowed to turn one
+     into the other, and it does that inside the database. */
+  async function open(handle) {
+    setBusy(handle); setErr('');
+    const supabase = browserClient();
+    const { data, error } = await supabase.rpc('start_thread', { target_handle: handle });
+    if (error || !data) {
+      setBusy(null);
+      /* ⚠️ One sentence for four different failures — no such handle,
+         suspended, they blocked you, you blocked them. Never say which.
+         An error message is an output channel (Aug 6). */
+      setErr(error?.message || 'Couldn’t open that.');
+      return;
+    }
+    window.location.href = `/chat/${data}`;
+  }
+
+  if (!members.length) {
+    return (
+      <div className="empty">
+        <div className="h">Just you so far</div>
+        <p className="p">When somebody else joins, they’ll show up here.</p>
+      </div>
+    );
+  }
+
+  return (
+    <>
+      {err && <div className="err">{err}</div>}
+      {members.map((m) => {
+        const joined = daysSince(m.joined_at);
+        const isNew = joined !== null && joined < 7;
+        const mark = markFor(m.day_count);
+        return (
+          <button key={m.handle} className="crow drow" disabled={busy === m.handle}
+                  onClick={() => open(m.handle)}>
+            <div className="cav" aria-hidden="true">{m.display_avatar || '🙂'}</div>
+            <div className="cwho">
+              <span className="cname">
+                {m.display_name}
+                {isNew && <span className="dchip new">new here</span>}
+                {!isNew && mark && <span className="dchip mark">{mark}</span>}
+              </span>
+              <span className="clast">{line(m)}</span>
+            </div>
+            {/* "Say hi" on somebody's first week is the whole point of the
+                chip — it turns a list into an instruction. */}
+            <span className="dgo">{busy === m.handle ? '…' : isNew ? 'Say hi' : 'Message'}</span>
+          </button>
+        );
+      })}
+    </>
+  );
+}
