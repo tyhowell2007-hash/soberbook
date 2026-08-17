@@ -453,3 +453,11 @@ body{
 .cbar button{ background:#fff; color:var(--gt); border-radius:11px;
   font-family:'Archivo',system-ui,sans-serif; font-weight:700; font-size:14px;
   text-transform:none; letter-spacing:0; }
+
+/* Handle suggestions, in the room. Soft chips instead of hard slabs. */
+.idea{
+  border-width:1px; border-color:var(--gd); border-radius:99px;
+  background:#fff; color:var(--gm-t); font-family:'Archivo',system-ui,sans-serif;
+  font-weight:600; font-size:14px; padding:10px 16px;
+}
+.idea:hover{ background:var(--gd); color:#fff; border-color:var(--gd); }
