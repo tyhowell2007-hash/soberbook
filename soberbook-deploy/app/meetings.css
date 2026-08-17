@@ -1,0 +1,115 @@
+/* =====================================================================
+   MEETINGS — its own stylesheet, its own class prefix.
+
+   ⚠️ EVERY CLASS HERE STARTS WITH mt-, AND THAT IS THE POINT.
+
+   On Aug 16 chat nearly shipped using .composer, which the green room
+   re-declares as position:static so the wall's post box can sit at the
+   top. Reusing it would have unpinned the message bar — in one room only,
+   on one page only, which is the hardest kind of bug to find.
+
+   Shared class names are how a fix in one place becomes a bug in
+   another. This file is imported by app/meetings/layout.jsx and nowhere
+   else, and nothing in it can collide with anything.
+
+   ⚠️ COLOUR RULE, INHERITED FROM theme-green.css:
+   --gm is DECORATION ONLY (4.22:1, fails). Text uses --gm-t or --gt.
+   ===================================================================== */
+
+.mt-filter{
+  display:block; width:100%; margin:0 0 14px;
+  padding:11px 14px; border:1px solid var(--line); border-radius:11px;
+  background:var(--paper2); color:var(--gm-t);
+  font:inherit; font-size:13px; text-align:left; cursor:pointer;
+}
+.mt-filter:hover{ border-color:var(--gm); }
+.mt-filter[aria-pressed="true"]{
+  background:var(--gl); border-color:var(--gm); color:var(--gt);
+}
+
+.mt-card{
+  background:var(--paper2); border:1px solid var(--line);
+  border-radius:13px; padding:13px 14px; margin-bottom:9px;
+}
+/* A meeting starting now gets a full border, not a left stripe — a
+   single-sided border with a border-radius renders as a detached line. */
+.mt-card.now{ border-color:var(--gd); background:var(--gl); }
+
+.mt-when{
+  font-size:12px; letter-spacing:.04em; text-transform:uppercase;
+  color:var(--gm-t); margin-bottom:3px;
+}
+.mt-card.now .mt-when{ color:var(--gt); font-weight:600; }
+
+.mt-name{ font-size:15px; color:var(--body); line-height:1.35; }
+
+.mt-tags{ display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; }
+.mt-tag{
+  font-size:11px; padding:3px 9px; border-radius:20px; white-space:nowrap;
+}
+/* 11.4:1 — the pairing theme-green already proved. */
+.mt-tag.open{   background:var(--gl);   color:var(--gt); }
+/* ⚠️ THE INVISIBLE BADGE.
+
+   .mt-card.now is also --gl, so a pale-green tag on a pale-green card is
+   a 1.00 contrast ratio — the "Open to anyone" badge disappears entirely,
+   and it disappears on the ONE card that matters most, the meeting
+   starting in twelve minutes.
+
+   The contrast audit passed 20/20 and missed this completely, because it
+   checks TEXT against its background. This is a FILL against a FILL.
+   Text-only contrast checking has a blind spot exactly here, and the only
+   reason it got caught is that I went looking for it by hand.
+
+   ⚠️ AND THE FIRST FIX WASN'T ONE. I tried a white fill: 1.13:1 against
+   --gl. I'd swapped one invisible fill for another and nearly shipped it
+   because the TEXT still measured 12:1.
+
+   Fills can't solve this — every tag colour in the set lands between 1.01
+   and 1.13 against the wash. So the answer is an EDGE, applied to all of
+   them, not a fill applied to one.
+
+   --gm at 3.74:1 clears the 3:1 bar for a UI boundary, and theme-green
+   already documents --gm as "DECORATION ONLY: borders, edges, fills".
+   This is the one thing it's for. */
+.mt-card.now .mt-tag{ border:1px solid var(--gm); }
+/* Deliberately NOT red or amber-warning. A closed meeting isn't a
+   problem, it's a different room. Warm neutral, no alarm. */
+.mt-tag.closed{ background:#F6EFE3;     color:#6A3F12; }
+.mt-tag.unk{    background:#EEF1F0;     color:#465350; }
+.mt-tag.dur{    background:transparent; color:var(--soft); border:1px solid var(--line); }
+
+.mt-note{
+  margin-top:8px; font-size:12px; color:var(--soft); line-height:1.5;
+  word-break:break-word;
+}
+
+.mt-go{ display:flex; align-items:center; gap:12px; margin-top:11px; flex-wrap:wrap; }
+.mt-join{
+  display:inline-block; background:var(--gd); color:#fff;
+  padding:9px 18px; border-radius:10px; font-size:14px; text-decoration:none;
+}
+.mt-join:hover{ background:var(--gt); }
+.mt-phone{ font-size:12px; color:var(--soft); }
+
+.mt-src{
+  margin-top:22px; padding-top:14px; border-top:1px solid var(--line);
+  font-size:12px; color:var(--soft); line-height:1.6;
+}
+.mt-src a{ color:var(--gm-t); }
+.mt-src p{ margin:0 0 7px; }
+
+.mt-dim{ color:var(--soft); font-size:12px; line-height:1.6; }
+
+/* The feed-is-down card. Reads as information, not as an error — the
+   person looking at it may be having a bad night and the app failing is
+   not their problem to feel bad about. */
+.mt-down{
+  background:var(--paper2); border:1px solid var(--line);
+  border-radius:13px; padding:16px;
+}
+.mt-downh{ font-size:15px; color:var(--body); margin-bottom:8px; }
+.mt-down p{ font-size:13px; color:var(--body); line-height:1.6; margin:0 0 9px; }
+.mt-down p.mt-dim{ color:var(--soft); font-size:11px; }
+.mt-outs{ display:flex; gap:14px; flex-wrap:wrap; }
+.mt-outs a{ color:var(--gm-t); font-size:14px; }

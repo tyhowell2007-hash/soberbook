@@ -35,9 +35,13 @@ import { usePathname } from 'next/navigation';
    ===================================================================== */
 
 const TABS = [
-  { href: '/wall', icon: '🏠', label: 'Home' },
-  { href: '/chat', icon: '💬', label: 'Chat' },
-  { href: '/me',   icon: '🙂', label: 'You'  },
+  { href: '/wall',     icon: '🏠', label: 'Home' },
+  { href: '/chat',     icon: '💬', label: 'Chat' },
+  /* Aug 17. The second tab to earn its way in. It lists real meetings
+     from NA's own open data — nothing here is a picture of a button.
+     A chair, because that is what the room is: chairs in a circle. */
+  { href: '/meetings', icon: '🪑', label: 'Meetings' },
+  { href: '/me',       icon: '🙂', label: 'You'  },
 ];
 
 export default function BottomNav() {
