@@ -33,6 +33,11 @@ export function browserClient() {
 export const READABLE_VIEWS = [
   'feed_posts', 'feed_comments', 'public_profiles',
   'chat_threads', 'chat_messages',
+  /* meeting_attendance — who else is going to a meeting. Reading
+     meeting_going directly would hand back raw member_id uuids for
+     people who have blocked you; the view joins through public_profiles
+     so blocking, suspension and anonymity are inherited. See 0021. */
+  'meeting_attendance',
 ];
 
 export function assertReadable(name) {

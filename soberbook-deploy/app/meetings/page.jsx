@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
-import { serverClient } from '../../lib/supabase-server';
+import { serverClient, assertReadable } from '../../lib/supabase-server';
 import { fetchMeetings, SOURCE } from '../../lib/meetings';
 import List from './List';
 
@@ -40,6 +40,26 @@ export default async function MeetingsPage() {
 
   const { ok, reason, meetings, fetchedAt } = await fetchMeetings();
 
+  /* WHO'S GOING. The view, never the table — reading meeting_going
+     directly would return raw member_id uuids for people who blocked you.
+     meeting_attendance joins through public_profiles, so blocking,
+     suspension and anonymous mode are all inherited rather than
+     re-implemented here (which is how you get one of them subtly wrong).
+
+     ⚠️ Failure here must NOT take the page down. If this query errors,
+     the meeting list still renders — somebody looking for a meeting at
+     2am gets the meeting, and simply doesn't see who else is going. The
+     social layer is the nice part; the list is the necessary part. */
+  let going = [];
+  try {
+    const { data } = await supabase
+      .from(assertReadable('meeting_attendance'))
+      .select('source, meeting_id, occurs_on, handle, display_name, display_avatar, is_mine')
+      .eq('source', SOURCE.id)
+      .limit(500);
+    going = data || [];
+  } catch { going = []; }
+
   return (
     <>
       <div className="mast">
@@ -75,7 +95,7 @@ export default async function MeetingsPage() {
           </div>
         </div>
       ) : (
-        <List meetings={meetings} fetchedAt={fetchedAt} source={SOURCE} />
+        <List meetings={meetings} fetchedAt={fetchedAt} source={SOURCE} going={going} />
       )}
     </>
   );

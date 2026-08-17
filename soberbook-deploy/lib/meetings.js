@@ -31,6 +31,12 @@ const ROOT = 'https://bmlt.newyorkna.org/main_server';
 const ENDPOINT = `${ROOT}/client_interface/json/?switcher=GetSearchResults`;
 
 export const SOURCE = {
+  /* ⚠️ MUST match a row in meeting_source_ok in the database. That table
+     is the allowlist that keeps "I'm going" to online meetings only —
+     a public "I'll be here Tuesday at 7" attached to a street address is
+     a stalking tool. Change this string and every mark stops saving,
+     loudly, which is the correct failure. */
+  id: 'nyna-vm',
   name: 'Greater New York Region of NA',
   url: 'https://newyorkna.org/',
   fellowship: 'Narcotics Anonymous',
