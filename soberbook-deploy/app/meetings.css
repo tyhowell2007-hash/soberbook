@@ -92,6 +92,42 @@
 .mt-join:hover{ background:var(--gt); }
 .mt-phone{ font-size:12px; color:var(--soft); }
 
+/* =====================================================================
+   ⭐ WHERE PEOPLE ARE GOING — the panel.
+
+   ⚠️ DARK, BECAUSE IT HAS TO READ AS A DIFFERENT PLACE.
+
+   If this were another white card with a heading, it would scan as the top
+   of the same list and get skimmed past. Inverting it makes the eye stop.
+   Same move as the grunge door against the green room: a change of
+   material says "you are somewhere else" faster than any label.
+
+   It is also the only inverted surface in the app, which is what keeps it
+   special. If a second one ever appears, this stops working.
+   ===================================================================== */
+.mt-panel{
+  background:var(--gt); border-radius:14px;
+  padding:12px 12px 4px; margin:0 0 16px;
+}
+.mt-panelh{
+  font-size:11px; letter-spacing:.09em; text-transform:uppercase;
+  /* --gl on --gt is 11.4:1. The pale wash is the only text colour that
+     belongs on the deep green — anything mid-range dies here. */
+  color:var(--gl); margin:0 0 10px; font-weight:600;
+}
+.mt-pcard{
+  background:var(--paper2); border-radius:11px;
+  padding:11px 12px; margin-bottom:8px;
+}
+/* The time is secondary inside the panel — WHO is the headline there, so
+   WHEN drops to a supporting line under the meeting name. */
+.mt-pwhen{ font-size:12px; color:var(--soft); margin-top:2px; }
+
+.mt-resth{
+  font-size:11px; letter-spacing:.09em; text-transform:uppercase;
+  color:var(--soft); margin:0 0 9px;
+}
+
 /* ---- who's going ---------------------------------------------------- */
 .mt-going{ display:flex; align-items:center; gap:7px; margin-top:9px; flex-wrap:wrap; }
 .mt-faces{ display:inline-flex; }

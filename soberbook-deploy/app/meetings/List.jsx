@@ -4,7 +4,17 @@ import { useEffect, useState, useCallback } from 'react';
 import { browserClient } from '../../lib/supabase-browser';
 
 /* =====================================================================
-   WHAT'S ON NEXT.
+   WHAT'S ON NEXT — and, above it, WHERE PEOPLE ARE GOING.
+
+   Ty, Aug 17: "I like the idea of seeing where my friends are gonna go to
+   meetings... if they're going to meetings online, which one to go and
+   meet them at?"
+
+   That second sentence is the whole product. Every app on earth can list
+   meetings — AA and NA publish the data openly, anybody can render it.
+   Nobody can tell you WHICH ROOM YOUR PEOPLE WILL BE IN. That's not a
+   feature we bolted on; it's the only thing here that can't be copied,
+   because it's made of the members and not of data.
 
    ⚠️ WHY THIS IS A CLIENT COMPONENT WHEN IT RENDERS NO FORM
 
@@ -18,8 +28,7 @@ import { browserClient } from '../../lib/supabase-browser';
 
    A grid of Sunday-through-Saturday tabs answers "what happens Tuesday".
    Nobody opens this page to ask that. They open it at half eleven on a
-   bad night to ask "where can I go, now". So the list is ordered by what
-   starts soonest, and the first thing on it is the closest door.
+   bad night to ask "where can I go, now".
    ===================================================================== */
 
 const MS_DAY = 86400000;
@@ -41,10 +50,7 @@ function partsIn(date, tz) {
    in that zone, is this UTC moment" — Intl only goes the other way. So we
    guess, ask what the guess looks like over there, and correct by the
    error. Twice, because correcting once can land on the far side of a DST
-   boundary and be an hour out. Two passes settles it.
-
-   Getting this wrong by an hour twice a year would put somebody outside a
-   meeting that already ended. */
+   boundary and be an hour out. Two passes settles it. */
 function zonedToUtc(y, mo, d, hh, mi, tz) {
   let ts = Date.UTC(y, mo - 1, d, hh, mi);
   for (let i = 0; i < 2; i++) {
@@ -58,20 +64,21 @@ function zonedToUtc(y, mo, d, hh, mi, tz) {
 /* Returns the instant AND the calendar date in the MEETING's zone.
 
    ⚠️ onDate is the meeting's local date, not yours, and that matters.
-   It's the key that identifies WHICH Tuesday somebody said they'd attend.
+   It's the key identifying WHICH Tuesday somebody said they'd attend.
    Using the viewer's date would mean two members in different timezones
    marking the same meeting write two different rows and never see each
    other — the feature would silently half-work, which is worse than not
-   working. The meeting's own date is the one fact everybody agrees on. */
+   working at all. The meeting's own date is the one fact everybody
+   agrees on. */
 function nextStart(m, nowMs) {
   if (!m.tz) return null;
   for (let add = 0; add <= 7; add++) {
     const g = partsIn(new Date(nowMs + add * MS_DAY), m.tz);
     if (WD[g.weekday] !== m.day) continue;
     const ts = zonedToUtc(+g.year, +g.month, +g.day, m.hour, m.minute, m.tz);
-    /* A meeting that started up to 20 minutes ago still counts. Walking
-       in late is normal and always has been; hiding it would be the app
-       being stricter than the rooms are. */
+    /* A meeting that started up to 20 minutes ago still counts. Walking in
+       late is normal and always has been; hiding it would be the app being
+       stricter than the rooms are. */
     if (ts >= nowMs - 20 * 60000) {
       return { ts, onDate: `${g.year}-${g.month}-${g.day}` };
     }
@@ -87,35 +94,30 @@ function whenLabel(ts, nowMs) {
   const d = new Date(ts);
   const time = d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
   const today = new Date(nowMs);
-  const sameDay = d.toDateString() === today.toDateString();
-  const tomorrow = d.toDateString() === new Date(nowMs + MS_DAY).toDateString();
-
-  if (sameDay)  return { t: `Today ${time}`, live: false };
-  if (tomorrow) return { t: `Tomorrow ${time}`, live: false };
+  if (d.toDateString() === today.toDateString())
+    return { t: `Today ${time}`, live: false };
+  if (d.toDateString() === new Date(nowMs + MS_DAY).toDateString())
+    return { t: `Tomorrow ${time}`, live: false };
   return { t: `${d.toLocaleDateString([], { weekday: 'long' })} ${time}`, live: false };
 }
 
-/* "Jacoby and Ivy are going" reads better than a count, up to a point. */
-function goingLine(names, mineToo) {
-  const others = names.filter((n) => n.mine !== true).map((n) => n.name);
+/* Names, not a count. "Jacoby and Ivy" is a reason to go; "2 going" is a
+   statistic about strangers. */
+function nameList(others) {
   const n = others.length;
-  if (mineToo && n === 0) return 'You’re going';
   if (n === 0) return null;
-  let who;
-  if (n === 1) who = others[0];
-  else if (n === 2) who = `${others[0]} and ${others[1]}`;
-  else if (n === 3) who = `${others[0]}, ${others[1]} and ${others[2]}`;
-  else who = `${others[0]}, ${others[1]} and ${n - 2} others`;
-  if (mineToo) return `You and ${who} are going`;
-  return n === 1 ? `${who} is going` : `${who} are going`;
+  if (n === 1) return others[0];
+  if (n === 2) return `${others[0]} and ${others[1]}`;
+  if (n === 3) return `${others[0]}, ${others[1]} and ${others[2]}`;
+  return `${others[0]}, ${others[1]} and ${n - 2} others`;
 }
 
 export default function List({ meetings, fetchedAt, source, going: initialGoing }) {
   /* ⚠️ null until mounted, on purpose. The server has no clock that means
-     anything to this reader, so it renders no times at all — if it
-     guessed and the browser disagreed, React would throw a hydration
-     mismatch and the page would flicker between two different wrong
-     answers. Empty, then correct, beats wrong then corrected. */
+     anything to this reader, so it renders no times at all — if it guessed
+     and the browser disagreed, React would throw a hydration mismatch and
+     the page would flicker between two different wrong answers. Empty then
+     correct beats wrong then corrected. */
   const [rows, setRows] = useState(null);
   const [showClosed, setShowClosed] = useState(true);
   const [going, setGoing] = useState(initialGoing || []);
@@ -135,8 +137,8 @@ export default function List({ meetings, fetchedAt, source, going: initialGoing 
       setRows(out.slice(0, 60));
     };
     compute();
-    /* Re-run every minute so "In 12 min" doesn't quietly become a lie
-       while somebody sits reading the page. */
+    /* Re-run every minute so "In 12 min" doesn't quietly become a lie while
+       somebody sits reading the page. */
     const id = setInterval(compute, 60000);
     return () => clearInterval(id);
   }, [meetings]);
@@ -147,6 +149,12 @@ export default function List({ meetings, fetchedAt, source, going: initialGoing 
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) { window.location.assign('/login'); return; }
 
+    /* ⚠️ NOT optimistic. The UI waits for the database.
+
+       A mark that only LOOKS like it saved is worse than one that visibly
+       failed: somebody thinks they've told the room they're coming, and
+       nobody sees it. Same reasoning as the block button on Aug 6 — for
+       anything another person relies on, correctness beats snappiness. */
     if (currentlyGoing) {
       const { error } = await supabase.from('meeting_going').delete()
         .eq('member_id', user.id).eq('source', source.id)
@@ -172,23 +180,117 @@ export default function List({ meetings, fetchedAt, source, going: initialGoing 
     return <div className="pad"><p className="mt-dim">Working out the times where you are…</p></div>;
   }
 
-  const shown = showClosed ? rows : rows.filter((r) => r.access !== 'closed');
+  const visible = showClosed ? rows : rows.filter((r) => r.access !== 'closed');
+
+  const peopleFor = (m) =>
+    going.filter((g) => g.meeting_id === m.id && g.occurs_on === m.onDate);
+
+  /* ⚠️ A meeting appears in ONE list, never both.
+
+     If it showed up top AND below, you'd see the same meeting twice and
+     have to work out which one is real. Lifting it out is what makes the
+     top section a place rather than a duplicate. */
+  const withPeople = visible.filter((m) => peopleFor(m).length > 0);
+  const rest       = visible.filter((m) => peopleFor(m).length === 0);
+
+  function Card({ m, inPanel }) {
+    const here  = peopleFor(m);
+    const mine  = here.some((g) => g.is_mine);
+    const others = here.filter((g) => !g.is_mine);
+    const names = nameList(others.map((g) => g.display_name));
+    const key   = m.id + m.onDate;
+    const faces = others.slice(0, 4);
+
+    return (
+      <div className={inPanel ? 'mt-pcard' : 'mt-card' + (m.when.live ? ' now' : '')}>
+
+        {/* In the panel, WHO comes first — that's the reason you're reading
+            this card. In the main list, WHEN comes first, because there the
+            question is "what can I get to". Same data, different question. */}
+        {inPanel && (names || mine) && (
+          <div className="mt-going">
+            <span className="mt-faces" aria-hidden="true">
+              {faces.map((f, i) => <span key={i} className="mt-face">{f.display_avatar || '🙂'}</span>)}
+            </span>
+            <span className="mt-goingt">{names ? (mine ? `You and ${names}` : names) : 'You'}</span>
+          </div>
+        )}
+
+        {!inPanel && <div className="mt-when">{m.when.t}</div>}
+        <div className="mt-name">{m.name}</div>
+        {inPanel && <div className="mt-pwhen">{m.when.t}</div>}
+
+        <div className="mt-tags">
+          {m.access === 'open'   && <span className="mt-tag open">Open to anyone</span>}
+          {m.access === 'closed' && <span className="mt-tag closed">For people in recovery</span>}
+          {/* ⚠️ 'unknown' is shown as unknown. Never rounded up to "open" —
+              that's the guess that gets somebody turned away at a door. */}
+          {m.access === 'unknown' && <span className="mt-tag unk">Not stated — ask the group</span>}
+          {m.minutes ? <span className="mt-tag dur">{m.minutes} min</span> : null}
+        </div>
+
+        {/* Outside the panel the social line goes UNDER the meeting, because
+            there it's a bonus fact rather than the headline. */}
+        {!inPanel && names && (
+          <div className="mt-going">
+            <span className="mt-faces" aria-hidden="true">
+              {faces.map((f, i) => <span key={i} className="mt-face">{f.display_avatar || '🙂'}</span>)}
+            </span>
+            <span className="mt-goingt">
+              {mine ? `You and ${names} are going` : `${names} ${others.length === 1 ? 'is' : 'are'} going`}
+            </span>
+          </div>
+        )}
+
+        <div className="mt-go">
+          {m.link && (
+            /* noreferrer as well as noopener: the meeting host has no
+               business learning the click came from a recovery app. */
+            <a className="mt-join" href={m.link} target="_blank" rel="noopener noreferrer">Join ↗</a>
+          )}
+          <button type="button"
+                  className={'mt-going-btn' + (mine ? ' on' : '')}
+                  aria-pressed={mine}
+                  disabled={busy === key}
+                  onClick={() => mark(m, mine)}>
+            {/* "I'm going TOO" when somebody's already there. Different act,
+                different words — you're joining a person, not picking a
+                meeting off a list. */}
+            {busy === key ? '…' : mine ? '✓ I’m going' : (names ? 'I’m going too' : 'I’m going')}
+          </button>
+        </div>
+
+        {m.link && <div className="mt-noacct">No Zoom account needed — join as a guest.</div>}
+
+        {/* ⚠️ THE LINK IS NOT THE ONLY DOOR AND MUST NOT LOOK LIKE IT.
+            Tapping a Zoom link on a phone drops you into Zoom's funnel:
+            install the app, or sign in. Joining is free and needs no
+            account, but "Join from your browser" is buried. For somebody at
+            2am, a sign-up wall and a paywall feel identical — they close the
+            phone. So the meeting ID and dial-in get real weight. The phone
+            number matters most: it skips smartphones altogether. */}
+        {(m.note || m.phone) && (
+          <div className="mt-how">
+            {m.note  && <div className="mt-id">{m.note}</div>}
+            {m.phone && <div className="mt-id">☎ {m.phone}</div>}
+          </div>
+        )}
+      </div>
+    );
+  }
 
   return (
     <div className="pad">
 
       {/* ⚠️ THE OPEN/CLOSED CONTROL EXISTS BECAUSE OF WHO ELSE IS HERE.
-
           A closed meeting is for people who have the addiction themselves.
           Some members won't have a sober date — they're here for somebody
-          else, or to understand it. Sending one of them to a closed
-          meeting means she shows up and is asked to leave.
+          else, or to understand it. Sending one of them to a closed meeting
+          means she shows up and is asked to leave.
 
           Defaults to SHOWING everything, because most members here do have
-          the addiction and hiding half the list from them by default would
-          be the wrong guess in the other direction. The switch is how you
-          say which one you are without telling the app which one you are —
-          nothing about this choice is stored or sent anywhere. */}
+          the addiction. The switch is how you say which one you are without
+          telling the app which one you are — nothing is stored. */}
       <button type="button" className="mt-filter" aria-pressed={!showClosed}
               onClick={() => setShowClosed((v) => !v)}>
         {showClosed ? 'Show only meetings open to everyone' : 'Showing open meetings only · show all'}
@@ -196,100 +298,35 @@ export default function List({ meetings, fetchedAt, source, going: initialGoing 
 
       {err && <div className="err">{err}</div>}
 
-      {shown.length === 0 && (
+      {/* ⭐ WHERE PEOPLE ARE GOING.
+
+          ⚠️ The whole panel is absent when nobody is going anywhere. No
+          empty state, no "nobody yet", no zero. With four members a
+          permanently empty section makes the place look abandoned and you
+          stop looking at it — the same reasoning that killed the presence
+          dots in the chat directory. Absence says nothing; presence says
+          something. */}
+      {withPeople.length > 0 && (
+        <section className="mt-panel" aria-labelledby="mt-panel-h">
+          <h2 id="mt-panel-h" className="mt-panelh">Where people are going</h2>
+          {withPeople.map((m) => <Card key={m.id + m.onDate} m={m} inPanel />)}
+        </section>
+      )}
+
+      {visible.length === 0 && (
         <p className="mt-dim">Nothing in the next seven days matches that. Try showing all.</p>
       )}
 
-      {shown.map((m) => {
-        const here = going.filter((g) => g.meeting_id === m.id && g.occurs_on === m.onDate);
-        const mine = here.some((g) => g.is_mine);
-        const line = goingLine(
-          here.map((g) => ({ name: g.display_name, mine: g.is_mine })), mine
-        );
-        const faces = here.filter((g) => !g.is_mine).slice(0, 4);
-        const key = m.id + m.onDate;
-
-        return (
-          <div key={key} className={'mt-card' + (m.when.live ? ' now' : '')}>
-            <div className="mt-when">{m.when.t}</div>
-            <div className="mt-name">{m.name}</div>
-
-            <div className="mt-tags">
-              {m.access === 'open' && <span className="mt-tag open">Open to anyone</span>}
-              {m.access === 'closed' && <span className="mt-tag closed">For people in recovery</span>}
-              {/* ⚠️ 'unknown' is shown as unknown. Not quietly omitted, and
-                  definitely not rounded up to "open" — that's the guess
-                  that gets somebody turned away at a door. */}
-              {m.access === 'unknown' && <span className="mt-tag unk">Not stated — ask the group</span>}
-              {m.minutes ? <span className="mt-tag dur">{m.minutes} min</span> : null}
-            </div>
-
-            {/* WHO'S GOING. Only rendered when it's true.
-
-                ⚠️ No "0 going", no "be the first". With four members, an
-                empty counter on every card makes the room look abandoned —
-                the same reason there are no presence dots in the chat
-                directory. Absence says nothing; presence says something. */}
-            {line && (
-              <div className="mt-going">
-                <span className="mt-faces" aria-hidden="true">
-                  {faces.map((f, i) => (
-                    <span key={i} className="mt-face">{f.display_avatar || '🙂'}</span>
-                  ))}
-                </span>
-                <span className="mt-goingt">{line}</span>
-              </div>
-            )}
-
-            {/* HOW YOU ACTUALLY GET IN.
-
-                ⚠️ THE LINK IS NOT THE ONLY DOOR, AND IT MUST NOT LOOK LIKE IT.
-
-                Tapping a Zoom link on a phone drops you into Zoom's funnel:
-                install the app, or sign in. Joining is free and needs no
-                account — Zoom's own docs say so — but "Join from your
-                browser" is buried near the bottom of that page. For
-                somebody at 2am on a bad night, a sign-up wall and a paywall
-                feel identical. They close the phone.
-
-                So the meeting ID and the dial-in get real weight, not
-                footnote grey. Typing an ID into the Zoom app skips the
-                funnel entirely, and the phone number skips smartphones
-                altogether — somebody on a prepaid handset with no data can
-                still get to a meeting. In this product that is not a
-                nice-to-have. */}
-            <div className="mt-go">
-              {m.link && (
-                /* noreferrer as well as noopener: the meeting host has no
-                   business learning the click came from a recovery app. */
-                <a className="mt-join" href={m.link} target="_blank" rel="noopener noreferrer">
-                  Join ↗
-                </a>
-              )}
-              <button type="button"
-                      className={'mt-going-btn' + (mine ? ' on' : '')}
-                      aria-pressed={mine}
-                      disabled={busy === key}
-                      onClick={() => mark(m, mine)}>
-                {busy === key ? '…' : mine ? '✓ I’m going' : 'I’m going'}
-              </button>
-            </div>
-
-            {m.link && <div className="mt-noacct">No Zoom account needed — join as a guest.</div>}
-
-            {(m.note || m.phone) && (
-              <div className="mt-how">
-                {m.note  && <div className="mt-id">{m.note}</div>}
-                {m.phone && <div className="mt-id">☎ {m.phone}</div>}
-              </div>
-            )}
-          </div>
-        );
-      })}
+      {rest.length > 0 && (
+        <>
+          {withPeople.length > 0 && <div className="mt-resth">Everything else</div>}
+          {rest.map((m) => <Card key={m.id + m.onDate} m={m} />)}
+        </>
+      )}
 
       {/* Attribution is not decoration. These are volunteers who published
-          their data so apps could use it; the least we do is say whose it
-          is and send people back to them. */}
+          their data so apps could use it; the least we do is say whose it is
+          and send people back to them. */}
       <div className="mt-src">
         <p>
           Meeting times and links come from <a href={source.url} target="_blank" rel="noopener noreferrer">{source.name} ↗</a>,
