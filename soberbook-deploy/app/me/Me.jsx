@@ -44,6 +44,46 @@ function ago(iso) {
   return Math.floor(h / 24) + 'd ago';
 }
 
+/* =====================================================================
+   ONE COLLAPSIBLE SECTION OF THE EDITOR.
+
+   ⚠️ THIS IS <details>, NOT A useState TOGGLE, AND THAT IS THE POINT.
+
+   The obvious build is `const [open,setOpen]=useState(false)` per
+   section, or one `openSection` variable. Both are worse:
+
+     · Nine pieces of state that can disagree with what's on screen.
+     · Nothing works before the JavaScript loads. On a bad phone signal
+       that's a page of headings that don't respond to taps — which
+       reads as broken, not as loading.
+     · You'd have to rebuild keyboard support, focus, and the
+       screen-reader announcement of expanded/collapsed by hand, and
+       most hand-rolled versions quietly skip all three.
+
+   <details> is the browser's own dropdown. It opens with no JavaScript
+   at all, Space and Enter work, and a screen reader says "expanded" or
+   "collapsed" without being told to. Zero state, zero bugs of the kind
+   above.
+
+   ⭐ Same rule as avatar_kind further down this file: one fact, one
+   home. Here the fact is "is this open", and the browser already owns
+   it — so we don't keep a second copy.
+   ===================================================================== */
+function Section({ title, open = false, children }) {
+  return (
+    <details className="msec" open={open}>
+      <summary className="msum">
+        <span>{title}</span>
+        {/* aria-hidden: <details> already announces its own state, so
+            letting a screen reader read this arrow would say the state
+            twice, in two different vocabularies. */}
+        <span className="mchev" aria-hidden="true">›</span>
+      </summary>
+      <div className="mbody">{children}</div>
+    </details>
+  );
+}
+
 export default function Me({ email, profile, posts, initialAvatarUrl,
                              postPhotoUrls = {}, notes = [] }) {
   const router = useRouter();
@@ -533,508 +573,542 @@ export default function Me({ email, profile, posts, initialAvatarUrl,
         </div>
 
         {/* ---- name and face ---- */}
-        <h2 className="sec">Your name and face</h2>
+        <Section title="Your name and face" open>
 
-        <div className="pcard">
-          {/* "This is exactly how your card looks to everybody else" — a
-              claim that was false while this drew a seedling and the Wall
-              drew the photo. */}
-          <Face cls="pav" />
-          <div className="pwho">
-            <span className="pname">{anon ? profile.handle : (dname || profile.handle)}</span>
-            <span className="phandle">@{profile.handle}</span>
-          </div>
-        </div>
-        <p className="hint" style={{ marginTop: -12 }}>
-          {anon
-            ? 'You’re Anonymous, so people see your handle and the seedling — the name and face below are saved but not shown.'
-            : 'This is exactly how your card looks to everybody else.'}
-        </p>
-
-        <label htmlFor="dn">What people call you</label>
-        <input id="dn" type="text" maxLength={40} value={dname} disabled={busy}
-               autoComplete="off"
-               placeholder={profile.handle}
-               onChange={(e) => setDname(e.target.value)} />
-        <p className="hint">
-          A first name or a nickname &mdash; whatever you&apos;d say in a room. Leave it
-          empty and people just see @{profile.handle}, which is what everyone has been
-          seeing until now.
-        </p>
-
-        {/* ---- A REAL PHOTO (Ty's call, Aug 17) ----
-
-            ⚠️ The anonymous branch is not a disabled control. When your
-            profile is anonymous there is no upload button here at all,
-            because a greyed-out button invites you to work out how to
-            un-grey it, and the answer would be "give up your anonymity"
-            — which is a trade nobody should be nudged into by UI.
-
-            The line about nothing being deleted matters too. A member who
-            switches to anonymous and sees their photo vanish will assume
-            it's gone. It isn't: avatar_photo is untouched, and
-            public_profiles simply stops serving it. Say so, or they'll
-            re-upload it and wonder why it happened again. */}
-        <label id="photolab">Your photo</label>
-        {anon ? (
-          <p className="hint phoff">
-            Photos are off while your profile is anonymous &mdash; a face is the
-            fastest way to stop being anonymous by accident. Nothing has been
-            deleted. Switch to open above and it comes back.
-          </p>
-        ) : (
-          <div className="phrow">
-            <div className={'phnow' + (photoKind === 'photo' && photoUrl ? ' has' : '')}>
-              {photoKind === 'photo' && photoUrl
-                ? <img src={photoUrl} alt="Your profile photo" />
-                : <span aria-hidden="true">{avatar || '🌱'}</span>}
+          <div className="pcard">
+            {/* "This is exactly how your card looks to everybody else" — a
+                claim that was false while this drew a seedling and the Wall
+                drew the photo. */}
+            <Face cls="pav" />
+            <div className="pwho">
+              <span className="pname">{anon ? profile.handle : (dname || profile.handle)}</span>
+              <span className="phandle">@{profile.handle}</span>
             </div>
-            <div className="phacts">
-              <PhotoUpload
-                kind="avatar"
-                disabled={busy}
-                label={photoPath ? 'Choose a different one' : 'Use a photo'}
-                onDone={(path, preview) => {
-                  setPhotoPath(path); setPhotoUrl(preview); setPhotoKind('photo');
-                }} />
-              {photoPath && photoKind === 'photo' && (
-                <button type="button" className="btn ghost" disabled={busy}
-                        onClick={() => setPhotoKind(avatar ? 'emoji' : 'none')}>
-                  Show the emoji instead
+          </div>
+          <p className="hint" style={{ marginTop: -12 }}>
+            {anon
+              ? 'You’re Anonymous, so people see your handle and the seedling — the name and face below are saved but not shown.'
+              : 'This is exactly how your card looks to everybody else.'}
+          </p>
+
+          <label htmlFor="dn">What people call you</label>
+          <input id="dn" type="text" maxLength={40} value={dname} disabled={busy}
+                 autoComplete="off"
+                 placeholder={profile.handle}
+                 onChange={(e) => setDname(e.target.value)} />
+          <p className="hint">
+            A first name or a nickname &mdash; whatever you&apos;d say in a room. Leave it
+            empty and people just see @{profile.handle}, which is what everyone has been
+            seeing until now.
+          </p>
+
+          {/* ---- A REAL PHOTO (Ty's call, Aug 17) ----
+
+              ⚠️ The anonymous branch is not a disabled control. When your
+              profile is anonymous there is no upload button here at all,
+              because a greyed-out button invites you to work out how to
+              un-grey it, and the answer would be "give up your anonymity"
+              — which is a trade nobody should be nudged into by UI.
+
+              The line about nothing being deleted matters too. A member who
+              switches to anonymous and sees their photo vanish will assume
+              it's gone. It isn't: avatar_photo is untouched, and
+              public_profiles simply stops serving it. Say so, or they'll
+              re-upload it and wonder why it happened again. */}
+          <label id="photolab">Your photo</label>
+          {anon ? (
+            <p className="hint phoff">
+              Photos are off while your profile is anonymous &mdash; a face is the
+              fastest way to stop being anonymous by accident. Nothing has been
+              deleted. Switch to open above and it comes back.
+            </p>
+          ) : (
+            <div className="phrow">
+              <div className={'phnow' + (photoKind === 'photo' && photoUrl ? ' has' : '')}>
+                {photoKind === 'photo' && photoUrl
+                  ? <img src={photoUrl} alt="Your profile photo" />
+                  : <span aria-hidden="true">{avatar || '🌱'}</span>}
+              </div>
+              <div className="phacts">
+                <PhotoUpload
+                  kind="avatar"
+                  disabled={busy}
+                  label={photoPath ? 'Choose a different one' : 'Use a photo'}
+                  onDone={(path, preview) => {
+                    setPhotoPath(path); setPhotoUrl(preview); setPhotoKind('photo');
+                  }} />
+                {photoPath && photoKind === 'photo' && (
+                  <button type="button" className="btn ghost" disabled={busy}
+                          onClick={() => setPhotoKind(avatar ? 'emoji' : 'none')}>
+                    Show the emoji instead
+                  </button>
+                )}
+                {photoPath && photoKind !== 'photo' && (
+                  <button type="button" className="btn ghost" disabled={busy}
+                          onClick={() => setPhotoKind('photo')}>
+                    Show the photo
+                  </button>
+                )}
+                {photoPath && (
+                  <button type="button" className="btn ghost phdel" disabled={busy}
+                          onClick={removePhoto}>
+                    Remove it
+                  </button>
+                )}
+                <p className="hint phnote">
+                  The location tag phones hide inside photos is stripped off before
+                  it saves &mdash; a picture of your kitchen can&apos;t give away your address.
+                </p>
+              </div>
+            </div>
+          )}
+
+          <label id="facelab">Pick a face</label>
+          {/* Why a fixed list and not a text box: see FACE_GROUPS up top.
+              The emoji is still here and still the default — a photo is an
+              option, not an expectation. Plenty of people in recovery have
+              excellent reasons not to have a face on anything. */}
+          <button type="button" className={'facepick' + (faceOpen ? ' open' : '')}
+                  ref={faceBtn}
+                  aria-expanded={faceOpen}
+                  aria-controls="facegrid"
+                  aria-labelledby="facelab"
+                  disabled={busy}
+                  onClick={() => setFaceOpen(!faceOpen)}>
+            <span className="fpnow" aria-hidden="true">{avatar || '🌱'}</span>
+            <span className="fplab">
+              {avatar ? 'This is your face' : 'No face picked yet'}
+              <span className="fpsub">
+                {faceOpen ? 'Close without changing it'
+                          : avatar ? 'Tap to pick a different one'
+                                   : 'Tap to pick one — the seedling is the default'}
+              </span>
+            </span>
+            <span className="fpcaret" aria-hidden="true">{faceOpen ? '▲' : '▼'}</span>
+          </button>
+
+          {faceOpen && (
+            <div id="facegrid" className="facegrid">
+              {FACE_GROUPS.map((g) => (
+                <div key={g.name}>
+                  <h3 className="facegrp">{g.name}</h3>
+                  <ul className="faces">
+                    {g.items.map((e) => (
+                      <li key={e}>
+                        <button type="button"
+                                className={'face' + (avatar === e ? ' sel' : '')}
+                                aria-label={'Use this as your face'}
+                                aria-pressed={avatar === e}
+                                disabled={busy}
+                                onClick={() => pickFace(e)}>
+                          <span aria-hidden="true">{e}</span>
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+              {/* The way back out. Tapping your own face again also clears it,
+                  but nobody discovers that, and "how do I undo this" is not a
+                  puzzle worth setting on a page about how you appear to
+                  people. */}
+              {avatar && (
+                <button type="button" className="facenone" disabled={busy}
+                        onClick={() => pickFace(avatar)}>
+                  Go back to the seedling
                 </button>
               )}
-              {photoPath && photoKind !== 'photo' && (
-                <button type="button" className="btn ghost" disabled={busy}
-                        onClick={() => setPhotoKind('photo')}>
-                  Show the photo
-                </button>
-              )}
-              {photoPath && (
-                <button type="button" className="btn ghost phdel" disabled={busy}
-                        onClick={removePhoto}>
-                  Remove it
-                </button>
-              )}
-              <p className="hint phnote">
-                The location tag phones hide inside photos is stripped off before
-                it saves &mdash; a picture of your kitchen can&apos;t give away your address.
+            </div>
+          )}
+
+          {/* ⚠️ avatar_kind is DERIVED here, never stored as a fourth piece
+              of state that has to be kept in step with the other three.
+              Same rule as the sign-up/sign-in door in the Aug 15 session:
+              one fact, one home. A separate kind field would eventually
+              disagree with whether a photo actually exists, and the failure
+              mode is somebody's page rendering a blank circle where their
+              face should be. */}
+          <button className="btn" type="button"
+                  disabled={busy || (dname === (profile.display_name || '')
+                                     && avatar === (profile.avatar || '')
+                                     && photoPath === (profile.avatar_photo || '')
+                                     && photoKind === (profile.avatar_kind || 'emoji'))}
+                  onClick={() => save({
+                    display_name: dname.trim() || null,
+                    avatar: avatar || null,
+                    avatar_photo: photoPath || null,
+                    avatar_kind: (photoKind === 'photo' && photoPath) ? 'photo'
+                               : avatar ? 'emoji' : 'none',
+                  }, 'Saved. That’s you now.')}>
+            {busy ? 'Saving…' : 'Save name and face'}
+          </button>
+
+          {/* The old copy here said "photos are coming". They came, so it
+              goes. ⚠️ A stale promise left in the UI is worse than no copy
+              at all — it teaches people the app is describing a different
+              version of itself than the one they're holding. */}
+          <p className="hint">
+            A photo is your choice and you can take it off whenever you like. Worth
+            knowing before you put one up: anyone who can see it can screenshot it,
+            here or anywhere else. The emoji is a perfectly good answer.
+          </p>
+
+          {/* ---- privacy ---- */}
+        </Section>
+        <Section title="How you show up">
+          <button type="button"
+                  className={'choice' + (privacy === 'open' ? ' sel' : '')}
+                  aria-pressed={privacy === 'open'} disabled={busy}
+                  onClick={() => choose('open')}>
+            <span className="ct">🌱 Open</span>
+            <span className="cd">Your name shows on anything you post normally.</span>
+          </button>
+
+          <button type="button"
+                  className={'choice dark' + (privacy === 'anonymous' ? ' sel' : '')}
+                  aria-pressed={privacy === 'anonymous'} disabled={busy}
+                  onClick={() => choose('anonymous')}>
+            <span className="ct">🤫 Anonymous</span>
+            <span className="cd">Only your handle shows. No real name, to anyone.</span>
+          </button>
+
+          <p className="hint">
+            This applies to your old posts too, not just new ones — switching to
+            Anonymous pulls your name off things you already wrote. Posts you
+            marked anonymous at the time stay anonymous either way.
+          </p>
+
+          {/* ---- sober date ---- */}
+        </Section>
+        <Section title="Your date">
+          <label htmlFor="sd">Sober since</label>
+          <input id="sd" type="date" value={since} max={today} disabled={busy}
+                 onChange={(e) => { setSince(e.target.value); setReset('no'); }} />
+          <p className="hint">
+            Only used to count days. Leave it empty if you&apos;d rather not have a number.
+          </p>
+
+          {reset === 'no' && (
+            <button className="btn" type="button" disabled={busy || since === savedSince}
+                    onClick={() => {
+                      if (movedForward) { setRunLen(String(guess)); setReset('ask'); return; }
+                      save({ sober_since: since || null },
+                           since ? 'Date saved.' : 'Date cleared.');
+                    }}>
+              {busy ? 'Saving…' : 'Save date'}
+            </button>
+          )}
+
+          {/* Two questions, never more, and neither of them asks what
+              happened. The app does not need to know. */}
+          {reset === 'ask' && (
+            <div className="ask">
+              <p className="askq">You moved your date forward. Which is it?</p>
+              <button className="btn" type="button" disabled={busy}
+                      onClick={() => setReset('run')}>
+                I started over
+              </button>
+              <button className="btn ghost" type="button" disabled={busy}
+                      onClick={() => { setReset('no');
+                        save({ sober_since: since || null }, 'Date fixed.'); }}>
+                I&apos;m just fixing the date
+              </button>
+              <p className="hint">
+                Nothing you&apos;ve already done gets erased either way. This only
+                decides whether those days get added to your total.
               </p>
             </div>
-          </div>
-        )}
+          )}
 
-        <label id="facelab">Pick a face</label>
-        {/* Why a fixed list and not a text box: see FACE_GROUPS up top.
-            The emoji is still here and still the default — a photo is an
-            option, not an expectation. Plenty of people in recovery have
-            excellent reasons not to have a face on anything. */}
-        <button type="button" className={'facepick' + (faceOpen ? ' open' : '')}
-                ref={faceBtn}
-                aria-expanded={faceOpen}
-                aria-controls="facegrid"
-                aria-labelledby="facelab"
-                disabled={busy}
-                onClick={() => setFaceOpen(!faceOpen)}>
-          <span className="fpnow" aria-hidden="true">{avatar || '🌱'}</span>
-          <span className="fplab">
-            {avatar ? 'This is your face' : 'No face picked yet'}
-            <span className="fpsub">
-              {faceOpen ? 'Close without changing it'
-                        : avatar ? 'Tap to pick a different one'
-                                 : 'Tap to pick one — the seedling is the default'}
-            </span>
-          </span>
-          <span className="fpcaret" aria-hidden="true">{faceOpen ? '▲' : '▼'}</span>
-        </button>
-
-        {faceOpen && (
-          <div id="facegrid" className="facegrid">
-            {FACE_GROUPS.map((g) => (
-              <div key={g.name}>
-                <h3 className="facegrp">{g.name}</h3>
-                <ul className="faces">
-                  {g.items.map((e) => (
-                    <li key={e}>
-                      <button type="button"
-                              className={'face' + (avatar === e ? ' sel' : '')}
-                              aria-label={'Use this as your face'}
-                              aria-pressed={avatar === e}
-                              disabled={busy}
-                              onClick={() => pickFace(e)}>
-                        <span aria-hidden="true">{e}</span>
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-            {/* The way back out. Tapping your own face again also clears it,
-                but nobody discovers that, and "how do I undo this" is not a
-                puzzle worth setting on a page about how you appear to
-                people. */}
-            {avatar && (
-              <button type="button" className="facenone" disabled={busy}
-                      onClick={() => pickFace(avatar)}>
-                Go back to the seedling
+          {reset === 'run' && (
+            <div className="ask">
+              <p className="askq">How long was that run?</p>
+              <label htmlFor="rl">Days</label>
+              <input id="rl" type="number" inputMode="numeric" min="0" max="40000"
+                     value={runLen} disabled={busy}
+                     onChange={(e) => setRunLen(e.target.value)} />
+              <p className="hint">
+                We guessed from your old date. Change it if we got it wrong &mdash;
+                you know where the line was and we don&apos;t.
+              </p>
+              <button className="btn" type="button" disabled={busy}
+                      onClick={() => {
+                        const add = Math.max(0, Math.min(40000, parseInt(runLen, 10) || 0));
+                        const next = Math.min(40000, lifetime + add);
+                        setLifetime(next);
+                        setReset('no');
+                        save({ sober_since: since || null, lifetime_days: next },
+                             'Saved. Those ' + add.toLocaleString()
+                             + ' days are yours for good.');
+                      }}>
+                {busy ? 'Saving…' : 'Add it and save'}
               </button>
-            )}
-          </div>
-        )}
-
-        {/* ⚠️ avatar_kind is DERIVED here, never stored as a fourth piece
-            of state that has to be kept in step with the other three.
-            Same rule as the sign-up/sign-in door in the Aug 15 session:
-            one fact, one home. A separate kind field would eventually
-            disagree with whether a photo actually exists, and the failure
-            mode is somebody's page rendering a blank circle where their
-            face should be. */}
-        <button className="btn" type="button"
-                disabled={busy || (dname === (profile.display_name || '')
-                                   && avatar === (profile.avatar || '')
-                                   && photoPath === (profile.avatar_photo || '')
-                                   && photoKind === (profile.avatar_kind || 'emoji'))}
-                onClick={() => save({
-                  display_name: dname.trim() || null,
-                  avatar: avatar || null,
-                  avatar_photo: photoPath || null,
-                  avatar_kind: (photoKind === 'photo' && photoPath) ? 'photo'
-                             : avatar ? 'emoji' : 'none',
-                }, 'Saved. That’s you now.')}>
-          {busy ? 'Saving…' : 'Save name and face'}
-        </button>
-
-        {/* The old copy here said "photos are coming". They came, so it
-            goes. ⚠️ A stale promise left in the UI is worse than no copy
-            at all — it teaches people the app is describing a different
-            version of itself than the one they're holding. */}
-        <p className="hint">
-          A photo is your choice and you can take it off whenever you like. Worth
-          knowing before you put one up: anyone who can see it can screenshot it,
-          here or anywhere else. The emoji is a perfectly good answer.
-        </p>
-
-        {/* ---- privacy ---- */}
-        <h2 className="sec">How you show up</h2>
-        <button type="button"
-                className={'choice' + (privacy === 'open' ? ' sel' : '')}
-                aria-pressed={privacy === 'open'} disabled={busy}
-                onClick={() => choose('open')}>
-          <span className="ct">🌱 Open</span>
-          <span className="cd">Your name shows on anything you post normally.</span>
-        </button>
-
-        <button type="button"
-                className={'choice dark' + (privacy === 'anonymous' ? ' sel' : '')}
-                aria-pressed={privacy === 'anonymous'} disabled={busy}
-                onClick={() => choose('anonymous')}>
-          <span className="ct">🤫 Anonymous</span>
-          <span className="cd">Only your handle shows. No real name, to anyone.</span>
-        </button>
-
-        <p className="hint">
-          This applies to your old posts too, not just new ones — switching to
-          Anonymous pulls your name off things you already wrote. Posts you
-          marked anonymous at the time stay anonymous either way.
-        </p>
-
-        {/* ---- sober date ---- */}
-        <h2 className="sec">Your date</h2>
-        <label htmlFor="sd">Sober since</label>
-        <input id="sd" type="date" value={since} max={today} disabled={busy}
-               onChange={(e) => { setSince(e.target.value); setReset('no'); }} />
-        <p className="hint">
-          Only used to count days. Leave it empty if you&apos;d rather not have a number.
-        </p>
-
-        {reset === 'no' && (
-          <button className="btn" type="button" disabled={busy || since === savedSince}
-                  onClick={() => {
-                    if (movedForward) { setRunLen(String(guess)); setReset('ask'); return; }
-                    save({ sober_since: since || null },
-                         since ? 'Date saved.' : 'Date cleared.');
-                  }}>
-            {busy ? 'Saving…' : 'Save date'}
-          </button>
-        )}
-
-        {/* Two questions, never more, and neither of them asks what
-            happened. The app does not need to know. */}
-        {reset === 'ask' && (
-          <div className="ask">
-            <p className="askq">You moved your date forward. Which is it?</p>
-            <button className="btn" type="button" disabled={busy}
-                    onClick={() => setReset('run')}>
-              I started over
-            </button>
-            <button className="btn ghost" type="button" disabled={busy}
-                    onClick={() => { setReset('no');
-                      save({ sober_since: since || null }, 'Date fixed.'); }}>
-              I&apos;m just fixing the date
-            </button>
-            <p className="hint">
-              Nothing you&apos;ve already done gets erased either way. This only
-              decides whether those days get added to your total.
-            </p>
-          </div>
-        )}
-
-        {reset === 'run' && (
-          <div className="ask">
-            <p className="askq">How long was that run?</p>
-            <label htmlFor="rl">Days</label>
-            <input id="rl" type="number" inputMode="numeric" min="0" max="40000"
-                   value={runLen} disabled={busy}
-                   onChange={(e) => setRunLen(e.target.value)} />
-            <p className="hint">
-              We guessed from your old date. Change it if we got it wrong &mdash;
-              you know where the line was and we don&apos;t.
-            </p>
-            <button className="btn" type="button" disabled={busy}
-                    onClick={() => {
-                      const add = Math.max(0, Math.min(40000, parseInt(runLen, 10) || 0));
-                      const next = Math.min(40000, lifetime + add);
-                      setLifetime(next);
-                      setReset('no');
-                      save({ sober_since: since || null, lifetime_days: next },
-                           'Saved. Those ' + add.toLocaleString()
-                           + ' days are yours for good.');
-                    }}>
-              {busy ? 'Saving…' : 'Add it and save'}
-            </button>
-            <button className="nvm" type="button" disabled={busy}
-                    onClick={() => setReset('ask')}>
-              back
-            </button>
-          </div>
-        )}
-
-        {/* ---- the total ---- */}
-        {lifetime > 0 && (
-          <>
-            <div className="total">
-              <span className="tn">{totalNow.toLocaleString()}</span>
-              <span className="tl">days total, all of it</span>
+              <button className="nvm" type="button" disabled={busy}
+                      onClick={() => setReset('ask')}>
+                back
+              </button>
             </div>
-            <p className="hint">
-              This number only ever goes up. Starting over resets the count
-              at the top of this page; it has never once reset this one.
-            </p>
-            <button type="button"
-                    className={'choice' + (showLife ? ' sel' : '')}
-                    aria-pressed={showLife} disabled={busy}
-                    onClick={() => { const n = !showLife; setShowLife(n);
-                      save({ show_lifetime: n }, n
-                        ? 'Your total is on your page now.'
-                        : 'Hidden. Only you can see it.'); }}>
-              <span className="ct">{showLife ? '👁 On your page' : '🔒 Just for you'}</span>
-              <span className="cd">
-                {showLife
-                  ? 'Anyone visiting your page sees your total as well as your count.'
-                  : 'Nobody but you sees this number.'}
-              </span>
-            </button>
-            <p className="hint">
-              Worth knowing before you flip it: a total bigger than your
-              current count tells anyone who does the subtraction that you
-              started over once. That&apos;s yours to share, not ours &mdash; which
-              is why it&apos;s off until you say so.
-            </p>
-          </>
-        )}
+          )}
 
-        {/* ---- about you ---- */}
-        <h2 className="sec">About you</h2>
+          {/* ---- the total ---- */}
+          {lifetime > 0 && (
+            <>
+              <div className="total">
+                <span className="tn">{totalNow.toLocaleString()}</span>
+                <span className="tl">days total, all of it</span>
+              </div>
+              <p className="hint">
+                This number only ever goes up. Starting over resets the count
+                at the top of this page; it has never once reset this one.
+              </p>
+              <button type="button"
+                      className={'choice' + (showLife ? ' sel' : '')}
+                      aria-pressed={showLife} disabled={busy}
+                      onClick={() => { const n = !showLife; setShowLife(n);
+                        save({ show_lifetime: n }, n
+                          ? 'Your total is on your page now.'
+                          : 'Hidden. Only you can see it.'); }}>
+                <span className="ct">{showLife ? '👁 On your page' : '🔒 Just for you'}</span>
+                <span className="cd">
+                  {showLife
+                    ? 'Anyone visiting your page sees your total as well as your count.'
+                    : 'Nobody but you sees this number.'}
+                </span>
+              </button>
+              <p className="hint">
+                Worth knowing before you flip it: a total bigger than your
+                current count tells anyone who does the subtraction that you
+                started over once. That&apos;s yours to share, not ours &mdash; which
+                is why it&apos;s off until you say so.
+              </p>
+            </>
+          )}
 
-        {/* One notice, stated once, rather than the same warning stapled
-            to five fields. If none of this shows, say so plainly and
-            offer the one tap that changes it — don't just grey things
-            out and let somebody wonder why they typed for nothing. */}
-        {anon && (
-          <div className="err">
-            You&apos;re set to Anonymous, so none of this shows anywhere —
-            your page carries your handle, your count and your song, and
-            nothing else. You can still fill it in and it&apos;ll be waiting
-            if you ever switch to Open.
-          </div>
-        )}
+          {/* ---- about you ---- */}
+        </Section>
+        <Section title="About you">
 
-        <label htmlFor="bio">A line about you</label>
-        <textarea id="bio" rows={3} maxLength={200} value={bio} disabled={busy}
-                  placeholder="In recovery and open about it. Here to make real friends."
-                  onChange={(e) => setBio(e.target.value)} />
-        <p className="hint">{200 - bio.length} characters left.</p>
+          {/* One notice, stated once, rather than the same warning stapled
+              to five fields. If none of this shows, say so plainly and
+              offer the one tap that changes it — don't just grey things
+              out and let somebody wonder why they typed for nothing. */}
+          {anon && (
+            <div className="err">
+              You&apos;re set to Anonymous, so none of this shows anywhere —
+              your page carries your handle, your count and your song, and
+              nothing else. You can still fill it in and it&apos;ll be waiting
+              if you ever switch to Open.
+            </div>
+          )}
 
-        <label htmlFor="prog">Your programs</label>
-        <input id="prog" type="text" maxLength={120} value={programs} disabled={busy}
-               placeholder="AA · SMART · MAT friendly"
-               onChange={(e) => setPrograms(e.target.value)} />
-        <p className="hint">
-          However you word it. All paths count here, and nobody has to justify theirs.
-        </p>
+          <label htmlFor="bio">A line about you</label>
+          <textarea id="bio" rows={3} maxLength={200} value={bio} disabled={busy}
+                    placeholder="In recovery and open about it. Here to make real friends."
+                    onChange={(e) => setBio(e.target.value)} />
+          <p className="hint">{200 - bio.length} characters left.</p>
 
-        <label htmlFor="int">What you&apos;re into</label>
-        <input id="int" type="text" maxLength={120} value={interests} disabled={busy}
-               placeholder="Fishing · Gaming · Podcasts"
-               onChange={(e) => setInterests(e.target.value)} />
-        <p className="hint">
-          The thing people actually message you about. Worth more than the rest of this put together.
-        </p>
-
-        <button className="btn" type="button" disabled={busy || !deetsDirty}
-                onClick={() => save({
-                  bio: bio.trim() || null,
-                  programs: programs.trim() || null,
-                  interests: interests.trim() || null,
-                  town: town.trim() || null,
-                  state: state.trim() || null,
-                }, 'Saved.')}>
-          {busy ? 'Saving…' : 'Save'}
-        </button>
-
-        {/* ---- where you are ---- */}
-        <h2 className="sec">Where you are</h2>
-        <div className="tworow">
-          <div>
-            <label htmlFor="town">Town</label>
-            <input id="town" type="text" maxLength={60} value={town} disabled={busy}
-                   placeholder="Cadiz" onChange={(e) => setTown(e.target.value)} />
-          </div>
-          <div>
-            <label htmlFor="st">State</label>
-            <input id="st" type="text" maxLength={40} value={state} disabled={busy}
-                   placeholder="Ohio" onChange={(e) => setState(e.target.value)} />
-          </div>
-        </div>
-
-        <button type="button"
-                className={'choice' + (showLoc ? ' sel' : '')}
-                aria-pressed={showLoc} disabled={busy}
-                onClick={() => { const n = !showLoc; setShowLoc(n);
-                  save({ show_location: n }, n
-                    ? 'On. Your town shows on your page.'
-                    : 'Off. Nobody sees where you are.'); }}>
-          <span className="ct">{showLoc ? '📍 Showing your town' : '🔒 Town hidden'}</span>
-          <span className="cd">
-            {showLoc
-              ? 'Anyone who opens your page sees the town you typed.'
-              : 'Saved, but not shown to anyone.'}
-          </span>
-        </button>
-        <p className="hint">
-          Off by default, and worth a thought before you turn it on. A handle,
-          a day count and a small town is close enough to a name that somebody
-          could work out who you are &mdash; and in a town this size, that might
-          be your boss. Big city, much less of a problem.
-        </p>
-
-        {/* ---- sponsoring ---- */}
-        <h2 className="sec">Sponsoring</h2>
-        <button type="button"
-                className={'choice' + (sponsor === 'available' ? ' sel' : '')}
-                aria-pressed={sponsor === 'available'} disabled={busy}
-                onClick={() => { const n = sponsor === 'available' ? 'private' : 'available';
-                  setSponsor(n);
-                  save({ sponsor_status: n }, n === 'available'
-                    ? 'Saved. You show as available.'
-                    : 'Saved. Taken back off your page.'); }}>
-          <span className="ct">
-            {sponsor === 'available' ? '🛟 Available to sponsor' : '🤝 Not sponsoring right now'}
-          </span>
-          <span className="cd">
-            {sponsor === 'available'
-              ? 'Your page tells people you have room for somebody.'
-              : 'Nothing about sponsoring shows on your page.'}
-          </span>
-        </button>
-        {sponsor === 'available' && d !== null && d < 365 && (
+          <label htmlFor="prog">Your programs</label>
+          <input id="prog" type="text" maxLength={120} value={programs} disabled={busy}
+                 placeholder="AA · SMART · MAT friendly"
+                 onChange={(e) => setPrograms(e.target.value)} />
           <p className="hint">
-            Saved &mdash; but it won&apos;t show on your page until you&apos;ve got a
-            year, which is {(365 - d).toLocaleString()} days away. That&apos;s the
-            same line the rooms draw, and it&apos;s here for the person on the
-            other end of it: the people most likely to say yes to an offer
-            like this are the ones with the least time.
+            However you word it. All paths count here, and nobody has to justify theirs.
           </p>
-        )}
 
-        {/* ---- your song ---- */}
-        <h2 className="sec">Your song</h2>
-        <p className="hint" style={{ marginTop: 0 }}>
-          The one that got you through. It plays on your page —{' '}
-          <Link href={`/u/${profile.handle}`}>see how it looks</Link>.
-        </p>
+          <label htmlFor="int">What you&apos;re into</label>
+          <input id="int" type="text" maxLength={120} value={interests} disabled={busy}
+                 placeholder="Fishing · Gaming · Podcasts"
+                 onChange={(e) => setInterests(e.target.value)} />
+          <p className="hint">
+            The thing people actually message you about. Worth more than the rest of this put together.
+          </p>
 
-        <SongPicker value={song} onPick={setSong} disabled={busy} />
-
-        {/* Hear it before you commit to it.
-
-            `key` forces a brand-new player whenever the pick changes.
-            Without it React reuses the same <audio> element, and the
-            audio pipeline is built ONCE per element — so the old preview
-            would keep playing underneath the new artwork. The props
-            moved; the wiring didn't. */}
-        {song.anthem_preview && (
-          <SongPlayer key={song.anthem_preview} song={song} whose="preview" />
-        )}
-
-        <button className="btn" type="button"
-                disabled={busy || song.anthem_url === (profile.anthem_url || null)
-                          && song.anthem_youtube === (profile.anthem_youtube || null)}
-                onClick={() => save(song, song.anthem_url
-                  ? 'Song saved. It\u2019s on your page now.' : 'Song removed.')}>
-          {busy ? 'Saving…' : 'Save song'}
-        </button>
-
-        {song.anthem_url && (
-          <button className="nvm" type="button" disabled={busy}
-                  onClick={() => setSong({ anthem_url: null, anthem_title: null,
-                                           anthem_art: null, anthem_preview: null,
-                                           anthem_youtube: null })}>
-            take my song off my page
+          <button className="btn" type="button" disabled={busy || !deetsDirty}
+                  onClick={() => save({
+                    bio: bio.trim() || null,
+                    programs: programs.trim() || null,
+                    interests: interests.trim() || null,
+                    town: town.trim() || null,
+                    state: state.trim() || null,
+                  }, 'Saved.')}>
+            {busy ? 'Saving…' : 'Save'}
           </button>
-        )}
 
-        {note && <div className="ok">{note}</div>}
-        {err && <div className="err">{err}</div>}
+          {/* ---- where you are ---- */}
+        </Section>
+        <Section title="Where you are">
+          <div className="tworow">
+            <div>
+              <label htmlFor="town">Town</label>
+              <input id="town" type="text" maxLength={60} value={town} disabled={busy}
+                     placeholder="Cadiz" onChange={(e) => setTown(e.target.value)} />
+            </div>
+            <div>
+              <label htmlFor="st">State</label>
+              <input id="st" type="text" maxLength={40} value={state} disabled={busy}
+                     placeholder="Ohio" onChange={(e) => setState(e.target.value)} />
+            </div>
+          </div>
 
-        {/* ---- autoplay ---- */}
-        <h2 className="sec">When you visit someone</h2>
-        <button type="button"
-                className={'choice' + (auto ? ' sel' : '')}
-                aria-pressed={auto} disabled={busy}
-                onClick={() => { const n = !auto; setAuto(n);
-                  save({ autoplay_songs: n }, n
-                    ? 'On. Songs will start on their own.'
-                    : 'Off. Nothing plays until you press it.'); }}>
-          <span className="ct">{auto ? '🔊 Songs start on their own' : '🔇 Songs wait for you'}</span>
-          <span className="cd">
-            {auto
-              ? 'When you open somebody\u2019s page their song begins playing.'
-              : 'Nothing on this app makes a sound until you press play.'}
-          </span>
-        </button>
-        <p className="hint">
-          This is your setting, about your own ears &mdash; it has nothing to do with
-          what happens when other people visit <em>you</em>. It&rsquo;s on to start
-          with: open somebody&rsquo;s page and their song begins. You can turn it off
-          here, or from the switch under any song, and it stays off for good.
-        </p>
-
-        {/* ---- the door ----
-            Sign-out lives in settings now rather than on the page you land
-            on. It is the one control here you can't undo by tapping again,
-            and it does not belong next to your own face. */}
-        <h2 className="sec">Account</h2>
-        <p className="hint">Signed in as {email}</p>
-        <button className={'btn out' + (confirmOut ? ' arm' : '')} type="button"
-                disabled={busy} onClick={signOut}>
-          {confirmOut ? 'Tap again to sign out' : 'Sign out'}
-        </button>
-        {confirmOut && (
-          <button className="nvm" type="button" onClick={() => setConfirmOut(false)}>
-            never mind
+          <button type="button"
+                  className={'choice' + (showLoc ? ' sel' : '')}
+                  aria-pressed={showLoc} disabled={busy}
+                  onClick={() => { const n = !showLoc; setShowLoc(n);
+                    save({ show_location: n }, n
+                      ? 'On. Your town shows on your page.'
+                      : 'Off. Nobody sees where you are.'); }}>
+            <span className="ct">{showLoc ? '📍 Showing your town' : '🔒 Town hidden'}</span>
+            <span className="cd">
+              {showLoc
+                ? 'Anyone who opens your page sees the town you typed.'
+                : 'Saved, but not shown to anyone.'}
+            </span>
           </button>
-        )}
+          <p className="hint">
+            Off by default, and worth a thought before you turn it on. A handle,
+            a day count and a small town is close enough to a name that somebody
+            could work out who you are &mdash; and in a town this size, that might
+            be your boss. Big city, much less of a problem.
+          </p>
 
+          {/* ---- sponsoring ---- */}
+        </Section>
+        <Section title="Sponsoring">
+          {/* ⚠️ FOUR CHOICES, NOT FOUR TOGGLES. Sponsor status is ONE
+              fact about you, so it's one exclusive pick — the same
+              reason `one_medium_per_post` exists on the wall. Separate
+              on/off switches would let somebody claim they're looking
+              for a sponsor AND available to be one, which is a state
+              the world doesn't have. */}
+          {[
+            { v: 'private',     t: '🤫 Keep this to yourself',
+              d: 'Nothing about sponsoring shows on your page.' },
+            { v: 'has_sponsor', t: '🤝 I have a sponsor',
+              d: 'Shows on your page. Plain fact, nothing asked of anyone.' },
+            { v: 'looking',     t: '🔎 I’m looking for a sponsor',
+              d: 'Only people with a year or more can see this.' },
+            { v: 'available',   t: '🛟 I’m available to sponsor',
+              d: 'Tells people you have room for somebody.' },
+          ].map((o) => (
+            <button key={o.v} type="button"
+                    className={'choice' + (sponsor === o.v ? ' sel' : '')}
+                    aria-pressed={sponsor === o.v} disabled={busy}
+                    onClick={() => { setSponsor(o.v);
+                      save({ sponsor_status: o.v }, 'Saved.'); }}>
+              {/* Plain interpolation. These are JS strings, so a real
+                  apostrophe is fine — the unescaped-entities lint rule
+                  only applies to literal text typed into JSX. */}
+              <span className="ct">{o.t}</span>
+              <span className="cd">{o.d}</span>
+            </button>
+          ))}
+
+          {/* ⚠️ SAY THE GATE OUT LOUD. The rule is enforced in the
+              database and cannot be got round — but a rule you can't
+              see just looks like the feature is broken. Somebody who
+              ticks "looking" and hears from nobody deserves to know
+              it's deliberate, not a bug. */}
+          {sponsor === 'looking' && (
+            <p className="hint">
+              This one is deliberately quiet. Only members with a year or more
+              can see it &mdash; so it reaches people who&apos;ve been where you
+              are, and not a public list of who&apos;s new and on their own.
+              Nobody under a year can tell you ticked it.
+            </p>
+          )}
+
+          {sponsor === 'available' && d !== null && d < 365 && (
+            <p className="hint">
+              Saved &mdash; but it won&apos;t show on your page until you&apos;ve got a
+              year, which is {(365 - d).toLocaleString()} days away. That&apos;s the
+              same line the rooms draw, and it&apos;s here for the person on the
+              other end of it: the people most likely to say yes to an offer
+              like this are the ones with the least time.
+            </p>
+          )}
+
+          {/* ---- your song ---- */}
+        </Section>
+        <Section title="Your song">
+          <p className="hint" style={{ marginTop: 0 }}>
+            The one that got you through. It plays on your page —{' '}
+            <Link href={`/u/${profile.handle}`}>see how it looks</Link>.
+          </p>
+
+          <SongPicker value={song} onPick={setSong} disabled={busy} />
+
+          {/* Hear it before you commit to it.
+
+              `key` forces a brand-new player whenever the pick changes.
+              Without it React reuses the same <audio> element, and the
+              audio pipeline is built ONCE per element — so the old preview
+              would keep playing underneath the new artwork. The props
+              moved; the wiring didn't. */}
+          {song.anthem_preview && (
+            <SongPlayer key={song.anthem_preview} song={song} whose="preview" />
+          )}
+
+          <button className="btn" type="button"
+                  disabled={busy || song.anthem_url === (profile.anthem_url || null)
+                            && song.anthem_youtube === (profile.anthem_youtube || null)}
+                  onClick={() => save(song, song.anthem_url
+                    ? 'Song saved. It\u2019s on your page now.' : 'Song removed.')}>
+            {busy ? 'Saving…' : 'Save song'}
+          </button>
+
+          {song.anthem_url && (
+            <button className="nvm" type="button" disabled={busy}
+                    onClick={() => setSong({ anthem_url: null, anthem_title: null,
+                                             anthem_art: null, anthem_preview: null,
+                                             anthem_youtube: null })}>
+              take my song off my page
+            </button>
+          )}
+
+          {note && <div className="ok">{note}</div>}
+          {err && <div className="err">{err}</div>}
+
+          {/* ---- autoplay ---- */}
+        </Section>
+        <Section title="When you visit someone">
+          <button type="button"
+                  className={'choice' + (auto ? ' sel' : '')}
+                  aria-pressed={auto} disabled={busy}
+                  onClick={() => { const n = !auto; setAuto(n);
+                    save({ autoplay_songs: n }, n
+                      ? 'On. Songs will start on their own.'
+                      : 'Off. Nothing plays until you press it.'); }}>
+            <span className="ct">{auto ? '🔊 Songs start on their own' : '🔇 Songs wait for you'}</span>
+            <span className="cd">
+              {auto
+                ? 'When you open somebody\u2019s page their song begins playing.'
+                : 'Nothing on this app makes a sound until you press play.'}
+            </span>
+          </button>
+          <p className="hint">
+            This is your setting, about your own ears &mdash; it has nothing to do with
+            what happens when other people visit <em>you</em>. It&rsquo;s on to start
+            with: open somebody&rsquo;s page and their song begins. You can turn it off
+            here, or from the switch under any song, and it stays off for good.
+          </p>
+
+          {/* ---- the door ----
+              Sign-out lives in settings now rather than on the page you land
+              on. It is the one control here you can't undo by tapping again,
+              and it does not belong next to your own face. */}
+        </Section>
+        <Section title="Account">
+          <p className="hint">Signed in as {email}</p>
+          <button className={'btn out' + (confirmOut ? ' arm' : '')} type="button"
+                  disabled={busy} onClick={signOut}>
+            {confirmOut ? 'Tap again to sign out' : 'Sign out'}
+          </button>
+          {confirmOut && (
+            <button className="nvm" type="button" onClick={() => setConfirmOut(false)}>
+              never mind
+            </button>
+          )}
+        </Section>
         <div className="editbar">
           <button type="button" className="btn" onClick={() => setEditing(false)}>
             Done

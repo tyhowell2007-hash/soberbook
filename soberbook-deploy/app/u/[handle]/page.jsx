@@ -59,7 +59,8 @@ export default async function ProfilePage({ params }) {
     .select('handle, display_name, display_avatar, display_avatar_photo, day_count, ' +
             'anthem_url, anthem_title, anthem_art, anthem_preview, anthem_youtube, ' +
             'is_mine, joined_at, total_days, ' +
-            'bio, location, programs, interests, sponsor_open')
+            'bio, location, programs, interests, sponsor_open, ' +
+            'sponsor_has, sponsor_looking')
     .eq('handle_key', handle.toLowerCase())
     .maybeSingle();
 
@@ -145,12 +146,37 @@ export default async function ProfilePage({ params }) {
 
         {p.bio && <p className="bio">{p.bio}</p>}
 
-        {(p.sponsor_open || p.programs || p.location || p.interests) && (
+        {(p.sponsor_open || p.sponsor_has || p.sponsor_looking
+          || p.programs || p.location || p.interests) && (
           <div className="deets">
             {p.sponsor_open && (
               <div className="deet sponsor">
                 <span className="di" aria-hidden="true">🛟</span>
                 <span>Available to sponsor</span>
+              </div>
+            )}
+            {p.sponsor_has && (
+              <div className="deet">
+                <span className="di" aria-hidden="true">🤝</span>
+                <span>Has a sponsor</span>
+              </div>
+            )}
+            {/* 🔴 NO `!p.sponsor_has &&` GUARD HERE, and no "looking for
+                a sponsor" placeholder anywhere for people who haven't
+                ticked it. The absence has to stay silent.
+
+                `sponsor_looking` is already false for a viewer under a
+                year — the gate is in public_profiles (0031) and asks
+                about the VIEWER, not the person whose page this is. So
+                a newer member cannot tell the difference between
+                "didn't tick it" and "ticked it and I'm not allowed to
+                know". That indistinguishability IS the protection: a
+                flag you can detect the absence of is a flag you can
+                enumerate. */}
+            {p.sponsor_looking && (
+              <div className="deet sponsor">
+                <span className="di" aria-hidden="true">🔎</span>
+                <span>Looking for a sponsor</span>
               </div>
             )}
             {p.programs && (

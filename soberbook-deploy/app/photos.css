@@ -153,3 +153,50 @@
 .phserr{
   margin:6px 0 0; font-size:12.5px; line-height:1.5; color:#8A2B2B;
 }
+
+/* =====================================================================
+   THE PROFILE EDITOR, FOLDED UP (Aug 18)
+
+   Nine sections used to sit open at once — about 500 lines of controls
+   in one scroll. Ty had already filled in his programs and interests
+   and didn't remember the page could do it, which is the clearest
+   possible signal: if the person who commissioned it can't find a
+   field, nobody can. A long page doesn't read as "lots of options", it
+   reads as "I don't know where anything is."
+   ===================================================================== */
+.msec{
+  border:2px solid var(--gm); border-radius:12px;
+  background:#fff; margin:10px 0; overflow:hidden;
+}
+.msum{
+  display:flex; align-items:center; justify-content:space-between;
+  gap:10px; padding:14px 14px;
+  font-weight:700; font-size:15px; color:var(--gm-t);
+  cursor:pointer; list-style:none;
+  /* ⚠️ 44px minimum. The Aug 17 lesson from the post footer: a control
+     that's only as tall as its text is a control most thumbs miss. */
+  min-height:44px; box-sizing:border-box;
+}
+/* Safari draws its own triangle unless you kill this pseudo-element,
+   which would sit next to our chevron looking like a rendering bug. */
+.msum::-webkit-details-marker{ display:none; }
+.msum::marker{ content:''; }
+
+.msum:focus-visible{ outline:3px solid var(--gd); outline-offset:-3px; }
+
+.mchev{
+  flex:none; font-size:20px; line-height:1; color:var(--gm);
+  transform:rotate(90deg); transition:transform .15s ease;
+}
+.msec[open] .mchev{ transform:rotate(-90deg); }
+.msec[open] .msum{ border-bottom:2px solid var(--gl); }
+
+.mbody{ padding:4px 14px 16px; }
+
+/* The section headings inside the editor are gone — the summary IS the
+   heading now. Any that survive shouldn't add a second layer of space. */
+.mbody .sec{ display:none; }
+
+@media (prefers-reduced-motion: reduce){
+  .mchev{ transition:none; }
+}
