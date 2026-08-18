@@ -99,14 +99,14 @@ export default async function ProfilePage({ params }) {
      exactly this reason. The null IS the rule. */
   const { data: theirPosts } = await supabase
     .from(assertReadable('feed_posts'))
-    .select('id, body, photo_url, created_at, like_count, comment_count')
+    .select('id, body, photo_url, video_url, created_at, like_count, comment_count')
     .eq('author_handle', p.handle)
     .order('created_at', { ascending: false })
     .limit(30);
 
   const photos = await signPhotoPaths(supabase, [
     ...(p.display_avatar_photo ? [p.display_avatar_photo] : []),
-    ...(theirPosts || []).map((x) => x.photo_url),
+    ...(theirPosts || []).flatMap((x) => [x.photo_url, x.video_url]),
   ]);
   const facePhoto = photos[p.display_avatar_photo] || null;
 
@@ -222,6 +222,12 @@ export default async function ProfilePage({ params }) {
                 {t.photo_url && photos[t.photo_url] && (
                   <div className="mphoto">
                     <img src={photos[t.photo_url]} alt="" loading="lazy" />
+                  </div>
+                )}
+                {t.video_url && photos[t.video_url] && (
+                  <div className="mphoto">
+                    <video src={photos[t.video_url]} controls playsInline
+                           preload="metadata" />
                   </div>
                 )}
                 <div className="mm">

@@ -53,6 +53,31 @@
   object-fit:cover; display:block;
 }
 
+/* ---------- the video on a post (0029) ----------
+   ⚠️ `object-fit:contain`, NOT `cover` like the photo above it, and the
+   difference matters. `cover` crops to fill the frame — fine for a
+   still, because you can see at a glance what got cut. On a video the
+   crop follows the whole clip: somebody films themselves talking, the
+   top of the frame is trimmed, and their head is missing for ninety
+   seconds. Letterbox instead. Black bars are honest.
+
+   The black background is the letterbox itself, and it's the one place
+   in the green room where black is correct — a video's own frame is
+   black at the edges anyway, so anything else reads as a rendering bug. */
+.pphoto.pvideo{ background:#000; }
+.pphoto video{
+  width:100%; height:auto; max-height:420px;
+  object-fit:contain; display:block; background:#000;
+}
+.mine .mphoto video{
+  width:100%; max-height:240px;
+  object-fit:contain; display:block; background:#000;
+}
+.cphoto video{
+  width:100%; max-height:200px;
+  object-fit:contain; display:block; background:#000;
+}
+
 /* A picture inside the "what you've put up" list, on either profile page.
    Shorter than a wall photo — this is a list you scan, not a feed you
    read, and a full-height picture per entry turns 30 posts into a mile. */

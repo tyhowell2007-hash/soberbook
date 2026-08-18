@@ -89,7 +89,8 @@ export async function POST(req) {
      person who wrote it, so "did I write this" cannot be answered by
      comparing ids on the client. */
   const { data: post } = await supabase
-    .from('feed_posts').select('id, is_mine, photo_url').eq('id', postId).single();
+    .from('feed_posts').select('id, is_mine, photo_url, video_url')
+    .eq('id', postId).single();
 
   if (!post?.is_mine) {
     /* Same reply whether the post is somebody else's or doesn't exist.
@@ -112,6 +113,14 @@ export async function POST(req) {
      never anything to clean up in that case. */
   if (post.photo_url) {
     await adminClient().storage.from('post-photos').remove([post.photo_url]);
+  }
+  /* Same for video. ⚠️ If this ever silently stops working, the file is
+     not left public — it's left in a private bucket with nothing
+     pointing at it, invisible to everyone. That's what the sweeper is
+     for, and it's why the sweeper is a tidy-up rather than a safety
+     control. */
+  if (post.video_url) {
+    await adminClient().storage.from('post-videos').remove([post.video_url]);
   }
 
   return NextResponse.json({ ok: true });

@@ -59,7 +59,15 @@ const KINDS = {
    fail fast and politely on the obvious cases. */
 const OK_TYPES = new Set([
   'image/jpeg', 'image/png', 'image/webp', 'image/heic', 'image/heif',
-  'video/mp4', 'video/quicktime', 'video/webm',
+  'video/mp4', 'video/quicktime',
+  /* ⚠️ WebM is deliberately NOT here. It's a different container with a
+     different metadata format, and lib/strip-video.js doesn't understand
+     it — so we'd be publishing a file we never actually cleaned. Phones
+     don't record WebM, so nothing real is lost.
+
+     Some Android pickers hand over octet-stream for a genuine MP4, so
+     this list can't be the decision. Finalize reads the bytes. */
+  'application/octet-stream',
 ]);
 
 export async function POST(req) {

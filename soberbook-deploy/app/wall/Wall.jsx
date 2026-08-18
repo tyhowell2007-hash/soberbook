@@ -116,10 +116,16 @@ export default function Wall({ initial, me = { name: null, avatar: null }, mark 
   const [text, setText] = useState('');
   const [anon, setAnon] = useState(false);
 
-  /* ---- the photo on the post being written (0022) ----
-     { path, preview } or null. `path` is what the database stores;
-     `preview` is a local object URL so the picture appears the instant
-     it's chosen rather than after a round trip. */
+  /* ---- the photo OR video on the post being written (0022, 0029) ----
+     { path, preview, isVideo } or null. `path` is what the database
+     stores; `preview` is a local object URL so it appears the instant
+     it's chosen rather than after a round trip.
+
+     ⚠️ ONE piece of state, not two. 0029 adds a `one_medium_per_post`
+     constraint — a post carries a photo or a video, never both. Keeping
+     two state variables would let the interface offer a combination the
+     database refuses, and the person would only find out at Post time.
+     One slot in the UI, one row rule in the database, same shape. */
   const [photo, setPhoto] = useState(null);
 
   /* Links for photos uploaded during THIS session, merged over the ones
@@ -176,7 +182,7 @@ export default function Wall({ initial, me = { name: null, avatar: null }, mark 
   async function signMissing(rows) {
     const need = [];
     for (const r of rows || []) {
-      for (const p of [r.photo_url, r.display_avatar_photo]) {
+      for (const p of [r.photo_url, r.video_url, r.display_avatar_photo]) {
         if (p && !freshUrls[p] && !photoUrls[p]) need.push(p);
       }
     }
@@ -379,9 +385,15 @@ export default function Wall({ initial, me = { name: null, avatar: null }, mark 
          line is so a member never MEETS the wall. Belt and braces, where
          the braces produce a readable app and the belt produces a
          guarantee. */
+      /* One attachment, routed to the right column by what it IS. The
+         other column goes explicitly null rather than being left out —
+         `one_medium_per_post` compares two values, and "absent" and
+         "null" are the same to Postgres but not to a reader. */
+      const attached = anon ? null : photo;
       const { error } = await supabase.from('posts')
         .insert({ author_id: user.id, body, is_anonymous: anon,
-                  photo_url: anon ? null : (photo?.path || null) });
+                  photo_url: attached && !attached.isVideo ? attached.path : null,
+                  video_url: attached &&  attached.isVideo ? attached.path : null });
       if (error) throw error;
       setText('');
       setPhoto(null);
@@ -494,11 +506,17 @@ export default function Wall({ initial, me = { name: null, avatar: null }, mark 
               anonymous the camera simply isn't part of the composer, and
               one plain line below says why. */}
           {!anon && (
+            /* ONE button, both media. A separate 🎥 next to the 📷 was the
+               obvious build and it's worse: two controls that do the same
+               job, on the narrowest row in the app, forcing a decision
+               ("which button do I want?") the file picker is about to ask
+               again anyway. The picker already knows the difference. */
             <PhotoUpload kind="post" disabled={busy} className="camera"
+                         accept="image/*,video/mp4,video/quicktime"
                          label={photo ? '✓' : '📷'}
                          onBusy={setUploading}
-                         onDone={(path, preview) => {
-                           setPhoto({ path, preview });
+                         onDone={(path, preview, isVideo) => {
+                           setPhoto({ path, preview, isVideo });
                            setFreshUrls((u) => ({ ...u, [path]: preview }));
                            setPostErr('');
                          }} />
@@ -508,20 +526,32 @@ export default function Wall({ initial, me = { name: null, avatar: null }, mark 
               picture sat attached above it, with nothing on screen saying
               why. A disabled button gives no reason; it just doesn't work. */}
           <button type="submit" className="send"
-                  disabled={busy || uploading || (!text.trim() && !photo)}>
+                  disabled={busy || uploading || (!text.trim() && !photo)}
+                  aria-label="Post">
             {busy ? '…' : uploading ? '…' : 'Post'}
           </button>
         </div>
 
         {photo && (
           <div className="cphoto">
-            <img src={photo.preview} alt="The photo you're about to post" />
-            <button type="button" className="cphoto-x" aria-label="Take the photo off"
+            {photo.isVideo ? (
+              /* ⚠️ `controls` and nothing else. No autoplay on the preview —
+                 this is the thing you are about to say to people, and it
+                 should not start talking at you in a quiet room while
+                 you're deciding whether to send it. `playsInline` stops
+                 iOS from throwing it fullscreen the moment it's touched,
+                 which loses you the composer you were standing in. */
+              <video src={photo.preview} controls playsInline preload="metadata" />
+            ) : (
+              <img src={photo.preview} alt="The photo you're about to post" />
+            )}
+            <button type="button" className="cphoto-x"
+                    aria-label={photo.isVideo ? 'Take the video off' : 'Take the photo off'}
                     disabled={busy} onClick={() => setPhoto(null)}>×</button>
           </div>
         )}
 
-        {uploading && <p className="canon-note">Adding your photo…</p>}
+        {uploading && <p className="canon-note">Adding it…</p>}
         {postErr && <p className="phserr" role="alert">{postErr}</p>}
 
         <div className="cas">
@@ -543,7 +573,7 @@ export default function Wall({ initial, me = { name: null, avatar: null }, mark 
         {anon && (
           <p className="canon-note">
             {photoDropped
-              ? 'Photo taken off — anonymous posts are words only. A face in a mirror or a street sign through a window is the quickest way to stop being anonymous by accident.'
+              ? 'Taken off — anonymous posts are words only. A face in a mirror or a street sign through a window is the quickest way to stop being anonymous by accident, and a video adds your voice and whatever the room behind you is saying.'
               : 'Anonymous posts are words only.'}
           </p>
         )}
@@ -640,6 +670,30 @@ export default function Wall({ initial, me = { name: null, avatar: null }, mark 
               {p.photo_url && urlFor(p.photo_url) && (
                 <div className="pphoto">
                   <img src={urlFor(p.photo_url)} alt="" loading="lazy" />
+                </div>
+              )}
+
+              {/* ⚠️ NO autoplay, and this is a decision rather than an
+                  oversight. Every feed on earth plays video at you the
+                  moment it scrolls past, because it lifts the numbers.
+                  Here a video is somebody talking about the worst thing
+                  that ever happened to them, and it should not start
+                  playing to a room because a thumb moved.
+
+                  (0014 does autoplay a song on a profile — different
+                  thing. You went to ONE person's page on purpose, and the
+                  off switch sits under the song. This is a feed you're
+                  moving through.)
+
+                  `preload="metadata"` fetches the first few bytes only, so
+                  the frame and duration are right without pulling tens of
+                  megabytes down a phone connection for a video nobody
+                  taps. `playsInline` keeps it in the feed on iOS instead
+                  of hijacking the whole screen. */}
+              {p.video_url && urlFor(p.video_url) && (
+                <div className="pphoto pvideo">
+                  <video src={urlFor(p.video_url)} controls playsInline
+                         preload="metadata" />
                 </div>
               )}
 

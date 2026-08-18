@@ -22,11 +22,12 @@ import { browserClient } from '../../lib/supabase-browser';
 
 export default function PhotoUpload({
   kind,                 // 'post' | 'avatar'
-  onDone,               // (path, previewUrl) => void
+  onDone,               // (path, previewUrl, isVideo) => void
   label = 'Add a photo',
   className = 'btn ghost',
   disabled = false,
   onBusy,               // (bool) => void — lets the parent lock its Post button
+  accept = 'image/*',   // photos only unless the caller says otherwise
 }) {
   const input = useRef(null);
   const [busy, setBusy] = useState(false);
@@ -80,7 +81,13 @@ export default function PhotoUpload({
       const d2 = await r2.json().catch(() => ({}));
       if (!r2.ok) throw new Error(d2.error || "That photo couldn't be saved.");
 
-      onDone(d2.path, preview);
+      /* ⚠️ `d2.isVideo`, from the SERVER — not `file.type` from the
+         browser. The server decided by reading the file's actual first
+         bytes; the browser's Content-Type is a guess from the filename
+         and is wrong often enough to matter (Android hands over
+         `application/octet-stream` for perfectly good MP4s). Whoever
+         looked at the bytes is the one who knows. */
+      onDone(d2.path, preview, !!d2.isVideo);
     } catch (e2) {
       URL.revokeObjectURL(preview);
       /* Shown next to the control, never an alert() — on a phone an alert
@@ -104,7 +111,7 @@ export default function PhotoUpload({
       {/* accept is a hint to the picker, never a check — the real one is
           in finalize, which decodes the actual bytes. A file dialog
           filter stops honest mistakes and nothing else. */}
-      <input ref={input} type="file" accept="image/*" hidden
+      <input ref={input} type="file" accept={accept} hidden
              onChange={chosen} tabIndex={-1} aria-hidden="true" />
 
       {err && <p className="phserr" role="alert">{err}</p>}

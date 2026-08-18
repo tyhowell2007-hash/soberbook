@@ -56,7 +56,7 @@ export default async function MePage() {
      column the whole anonymity design exists to withhold. */
   const { data: mine } = await supabase
     .from(assertReadable('feed_posts'))
-    .select('id, body, photo_url, created_at, is_anonymous, comment_count')
+    .select('id, body, photo_url, video_url, created_at, is_anonymous, comment_count')
     .eq('is_mine', true)
     .order('created_at', { ascending: false })
     .limit(50);
@@ -64,7 +64,11 @@ export default async function MePage() {
   /* Your own posts, with their pictures. Signed here on the server for the
      same reason the Wall does it: the list arrives whole rather than
      popping images in afterwards. */
-  const postPhotoUrls = await signPhotoPaths(supabase, (mine || []).map((p) => p.photo_url));
+  /* Photos AND videos, in one signing pass. flatMap not map: a post
+     contributes zero, one or two paths and Boolean() drops the nulls. */
+  const postPhotoUrls = await signPhotoPaths(
+    supabase,
+    (mine || []).flatMap((p) => [p.photo_url, p.video_url]).filter(Boolean));
 
   /* Who got back to you. ⚠️ Read from the VIEW, never the table — the view
      is what turns an anonymous replier into the word "Someone" and drops

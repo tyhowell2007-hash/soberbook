@@ -1060,6 +1060,12 @@ export default function Me({ email, profile, posts, initialAvatarUrl,
                     <img src={postPhotoUrls[p.photo_url]} alt="" loading="lazy" />
                   </div>
                 )}
+                {p.video_url && postPhotoUrls[p.video_url] && (
+                  <div className="mphoto">
+                    <video src={postPhotoUrls[p.video_url]} controls playsInline
+                           preload="metadata" />
+                  </div>
+                )}
                 <div className="mm">
                   {ago(p.created_at)}
                   {p.is_anonymous ? ' · posted anonymously' : ''}
