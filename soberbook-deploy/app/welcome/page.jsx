@@ -201,9 +201,25 @@ export default function Welcome() {
 
           <label htmlFor="d">Sober date — optional</label>
           <input id="d" type="date" value={since} onChange={(e) => setSince(e.target.value)} />
+          {/* ⚠️ "or if you&apos;re here for somebody else" added Aug 17.
+
+              This is the exact moment a person without a date decides
+              whether they belong. Everything above this field assumes
+              they're in recovery themselves; the mother of somebody
+              using, or somebody who just wants to understand it, reaches
+              this box and concludes they're in the wrong place.
+
+              "Plenty of people are" is doing real work — it says you
+              aren't the strange exception. Don't cut it for brevity.
+
+              And note there is no follow-up question, no "who are you
+              here for", no category to pick. Asking would turn a welcome
+              into a form, and it would create the two-class room the
+              chip comment in Directory.jsx exists to prevent. */}
           <p className="hint">
-            We&apos;ll count your days and mark the milestones. Leave it blank if you&apos;d rather not —
-            you can add it later, and nothing else depends on it.
+            We&apos;ll count your days and mark the milestones. Leave it blank if you&apos;d rather
+            not, or if you&apos;re here for somebody else — plenty of people are. You can add it
+            later, and nothing else depends on it.
           </p>
 
           {/* No longer disabled on handle length — see the note in save(). */}

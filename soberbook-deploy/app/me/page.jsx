@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation';
 import { serverClient, assertReadable } from '../../lib/supabase-server';
+import { adminClient, adminConfigured } from '../../lib/supabase-admin';
 import Me from './Me';
 
 export const dynamic = 'force-dynamic';
@@ -17,10 +18,31 @@ export default async function MePage() {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('handle, display_name, sober_since, privacy_mode, created_at, anthem_url, anthem_title, anthem_art, anthem_preview, anthem_youtube, autoplay_songs, lifetime_days, show_lifetime, bio, town, state, show_location, programs, interests, sponsor_status, avatar, avatar_kind')
+    .select('handle, display_name, sober_since, privacy_mode, created_at, anthem_url, anthem_title, anthem_art, anthem_preview, anthem_youtube, autoplay_songs, lifetime_days, show_lifetime, bio, town, state, show_location, programs, interests, sponsor_status, avatar, avatar_kind, avatar_photo')
     .eq('id', user.id)
     .maybeSingle();
   if (!profile) redirect('/welcome');
+
+  /* ---- your own face, signed ----
+     ⚠️ Signed DIRECTLY rather than through signPhotoPaths(), and the
+     reason is a bug I would otherwise have shipped.
+
+     signPhotoPaths asks `public_profiles` whether a photo may be shown.
+     That view nulls display_avatar_photo for anyone in anonymous mode —
+     correctly, because an anonymous member has no public face. But this
+     page is not the public view. Routed through it, an anonymous member
+     would open their own settings and find their photo apparently gone,
+     with no way to tell whether it had been deleted.
+
+     The authorisation here is simpler and stronger than the view's: the
+     path came out of their OWN row, read a moment ago with their OWN
+     session. There is nobody else's photo it could possibly be. */
+  let initialAvatarUrl = null;
+  if (profile.avatar_photo && adminConfigured()) {
+    const { data: signed } = await adminClient()
+      .storage.from('avatars').createSignedUrl(profile.avatar_photo, 3600);
+    initialAvatarUrl = signed?.signedUrl || null;
+  }
 
   /* Your own posts — WITHOUT ever asking the database "whose posts are
      these?". `is_mine` is computed inside the view by comparing author_id
@@ -43,6 +65,7 @@ export default async function MePage() {
       email={user.email}
       profile={profile}
       posts={mine || []}
+      initialAvatarUrl={initialAvatarUrl}
     />
   );
 }

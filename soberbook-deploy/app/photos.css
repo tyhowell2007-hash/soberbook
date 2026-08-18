@@ -1,0 +1,111 @@
+/* =====================================================================
+   PHOTOS — profile pictures and pictures on the wall.
+
+   Loaded AFTER theme-green.css by the wall and me layouts, so it can
+   reshape green-room rules without !important.
+
+   ⚠️ EVERY CLASS IN HERE IS PREFIXED — ph- for the profile picker,
+   cphoto- for the composer, pphoto for a post. Learned the hard way on
+   Aug 16: chat reused `.composer` and the green room re-declares that
+   name as position:static, which silently unpinned the message box. A
+   name that already exists somewhere in 42KB of CSS is not a free name.
+   ===================================================================== */
+
+/* ---------- a real face where an emoji used to be ---------- *
+   .pa is already sized and centred by theme-green (36px, round, pale
+   green fill). This only has to stop the image from stretching.
+
+   object-fit:cover is doing the real work: photos are not square and a
+   round frame is. Without it the browser squashes the image to fit,
+   which on a face is uniquely awful — it makes everybody look wrong in a
+   way that's hard to name and impossible to unsee. cover crops to the
+   middle instead, which is where faces are. */
+.item .pa-photo{
+  padding:0; object-fit:cover; background:var(--gl);
+}
+
+/* The big one on a profile card. .pav is already sized by theme-green;
+   same cover-don't-squash argument as above. */
+.pcard .pav-photo{
+  padding:0; object-fit:cover; background:var(--gl);
+}
+
+/* ---------- the picture on a post ---------- */
+.pphoto{
+  margin:10px 0 2px; border-radius:12px; overflow:hidden;
+  border:2px solid var(--gm); background:var(--gl);
+  /* A hard ceiling on height. A portrait photo from a phone is roughly
+     3:4 and would otherwise fill the whole screen, pushing every other
+     post out of view — one person's picture becoming the entire wall.
+     Tall images get cropped in the frame rather than allowed to shove
+     everybody else off the page. */
+  max-height:420px; display:flex;
+}
+.pphoto img{
+  width:100%; height:auto; max-height:420px;
+  object-fit:cover; display:block;
+}
+
+/* ---------- the camera in the composer ---------- */
+.composer .camera{
+  flex:none; width:38px; height:38px; padding:0;
+  border:2px solid var(--gm); border-radius:11px;
+  background:#fff; color:var(--gm-t); font-size:16px; line-height:1;
+  display:flex; align-items:center; justify-content:center;
+}
+.composer .camera:disabled{ opacity:.5; }
+
+/* What you're about to post, before you post it. */
+.cphoto{
+  position:relative; margin:9px 0 0;
+  border:2px solid var(--gm); border-radius:12px; overflow:hidden;
+  max-height:200px; display:flex;
+}
+.cphoto img{ width:100%; max-height:200px; object-fit:cover; display:block; }
+.cphoto-x{
+  position:absolute; top:6px; right:6px;
+  width:28px; height:28px; border:0; border-radius:50%;
+  background:var(--x); color:#fff; font-size:17px; line-height:1;
+  display:flex; align-items:center; justify-content:center;
+}
+
+/* The line that appears only while anonymous is on. */
+.canon-note{
+  margin:8px 0 0; font-size:12px; line-height:1.5; color:var(--gm-t);
+}
+
+/* ---------- the picker on /me ---------- */
+.phrow{ display:flex; gap:14px; align-items:flex-start; margin:2px 0 14px; }
+
+.phnow{
+  flex:none; width:78px; height:78px; border-radius:50%;
+  border:3px solid var(--gm); background:var(--gl); overflow:hidden;
+  display:flex; align-items:center; justify-content:center; font-size:32px;
+}
+.phnow.has{ border-color:var(--gd); }
+.phnow img{ width:100%; height:100%; object-fit:cover; display:block; }
+
+.phacts{ display:flex; flex-direction:column; gap:8px; align-items:flex-start;
+         min-width:0; flex:1; }
+.phacts .btn{ width:auto; }
+
+/* ⚠️ Not red. The convention for a destructive button is red, and it is
+   wrong here: removing your own photo is not a dangerous act, it's a
+   person changing their mind about how visible they want to be, and it
+   should never feel like defusing something. It's a plain button that
+   does what it says. */
+.phacts .phdel{ color:var(--gm-t); }
+
+.phnote{ margin:2px 0 0; font-size:12px; line-height:1.5; }
+
+/* Shown when the profile is anonymous and the picker is absent. */
+.phoff{
+  margin:2px 0 14px; padding:10px 12px;
+  border-left:3px solid var(--gm); background:var(--gl);
+  border-radius:0; font-size:13px; line-height:1.6; color:var(--gt);
+}
+
+/* Upload errors, next to the control rather than in an alert box. */
+.phserr{
+  margin:6px 0 0; font-size:12.5px; line-height:1.5; color:#8A2B2B;
+}

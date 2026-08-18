@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { serverClient, assertReadable } from '../../lib/supabase-server';
 import { milestoneToday, dayCount } from '../../lib/milestones';
+import { signPhotoPaths, collectPaths } from '../../lib/sign-photos';
 import Wall from './Wall';
 
 export const dynamic = 'force-dynamic';
@@ -32,6 +33,13 @@ export default async function WallPage() {
     .select('*')
     .order('created_at', { ascending: false })
     .limit(60);
+
+  /* Every photo on the page signed in ONE round trip, before render.
+     ⚠️ Done here on the server rather than in the browser on purpose: a
+     client-side pass would paint the wall, then fetch links, then pop the
+     pictures in afterwards — the layout jumping under somebody's thumb
+     while they read. Signed up front, a post arrives whole. */
+  const photoUrls = await signPhotoPaths(supabase, collectPaths(posts));
 
   const days = profile.sober_since
     ? Math.floor((Date.now() - new Date(profile.sober_since).getTime()) / 86400000)
@@ -83,6 +91,7 @@ export default async function WallPage() {
             initial={posts || []}
             me={{ name: profile.display_name || null, avatar: profile.avatar || null }}
             mark={mark}
+            photoUrls={photoUrls}
           />}
     </>
   );

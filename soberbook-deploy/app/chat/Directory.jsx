@@ -56,20 +56,46 @@ import { browserClient } from '../../lib/supabase-browser';
    fact, opposite instruction.
    ===================================================================== */
 
-/* The chip is the highest mark they've actually passed — not the next one
-   coming. A directory is not the place to tell somebody they're 4 days
-   short of anything. */
-function markFor(days) {
-  if (days == null) return null;
-  if (days >= 3650) return '10 years';
-  if (days >= 1825) return '5 years';
-  if (days >= 730)  return '2 years';
-  if (days >= 365)  return '1 year';
-  if (days >= 180)  return '6 months';
-  if (days >= 90)   return '90 days';
-  if (days >= 60)   return '60 days';
-  if (days >= 30)   return '30 days';
-  return null;
+/* =====================================================================
+   THE CHIP.
+
+   Metal tiers, the way medallions actually work: you hold your 30-day
+   chip until you earn the 60. Copper for the first week, bronze to a
+   month, silver at 30/60/90, gold at six months and a year, platinum
+   past two.
+
+   ⚠️ PLENTY OF PEOPLE HERE WILL HAVE NO CHIP AT ALL, AND THAT IS FINE.
+
+   Ty, Aug 17: "some people that sign up may not have a problem... maybe
+   they just wanna check out and see what's going on, or learn a little
+   about recovery and mental health."
+
+   The sober date is optional at signup and it stays optional forever.
+   Somebody with no date gets **no chip and no explanation** — not a
+   placeholder, not a dash, not an empty slot where a chip should be, and
+   absolutely not a "supporter" or "ally" badge.
+
+   The badge idea is the trap. A label for people without a date would
+   create a visible two-class room, and worse, it would out everybody who
+   DOES have one by contrast. The absence has to be genuinely invisible or
+   it isn't neutral. A row with no chip should read as a person, not as a
+   person missing something.
+
+   This function returning null is that decision, in one line.
+   ===================================================================== */
+function chipFor(days) {
+  if (days == null) return null;               // no date, no chip, no comment
+  if (days >= 3650) return { t: 'platinum', l: '10 years' };
+  if (days >= 1825) return { t: 'platinum', l: '5 years'  };
+  if (days >= 1095) return { t: 'platinum', l: '3 years'  };
+  if (days >= 730)  return { t: 'platinum', l: '2 years'  };
+  if (days >= 365)  return { t: 'gold',     l: '1 year'   };
+  if (days >= 180)  return { t: 'gold',     l: '6 months' };
+  if (days >= 90)   return { t: 'silver',   l: '90 days'  };
+  if (days >= 60)   return { t: 'silver',   l: '60 days'  };
+  if (days >= 30)   return { t: 'silver',   l: '30 days'  };
+  if (days >= 7)    return { t: 'bronze',   l: `Day ${days}` };
+  return              { t: 'copper',   l: `Day ${days}` };
 }
 
 function daysSince(iso) {
@@ -90,7 +116,6 @@ function line(m) {
     if (posted < 7)  return 'Here this week';
     if (posted < 30) return 'Here this month';
   }
-  if (m.day_count != null) return `Day ${m.day_count.toLocaleString()}`;
   return 'Member';
 }
 
@@ -131,7 +156,12 @@ export default function Directory({ members }) {
       {members.map((m) => {
         const joined = daysSince(m.joined_at);
         const isNew = joined !== null && joined < 7;
-        const mark = markFor(m.day_count);
+        /* null when they have no sober date, and null when they've chosen
+           to keep their count private — the view returns NULL for both, and
+           this page cannot tell them apart. That's the point: "hidden" has
+           to be indistinguishable from "never set" or the setting
+           advertises what it's hiding. */
+        const chip = chipFor(m.day_count);
         return (
           <button key={m.handle} className="crow drow" disabled={busy === m.handle}
                   onClick={() => open(m.handle)}>
@@ -139,8 +169,8 @@ export default function Directory({ members }) {
             <div className="cwho">
               <span className="cname">
                 {m.display_name}
-                {isNew && <span className="dchip new">new here</span>}
-                {!isNew && mark && <span className="dchip mark">{mark}</span>}
+                {chip && <span className={'dchip m-' + chip.t}>{chip.l}</span>}
+                {!chip && isNew && <span className="dchip new">new here</span>}
               </span>
               <span className="clast">{line(m)}</span>
             </div>

@@ -1,4 +1,130 @@
-/* =====================================================================
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Sober Book — green check</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo:wght@400;500;600;700&family=Courier+Prime:wght@400;700&family=Permanent+Marker&display=swap" rel="stylesheet" />
+
+<!-- ⚠️ THE THREE REAL STYLESHEETS, INLINED VERBATIM at build time.
+     The previous version of this check page linked to them with relative
+     paths and they silently failed to load, so it rendered as unstyled
+     serif text and looked like the theme was broken when it wasn't.
+     A check page that can fail to load the thing it's checking is worse
+     than no check page. Inlined, it cannot. -->
+<style id="s-globals">/* =====================================================================
+   Sober Book — the grunge system, ported from the layouts test.
+
+   Two inks and one spot colour. Acid is a FILL, never text on paper —
+   #D6FF2E on #E4DFD3 is 1.2:1 and invisible. It runs as a block with
+   --acid-ink on top (15.7:1) or as text on toner (17.2:1).
+   ===================================================================== */
+:root{
+  --x:#0A0A09;
+  --paper:#F2F0E9;
+  --paper2:#FFFFFF;
+  --body:#26251F;
+  --soft:#5F5B50;
+  --line:#DAD5C7;
+  --acid:#D6FF2E;
+  --acid-ink:#141800;
+  --wear:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='w'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.035 .07' numOctaves='4' seed='7'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23w)'/%3E%3C/svg%3E");
+}
+*{ box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
+html{ background:#1A1917; }
+body{
+  font-family:'Archivo',system-ui,-apple-system,sans-serif;
+  background:var(--paper); color:var(--body); line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+  max-width:520px; margin:0 auto; min-height:100vh; position:relative;
+  border-left:4px solid var(--x); border-right:4px solid var(--x);
+}
+/* THE COPIER TEXTURE IS GONE, AND THAT WAS THE WHOLE COMPLAINT.
+
+   It was a full-page noise layer at 13% multiply. On a phone it read as
+   "photocopied". On a laptop it read as dirty — a grey-green mottling
+   over every screen in the app, which is what "it looks messy" was
+   actually pointing at.
+
+   The identity was never the grime. It's the black masthead, the acid
+   strip, Anton, and hard square corners. Those all stay. The paper is
+   simply clean paper now.
+
+   ⚠️ --wear still exists and is still used deliberately on the acid
+   slabs (the count, the rule card), where a little wear on a small
+   block of colour reads as ink rather than as dirt. Do not put it back
+   on <body>. */
+
+/* ---------- chrome ---------- */
+.mast{ background:var(--x); color:var(--paper); padding:13px 15px;
+  display:flex; align-items:center; gap:10px; position:sticky; top:0; z-index:40; }
+/* The wordmark and its acid offset.
+
+   This WAS a ::before holding a second literal copy of "SOBER BOOK",
+   positioned 2px behind the real one. Two problems with that:
+
+   1. It's real text, so it lays out on its own — on a narrow phone it
+      wrapped where the real wordmark didn't, dropping a stray "BOOK"
+      below the black bar.
+   2. Two sets of letterforms overlapping at 20px is just harder to read.
+
+   text-shadow is the same look with neither problem: a shadow is painted,
+   not laid out, so it can never wrap or overflow, and it needs no
+   duplicate text for a screen reader to trip over. */
+.mast .lg{ font-family:'Anton',Impact,sans-serif; font-size:20px; letter-spacing:.02em;
+  text-transform:uppercase; transform:rotate(-1deg); display:inline-block;
+  white-space:nowrap; flex-shrink:0;
+  text-shadow:2px 2px 0 rgba(214,255,46,.85); }
+.mast .rt{ margin-left:auto; font-family:'Courier Prime',monospace; font-size:10px;
+  letter-spacing:.14em; text-transform:uppercase; color:var(--acid); }
+.bar{ background:var(--acid); color:var(--acid-ink); font-family:'Courier Prime',monospace;
+  font-size:10px; font-weight:700; letter-spacing:.18em; text-transform:uppercase;
+  padding:7px 15px; text-align:center; border-bottom:4px solid var(--x);
+  background-image:var(--wear); background-size:240px; background-blend-mode:screen; }
+
+/* ---------- forms ---------- */
+.pad{ padding:20px 16px 90px; }
+h1{ font-family:'Anton',Impact,sans-serif; font-weight:400; font-size:34px;
+  text-transform:uppercase; color:var(--x); line-height:.98; margin-bottom:6px;
+  text-shadow:1.5px 0 0 rgba(10,10,9,.35), -1.5px 0 0 rgba(10,10,9,.2); }
+.sub{ font-family:'Courier Prime',monospace; font-size:12.5px; color:var(--soft);
+  margin-bottom:18px; line-height:1.6; }
+label{ display:block; font-family:'Courier Prime',monospace; font-size:11px; font-weight:700;
+  letter-spacing:.16em; text-transform:uppercase; color:var(--x); margin:18px 0 6px; }
+input[type=text], input[type=email], input[type=password], input[type=date]{
+  width:100%; border:4px solid var(--x); background:#F2EFE6; padding:13px;
+  font-size:16px; font-family:'Courier Prime',monospace; color:var(--x); outline:none; }
+input:focus{ background:#fff; }
+input:focus-visible{ outline:4px solid var(--acid); outline-offset:0; box-shadow:0 0 0 4px var(--x); }
+.hint{ font-family:'Courier Prime',monospace; font-size:11px; color:var(--soft); margin-top:7px; }
+.btn{ display:block; width:100%; background:var(--x); color:var(--acid); border:none;
+  padding:15px; font-size:18px; font-family:'Anton',Impact,sans-serif; letter-spacing:.05em;
+  text-transform:uppercase; cursor:pointer; margin-top:22px; box-shadow:5px 5px 0 rgba(10,10,9,.3);
+  text-align:center; text-decoration:none; }
+.btn:hover{ background:var(--acid); color:var(--acid-ink); }
+.btn:focus-visible{ outline:4px solid var(--x); outline-offset:3px; }
+.btn[disabled]{ opacity:.55; cursor:default; }
+.linkbtn{ background:none; border:none; font-family:'Courier Prime',monospace; font-size:12px;
+  color:var(--soft); text-decoration:underline; cursor:pointer; margin-top:14px; padding:4px; }
+.err{ border:3px solid #9A3412; background:#FFF1E7; color:#7C2D12; padding:11px 13px;
+  font-size:13.5px; margin-top:16px; }
+.ok{ border:3px solid var(--x); background:var(--acid); color:var(--acid-ink);
+  padding:11px 13px; font-size:13.5px; margin-top:16px; }
+
+.choice{ display:block; width:100%; text-align:left; background:var(--paper2);
+  border:4px solid var(--x); padding:14px; margin-bottom:12px; cursor:pointer;
+  box-shadow:5px 5px 0 var(--x); font:inherit; color:var(--body); }
+.choice .ct{ font-family:'Anton',Impact,sans-serif; font-size:21px; text-transform:uppercase;
+  color:var(--x); }
+.choice .cd{ font-size:13.5px; margin-top:5px; }
+.choice.sel{ background:var(--acid); }
+.choice.sel .cd{ color:var(--acid-ink); }
+.choice.sel.dark{ background:var(--x); }
+.choice.sel.dark .ct{ color:var(--acid); }
+.choice.sel.dark .cd{ color:#C9C4B7; }
+.choice:focus-visible{ outline:4px solid var(--x); outline-offset:4px; }
+</style>
+<style id="s-wall">/* =====================================================================
    THE NEWS FEED
 
    WAS A CORKBOARD. IT ISN'T ANY MORE, AND THAT WASN'T a style change —
@@ -545,65 +671,6 @@ ul.mine li > *{ position:relative; z-index:1; }
 .snote{ font-family:'Courier Prime',monospace; font-size:10.5px; color:var(--soft);
   background:var(--paper2); padding:9px 13px; line-height:1.55; }
 
-/* =====================================================================
-   THE MILESTONE OFFER — "You hit 90 days today. Want to put it on
-   the wall?"
-
-   Gold, because gold means milestone everywhere else in this app and
-   nowhere else. Somebody who has scrolled past one gold post already
-   knows what this card is before reading it.
-
-   It sits between the welcome line and the composer, in the flow — not
-   fixed, not floating, not covering anything. You can scroll straight
-   past it and nothing chases you.
-
-   ⚠️ Both buttons are the same size. The obvious move is to make
-   "Share it" bigger and "Not this time" a small grey link, because that
-   is how every product on earth builds a choice it has a preference
-   about. This app does not get to have a preference here. Weighting the
-   buttons would be the app leaning on somebody about a disclosure, which
-   is the exact thing asking was supposed to avoid.
-   ===================================================================== */
-.mstone{
-  display:flex; flex-wrap:wrap; align-items:center; gap:12px;
-  margin:0 0 14px; padding:16px 15px;
-  background:#FBF0D2; border:3px solid var(--x); box-shadow:5px 5px 0 var(--x);
-}
-.mstone-coin{ font-size:30px; line-height:1; flex:none; }
-.mstone-body{ flex:1 1 190px; min-width:0; }
-.mstone-body h3{
-  font-family:'Anton',Impact,sans-serif; font-weight:400; font-size:23px;
-  text-transform:uppercase; color:var(--x); line-height:1.05;
-}
-.mstone-body p{
-  font-family:'Courier Prime',monospace; font-size:12.5px;
-  color:#5A4A18;                       /* 7.1:1 on the gold */
-  margin-top:4px;
-}
-.mstone-acts{ display:flex; gap:9px; flex:1 1 100%; }
-.mstone-acts .btn{ flex:1; min-height:44px; margin-top:0; }
-
-/* THE OFF SWITCH — "stop starting songs for me".
-
-   Full width and directly under the sleeve on purpose. The person
-   reaching for this may be in a quiet room with sound already coming out
-   of their phone, so it is not a small grey link tucked in a corner; it
-   is the widest tappable thing on the block. 44px min-height is the
-   smallest target a thumb reliably hits in a hurry.
-
-   It sits BELOW the player rather than inside the artwork because the
-   artwork already holds ▶ and "whole song ▸", and a third control in
-   that square is where somebody panicking taps the wrong one. */
-.soff{
-  display:block; width:100%; min-height:44px; margin-top:8px;
-  background:var(--paper2); color:var(--x);
-  border:2px solid var(--x); padding:11px 13px;
-  font-family:'Courier Prime',monospace; font-size:11.5px; font-weight:700;
-  letter-spacing:.1em; text-transform:uppercase; cursor:pointer;
-}
-.soff:hover{ background:var(--x); color:var(--paper); }
-.soff:focus-visible{ outline:3px solid var(--acid); outline-offset:2px; }
-
 @media (prefers-reduced-motion: reduce){
   .sart{ transition:none; }
   .sline span{ transition:none; }
@@ -727,94 +794,6 @@ ul.mine li > *{ position:relative; z-index:1; }
   font-size:15px; line-height:1.5; text-align:center; color:var(--body);
   margin:0 0 20px; padding:0 6px;
 }
-/* =====================================================================
-   THE BOTTOM BAR.
-
-   Two tabs, because two destinations exist. See BottomNav.jsx for why it
-   isn't the seven from the prototype.
-
-   ⚠️ THE SAFE-AREA INSET IS NOT OPTIONAL. On any iPhone since the X there
-   is a home indicator sitting in the bottom ~34px of the screen. Without
-   env(safe-area-inset-bottom) the labels sit underneath it — legible in a
-   simulator, half-swallowed on a real phone, and the tap target overlaps
-   the system swipe. It costs one line and it is the difference between
-   this looking designed and looking ported.
-
-   ⚠️ z-index 60 is chosen, not arbitrary. Above the masthead (40) so it
-   never gets painted over on scroll; below .sheetwrap (200) so a report
-   or block sheet still covers it — a nav bar poking through a modal is
-   how somebody taps the wrong thing at the wrong moment.
-   ===================================================================== */
-.tabbar{
-  position:fixed; bottom:0; left:0; right:0; z-index:60;
-  max-width:520px; margin:0 auto;
-  display:flex; background:var(--paper2);
-  border-top:4px solid var(--x);
-  padding-bottom:env(safe-area-inset-bottom, 0px);
-}
-.tab{
-  flex:1; min-height:56px; display:flex; flex-direction:column;
-  align-items:center; justify-content:center; gap:2px;
-  text-decoration:none; color:var(--soft); padding:7px 4px;
-}
-.tab .ti{ font-size:21px; line-height:1; }
-.tab .tl{
-  font-family:'Courier Prime',monospace; font-size:10px; font-weight:700;
-  letter-spacing:.12em; text-transform:uppercase;
-}
-/* The active tab is marked by COLOUR AND WEIGHT, never by colour alone —
-   about one man in twelve can't rely on a hue shift. aria-current carries
-   it for screen readers. */
-.tab.on{ color:var(--x); background:var(--acid); }
-.tab.on .tl{ font-weight:700; }
-.tab:focus-visible{ outline:3px solid var(--x); outline-offset:-3px; }
-
-/* Keeps the last post clear of the fixed bar. Must track .tabbar's height. */
-.navpad{ height:60px; }
-
-/* =====================================================================
-   YOUR PAGE — the read view at the top of /me.
-
-   Ty, Aug 16, looking at ten stacked forms: "it's really messy. there's
-   too many drop down windows." So the landing state is a page you read —
-   face, name, a line about you — and one pencil opens the settings.
-   ===================================================================== */
-.phead{ text-align:center; margin:0 0 20px; }
-.pface{
-  width:96px; height:96px; margin:0 auto 10px;
-  display:flex; align-items:center; justify-content:center;
-  font-family:'Anton',Impact,sans-serif; font-size:34px; letter-spacing:.03em;
-  background:var(--acid); color:var(--acid-ink);
-  border:4px solid var(--x); box-shadow:5px 5px 0 var(--x);
-}
-.pn{
-  font-family:'Anton',Impact,sans-serif; font-size:26px; text-transform:uppercase;
-  color:var(--x); line-height:1.05; letter-spacing:.01em;
-}
-.pn .pdot{ color:var(--soft); }
-.pbio{
-  font-size:15px; color:var(--body); margin:8px auto 0; max-width:34ch;
-  line-height:1.55;
-}
-
-/* The header of the details card, with the one control on the page. */
-.deets-hd{ display:flex; align-items:center; gap:10px; }
-.deets-hd h3{ flex:1; }
-/* 44px, because it is the ONLY way into settings from this screen. A 20px
-   pencil is fine on a laptop and a coin-toss on a phone. */
-.pencil{
-  flex:none; width:44px; height:44px; background:none; border:none;
-  font-size:19px; line-height:1; cursor:pointer; border-radius:0;
-}
-.pencil:hover{ background:var(--acid); }
-.pencil:focus-visible{ outline:3px solid var(--x); outline-offset:2px; }
-
-/* Done, top and bottom of the settings list. Somebody who opened the
-   pencil to change one thing shouldn't have to scroll past nine sections
-   to get out. */
-.editbar{ margin:0 0 18px; }
-.editbar:last-of-type{ margin:22px 0 0; }
-
 .deets{
   border:4px solid var(--x); background:var(--paper2);
   box-shadow:5px 5px 0 var(--x); padding:4px 14px; margin-bottom:22px;
@@ -950,197 +929,425 @@ textarea:focus-visible{ outline:4px solid var(--x); outline-offset:3px; }
 }
 .facenone:hover{ background:var(--paper); color:var(--x); }
 .facenone:focus-visible{ outline:4px solid var(--x); outline-offset:3px; }
+</style>
+<style id="s-green">/* =====================================================================
+   THE GREEN ROOM
 
-/* =====================================================================
-   CHAT — structure. Aug 16.
+   Ty's call, 5am Aug 15: keep the grunge for getting in the door, then
+   the app itself is the green one from the July prototype.
 
-   Colours here are the base-layer ones; the green room repaints them in
-   theme-green.css. Chat only ever renders inside the room, so what you
-   see on a phone is always the green version — this half exists so the
-   layout can't collapse if the skin ever fails to load.
+   It isn't a compromise, it's two jobs. The outside has to stop a
+   stranger mid-scroll and be remembered. The inside has to be somewhere
+   you can sit at 2am when you're not okay. Loud is right for the first
+   and wrong for the second, and most products get this wrong by picking
+   one voice and using it everywhere.
+
+   ---------------------------------------------------------------------
+   ⚠️ WHY THIS IS A SEPARATE FILE AND NOT A REWRITE OF wall.css
+
+   I counted before touching anything: 115 uses of --x, 50 of --acid, 25
+   of Anton, 45 uppercase transforms, 34 hard 3–4px borders, and exactly
+   3 border-radius declarations in the whole app. The grunge isn't a
+   colour scheme sitting on top of a neutral app — it IS the app, woven
+   through 42KB of CSS.
+
+   Rewriting that in place, at half five in the morning, would mean 200+
+   edits with no way back and no way to compare. So instead: the grunge
+   stays exactly as it is, and this file loads after it and reshapes it.
+
+   That buys three things that matter more than tidiness —
+     1. ONE LINE TURNS IT OFF. If the green is wrong in daylight, delete
+        the import in layout.js and the app is grunge again, intact.
+     2. Nothing that already works can break. Every rule below is an
+        override; none of the logic, markup or accessibility work is
+        touched.
+     3. It's readable as a DIFF of intent. This file is the argument for
+        green in one place, instead of scattered through 42KB.
+
+   The cost is honest too: this ships more CSS than a clean rewrite, and
+   two files now describe one appearance. That's the right trade while
+   it's a decision. It stops being the right trade once it's settled —
+   at that point fold it in and delete this file.
    ===================================================================== */
 
-/* one row of the inbox */
-.crow{ display:flex; gap:11px; align-items:center; padding:12px 13px;
-  border:3px solid var(--x); background:var(--paper2); margin-bottom:10px; }
-.clink{ display:block; text-decoration:none; color:inherit; }
-.clink:focus-visible{ outline:4px solid var(--x); outline-offset:3px; }
+:root{
+  /* ---- the greens ---- */
+  --gd:#1B6B4A;        /* masthead, count card, primary buttons */
+  --gm:#2E8B5F;        /* mid — the waiting edge, accents */
+  --gl:#E8F4ED;        /* pale wash behind chips and highlights */
+  --gt:#0F3D2A;        /* deep green, for text on pale green */
 
-.cav{ flex-shrink:0; width:42px; height:42px; display:flex; align-items:center;
-  justify-content:center; font-size:21px; line-height:1;
-  border:3px solid var(--x); background:var(--acid); }
+  /* ---- the paper, warmed slightly toward green ---- */
+  --x:#1C2320;         /* was #0A0A09 toner black. Still nearly black, but
+                          green-black rather than blue-black, so it sits
+                          with the greens instead of arguing with them. */
+  --paper:#F7FAF8;
+  --paper2:#FFFFFF;
+  --body:#1C2320;
+  --soft:#6B7A72;
+  --line:#DCE7E1;
 
-/* min-width:0 is load-bearing. A flex child defaults to min-width:auto,
-   which means it refuses to shrink below its content — so one long
-   message would push the unread dot off the screen instead of ellipsing.
-   This is the single most common flexbox bug there is. */
-.cwho{ min-width:0; flex:1; }
-.cname{ display:block; font-family:'Archivo',system-ui,sans-serif;
-  font-weight:700; font-size:15px; color:var(--x); overflow-wrap:anywhere; }
-.clast{ display:block; font-family:'Courier Prime',monospace; font-size:12px;
-  color:var(--soft); margin-top:2px;
-  overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  /* ---- ⚠️ ACID IS NOT DELETED, IT'S REASSIGNED ----
+     50 rules reference --acid. Removing it would break 50 things. So it
+     becomes the pale green wash instead, and --acid-ink becomes the deep
+     green that reads on it.
 
-.cdot{ flex-shrink:0; min-width:22px; height:22px; padding:0 6px; border-radius:99px;
-  display:flex; align-items:center; justify-content:center;
-  font-family:'Archivo',system-ui,sans-serif; font-size:11px; font-weight:700;
-  background:var(--x); color:var(--paper2); }
-.csent{ flex-shrink:0; font-family:'Courier Prime',monospace; font-size:10px;
-  letter-spacing:.1em; text-transform:uppercase; color:var(--soft); }
+     This matters for CONTRAST, not just looks. The old pairing was a
+     rule: acid is a FILL and never text, because #D6FF2E on paper is
+     1.2:1 and effectively invisible. The new pairing inverts that
+     safely — #0F3D2A on #E8F4ED is 11.4:1, so anywhere acid used to be
+     a block with dark text on top, it still passes; and anywhere it was
+     mistakenly used AS text, it now works instead of vanishing. */
+  --acid:#E8F4ED;
+  --acid-ink:#0F3D2A;
 
-/* the requests lane */
-.creq{ width:100%; display:flex; gap:11px; align-items:center; text-align:left;
-  padding:12px 13px; margin-bottom:10px; cursor:pointer;
-  border:3px dashed var(--x); background:var(--paper); }
-.cnum{ flex-shrink:0; width:30px; height:30px; border-radius:99px;
-  display:flex; align-items:center; justify-content:center;
-  font-family:'Archivo',system-ui,sans-serif; font-weight:700; font-size:13px;
-  background:var(--x); color:var(--paper2); }
-.creqt{ flex:1; font-family:'Archivo',system-ui,sans-serif; font-weight:700;
-  font-size:14px; color:var(--x); }
-.creqs{ display:block; font-family:'Courier Prime',monospace; font-weight:400;
-  font-size:11px; color:var(--soft); margin-top:1px; }
-.ccaret{ flex-shrink:0; color:var(--soft); font-size:14px; }
-.creqlist{ margin:0 0 16px; }
+  /* Gold. The one non-green colour in the app, reserved entirely for
+     milestones — see the chip rules at the bottom. */
+  --gold:#D9A93B;
+  --gold-lt:#F3C64B;
+  --gold-bg:#FEFCF5;
+  --gold-ink:#4A3708;
 
-/* ⚠️ ACCEPT AND IGNORE ARE THE SAME SIZE, and that is not a styling
-   preference — same rule as the two milestone buttons. Making Ignore the
-   small grey one is the app leaning on somebody to say yes to a stranger,
-   and the person most affected by that nudge is the newcomer this whole
-   gate exists to protect. */
-.cbtns{ display:flex; gap:7px; flex-shrink:0; }
-.cbtns button{ font-family:'Archivo',system-ui,sans-serif; font-weight:700;
-  font-size:12px; padding:9px 13px; cursor:pointer; border:3px solid var(--x); }
-.cyes{ background:var(--x); color:var(--paper2); }
-.cno{ background:var(--paper2); color:var(--x); }
-.cbtns button[disabled]{ opacity:.5; cursor:default; }
-
-.cgate{ font-family:'Courier Prime',monospace; font-size:11px; line-height:1.55;
-  color:var(--soft); padding:2px 4px 0; }
-
-/* the conversation */
-.convo{ padding:18px 16px 34px; display:flex; flex-direction:column; gap:9px; }
-.bub{ max-width:78%; align-self:flex-start; padding:10px 13px;
-  font-family:'Courier Prime',monospace; font-size:14px; line-height:1.5;
-  color:var(--x); background:var(--paper2); border:3px solid var(--x);
-  overflow-wrap:anywhere; }
-.bub.mine{ align-self:flex-end; background:var(--acid); color:var(--acid-ink); }
-.cnote{ align-self:center; text-align:center; max-width:80%;
-  font-family:'Courier Prime',monospace; font-size:11px; line-height:1.55;
-  color:var(--soft); padding:6px 0; }
-
-/* THE MESSAGE BAR — its own class, NOT .composer, and that is a bug fix
-   rather than a naming preference.
-
-   .composer is the wall's post box, and theme-green.css deliberately
-   re-declares it as `position:static` so it can sit at the TOP of the
-   feed. Reusing the class here would have inherited that: the message box
-   would have unpinned itself and scrolled away with the conversation,
-   only in the green room, only on this one page. Shared class names are
-   how a fix in one place becomes a bug in another. */
-.cbar{
-  position:fixed; left:0; right:0; max-width:520px; margin:0 auto; z-index:55;
-  /* sits ON TOP of the tab bar's 60px, so both are reachable. env() is
-     the iPhone home-indicator strip — without it the send button lands
-     under the little grey bar and can't be tapped. */
-  bottom:calc(60px + env(safe-area-inset-bottom, 0px));
-  display:flex; gap:9px; padding:11px 12px;
-  background:var(--x); border-top:4px solid var(--x);
-}
-.cbar input{
-  flex:1; min-width:0; border:3px solid var(--acid); background:#F2EFE6; padding:11px;
-  font-family:'Courier Prime',monospace; font-size:15px; color:var(--x); outline:none;
-}
-.cbar button{
-  background:var(--acid); color:var(--acid-ink); border:none; padding:11px 15px;
-  font-family:'Anton',Impact,sans-serif; font-size:16px; text-transform:uppercase;
-  letter-spacing:.04em; cursor:pointer; white-space:nowrap;
-}
-.cbar button[disabled], .cbar input[disabled]{ opacity:.55; }
-/* the conversation must clear the bar AND the tabs */
-.convopad{ height:76px; }
-
-/* =====================================================================
-   HANDLE SUGGESTIONS — /welcome. Aug 16.
-
-   Naming yourself is the only thing this page won't let you skip, and
-   it's the hardest thing it asks. Somebody stopped here for 38 seconds
-   on Aug 4 and never came back.
-   ===================================================================== */
-.ideas{ margin:10px 0 4px; display:flex; flex-wrap:wrap; gap:8px; }
-.idea{
-  font-family:'Courier Prime',monospace; font-size:14px; font-weight:700;
-  padding:9px 14px; cursor:pointer;
-  border:3px solid var(--x); background:var(--paper2); color:var(--x);
-  /* 44px is the smallest target most guidance treats as reliably
-     tappable. These are the way past the one wall on the page — they do
-     not get to be fiddly. */
-  min-height:44px;
-}
-.idea:hover{ background:var(--acid); color:var(--acid-ink); }
-.idea:focus-visible{ outline:4px solid var(--x); outline-offset:3px; }
-.ideas .hint{ flex-basis:100%; margin-top:2px; }
-
-/* =====================================================================
-   CHAT TABS + THE DIRECTORY. Aug 17.
-   Structure only; the green room repaints these in theme-green.css.
-   ===================================================================== */
-.ctabs{ display:flex; margin:0 0 12px; border-bottom:3px solid var(--x); }
-.ctab{
-  flex:1; padding:11px 6px; cursor:pointer; background:none; border:0;
-  font-family:'Courier Prime',monospace; font-size:12px; font-weight:700;
-  letter-spacing:.08em; text-transform:uppercase; color:var(--soft);
-  /* 44px so a thumb finds it. This is the control that reveals the whole
-     member list — it does not get to be a tiny word. */
-  min-height:44px;
-}
-.ctab.on{ color:var(--x); box-shadow:inset 0 -3px 0 var(--x); }
-.ctab:focus-visible{ outline:3px solid var(--x); outline-offset:-3px; }
-
-/* a directory row is a button, not a link — tapping it calls start_thread
-   and only then knows where it's going */
-.drow{ width:100%; text-align:left; cursor:pointer; font:inherit; }
-.drow[disabled]{ opacity:.55; cursor:default; }
-.dchip{
-  display:inline-block; margin-left:6px; padding:2px 8px; border-radius:99px;
-  font-family:'Courier Prime',monospace; font-size:10px; font-weight:700;
-  letter-spacing:.04em; vertical-align:1px;
+  /* The grime is off. --wear stays defined because rules reference it,
+     but it resolves to nothing. */
+  --wear:none;
 }
 
-.dgo{
-  flex-shrink:0; font-family:'Courier Prime',monospace; font-size:11px;
-  font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--x);
+html{ background:#EDF3F0; }
+body{
+  background:var(--paper);
+  border-left:0; border-right:0;          /* the black rails are grunge */
+  box-shadow:0 0 0 1px var(--line);
 }
 
-/* =====================================================================
-   MILESTONE CHIPS — five metals. Aug 17.
-
-   Ty asked for metals, then for pills rather than struck coins. This is
-   the pill, tinted so the tier reads at a glance: pale metal face, dark
-   metal ink, a real metal edge.
-
-   ⚠️ THE TIER IS CARRIED BY THE LABEL AS WELL AS THE COLOUR. "90 days"
-   and "1 year" are different words, not just different browns — about one
-   man in twelve can't rely on the hue to tell copper from bronze, and the
-   whole point of a chip is that it says something.
-
-   Every pair below was measured: text 8.45:1 or better on its own face,
-   and every border clears 3:1 against BOTH the white row and the green
-   hover wash. Copper and gold borders were darkened from the first draft
-   for exactly that reason — they passed on white and failed on hover.
-   ===================================================================== */
-.dchip{
-  display:inline-block; margin-left:6px; padding:2px 9px; border-radius:99px;
-  font-family:'Courier Prime',monospace; font-size:10px; font-weight:700;
-  letter-spacing:.03em; vertical-align:1px; white-space:nowrap;
-  border:1px solid transparent;
+/* ---------- chrome ---------- */
+.mast{
+  background:var(--gd); color:#fff;
+  font-family:'Archivo',system-ui,sans-serif;
 }
-.dchip.m-copper  { background:#FBEADF; color:#6B3410; border-color:#B4652E; }
-.dchip.m-bronze  { background:#F7EEE0; color:#5A3A16; border-color:#A97142; }
-.dchip.m-silver  { background:#EDF0F3; color:#333C44; border-color:#7C8A98; }
-.dchip.m-gold    { background:#FBF0D2; color:#4A3708; border-color:#9A7818; }
-.dchip.m-platinum{ background:#E7EDF2; color:#2B3A47; border-color:#6E8398; }
+.mast .lg{
+  font-family:'Archivo',system-ui,sans-serif; font-weight:700;
+  font-size:17px; letter-spacing:-.01em; text-transform:none;
+  text-shadow:none;                        /* the acid offset is grunge */
+}
+.bar{
+  background:var(--gl); color:var(--gt);
+  font-family:'Archivo',system-ui,sans-serif; font-weight:600;
+  letter-spacing:.01em; text-transform:none; font-size:12px;
+}
 
-/* Somebody with no sober date and no chip. Green, not metal — it is not a
-   milestone and must never look like the bottom rung of one. */
-.dchip.new{ background:var(--acid); color:var(--acid-ink); border-color:var(--acid-ink); }
+/* ---------- the shape change ----------
+   This is the half that isn't colour, and it's the half that actually
+   decides whether a screen feels loud or calm. Square corners and a
+   hard offset shadow read as printed matter — deliberate, a bit
+   confrontational. Rounded corners and a soft border read as an
+   interface you can sit in front of. Same words, different room. */
+.item, .pcard, .count, .card, .thread, .menubody, .sframe, .sleeve,
+.composer, .empty, .deets, .facegrid, .facepick, .mrow, .rule{
+  border-radius:13px;
+}
+.item, .pcard, .count, .empty, .deets, .facepick, .facegrid{
+  border-width:1px; border-color:var(--line);
+  box-shadow:none;
+}
+.btn, .choice, .sbtn, .replies, .heart, .dots, .chip, .schip, .face{
+  border-radius:10px;
+}
+.chip, .schip{ border-radius:99px; }
+.face{ border-radius:12px; border-width:2px; }
+
+/* Anton is the grunge voice. It stays on the ONE number that should
+   still shout — the day count — and comes off everything else. */
+.nm, .pname, .stitle, .fplab, .btn, .sgo, .h, .empty .h{
+  font-family:'Archivo',system-ui,sans-serif; font-weight:700;
+  letter-spacing:-.01em; text-transform:none;
+}
+
+/* ---------- the count ---------- */
+.count{
+  background:var(--gd); color:#fff; border:0;
+  background-image:none;
+}
+.count .cn{ color:#fff; }
+.chips .chip{ background:var(--gl); color:var(--gt); border:0; font-weight:600; }
+.chips .chip.next{
+  background:transparent; color:#DCEFE5;
+  border:1.5px solid rgba(255,255,255,.5);
+}
+.total{ color:#CFEADD; border-top:1px solid rgba(255,255,255,.18); }
+
+/* ---------- the wall ---------- */
+.item{ background:#fff; }
+.item.newest{ order:-1; }
+
+/* THE WAITING POST — the one nobody has answered yet.
+
+   In acid this was a slab, and a slab shouts. Green makes it a soft
+   edge, and that turned out to be more accurate: the post is somebody
+   being quiet and unanswered. It should be findable, not alarming.
+   Same rule as before — only ever ONE at a time. */
+.item.poster{
+  border-left:4px solid var(--gm);
+  background:#F6FBF8;
+  border-top-color:var(--line); border-right-color:var(--line);
+  border-bottom-color:var(--line);
+}
+.waiting{ color:var(--gm); font-weight:600; }
+
+/* anonymous — lavender, because it should be legible at a glance who is
+   hiding and who isn't, without a word of explanation */
+.item.screened{
+  background:#F7F5FB; border-style:solid; border-color:#E2DCEF;
+}
+.item.screened::after{ display:none; }     /* the halftone screen is grunge */
+
+/* ---------- MILESTONES — the only gold in the app ----------
+   Gold appears nowhere else, so a chip post is recognisable from the far
+   end of a scroll without reading a word.
+
+   ⚠️ These classes are unused until milestones are wired up. They're
+   here so the look is decided and the build has nothing left to argue
+   about. Nothing renders gold today. */
+.item.mile{
+  background:var(--gold-bg); border-color:#E8D9A8;
+  border-top:3px solid var(--gold);
+}
+.mbadge{
+  display:inline-block; background:var(--gold-lt); color:var(--gold-ink);
+  font-size:10.5px; font-weight:700; padding:2px 9px; border-radius:99px;
+  margin-left:6px; vertical-align:middle;
+}
+.chipcard{
+  background:var(--gd); border-radius:12px; padding:22px; text-align:center;
+  margin:11px 0 4px;
+}
+.coin{
+  width:62px; height:62px; border-radius:50%; margin:0 auto 10px;
+  background:radial-gradient(circle at 34% 30%,#F2F2EE,#B9BAB4 62%,#87887F);
+  box-shadow:inset 0 0 0 3px rgba(255,255,255,.5), 0 3px 7px rgba(0,0,0,.3);
+  display:flex; align-items:center; justify-content:center; font-size:23px;
+}
+.chiplbl{
+  display:inline-block; background:rgba(0,0,0,.32); color:#fff; font-size:12px;
+  font-weight:600; padding:4px 13px; border-radius:99px;
+}
+
+/* ⚠️ 104px of bottom padding used to exist to clear the composer, which
+   was pinned to the bottom of the screen. The composer is at the top now,
+   so that padding became a dead grey chasm under the last post — the kind
+   of thing that looks like the app failed to load the rest. */
+.wall{ padding:0 14px 26px; }
+
+/* ---------- WELCOME HOME ----------
+   The torn bottom edge is a repeating mask, not an image: it scales to
+   any width, costs no request, and can't go blurry. */
+.home{
+  background:var(--gd); color:#fff; border-radius:14px 14px 0 0;
+  padding:19px 17px 26px; margin:14px 14px 0; position:relative; overflow:hidden;
+}
+.home h2{
+  font-family:Georgia,'Times New Roman',serif; font-size:25px; font-weight:400;
+  letter-spacing:-.01em; line-height:1.15;
+}
+.home p{ font-size:13.5px; color:#CFEADD; margin-top:3px; }
+.home .blob{
+  position:absolute; right:-26px; top:-26px; width:112px; height:112px;
+  border-radius:50%; background:rgba(255,255,255,.09);
+}
+.home::after{
+  content:""; position:absolute; left:0; right:0; bottom:-1px; height:11px;
+  background:var(--paper);
+  -webkit-mask:repeating-linear-gradient(90deg,#000 0 7px,transparent 7px 14px);
+  mask:repeating-linear-gradient(90deg,#000 0 7px,transparent 7px 14px);
+  -webkit-mask-size:14px 22px; mask-size:14px 22px;
+}
+
+/* ---------- the composer, now at the top ---------- */
+.composer{
+  position:static; display:block; margin:14px; padding:12px 13px;
+  border:1px solid var(--line); border-radius:13px; background:#fff;
+  box-shadow:none;
+}
+.composer .ctop{ display:flex; align-items:center; gap:9px; }
+.composer .ctop input{
+  flex:1; min-width:0; border:0; outline:0; background:transparent;
+  font:400 13.5px/1.4 'Archivo',system-ui,sans-serif; color:var(--body);
+}
+.composer .ctop input::placeholder{ color:#9AA8A2; }
+.composer .send{
+  flex:none; background:var(--gd); color:#fff; border:0; border-radius:99px;
+  padding:8px 17px; font:700 13px/1 'Archivo',system-ui,sans-serif; cursor:pointer;
+}
+.composer .send[disabled]{ opacity:.4; cursor:default; }
+.composer .cas{
+  display:flex; align-items:center; gap:8px; flex-wrap:wrap;
+  margin-top:10px; padding-top:9px; border-top:1px solid var(--line);
+  font:400 12px/1 'Archivo',system-ui,sans-serif; color:var(--soft);
+}
+/* The switch itself. It's a chip, not a checkbox, because it's showing
+   you an ANSWER — this is who this post will be from — that happens to
+   be tappable. A checkbox would ask a question nobody wants asked. */
+.composer .asme{
+  background:var(--gl); color:var(--gt); border:0; border-radius:99px;
+  padding:4px 11px; font:700 12px/1 'Archivo',system-ui,sans-serif; cursor:pointer;
+}
+.composer .asme.anon{ background:#EFEAF8; color:#4A3A6B; }
+.composer .cas-hint{ font-size:11.5px; }
+
+/* ---------- name and face on a post ---------- */
+.item .hd{ display:flex; align-items:center; gap:10px; margin-bottom:8px; }
+.item .pa{
+  flex:none; width:36px; height:36px; border-radius:50%;
+  background:var(--gl); display:flex; align-items:center; justify-content:center;
+  font-size:16px; line-height:1;
+}
+.item.screened .pa{ background:#EFEAF8; }
+.item.mile .pa{ background:#FBF0D2; box-shadow:0 0 0 2px var(--gold); }
+.item .hw{ min-width:0; display:flex; flex-direction:column; gap:1px; }
+.item .nm{ font-size:14.5px; line-height:1.2; }
+.item .mt{ font-size:11.5px; color:var(--soft); letter-spacing:0; text-transform:none; }
+
+/* ---------- controls ---------- */
+.btn, .sgo{ background:var(--gd); color:#fff; border:0; border-radius:11px; }
+.btn:hover, .sgo:hover{ background:var(--gt); }
+.btn.ghost{ background:transparent; color:var(--gd); border:1.5px solid var(--line); }
+.btn.out{ background:transparent; color:var(--soft); border:1.5px solid var(--line); }
+.btn.out.arm{ background:#B3261E; color:#fff; border-color:#B3261E; }
+
+.composer{ background:#fff; border:1px solid var(--line); }
+.composer button{ background:var(--gd); color:#fff; border-radius:99px; border:0; }
+.composer input{ background:transparent; }
+
+.choice{ background:#fff; border:1.5px solid var(--line); }
+.choice.sel{ border-color:var(--gd); background:var(--gl); color:var(--gt); }
+.choice.sel.dark{ background:var(--gd); color:#fff; border-color:var(--gd); }
+
+.heart.on{ color:#B3261E; }
+.replies{ color:var(--gd); font-weight:600; }
+.wholink{ color:var(--gd); text-decoration-color:var(--line); }
+
+.anontoggle button.on{ background:#EFEAF8; color:#4A3A6B; border-color:#D9CEEE; }
+
+/* the face picker */
+.facepick{ background:#fff; }
+.facepick.open{ box-shadow:none; border-color:var(--gd); }
+.fpnow{ background:var(--gl); border-color:var(--line); border-radius:11px; }
+.face:hover{ background:var(--gl); }
+.face.sel{ background:var(--gl); border-color:var(--gd); box-shadow:none; transform:none; }
+.facegrid{ border-color:var(--line); border-top:0; }
+
+/* the avatar on a profile card */
+.pav{ background:var(--gl); color:var(--gt); border:0; border-radius:50%;
+  background-image:none; }
+
+/* ---------- accessibility ----------
+   Focus rings were black on paper, which is invisible on a green
+   masthead. Green-on-green is worse. So the ring goes to the deep green
+   everywhere except on green surfaces, where it goes white. */
+:focus-visible{ outline-color:var(--gd) !important; }
+.mast :focus-visible, .count :focus-visible, .chipcard :focus-visible,
+.btn:focus-visible, .sgo:focus-visible{ outline-color:#fff !important; }
+</style>
+
+<style>
+  .checkbar{ position:fixed; top:0; left:0; right:0; z-index:999; background:#141414;
+    color:#fff; font:600 13px/1 Archivo,system-ui,sans-serif; padding:11px 14px;
+    display:flex; gap:12px; align-items:center; justify-content:center; }
+  .checkbar button{ font:700 12px/1 Archivo,sans-serif; padding:8px 14px; border-radius:8px;
+    border:0; cursor:pointer; background:#1B6B4A; color:#fff; }
+  .checkbar.off button{ background:#D6FF2E; color:#141800; }
+  .checkbar span{ opacity:.65; font-weight:400; }
+  body{ padding-top:42px !important; }
+</style>
+</head>
+<body>
+<div class="checkbar" id="cb">
+  <button onclick="tog()">Green is ON — click for grunge</button>
+  <span>real stylesheets · real class names</span>
+</div>
+
+<div class="mast"><span class="lg">🌱 SOBER BOOK</span><span class="rt melink">day 881 ›</span></div>
+<div class="bar">No steps to prove · no gaps to explain</div>
+
+<div class="home"><span class="blob"></span>
+  <h2>Welcome home, Ty.</h2>
+  <p>You made it. Pull up a chair.</p>
+</div>
+
+<form class="composer" onsubmit="return false">
+  <div class="ctop">
+    <input placeholder="Share something with people who get it…" aria-label="demo" />
+    <button type="submit" class="send">Post</button>
+  </div>
+  <div class="cas">
+    <span>Posting as</span>
+    <button type="button" class="asme">🌱 Ty</button>
+    <span class="cas-hint">tap to post anonymously</span>
+  </div>
+</form>
+
+<div class="wall">
+
+  <article class="item mile newest">
+    <div class="hd"><span class="pa">🐺</span><span class="hw">
+      <span class="nm">Nic R. <span class="mbadge">🪙 500 days</span></span>
+      <span class="mt">2h</span></span></div>
+    <p class="bd">500 days sober today. Couldn&rsquo;t have done it without this place. 🙏</p>
+    <div class="chipcard"><span class="coin">🦅</span><span class="chiplbl">500-day chip</span></div>
+    <div class="ft"><button class="heart on">♥ 42</button><button class="replies">3 replies</button><button class="dots">⋯</button></div>
+  </article>
+
+  <article class="item poster">
+    <div class="hd"><span class="pa">🦋</span><span class="hw">
+      <span class="nm">RiverRoad88</span><span class="mt">5h</span></span></div>
+    <div class="waiting">Nobody&rsquo;s answered this one yet</div>
+    <p class="bd">Day 6. Can&rsquo;t tell anyone at work or it&rsquo;d cost me my job. Glad this place exists so I can say it out loud somewhere.</p>
+    <div class="ft"><button class="heart">♡ 0</button><button class="replies">say something</button><button class="dots">⋯</button></div>
+  </article>
+
+  <article class="item card screened">
+    <div class="hd"><span class="pa">🤫</span><span class="hw">
+      <span class="nm">Someone</span><span class="mt">yesterday · anonymous</span></span></div>
+    <p class="bd">Told my brother today. Went better than I thought it would.</p>
+    <div class="ft"><button class="heart">♡ 4</button><button class="replies">1 reply</button><button class="dots">⋯</button></div>
+  </article>
+
+  <article class="item scrap">
+    <div class="hd"><span class="pa">🌱</span><span class="hw">
+      <span class="nm">Ty</span><span class="mt">1d</span></span></div>
+    <p class="bd">Still working on all the bugs, we&rsquo;re making progress.</p>
+    <div class="ft"><button class="heart on">♥ 1</button><button class="replies">say something</button><span class="mine">yours</span></div>
+  </article>
+
+</div>
+
+<div class="pad">
+  <div class="count">
+    <div class="cn">881</div><div class="cl">days · @tyhowell</div>
+    <div class="mbar"><span class="mfill" style="width:80.6%"></span></div>
+    <div class="mnext">119 days to your 3-year chip</div>
+    <div class="total">1,847 days total</div>
+  </div>
+  <ul class="chips">
+    <li class="chip on">30</li><li class="chip on">60</li><li class="chip on">90</li>
+    <li class="chip on">6 mo</li><li class="chip on">1 yr</li><li class="chip on">2 yr</li>
+    <li class="chip next">3 yr</li>
+  </ul>
+  <div class="pcard"><div class="pav">🐺</div><div class="pwho">
+    <span class="pname">Ty</span><span class="phandle">@tyhowell</span></div></div>
+  <button type="button" class="facepick"><span class="fpnow">🐺</span>
+    <span class="fplab">This is your face<span class="fpsub">Tap to pick a different one</span></span>
+    <span class="fpcaret">▼</span></button>
+  <button class="btn">Save name and face</button>
+</div>
+
+<script>
+function tog(){
+  var s = document.getElementById('s-green'), b = document.getElementById('cb');
+  s.disabled = !s.disabled;
+  b.classList.toggle('off', s.disabled);
+  b.querySelector('button').textContent =
+    s.disabled ? 'Green is OFF — click for green' : 'Green is ON — click for grunge';
+}
+</script>
+</body></html>

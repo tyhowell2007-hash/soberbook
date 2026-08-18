@@ -7,6 +7,7 @@ import { browserClient } from '../../lib/supabase-browser';
 import SongPicker from './SongPicker';
 import SongPlayer from '../components/SongPlayer';
 import Milestones from '../components/Milestones';
+import PhotoUpload from '../components/PhotoUpload';
 
 /* The faces you can pick from.
 
@@ -43,7 +44,7 @@ function ago(iso) {
   return Math.floor(h / 24) + 'd ago';
 }
 
-export default function Me({ email, profile, posts }) {
+export default function Me({ email, profile, posts, initialAvatarUrl }) {
   const router = useRouter();
   const supabase = browserClient();
 
@@ -86,6 +87,23 @@ export default function Me({ email, profile, posts }) {
   /* ---- name and face (0012) ---- */
   const [dname, setDname] = useState(profile.display_name || '');
   const [avatar, setAvatar] = useState(profile.avatar || '');
+
+  /* ---- a real photo (0022) ----
+     Three pieces of state for one picture, and each earns its place:
+
+       photoPath  what is stored — a path like 'avatars/9f3c.webp'
+       photoUrl   a signed link, because the bucket is private and the
+                  path alone will not load
+       photoKind  whether the photo or the emoji is the one being used
+
+     ⚠️ photoPath and photoUrl are kept apart rather than merged because
+     they expire differently. The path is permanent; the link dies in an
+     hour. Collapse them into one field and you get an app that shows
+     everybody's face perfectly until somebody leaves a tab open through
+     lunch, which is the kind of bug that takes a day to reproduce. */
+  const [photoPath, setPhotoPath] = useState(profile.avatar_photo || '');
+  const [photoUrl,  setPhotoUrl]  = useState(initialAvatarUrl || '');
+  const [photoKind, setPhotoKind] = useState(profile.avatar_kind || 'emoji');
 
   /* ---- READ FIRST, EDIT ON PURPOSE (Ty's call, Aug 16) ----
 
@@ -151,6 +169,40 @@ export default function Me({ email, profile, posts }) {
     setAvatar(avatar === e ? '' : e);
     setFaceOpen(false);
     setRefocus((n) => n + 1);
+  }
+
+  /* ⚠️ Removing a photo does NOT wait for Save, unlike every other field
+     on this page. That inconsistency is deliberate.
+
+     Everything else here is staged so you can change your mind — type a
+     bio, dislike it, navigate away, nothing happened. But "take my face
+     off the internet" is not a preference, it's usually a person who has
+     just realised something and wants it gone NOW. Making them find the
+     Save button first, while the photo is still up, is the app arguing
+     with somebody having a bad minute.
+
+     So it deletes the file and clears the column in one go, server-side.
+     There is no undo, which is the correct amount of undo for this. */
+  async function removePhoto() {
+    setErr(''); setNote(''); setBusy(true);
+    try {
+      const res = await fetch('/api/photo/delete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ kind: 'avatar' }),
+      });
+      if (!res.ok) {
+        const d = await res.json().catch(() => ({}));
+        throw new Error(d.error || "That photo couldn't be removed.");
+      }
+      setPhotoPath(''); setPhotoUrl(''); setPhotoKind(avatar ? 'emoji' : 'none');
+      setNote('Photo removed.');
+      router.refresh();
+    } catch (e) {
+      setErr(e.message);
+    } finally {
+      setBusy(false);
+    }
   }
 
   const anon = privacy === 'anonymous';
@@ -414,11 +466,72 @@ export default function Me({ email, profile, posts }) {
           seeing until now.
         </p>
 
+        {/* ---- A REAL PHOTO (Ty's call, Aug 17) ----
+
+            ⚠️ The anonymous branch is not a disabled control. When your
+            profile is anonymous there is no upload button here at all,
+            because a greyed-out button invites you to work out how to
+            un-grey it, and the answer would be "give up your anonymity"
+            — which is a trade nobody should be nudged into by UI.
+
+            The line about nothing being deleted matters too. A member who
+            switches to anonymous and sees their photo vanish will assume
+            it's gone. It isn't: avatar_photo is untouched, and
+            public_profiles simply stops serving it. Say so, or they'll
+            re-upload it and wonder why it happened again. */}
+        <label id="photolab">Your photo</label>
+        {anon ? (
+          <p className="hint phoff">
+            Photos are off while your profile is anonymous &mdash; a face is the
+            fastest way to stop being anonymous by accident. Nothing has been
+            deleted. Switch to open above and it comes back.
+          </p>
+        ) : (
+          <div className="phrow">
+            <div className={'phnow' + (photoKind === 'photo' && photoUrl ? ' has' : '')}>
+              {photoKind === 'photo' && photoUrl
+                ? <img src={photoUrl} alt="Your profile photo" />
+                : <span aria-hidden="true">{avatar || '🌱'}</span>}
+            </div>
+            <div className="phacts">
+              <PhotoUpload
+                kind="avatar"
+                disabled={busy}
+                label={photoPath ? 'Choose a different one' : 'Use a photo'}
+                onDone={(path, preview) => {
+                  setPhotoPath(path); setPhotoUrl(preview); setPhotoKind('photo');
+                }} />
+              {photoPath && photoKind === 'photo' && (
+                <button type="button" className="btn ghost" disabled={busy}
+                        onClick={() => setPhotoKind(avatar ? 'emoji' : 'none')}>
+                  Show the emoji instead
+                </button>
+              )}
+              {photoPath && photoKind !== 'photo' && (
+                <button type="button" className="btn ghost" disabled={busy}
+                        onClick={() => setPhotoKind('photo')}>
+                  Show the photo
+                </button>
+              )}
+              {photoPath && (
+                <button type="button" className="btn ghost phdel" disabled={busy}
+                        onClick={removePhoto}>
+                  Remove it
+                </button>
+              )}
+              <p className="hint phnote">
+                The location tag phones hide inside photos is stripped off before
+                it saves &mdash; a picture of your kitchen can&apos;t give away your address.
+              </p>
+            </div>
+          </div>
+        )}
+
         <label id="facelab">Pick a face</label>
         {/* Why a fixed list and not a text box: see FACE_GROUPS up top.
-            And no photographs here on purpose — a face on a recovery app
-            is permanent and screenshot-able. That option is coming, but
-            it gets built carefully rather than bolted on. */}
+            The emoji is still here and still the default — a photo is an
+            option, not an expectation. Plenty of people in recovery have
+            excellent reasons not to have a face on anything. */}
         <button type="button" className={'facepick' + (faceOpen ? ' open' : '')}
                 ref={faceBtn}
                 aria-expanded={faceOpen}
@@ -472,21 +585,36 @@ export default function Me({ email, profile, posts }) {
           </div>
         )}
 
+        {/* ⚠️ avatar_kind is DERIVED here, never stored as a fourth piece
+            of state that has to be kept in step with the other three.
+            Same rule as the sign-up/sign-in door in the Aug 15 session:
+            one fact, one home. A separate kind field would eventually
+            disagree with whether a photo actually exists, and the failure
+            mode is somebody's page rendering a blank circle where their
+            face should be. */}
         <button className="btn" type="button"
                 disabled={busy || (dname === (profile.display_name || '')
-                                   && avatar === (profile.avatar || ''))}
+                                   && avatar === (profile.avatar || '')
+                                   && photoPath === (profile.avatar_photo || '')
+                                   && photoKind === (profile.avatar_kind || 'emoji'))}
                 onClick={() => save({
                   display_name: dname.trim() || null,
                   avatar: avatar || null,
-                  avatar_kind: avatar ? 'emoji' : 'none',
+                  avatar_photo: photoPath || null,
+                  avatar_kind: (photoKind === 'photo' && photoPath) ? 'photo'
+                             : avatar ? 'emoji' : 'none',
                 }, 'Saved. That’s you now.')}>
           {busy ? 'Saving…' : 'Save name and face'}
         </button>
 
+        {/* The old copy here said "photos are coming". They came, so it
+            goes. ⚠️ A stale promise left in the UI is worse than no copy
+            at all — it teaches people the app is describing a different
+            version of itself than the one they're holding. */}
         <p className="hint">
-          Photos are coming, and they&apos;ll be your choice too &mdash; but a real face on
-          a recovery app is permanent and easy to screenshot, so that one gets built
-          carefully rather than quickly.
+          A photo is your choice and you can take it off whenever you like. Worth
+          knowing before you put one up: anyone who can see it can screenshot it,
+          here or anywhere else. The emoji is a perfectly good answer.
         </p>
 
         {/* ---- privacy ---- */}

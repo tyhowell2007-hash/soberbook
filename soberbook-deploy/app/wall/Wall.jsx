@@ -1,11 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { browserClient } from '../../lib/supabase-browser';
 import Thread from './Thread';
 import PostMenu from './PostMenu';
+import PhotoUpload from '../components/PhotoUpload';
 
 function ago(iso) {
   const mins = Math.floor((Date.now() - new Date(iso).getTime()) / 60000);
@@ -104,7 +105,8 @@ function who(p) {
 /* `me` defaults rather than being required, so this component still
    renders if it's ever mounted without it — a missing name should cost
    you a greeting, never a blank page. */
-export default function Wall({ initial, me = { name: null, avatar: null }, mark = null }) {
+export default function Wall({ initial, me = { name: null, avatar: null }, mark = null,
+                               photoUrls = {} }) {
   const router = useRouter();
   const supabase = browserClient();
   /* The milestone landing today, if there is one and it hasn't been
@@ -113,6 +115,94 @@ export default function Wall({ initial, me = { name: null, avatar: null }, mark 
   const [posts, setPosts] = useState(initial);
   const [text, setText] = useState('');
   const [anon, setAnon] = useState(false);
+
+  /* ---- the photo on the post being written (0022) ----
+     { path, preview } or null. `path` is what the database stores;
+     `preview` is a local object URL so the picture appears the instant
+     it's chosen rather than after a round trip. */
+  const [photo, setPhoto] = useState(null);
+
+  /* Links for photos uploaded during THIS session, merged over the ones
+     signed on the server at page load. Without this a new post appears
+     with an empty frame until the next full refresh — the poster is the
+     one person who can't see what they just posted, which reads as the
+     upload having failed. */
+  const [freshUrls, setFreshUrls] = useState({});
+  const urlFor = (p) => (p ? (freshUrls[p] || photoUrls[p] || null) : null);
+
+  /* ⚠️ TURNING ANONYMITY ON DROPS THE PHOTO, AND SAYS SO.
+
+     0022 makes it impossible for an anonymous post to carry a photo — the
+     database rejects the insert outright. So without this, tapping the
+     anonymous chip with a picture attached produces a raw constraint
+     error at Post time, which is both ugly and far too late: the choice
+     was made several seconds earlier.
+
+     Removing it silently would be worse still. Somebody would post
+     anonymously believing the photo went with it, and only the absence of
+     a complaint would ever tell them otherwise.
+
+     So: it goes, and the composer says it went and why. The rule is
+     enforced in the database and EXPLAINED in the interface. */
+  const [photoDropped, setPhotoDropped] = useState(false);
+
+  function toggleAnon() {
+    const next = !anon;
+    if (next && photo) { setPhoto(null); setPhotoDropped(true); }
+    else setPhotoDropped(false);
+    setAnon(next);
+  }
+
+  /* After the client re-reads the feed, the rows carry photo PATHS and no
+     links — the server signed the previous batch, not this one.
+
+     ⚠️ Without this, posting made everyone else's photos disappear until
+     router.refresh() came back: `posts` updates immediately, `photoUrls`
+     is a prop and doesn't. Pictures blinking out because you posted
+     something reads as your post having broken the page.
+
+     Only paths we don't already hold are asked for, so the common case —
+     posting into a wall that's already loaded — costs nothing. */
+  async function signMissing(rows) {
+    const need = [];
+    for (const r of rows || []) {
+      for (const p of [r.photo_url, r.display_avatar_photo]) {
+        if (p && !freshUrls[p] && !photoUrls[p]) need.push(p);
+      }
+    }
+    if (!need.length) return;
+    try {
+      const res = await fetch('/api/photo/sign', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ paths: [...new Set(need)] }),
+      });
+      const { urls } = await res.json();
+      if (urls) setFreshUrls((u) => ({ ...u, ...urls }));
+    } catch {
+      /* Swallowed on purpose. A photo that doesn't appear is a worse
+         page; an error banner about signing URLs on top of somebody's
+         wall is a broken app. The text is all still there. */
+    }
+  }
+
+  /* ⚠️ ONE EFFECT, NOT THREE CALL SITES.
+
+     The feed is re-read in three places — refresh(), the milestone share,
+     and post() — and a fourth will exist eventually. Calling signMissing
+     from each is the obvious version and it is wrong in a specific way:
+     the day somebody adds a fifth re-read and forgets, photos silently
+     stop appearing on that one path only. That bug is invisible in review
+     and miserable to reproduce.
+
+     Watching `posts` instead means the rule is "whenever the feed
+     changes, make sure its pictures have links" — which is the actual
+     requirement, stated once.
+
+     It terminates because signMissing only sets state when something is
+     genuinely missing, and what it fetches is exactly what was missing.
+     Second pass finds nothing and stops. */
+  useEffect(() => { signMissing(posts); /* eslint-disable-line */ }, [posts]);
   const [busy, setBusy] = useState(false);
   const [open, setOpen] = useState(null);     // the post whose thread is open
   const [menu, setMenu] = useState(null);     // the post whose ⋯ menu is open
@@ -251,10 +341,18 @@ export default function Wall({ initial, me = { name: null, avatar: null }, mark 
     setBusy(true);
     try {
       const { data: { user } } = await supabase.auth.getUser();
+      /* ⚠️ `anon ? null : …` looks redundant next to the CHECK constraint
+         in 0022, and it is — deliberately. The database is the wall; this
+         line is so a member never MEETS the wall. Belt and braces, where
+         the braces produce a readable app and the belt produces a
+         guarantee. */
       const { error } = await supabase.from('posts')
-        .insert({ author_id: user.id, body, is_anonymous: anon });
+        .insert({ author_id: user.id, body, is_anonymous: anon,
+                  photo_url: anon ? null : (photo?.path || null) });
       if (error) throw error;
       setText('');
+      setPhoto(null);
+      setPhotoDropped(false);
       // re-read through the VIEW, never the base table
       const { data } = await supabase
         .from('feed_posts').select('*').order('created_at', { ascending: false }).limit(60);
@@ -341,26 +439,60 @@ export default function Wall({ initial, me = { name: null, avatar: null }, mark 
                  aria-label="Write something for the wall"
                  placeholder={anon ? 'Nobody will see who wrote this…'
                                    : 'Share something with people who get it…'} />
-          {/* Photos aren't built yet. The button is deliberately NOT here
-              rather than here-and-broken — a control that does nothing is
-              worse than a missing one, because it teaches people the app
-              is unreliable. It comes back when uploads ship, and never
-              on an anonymous post. */}
+          {/* ⚠️ NOT DISABLED WHEN ANONYMOUS — ABSENT.
+
+              The old comment here said a control that does nothing is
+              worse than a missing one. That still holds, and it applies
+              just as much to a greyed-out camera: a disabled button is an
+              invitation to work out how to enable it, and the answer
+              would be "stop being anonymous". Nobody should be nudged
+              toward that trade by a piece of chrome. When you're
+              anonymous the camera simply isn't part of the composer, and
+              one plain line below says why. */}
+          {!anon && (
+            <PhotoUpload kind="post" disabled={busy} className="camera"
+                         label={photo ? '✓' : '📷'}
+                         onDone={(path, preview) => {
+                           setPhoto({ path, preview });
+                           setFreshUrls((u) => ({ ...u, [path]: preview }));
+                         }} />
+          )}
           <button type="submit" className="send" disabled={busy || !text.trim()}>
             {busy ? '…' : 'Post'}
           </button>
         </div>
+
+        {photo && (
+          <div className="cphoto">
+            <img src={photo.preview} alt="The photo you're about to post" />
+            <button type="button" className="cphoto-x" aria-label="Take the photo off"
+                    disabled={busy} onClick={() => setPhoto(null)}>×</button>
+          </div>
+        )}
+
         <div className="cas">
           <span>Posting as</span>
           <button type="button" className={'asme' + (anon ? ' anon' : '')}
                   aria-pressed={anon}
-                  onClick={() => setAnon(!anon)}>
+                  onClick={toggleAnon}>
             {anon ? '🤫 anonymous' : '🌱 ' + (me.name || 'you')}
           </button>
           <span className="cas-hint">
             {anon ? 'tap to use your name' : 'tap to post anonymously'}
           </span>
         </div>
+
+        {/* The explanation, and only when it's relevant. A permanent note
+            about anonymous photo rules on a composer nobody is using
+            anonymously is noise; the same sentence at the moment it
+            applies is an answer. */}
+        {anon && (
+          <p className="canon-note">
+            {photoDropped
+              ? 'Photo taken off — anonymous posts are words only. A face in a mirror or a street sign through a window is the quickest way to stop being anonymous by accident.'
+              : 'Anonymous posts are words only.'}
+          </p>
+        )}
       </form>
 
       <div className="wall">
@@ -395,9 +527,20 @@ export default function Wall({ initial, me = { name: null, avatar: null }, mark 
                   the fallback because the column is empty, not because
                   the markup chose to hide something. */}
               <div className="hd">
-                <span className="pa" aria-hidden="true">
-                  {p.is_anonymous ? '🤫' : (p.display_avatar || '🌱')}
-                </span>
+                {/* Three conditions had to be true in the view before a
+                    real face reaches this line — not anonymous post, not
+                    anonymous profile, and the member actually chose the
+                    photo option. All three live in feed_posts, so there is
+                    nothing for this markup to decide. It renders whatever
+                    it was given, and what it was given is already safe. */}
+                {!p.is_anonymous && urlFor(p.display_avatar_photo) ? (
+                  <img className="pa pa-photo" src={urlFor(p.display_avatar_photo)}
+                       alt="" aria-hidden="true" />
+                ) : (
+                  <span className="pa" aria-hidden="true">
+                    {p.is_anonymous ? '🤫' : (p.display_avatar || '🌱')}
+                  </span>
+                )}
                 <span className="hw">
                   <span className="nm">
                     {who(p)}
@@ -425,6 +568,23 @@ export default function Wall({ initial, me = { name: null, avatar: null }, mark 
               )}
 
               <p className="bd">{p.body}</p>
+
+              {/* ⚠️ `p.photo_url` is null on every anonymous post because
+                  feed_posts nulls it — this does not need, and must not
+                  grow, its own `!p.is_anonymous` check. A second copy of
+                  the rule here would be a second place to forget to
+                  update, and the copy that goes stale is always the one
+                  nobody is reading.
+
+                  alt="" is correct rather than lazy: a photo somebody
+                  attached to a post has no description we can honestly
+                  give, and inventing one for a screen reader is worse
+                  than admitting the picture is decorative to the text. */}
+              {p.photo_url && urlFor(p.photo_url) && (
+                <div className="pphoto">
+                  <img src={urlFor(p.photo_url)} alt="" loading="lazy" />
+                </div>
+              )}
 
               {/* THE CHIP — the only gold in the app.
 

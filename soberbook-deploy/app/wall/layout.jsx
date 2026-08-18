@@ -18,6 +18,9 @@
    to carry the stylesheet. It adds no markup, so it can't affect layout,
    focus order, or anything a screen reader walks. */
 import '../theme-green.css';
+/* AFTER theme-green, so photo rules can reshape green-room ones without
+   reaching for !important. Same ordering argument as the note above. */
+import '../photos.css';
 import BottomNav from '../components/BottomNav';
 
 export default function WallLayout({ children }) {

@@ -477,5 +477,10 @@ body{
 .dgo{ color:var(--gm-t); font-family:'Archivo',system-ui,sans-serif;
   font-size:12px; font-weight:600; letter-spacing:0; text-transform:none; }
 .dchip{ font-family:'Archivo',system-ui,sans-serif; font-size:10px; letter-spacing:0; }
-.dchip.new{ background:var(--gl); color:var(--gt); }
-.dchip.mark{ background:var(--gold-bg); color:var(--gold-ink); border-color:#E8D9A8; }
+
+
+/* The metals keep their own colours in the green room — that's the point
+   of them. Only the typeface changes to match everything else inside. */
+.dchip{ font-family:'Archivo',system-ui,sans-serif; font-size:10px;
+  font-weight:700; letter-spacing:0; padding:2px 9px; }
+.dchip.new{ background:var(--gl); color:var(--gt); border-color:#7FBBA1; }

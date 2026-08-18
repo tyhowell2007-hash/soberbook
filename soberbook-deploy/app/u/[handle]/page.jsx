@@ -5,6 +5,7 @@ import SongPlayer from '../../components/SongPlayer';
 import Milestones from '../../components/Milestones';
 import MessageButton from './MessageButton';
 import { sinceFromCount } from '../../../lib/milestones';
+import { signPhotoPaths } from '../../../lib/sign-photos';
 
 export const dynamic = 'force-dynamic';
 
@@ -55,7 +56,7 @@ export default async function ProfilePage({ params }) {
 
   const { data: p } = await supabase
     .from(assertReadable('public_profiles'))
-    .select('handle, display_name, display_avatar, day_count, ' +
+    .select('handle, display_name, display_avatar, display_avatar_photo, day_count, ' +
             'anthem_url, anthem_title, anthem_art, anthem_preview, anthem_youtube, ' +
             'is_mine, joined_at, total_days, ' +
             'bio, location, programs, interests, sponsor_open')
@@ -79,6 +80,15 @@ export default async function ProfilePage({ params }) {
   const joined = new Date(p.joined_at).toLocaleDateString('en-US',
     { month: 'long', year: 'numeric' });
 
+  /* ⚠️ Only ever the ONE path this view handed back. public_profiles nulls
+     display_avatar_photo for an anonymous profile and for anyone who
+     hasn't chosen the photo option, so if there's nothing here there is
+     nothing to sign — the decision was made in the database and this line
+     just does as it's told. */
+  const photos = await signPhotoPaths(supabase,
+    p.display_avatar_photo ? [p.display_avatar_photo] : []);
+  const facePhoto = photos[p.display_avatar_photo] || null;
+
   return (
     <>
       <div className="mast">
@@ -91,7 +101,9 @@ export default async function ProfilePage({ params }) {
       <div className="pad">
 
         <div className="pcard">
-          <div className="pav" aria-hidden="true">{p.display_avatar || '🌱'}</div>
+          {facePhoto
+            ? <img className="pav pav-photo" src={facePhoto} alt="" aria-hidden="true" />
+            : <div className="pav" aria-hidden="true">{p.display_avatar || '🌱'}</div>}
           <div className="pwho">
             <span className="pname">{p.display_name}</span>
             <span className="phandle">@{p.handle}</span>

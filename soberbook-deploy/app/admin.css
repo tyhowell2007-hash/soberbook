@@ -1,0 +1,86 @@
+/* =====================================================================
+   THE MODERATION QUEUE.
+
+   Plain on purpose. This screen exists to be read carefully by a tired
+   person making a decision about somebody else's bad day — so no
+   flourishes, no colour used for effect, and nothing that rewards
+   clicking quickly.
+
+   All classes prefixed mq- for the same reason meetings.css uses mt-.
+   ===================================================================== */
+
+.mq{
+  background:#fff; border:2px solid var(--gm); border-radius:14px;
+  padding:14px; margin:0 0 14px;
+}
+
+.mq-top{ display:flex; align-items:center; gap:10px; margin-bottom:8px; }
+
+.mq-kind{
+  font-size:11.5px; letter-spacing:.04em; text-transform:uppercase;
+  padding:3px 9px; border-radius:999px;
+  /* ⚠️ An EDGE, not just a fill. The Aug 17 contrast audit found a pale
+     tag on a pale card measuring 1.00:1 — invisible — because the audit
+     only checked text and this was fill against fill. Every tag in this
+     app carries a border now. */
+  border:1px solid var(--gm); background:var(--gl); color:var(--gt);
+}
+.mq-kind.concern{ background:#FBF0D2; border-color:#B8892A; color:#5A3F08; }
+
+.mq-when{ font-size:12px; color:var(--soft); margin-left:auto; }
+
+.mq-who{
+  display:flex; flex-wrap:wrap; gap:8px; align-items:center;
+  font-size:13px; color:var(--gt); margin-bottom:10px;
+}
+.mq-anon{ color:var(--gm-t); }
+.mq-prior{
+  font-size:11.5px; padding:2px 8px; border-radius:999px;
+  border:1px solid var(--gm); background:var(--gl); color:var(--gt);
+}
+.mq-susp{
+  font-size:11.5px; padding:2px 8px; border-radius:999px;
+  border:1px solid #8A2B2B; background:#FBEAEA; color:#6B1F1F;
+}
+
+/* The reported words. Bordered on one side so it reads as a quotation of
+   somebody else's writing rather than as the app's own voice. */
+.mq-body{
+  margin:0 0 10px; padding:10px 12px; border-radius:0;
+  border-left:3px solid var(--gm); background:var(--gl);
+  font-size:15px; line-height:1.6; color:var(--x); white-space:pre-wrap;
+}
+
+.mq-photo{
+  margin:0 0 10px; border:2px solid var(--gm); border-radius:12px;
+  overflow:hidden; max-height:340px; display:flex;
+}
+.mq-photo img{ width:100%; max-height:340px; object-fit:contain;
+               background:var(--gl); display:block; }
+
+.mq-reason{ margin:0 0 10px; font-size:13.5px; line-height:1.6;
+            color:var(--gm-t); font-style:italic; }
+
+.mq-gone{ margin:0 0 10px; font-size:13.5px; color:var(--soft); }
+
+.mq-988{
+  margin:0 0 12px; padding:10px 12px; border-radius:10px;
+  border:1px solid #B8892A; background:#FBF0D2;
+  font-size:13px; line-height:1.6; color:#5A3F08;
+}
+
+.mq-acts{ display:flex; flex-wrap:wrap; gap:8px; }
+.mq-acts .btn{ width:auto; font-size:13.5px; }
+
+/* Suspending somebody is the only action here that is hard to undo, so
+   it is the only one that looks different. The other two are deliberately
+   identical in weight — "nothing wrong here" should be exactly as easy to
+   press as "take it down", or the screen is quietly arguing for removal. */
+.mq-acts .mq-danger{ border-color:#8A2B2B; color:#6B1F1F; }
+
+.mq-done{ opacity:.62; padding:10px 12px; }
+.mq-done .mq-body{ font-size:13.5px; margin:6px 0 0; }
+
+.mq-empty{ text-align:center; padding:36px 16px; }
+.mq-empty h2{ margin:0 0 6px; }
+.mq-empty p{ margin:0; font-size:14px; color:var(--soft); line-height:1.6; }
