@@ -213,6 +213,22 @@ export default function Wall({ initial, me = { name: null, avatar: null }, mark 
      genuinely missing, and what it fetches is exactly what was missing.
      Second pass finds nothing and stops. */
   useEffect(() => { signMissing(posts); /* eslint-disable-line */ }, [posts]);
+
+  /* ---- the Home dot clears here, because this is where the reply is ----
+
+     ⚠️ ONLY 'reply'. Passing no kind would clear the Chat dot too, and
+     somebody would lose a message they never saw because they glanced at
+     the wall. Each tab puts out its own light.
+
+     Runs once per mount. It's a no-op write when nothing is unread — the
+     UPDATE's own `read_at is null` makes it free — so there's no need to
+     ask first. */
+  useEffect(() => {
+    supabase.rpc('notifications_mark_read', { p_kind: 'reply' })
+      .then(() => router.refresh())
+      .catch(() => {});   // a dot that stays lit is not worth an error
+    /* eslint-disable-next-line */
+  }, []);
   const [busy, setBusy] = useState(false);
   const [open, setOpen] = useState(null);     // the post whose thread is open
   const [menu, setMenu] = useState(null);     // the post whose ⋯ menu is open

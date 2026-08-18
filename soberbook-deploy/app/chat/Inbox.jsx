@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { browserClient } from '../../lib/supabase-browser';
 import Directory from './Directory';
@@ -46,6 +47,23 @@ export default function Inbox({ inbox, requests, members = [] }) {
   const [pending, setPending] = useState(requests);
   const [busy, setBusy] = useState(null);
   const [err, setErr] = useState('');
+  const router = useRouter();
+
+  /* ---- the Chat dot clears here ----
+
+     ⚠️ ONLY 'message'. Not a blanket mark-read — opening the inbox must
+     not put out the Home dot for a reply you haven't looked at yet.
+
+     ⚠️ And note this clears on the INBOX, not on accepting a request. A
+     request never created a notification in the first place (0025's
+     trigger refuses un-accepted threads), so there is nothing here that
+     could betray the gate. */
+  useEffect(() => {
+    browserClient().rpc('notifications_mark_read', { p_kind: 'message' })
+      .then(() => router.refresh())
+      .catch(() => {});
+    /* eslint-disable-next-line */
+  }, []);
 
   async function answer(id, yes) {
     setBusy(id); setErr('');

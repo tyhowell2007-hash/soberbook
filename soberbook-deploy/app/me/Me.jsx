@@ -166,24 +166,19 @@ export default function Me({ email, profile, posts, initialAvatarUrl,
     if (refocus) faceBtn.current?.focus();
   }, [refocus]);
 
-  /* ---- notifications: mark them read once you've landed here ----
+  /* ---- ⚠️ THIS PAGE NO LONGER MARKS ANYTHING READ ----
 
-     ⚠️ They are marked read but NOT hidden. The list stays exactly as it
-     was for the rest of the visit — only the dot goes out. An inbox that
-     empties itself the moment you glance at it is an inbox that loses
-     things, and "I saw there was something and then it vanished" is a
-     genuinely upsetting thing to do to somebody waiting to hear back.
+     It used to, back when a single dot sat on the "You" tab. Ty moved the
+     dots onto Home, Chat and Meetings — where the thing actually is — and
+     that changes who is allowed to put them out.
 
-     Runs once, and only when there is actually something unread, so
-     opening your settings doesn't fire a pointless write every time. */
-  const [dotCleared, setDotCleared] = useState(false);
-  useEffect(() => {
-    if (dotCleared || !notes.some((n) => n.unread)) return;
-    setDotCleared(true);
-    supabase.rpc('notifications_mark_read')
-      .then(() => router.refresh())   // so the dot in the bar goes out
-      .catch(() => {});               // a stuck dot is not worth an error
-  }, [notes, dotCleared, supabase, router]);
+     If opening your settings cleared the Home dot, you could lose the
+     only signal that somebody answered you, without ever seeing the
+     reply. The tab that holds the thing is the tab that clears it: /wall
+     clears 'reply', the chat inbox clears 'message'.
+
+     So this list is now a record rather than an inbox. Anything still
+     unread keeps its edge until you go and read it. */
 
   function pickFace(e) {
     setAvatar(avatar === e ? '' : e);

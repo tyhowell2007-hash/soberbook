@@ -2,38 +2,34 @@ import { serverClient } from '../../lib/supabase-server';
 import BottomNav from './BottomNav';
 
 /* =====================================================================
-   THE BAR, WITH THE ONE FACT IT NEEDS.
+   THE BAR, WITH THE THREE FACTS IT NEEDS.
 
    BottomNav is a client component (it needs usePathname). This is the
-   server half: it asks the database the single question the dot answers,
-   and hands down a boolean.
+   server half: one query, three booleans, handed down.
 
-   ⚠️ `.limit(1)` RATHER THAN A COUNT, AND THAT IS NOT A MICRO-OPTIMISATION.
+   ⚠️ ONE ROW, NOT THREE QUERIES. This renders on every page in the app,
+   so it runs constantly. See 0026 — the view does all three exists()
+   checks in a single trip.
 
-   If this returned a number, the number would exist — and the next
-   person to touch the bar would render it, because a number on hand is a
-   number that gets shown. Fetching only "is there at least one" means
-   there is no count anywhere in the system to accidentally display. The
-   design decision is enforced by what the code is able to know.
-
-   It is also genuinely cheaper: Postgres stops at the first matching row
-   instead of walking the whole inbox.
+   ⚠️ BOOLEANS, NOT COUNTS, AND THAT IS ENFORCED BY THE VIEW. There is no
+   number anywhere in this path to accidentally render as a badge. A
+   climbing count is a slot machine; on a recovery app that's the harm.
    ===================================================================== */
 export default async function NavBar() {
   const supabase = serverClient();
 
-  /* Signed-out or mid-refresh: no dot. Never throw from a layout — a
-     failure here would take down every page that renders the bar, which
-     is all of them. */
-  let hasUnread = false;
+  /* Signed out, or mid-refresh: no dots. ⚠️ NEVER THROW FROM HERE — this
+     renders inside the layout, so an error takes down every page that
+     shows the bar, which is all of them. A missing dot is a small bug; a
+     white screen is not. */
+  let dots = { home: false, chat: false, meetings: false };
   try {
     const { data } = await supabase
-      .from('my_notifications')
-      .select('id')
-      .is('read_at', null)
-      .limit(1);
-    hasUnread = (data?.length ?? 0) > 0;
-  } catch { /* leave it false */ }
+      .from('my_nav_dots')
+      .select('home, chat, meetings')
+      .maybeSingle();
+    if (data) dots = data;
+  } catch { /* leave them all off */ }
 
-  return <BottomNav hasUnread={hasUnread} />;
+  return <BottomNav dots={dots} />;
 }

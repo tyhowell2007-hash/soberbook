@@ -34,13 +34,26 @@ import { usePathname } from 'next/navigation';
    landed on, and then stay wrong for the rest of the session.
    ===================================================================== */
 
+/* `dot` names which key of the dots object lights this tab.
+
+   ⚠️ "You" HAS NO DOT KEY, AND THAT IS THE POINT — Ty's call. A dot
+   belongs where the thing IS. Home holds the reply, Chat holds the
+   message, Meetings holds the room you said you'd be in. "You" holds
+   your settings; nothing arrives there. Putting the signal on the tab
+   that contains the actual person means one tap gets you to them,
+   instead of to a list that sends you somewhere else. */
 const TABS = [
-  { href: '/wall',     icon: '🏠', label: 'Home' },
-  { href: '/chat',     icon: '💬', label: 'Chat' },
+  { href: '/wall',     icon: '🏠', label: 'Home',  dot: 'home',
+    /* what the dot means, for a screen reader */
+    said: 'someone replied to your post' },
+  { href: '/chat',     icon: '💬', label: 'Chat',  dot: 'chat',
+    said: 'you have a new message' },
   /* Aug 17. The second tab to earn its way in. It lists real meetings
      from NA's own open data — nothing here is a picture of a button.
      A chair, because that is what the room is: chairs in a circle. */
-  { href: '/meetings', icon: '🪑', label: 'Meetings' },
+  { href: '/meetings', icon: '🪑', label: 'Meetings', dot: 'meetings',
+    said: 'a meeting you said you’d be at is today' },
+  /* no `dot` — see above */
   { href: '/me',       icon: '🙂', label: 'You'  },
 ];
 
@@ -59,7 +72,7 @@ const TABS = [
    ⚠️ Do not "improve" this into a badge count. On a recovery app the
    climbing number is the harm.
    ===================================================================== */
-export default function BottomNav({ hasUnread = false }) {
+export default function BottomNav({ dots = {} }) {
   const path = usePathname() || '';
 
   return (
@@ -81,17 +94,18 @@ export default function BottomNav({ hasUnread = false }) {
                 aria-current={active ? 'page' : undefined}>
             <span className="ti" aria-hidden="true">
               {t.icon}
-              {/* Rides on "You", rather than becoming a fifth tab. The bar
-                  is already four wide on a phone and a fifth makes it
-                  wrap — and notifications are your own business, which is
-                  what that tab already means. */}
-              {t.href === '/me' && hasUnread && <i className="tdot" />}
+              {/* `t.dot &&` first: the You tab has no dot key at all, so it
+                  can't light even if the server sent a stray field. The
+                  absence of the key IS the rule, not a condition somebody
+                  has to remember to write. */}
+              {t.dot && dots[t.dot] && <i className="tdot" />}
             </span>
             <span className="tl">{t.label}</span>
             {/* The dot is decorative to the eye; this is how a screen
-                reader is told the same thing. */}
-            {t.href === '/me' && hasUnread && (
-              <span className="sr-only">— someone got back to you</span>
+                reader is told the same thing — and it says WHAT is
+                waiting, not just that something is. */}
+            {t.dot && dots[t.dot] && (
+              <span className="sr-only">— {t.said}</span>
             )}
           </Link>
         );
