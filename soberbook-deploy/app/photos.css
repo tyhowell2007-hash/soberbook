@@ -217,3 +217,47 @@
    than a third column squeezed beside the icon and the text. */
 .deet{ flex-wrap:wrap; }
 .deet .di{ flex:none; }
+
+/* =====================================================================
+   LEAVING (0032)
+
+   ⚠️ Red is used HERE and almost nowhere else in this app. The photo
+   remove button deliberately isn't red — taking your own picture down
+   is a person changing their mind, not defusing something. This one is
+   different: it cannot be undone, and the colour should say so.
+   ===================================================================== */
+.delsep{
+  height:1px; background:var(--line); margin:22px 0 16px;
+}
+.delbox{
+  border:2px solid #C62828; border-radius:12px;
+  background:#FFF8F8; padding:14px 14px 16px; margin-top:4px;
+}
+.delh{
+  margin:0 0 8px; font-family:'Archivo',system-ui,sans-serif;
+  font-size:15px; font-weight:700; color:#8A2B2B;
+}
+.delp{
+  margin:0 0 12px; font-size:13.5px; line-height:1.65; color:var(--body);
+}
+.dellab{
+  display:block; margin:6px 0 6px; font-size:13px; color:var(--body);
+}
+.delbox input[type=text]{
+  width:100%; box-sizing:border-box; min-height:44px;
+  border:2px solid var(--gm); border-radius:10px; padding:10px 12px;
+  font-size:16px; /* ⚠️ 16px exactly — iOS zooms the whole page in on any
+                     input smaller than this, and doing that to somebody
+                     mid-way through deleting their account is horrible */
+  background:#fff;
+}
+.delrow{
+  display:flex; gap:10px; margin-top:14px;
+}
+.delrow .btn{ flex:1; min-height:44px; }
+
+/* The only red button in the app. */
+.btn.del{
+  background:#C62828; border-color:#C62828; color:#fff;
+}
+.btn.del:disabled{ opacity:.45; }

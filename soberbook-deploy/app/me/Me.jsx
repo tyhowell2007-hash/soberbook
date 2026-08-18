@@ -8,6 +8,7 @@ import SongPicker from './SongPicker';
 import SongPlayer from '../components/SongPlayer';
 import Milestones from '../components/Milestones';
 import PhotoUpload from '../components/PhotoUpload';
+import DeleteAccount from './DeleteAccount';
 
 /* The faces you can pick from.
 
@@ -1165,6 +1166,15 @@ export default function Me({ email, profile, posts, initialAvatarUrl,
               never mind
             </button>
           )}
+
+          {/* ⚠️ Below sign-out, not above it, and not behind another menu.
+              Apple asks for account deletion to be easy to find, and hiding
+              it would be wrong anyway — an exit you have to hunt for reads
+              as an app that doesn't want to let you go. But it goes SECOND,
+              because the control people want ninety-nine times in a hundred
+              should be the one their thumb reaches first. */}
+          <div className="delsep" />
+          <DeleteAccount handle={profile.handle} />
         </Section>
         <div className="editbar">
           <button type="button" className="btn" onClick={() => setEditing(false)}>
