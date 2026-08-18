@@ -619,3 +619,90 @@ body{
 
 /* The ⋯ menu was fine at 16px but sat too close to the edge to hit. */
 .item .ft .dots{ padding:8px 6px; margin:-8px -4px -8px 0; min-height:40px; }
+
+/* =====================================================================
+   THE PROGRESS BAR AND ITS LABEL, ON THE GREEN SLAB (Aug 18)
+
+   🔴 A MEASURED BUG, NOT A PREFERENCE. "350 days to your 5 years chip"
+   was #3A4200 on #1B6B4A — a contrast ratio of **1.66** where 4.5 is
+   the minimum, at 11px. Not "a bit dim". Gone.
+
+   ⚠️ AND IT IS THE `.composer` COLLISION FROM AUG 16, EXACTLY REPEATED.
+   wall.css styles these three classes and says so in its own comment:
+   "every colour here is ink-on-acid ... --acid-ink on --acid is 14.9:1".
+   That was true when `.count` was a pale acid slab. This stylesheet
+   re-declares `.count` as dark green and loads AFTER wall.css — so the
+   background flipped from near-white to near-black and the dark ink
+   stayed put. The rule didn't break; the surface underneath it moved.
+
+   ⭐ The lesson, for the third time in this codebase: a colour is never
+   safe on its own, only safe ON something. When a theme re-declares a
+   container, every colour any other sheet painted inside it has to be
+   re-checked — and the only way to do that is to measure, because dark
+   on dark and dark on light look identical in source.
+
+   White is 6.52:1 here. Not --gold: CLAUDE.md reserves gold for the
+   milestone chip itself, and this is a label about the chip, not the
+   chip.
+   ===================================================================== */
+/* ⚠️ `.cl` IS IN HERE BECAUSE A SCRIPTED SWEEP FOUND IT AND I HADN'T.
+   I fixed .mnext by eye, then measured every colour declared inside
+   `.count` against the green and this one came back 1.66 as well — the
+   "DAYS · @HANDLE" line directly under the day count, on the most
+   looked-at card in the app. Two rules, one wrong assumption, and I'd
+   have shipped half a fix and called it done.
+
+   Audit the surface, not the symptom you noticed. */
+.count .cl,
+.count .mnext{
+  color:#FFFFFF;
+  /* 11px in a monospace face with wide letter-spacing is small even at
+     full contrast. 12px costs nothing here — the slab has room. */
+  font-size:12px;
+  opacity:.95;
+}
+
+/* The bar had --acid-ink (#0F3D2A) borders and fill: a near-black
+   outline on dark green, so the track was invisible and the filled
+   portion unreadable. Now the track is a translucent white rule and the
+   fill is solid white — visible, and it degrades gracefully because
+   both are the same hue. */
+.count .mbar{
+  border-color:rgba(255,255,255,.45);
+  background:rgba(255,255,255,.12);
+}
+.count .mfill{
+  background:#FFFFFF;
+}
+
+/* =====================================================================
+   ROOM FOR THE PERSONAL DETAILS CARD (Ty's call, Aug 18)
+
+   "You can drop the music box down a little bit so you have more room
+   for personal details."
+
+   The details card and the record sleeve were 22px apart, which was fine
+   when the card held two rows. It now holds up to four — sponsor status,
+   programs, town, interests — and some of those carry a second line
+   saying who can see them. At that height the sleeve crowds it, and the
+   sleeve is a big piece of album art, so it wins the fight for attention
+   against the thing you actually came to check.
+
+   ⚠️ SPACE ON ONE SIDE ONLY. The gap goes ABOVE the sleeve, not as extra
+   padding inside the details card — padding would push the card's own
+   rows apart and make a filled-in card look sparse. What Ty asked for is
+   distance between two blocks, which is exactly what margin is for.
+   ===================================================================== */
+.pad .deets{
+  /* was 22px. The card grew, so its shadow needs somewhere to land. */
+  margin-bottom:30px;
+}
+.pad .sleeve{
+  margin-top:8px;
+}
+
+/* And a little air under the last row so the bottom border of the card
+   isn't sitting on the text — the rows have 11px padding, but the card's
+   own 4px bottom padding was set when the last row was usually the only
+   row. */
+.pad .deets{ padding-bottom:8px; }
