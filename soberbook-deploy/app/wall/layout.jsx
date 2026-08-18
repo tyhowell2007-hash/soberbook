@@ -21,7 +21,7 @@ import '../theme-green.css';
 /* AFTER theme-green, so photo rules can reshape green-room ones without
    reaching for !important. Same ordering argument as the note above. */
 import '../photos.css';
-import BottomNav from '../components/BottomNav';
+import NavBar from '../components/NavBar';
 
 export default function WallLayout({ children }) {
   return (
@@ -32,7 +32,7 @@ export default function WallLayout({ children }) {
           have done it too, but body belongs to the root layout and the
           sign-in door has no bar to make room for. */}
       <div className="navpad" aria-hidden="true" />
-      <BottomNav />
+      <NavBar />
     </>
   );
 }

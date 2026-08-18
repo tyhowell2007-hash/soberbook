@@ -44,7 +44,22 @@ const TABS = [
   { href: '/me',       icon: '🙂', label: 'You'  },
 ];
 
-export default function BottomNav() {
+/* =====================================================================
+   THE DOT.
+
+   ⚠️ A DOT, NOT A NUMBER, AND THIS IS THE WHOLE NOTIFICATION DESIGN IN
+   ONE DECISION.
+
+   A count is a score. It climbs, it nags, and it makes you feel behind on
+   a thing that is supposed to be a room you walk into. "47" is a slot
+   machine; a dot says only "there's something here" and then shuts up.
+   The information a person actually needs is binary — is anyone waiting
+   for me? — and a dot answers exactly that and nothing more.
+
+   ⚠️ Do not "improve" this into a badge count. On a recovery app the
+   climbing number is the harm.
+   ===================================================================== */
+export default function BottomNav({ hasUnread = false }) {
   const path = usePathname() || '';
 
   return (
@@ -64,8 +79,20 @@ export default function BottomNav() {
                 /* aria-current is what actually tells assistive tech which
                    one you're on. The colour change is for everybody else. */
                 aria-current={active ? 'page' : undefined}>
-            <span className="ti" aria-hidden="true">{t.icon}</span>
+            <span className="ti" aria-hidden="true">
+              {t.icon}
+              {/* Rides on "You", rather than becoming a fifth tab. The bar
+                  is already four wide on a phone and a fifth makes it
+                  wrap — and notifications are your own business, which is
+                  what that tab already means. */}
+              {t.href === '/me' && hasUnread && <i className="tdot" />}
+            </span>
             <span className="tl">{t.label}</span>
+            {/* The dot is decorative to the eye; this is how a screen
+                reader is told the same thing. */}
+            {t.href === '/me' && hasUnread && (
+              <span className="sr-only">— someone got back to you</span>
+            )}
           </Link>
         );
       })}

@@ -44,7 +44,8 @@ function ago(iso) {
   return Math.floor(h / 24) + 'd ago';
 }
 
-export default function Me({ email, profile, posts, initialAvatarUrl, postPhotoUrls = {} }) {
+export default function Me({ email, profile, posts, initialAvatarUrl,
+                             postPhotoUrls = {}, notes = [] }) {
   const router = useRouter();
   const supabase = browserClient();
 
@@ -164,6 +165,25 @@ export default function Me({ email, profile, posts, initialAvatarUrl, postPhotoU
   useEffect(() => {
     if (refocus) faceBtn.current?.focus();
   }, [refocus]);
+
+  /* ---- notifications: mark them read once you've landed here ----
+
+     ⚠️ They are marked read but NOT hidden. The list stays exactly as it
+     was for the rest of the visit — only the dot goes out. An inbox that
+     empties itself the moment you glance at it is an inbox that loses
+     things, and "I saw there was something and then it vanished" is a
+     genuinely upsetting thing to do to somebody waiting to hear back.
+
+     Runs once, and only when there is actually something unread, so
+     opening your settings doesn't fire a pointless write every time. */
+  const [dotCleared, setDotCleared] = useState(false);
+  useEffect(() => {
+    if (dotCleared || !notes.some((n) => n.unread)) return;
+    setDotCleared(true);
+    supabase.rpc('notifications_mark_read')
+      .then(() => router.refresh())   // so the dot in the bar goes out
+      .catch(() => {});               // a stuck dot is not worth an error
+  }, [notes, dotCleared, supabase, router]);
 
   function pickFace(e) {
     setAvatar(avatar === e ? '' : e);
@@ -393,6 +413,41 @@ export default function Me({ email, profile, posts, initialAvatarUrl, postPhotoU
             ================================================================= */}
         {!editing && (
           <>
+            {/* ---- WHO GOT BACK TO YOU ----
+
+                ⚠️ Nothing renders when there's nothing. No "You're all
+                caught up!", no empty-state illustration, no zero. An app
+                that reports the absence of news is still talking to you
+                about news — and a person who opens this in a bad hour and
+                reads "no one has replied to you" has been told something
+                cruel by a computer that meant nothing by it.
+
+                Silence is allowed to just be silence. */}
+            {notes.length > 0 && (
+              <div className="nots">
+                <h2 className="sec">Who got back to you</h2>
+                <ul>
+                  {notes.map((n) => (
+                    <li key={n.id} className={n.unread ? 'fresh' : ''}>
+                      <Link href={n.kind === 'message' ? '/chat' : '/wall'}
+                            className="notl">
+                        <span className="notw">
+                          {/* who_handle is null when they were anonymous,
+                              so there is nothing to link and no way to
+                              work out who it was. */}
+                          {n.who}
+                          {n.kind === 'message' ? ' messaged you'
+                                                : ' replied to your post'}
+                        </span>
+                        {n.about ? <span className="nota">“{n.about}”</span> : null}
+                        <span className="notm">{ago(n.created_at)}</span>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
             <div className="phead">
               {/* The big circle at the top of your own page — the first
                   thing you look at, and the one that was drawing "TY". */}

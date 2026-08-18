@@ -66,6 +66,16 @@ export default async function MePage() {
      popping images in afterwards. */
   const postPhotoUrls = await signPhotoPaths(supabase, (mine || []).map((p) => p.photo_url));
 
+  /* Who got back to you. ⚠️ Read from the VIEW, never the table — the view
+     is what turns an anonymous replier into the word "Someone" and drops
+     their id entirely. Selecting from `notifications` here would hand the
+     browser actor_id and undo 0025 in one line. */
+  const { data: notes } = await supabase
+    .from('my_notifications')
+    .select('id, kind, who, who_handle, about, post_id, unread, created_at')
+    .order('created_at', { ascending: false })
+    .limit(20);
+
   return (
     <Me
       email={user.email}
@@ -73,6 +83,7 @@ export default async function MePage() {
       posts={mine || []}
       initialAvatarUrl={initialAvatarUrl}
       postPhotoUrls={postPhotoUrls}
+      notes={notes || []}
     />
   );
 }

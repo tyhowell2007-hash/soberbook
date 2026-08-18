@@ -484,3 +484,51 @@ body{
 .dchip{ font-family:'Archivo',system-ui,sans-serif; font-size:10px;
   font-weight:700; letter-spacing:0; padding:2px 9px; }
 .dchip.new{ background:var(--gl); color:var(--gt); border-color:#7FBBA1; }
+
+/* =====================================================================
+   NOTIFICATIONS — the dot, and the list.
+   Added to theme-green because all five layouts import it, and the dot
+   has to be able to appear on every page that shows the bar.
+   ===================================================================== */
+
+/* The dot. ⚠️ Deliberately NOT a number — see BottomNav.jsx. It sits on
+   the icon rather than beside the label so it survives the label
+   wrapping on a narrow phone. */
+.tab .ti{ position:relative; display:inline-block; }
+.tdot{
+  position:absolute; top:-1px; right:-5px;
+  width:9px; height:9px; border-radius:50%;
+  background:var(--gold, #C9A227);
+  /* A ring in the bar's own colour, so the dot reads as a dot at any
+     size instead of smearing into the icon behind it. */
+  box-shadow:0 0 0 2px #fff;
+}
+
+/* Visible only to screen readers. The dot is aria-hidden decoration; this
+   is how the same fact reaches somebody who can't see it. */
+.sr-only{
+  position:absolute; width:1px; height:1px; padding:0; margin:-1px;
+  overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; border:0;
+}
+
+/* ---------- the list on /me ---------- */
+.nots{ margin:0 0 18px; }
+.nots ul{ list-style:none; margin:0; padding:0; }
+.nots li{
+  border:2px solid var(--gm); border-radius:12px;
+  background:#fff; margin:0 0 8px;
+}
+/* Unread gets an edge, not a colour wash — the same "an edge, not a fill"
+   lesson as the Aug 17 contrast audit. */
+.nots li.fresh{ border-color:var(--gd); }
+
+.notl{ display:block; padding:11px 13px; text-decoration:none; color:inherit; }
+.notw{ display:block; font-size:14.5px; line-height:1.35; color:var(--x); }
+.nota{
+  display:block; margin-top:3px; font-size:13px; line-height:1.5;
+  color:var(--gm-t); font-style:italic;
+  /* One line only. The point is "somebody answered", not a preview that
+     makes opening the post pointless. */
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.notm{ display:block; margin-top:4px; font-size:11.5px; color:var(--soft); }

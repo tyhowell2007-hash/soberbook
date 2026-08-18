@@ -5,14 +5,14 @@
    subtree, including dynamic segments. */
 import '../theme-green.css';
 import '../photos.css';
-import BottomNav from '../components/BottomNav';
+import NavBar from '../components/NavBar';
 
 export default function PublicProfileLayout({ children }) {
   return (
     <>
       {children}
       <div className="navpad" aria-hidden="true" />
-      <BottomNav />
+      <NavBar />
     </>
   );
 }

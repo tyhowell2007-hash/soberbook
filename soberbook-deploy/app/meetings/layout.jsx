@@ -12,14 +12,14 @@
    silently falls back to nothing. */
 import '../theme-green.css';
 import '../meetings.css';
-import BottomNav from '../components/BottomNav';
+import NavBar from '../components/NavBar';
 
 export default function MeetingsLayout({ children }) {
   return (
     <>
       {children}
       <div className="navpad" aria-hidden="true" />
-      <BottomNav />
+      <NavBar />
     </>
   );
 }
