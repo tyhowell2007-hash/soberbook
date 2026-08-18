@@ -1,50 +1,45 @@
 'use client';
 
 import { useRef, useState } from 'react';
+import { browserClient } from '../../lib/supabase-browser';
 
 /* =====================================================================
-   PICK A PHOTO — the one control both the profile and the composer use.
+   PICK A PHOTO — now in three steps instead of one.
 
-   Deliberately small. All of the safety lives on the server (see
-   app/api/photo/upload/route.js); this is only the part a thumb touches.
+   It used to POST the file to our own API route. That broke at 4.5MB
+   because Vercel refuses request bodies bigger than that, before our
+   code runs. Phone photos are routinely bigger. Now:
 
-   ---------------------------------------------------------------------
-   WHY THE PREVIEW USES THE LOCAL FILE AND NOT THE UPLOADED ONE
+     1 · ask our server for a signed upload URL   (tiny JSON)
+     2 · PUT the file straight to Supabase        (no Vercel in the way)
+     3 · ask our server to strip and promote it   (tiny JSON)
 
-   After uploading we have a storage path, and the honest thing would be
-   to fetch a signed URL and show what actually landed. That is one more
-   round trip while somebody sits looking at a spinner.
-
-   So the preview is drawn straight from the file on the phone with
-   createObjectURL — instant, no network. ⚠️ Which means the preview is
-   the ORIGINAL, and what got stored is the re-encoded copy: rotated
-   upright, shrunk, stripped of its location. They look the same. On a
-   sideways-stored photo they briefly won't, and the stored one is the
-   right one.
-
-   ⚠️ revokeObjectURL matters. An object URL pins the whole file in
-   memory until it is released. Pick six photos on an old phone without
-   releasing them and the tab dies — a leak that only ever shows up on
-   the cheapest device, which in this app is not an edge case.
+   ⚠️ The file never passes through Vercel, which is the entire point —
+   and the safety story is unchanged, because step 2 lands in a bucket
+   nothing is ever served from. Nobody can see the photo, including the
+   person who just uploaded it, until step 3 has stripped it.
    ===================================================================== */
 
 export default function PhotoUpload({
   kind,                 // 'post' | 'avatar'
-  onDone,               // (path) => void
+  onDone,               // (path, previewUrl) => void
   label = 'Add a photo',
   className = 'btn ghost',
   disabled = false,
-  onBusy,               // (bool) => void — lets the parent lock its own Post button
+  onBusy,               // (bool) => void — lets the parent lock its Post button
 }) {
   const input = useRef(null);
   const [busy, setBusy] = useState(false);
   const [err, setErr]   = useState('');
+  /* Which of the three steps we're on, so a big photo on a slow phone
+     doesn't look frozen. A 12MB upload takes real seconds. */
+  const [stage, setStage] = useState('');
 
   async function chosen(e) {
     const file = e.target.files?.[0];
-    /* ⚠️ Clear the input immediately. Without this, picking the same file
-       twice in a row fires no change event the second time — the classic
-       "it worked once and then the button died" bug. */
+    /* ⚠️ Clear it immediately — otherwise picking the same file twice in
+       a row fires no change event the second time, and the button
+       silently dies after one use. */
     e.target.value = '';
     if (!file) return;
 
@@ -54,22 +49,47 @@ export default function PhotoUpload({
 
     const preview = URL.createObjectURL(file);
     try {
-      const form = new FormData();
-      form.append('file', file);
-      form.append('kind', kind);
+      /* --- 1 · a door, not a key -------------------------------------
+         The server picks the path. We only get permission to PUT one
+         file, once, where it says. */
+      setStage('Getting ready…');
+      const r1 = await fetch('/api/photo/upload-url', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ kind, contentType: file.type }),
+      });
+      const d1 = await r1.json().catch(() => ({}));
+      if (!r1.ok) throw new Error(d1.error || "Couldn't start that upload.");
 
-      const res  = await fetch('/api/photo/upload', { method: 'POST', body: form });
-      const data = await res.json().catch(() => ({}));
+      /* --- 2 · straight to storage ----------------------------------
+         ⚠️ This is the step that used to hit Vercel's wall. It doesn't
+         touch our server at all now. */
+      setStage('Uploading…');
+      const { error: upErr } = await browserClient()
+        .storage.from('quarantine')
+        .uploadToSignedUrl(d1.path, d1.token, file);
+      if (upErr) throw new Error('That upload didn’t finish. Try again.');
 
-      if (!res.ok) throw new Error(data.error || "That photo couldn't be saved.");
-      onDone(data.path, preview);
+      /* --- 3 · strip and promote ------------------------------------ */
+      setStage('Finishing…');
+      const r2 = await fetch('/api/photo/finalize', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ kind, path: d1.path }),
+      });
+      const d2 = await r2.json().catch(() => ({}));
+      if (!r2.ok) throw new Error(d2.error || "That photo couldn't be saved.");
+
+      onDone(d2.path, preview);
     } catch (e2) {
       URL.revokeObjectURL(preview);
-      /* Shown, not alerted. An alert() on a phone covers the screen and
-         has to be dismissed before you can see what you were doing. */
+      /* Shown next to the control, never an alert() — on a phone an alert
+         covers the screen and has to be dismissed before you can see what
+         you were doing. */
       setErr(e2.message);
     } finally {
       setBusy(false);
+      setStage('');
       onBusy?.(false);
     }
   }
@@ -78,13 +98,12 @@ export default function PhotoUpload({
     <>
       <button type="button" className={className} disabled={disabled || busy}
               onClick={() => input.current?.click()}>
-        {busy ? 'Working…' : label}
+        {busy ? (stage || 'Working…') : label}
       </button>
 
       {/* accept is a hint to the picker, never a check — the real one is
-          in the upload route, which decodes the file and rejects anything
-          that isn't an image. A file dialog filter stops honest mistakes
-          and nothing else. */}
+          in finalize, which decodes the actual bytes. A file dialog
+          filter stops honest mistakes and nothing else. */}
       <input ref={input} type="file" accept="image/*" hidden
              onChange={chosen} tabIndex={-1} aria-hidden="true" />
 
