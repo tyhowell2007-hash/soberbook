@@ -10,14 +10,16 @@
     "test:lifetime": "node supabase/test-lifetime.mjs",
     "test:details": "node supabase/test-profile-details.mjs",
     "test:identity": "node supabase/test-identity.mjs",
-    "test:chat": "node supabase/test-chat.mjs"
+    "test:chat": "node supabase/test-chat.mjs",
+    "test:meetings": "node supabase/test-meetings.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.7.0",
     "@supabase/supabase-js": "^2.58.0",
     "next": "^14.2.35",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-dom": "^18.3.1",
+    "sharp": "^0.33.5"
   },
   "devDependencies": {
     "@electric-sql/pglite": "^0.5.4"
