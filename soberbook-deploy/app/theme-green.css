@@ -496,12 +496,27 @@ body{
    wrapping on a narrow phone. */
 .tab .ti{ position:relative; display:inline-block; }
 .tdot{
-  position:absolute; top:-1px; right:-5px;
-  width:9px; height:9px; border-radius:50%;
-  background:var(--gold, #C9A227);
-  /* A ring in the bar's own colour, so the dot reads as a dot at any
-     size instead of smearing into the icon behind it. */
-  box-shadow:0 0 0 2px #fff;
+  position:absolute; top:-3px; right:-7px;
+
+  /* ⚠️ WAS 9px AND INVISIBLE. It rendered correctly — in the DOM, on top,
+     nothing clipping it — and Ty still couldn't see it. "Technically
+     painted" is not "visible", and on the only screen that matters it was
+     the same as broken. 14px is the smallest that reads at arm's length
+     on a phone without becoming a badge. */
+  width:14px; height:14px; border-radius:50%;
+
+  /* ⚠️ AND IT WAS GOLD, WHICH IS STEALING. The milestone chip is "the
+     only gold in the app" — that scarcity is what makes a chip feel like
+     an object you earned rather than a UI colour. Spending gold on a
+     notification dot devalues the one thing it was saved for.
+
+     Deep green instead: the app's own accent, high contrast on the white
+     bar, and it belongs to nothing else. */
+  background:var(--gd, #1B6B4A);
+
+  /* The white ring keeps it a distinct disc instead of smearing into the
+     emoji behind it. Thicker now that the dot is bigger. */
+  box-shadow:0 0 0 2.5px #fff;
 }
 
 /* Visible only to screen readers. The dot is aria-hidden decoration; this
@@ -532,3 +547,75 @@ body{
   white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
 }
 .notm{ display:block; margin-top:4px; font-size:11.5px; color:var(--soft); }
+
+/* =====================================================================
+   THE POST FOOTER — heart, replies, "yours".
+
+   ⚠️ THESE WERE 10px. Ty: "the heart, likes, and replys are too small to
+   see." He's right, and the size is only half of it.
+
+   A 10px text button is roughly a 20px tap target. The guideline is ~44px,
+   and that isn't a nicety — it's the difference between tapping the heart
+   and tapping nothing. These two controls are the ONLY way a person
+   answers somebody else's post, and the whole "unanswered posts grow
+   bigger" idea depends on them being easy to reach. Making the most
+   important action on the page the hardest to hit is backwards.
+
+   The 10px uppercase came from the grunge/ticket-stub look, which reads
+   well on a printed flyer at arm's length and badly on a phone held by
+   someone who isn't 25. The green room is a different room.
+   ===================================================================== */
+.item .ft{
+  font-size:13px;
+  letter-spacing:.02em;          /* .06em at 13px starts to fall apart */
+  gap:6px;                       /* padding below supplies the spacing now */
+  align-items:center;
+  margin-top:6px;
+}
+
+/* Both are real buttons — give them a body a thumb can find. */
+.item .ft .heart,
+.item .ft .replies{
+  font-size:13px;
+  letter-spacing:.02em;
+  /* 10px of vertical padding either side of a ~19px line = ~39px, plus
+     the row's own spacing. Comfortable without making the card taller
+     than the post inside it. */
+  padding:10px 8px;
+  margin:-4px 0;                 /* claw back some of the height visually */
+  border-radius:9px;
+  min-height:40px;
+  display:inline-flex; align-items:center; gap:5px;
+}
+
+/* The glyph itself, bigger than the number beside it. A heart you can
+   actually see is the point.
+
+   ⚠️ RED WHETHER OR NOT YOU'VE LIKED IT — Ty's call. It used to be
+   grey-green until tapped, which made the empty state read as "disabled"
+   rather than "not yet". A heart is a heart; the outline vs the fill
+   already carries the on/off. Colour shouldn't have to do that job too.
+
+   ⚠️ And note it is NOT the gold. Gold belongs to the milestone chip and
+   nothing else — see the note at the top of this file. Red is a third
+   colour in a two-colour app, and it earns that by being the one thing
+   on the wall that means "somebody was moved by this". */
+.item .ft .heart{ font-size:17px; color:#C62828; }
+.item .ft .heart.on{ color:#B3261E; }
+/* the count beside it stays quiet — the heart is the signal, not the score */
+.item .ft .heart{ letter-spacing:.04em; }
+
+/* "say something" is an invitation, and on an unanswered post it is the
+   most important thing on the card. Let it look like one. */
+.item .ft .replies{
+  color:var(--gd); font-weight:700;
+  text-underline-offset:4px;
+}
+.item .ft .replies:hover{ background:var(--gl); }
+
+/* "yours" is a label, not a control — it stays quiet and doesn't get a
+   tap target it has no use for. */
+.item .ft .mine{ font-size:11.5px; color:var(--soft); padding:0; }
+
+/* The ⋯ menu was fine at 16px but sat too close to the edge to hit. */
+.item .ft .dots{ padding:8px 6px; margin:-8px -4px -8px 0; min-height:40px; }
