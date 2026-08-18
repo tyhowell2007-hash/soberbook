@@ -34,6 +34,7 @@ export default function PhotoUpload({
   label = 'Add a photo',
   className = 'btn ghost',
   disabled = false,
+  onBusy,               // (bool) => void — lets the parent lock its own Post button
 }) {
   const input = useRef(null);
   const [busy, setBusy] = useState(false);
@@ -49,6 +50,7 @@ export default function PhotoUpload({
 
     setErr('');
     setBusy(true);
+    onBusy?.(true);
 
     const preview = URL.createObjectURL(file);
     try {
@@ -68,6 +70,7 @@ export default function PhotoUpload({
       setErr(e2.message);
     } finally {
       setBusy(false);
+      onBusy?.(false);
     }
   }
 

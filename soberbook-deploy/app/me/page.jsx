@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
 import { serverClient, assertReadable } from '../../lib/supabase-server';
 import { adminClient, adminConfigured } from '../../lib/supabase-admin';
+import { signPhotoPaths } from '../../lib/sign-photos';
 import Me from './Me';
 
 export const dynamic = 'force-dynamic';
@@ -55,10 +56,15 @@ export default async function MePage() {
      column the whole anonymity design exists to withhold. */
   const { data: mine } = await supabase
     .from(assertReadable('feed_posts'))
-    .select('id, body, created_at, is_anonymous, comment_count')
+    .select('id, body, photo_url, created_at, is_anonymous, comment_count')
     .eq('is_mine', true)
     .order('created_at', { ascending: false })
     .limit(50);
+
+  /* Your own posts, with their pictures. Signed here on the server for the
+     same reason the Wall does it: the list arrives whole rather than
+     popping images in afterwards. */
+  const postPhotoUrls = await signPhotoPaths(supabase, (mine || []).map((p) => p.photo_url));
 
   return (
     <Me
@@ -66,6 +72,7 @@ export default async function MePage() {
       profile={profile}
       posts={mine || []}
       initialAvatarUrl={initialAvatarUrl}
+      postPhotoUrls={postPhotoUrls}
     />
   );
 }

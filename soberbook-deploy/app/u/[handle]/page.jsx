@@ -85,8 +85,29 @@ export default async function ProfilePage({ params }) {
      hasn't chosen the photo option, so if there's nothing here there is
      nothing to sign — the decision was made in the database and this line
      just does as it's told. */
-  const photos = await signPhotoPaths(supabase,
-    p.display_avatar_photo ? [p.display_avatar_photo] : []);
+  /* ---- what they've put up ----
+     ⚠️ FILTERED BY `author_handle`, AND THAT IS THE SAFETY MECHANISM.
+
+     feed_posts sets author_handle to NULL on an anonymous post. So
+     matching on the handle cannot return one — not because a check
+     remembered to exclude them, but because there is nothing there to
+     match. An anonymous post has no handle to be filed under.
+
+     ⚠️ Do NOT "improve" this into `.eq('author_id', …).neq('is_anonymous',
+     true)`. That version works right up until somebody reorders the
+     conditions, and it also needs author_id, which the view withholds for
+     exactly this reason. The null IS the rule. */
+  const { data: theirPosts } = await supabase
+    .from(assertReadable('feed_posts'))
+    .select('id, body, photo_url, created_at, like_count, comment_count')
+    .eq('author_handle', p.handle)
+    .order('created_at', { ascending: false })
+    .limit(30);
+
+  const photos = await signPhotoPaths(supabase, [
+    ...(p.display_avatar_photo ? [p.display_avatar_photo] : []),
+    ...(theirPosts || []).map((x) => x.photo_url),
+  ]);
   const facePhoto = photos[p.display_avatar_photo] || null;
 
   return (
@@ -183,6 +204,37 @@ export default async function ProfilePage({ params }) {
                 : 'Nothing picked yet.'}
             </p>
           </>
+        )}
+
+        {/* ---- their posts ---- */}
+        <h2 className="sec">{p.is_mine ? 'What you’ve put up' : 'What they’ve put up'}</h2>
+        {!theirPosts || theirPosts.length === 0 ? (
+          <p className="hint">
+            {p.is_mine
+              ? 'Nothing yet — anything you post openly shows up here.'
+              : 'Nothing here yet.'}
+          </p>
+        ) : (
+          <ul className="mine">
+            {theirPosts.map((t) => (
+              <li key={t.id}>
+                {t.body ? <p className="mb">{t.body}</p> : null}
+                {t.photo_url && photos[t.photo_url] && (
+                  <div className="mphoto">
+                    <img src={photos[t.photo_url]} alt="" loading="lazy" />
+                  </div>
+                )}
+                <div className="mm">
+                  {new Date(t.created_at).toLocaleDateString('en-US',
+                    { month: 'short', day: 'numeric' })}
+                  {t.like_count > 0 ? ` · ${t.like_count} ♥` : ''}
+                  {t.comment_count > 0
+                    ? ` · ${t.comment_count} ${t.comment_count === 1 ? 'reply' : 'replies'}`
+                    : ''}
+                </div>
+              </li>
+            ))}
+          </ul>
         )}
 
         <p className="hint">Here since {joined}.</p>

@@ -146,6 +146,16 @@ export default function Wall({ initial, me = { name: null, avatar: null }, mark 
      enforced in the database and EXPLAINED in the interface. */
   const [photoDropped, setPhotoDropped] = useState(false);
 
+  /* Shown under the composer when a post fails. */
+  const [postErr, setPostErr] = useState('');
+
+  /* ⚠️ The composer has TWO busy states and they are not the same thing.
+     `busy` is "a post is being sent"; this one is "a photo is still
+     uploading". Without it the Post button stays live during the upload,
+     so a fast thumb posts before the photo has finished landing — and the
+     picture is silently dropped. */
+  const [uploading, setUploading] = useState(false);
+
   function toggleAnon() {
     const next = !anon;
     if (next && photo) { setPhoto(null); setPhotoDropped(true); }
@@ -337,7 +347,14 @@ export default function Wall({ initial, me = { name: null, avatar: null }, mark 
   async function post(e) {
     e.preventDefault();
     const body = text.trim();
-    if (!body) return;
+    /* ⚠️ THE BUG, Aug 17. This used to read `if (!body) return;` — so
+       attaching a photo and tapping Post with no caption did NOTHING. No
+       post, no error, no explanation. The Post button was greyed out too,
+       and the database had `length(body) >= 1` on top.
+
+       Three separate locks all saying "words are mandatory", written back
+       when a post could only BE words. A picture is a post. */
+    if (!body && !photo) return;
     setBusy(true);
     try {
       const { data: { user } } = await supabase.auth.getUser();
@@ -359,7 +376,12 @@ export default function Wall({ initial, me = { name: null, avatar: null }, mark 
       setPosts(data || []);
       router.refresh();
     } catch (e2) {
-      alert(e2.message);
+      /* ⚠️ Was alert(). On a phone an alert covers the screen and tells you
+         nothing you can act on. Worse, the failure that actually happened
+         tonight produced NO alert at all, because the function returned
+         before it ever tried. An error you can see beats an error that is
+         technically well-handled somewhere you aren't looking. */
+      setPostErr(e2.message || "That didn't post. Try again.");
     } finally {
       setBusy(false);
     }
@@ -437,8 +459,14 @@ export default function Wall({ initial, me = { name: null, avatar: null }, mark 
         <div className="ctop">
           <input value={text} onChange={(e) => setText(e.target.value)} maxLength={5000}
                  aria-label="Write something for the wall"
-                 placeholder={anon ? 'Nobody will see who wrote this…'
-                                   : 'Share something with people who get it…'} />
+                 /* Once a photo is attached the same box becomes the caption,
+                    and it says so. Nothing changes underneath — a post is a
+                    body and an optional picture — but "add a caption" tells
+                    you the words are now OPTIONAL, which is the part that
+                    was impossible to guess while the Post button sat grey. */
+                 placeholder={photo ? 'Add a caption… (or leave it blank)'
+                                    : anon ? 'Nobody will see who wrote this…'
+                                    : 'Share something with people who get it…'} />
           {/* ⚠️ NOT DISABLED WHEN ANONYMOUS — ABSENT.
 
               The old comment here said a control that does nothing is
@@ -452,13 +480,20 @@ export default function Wall({ initial, me = { name: null, avatar: null }, mark 
           {!anon && (
             <PhotoUpload kind="post" disabled={busy} className="camera"
                          label={photo ? '✓' : '📷'}
+                         onBusy={setUploading}
                          onDone={(path, preview) => {
                            setPhoto({ path, preview });
                            setFreshUrls((u) => ({ ...u, [path]: preview }));
+                           setPostErr('');
                          }} />
           )}
-          <button type="submit" className="send" disabled={busy || !text.trim()}>
-            {busy ? '…' : 'Post'}
+          {/* ⚠️ `!text.trim() && !photo` — NOT `!text.trim()`. A photo on its
+              own is a post. The old version left this button dead while a
+              picture sat attached above it, with nothing on screen saying
+              why. A disabled button gives no reason; it just doesn't work. */}
+          <button type="submit" className="send"
+                  disabled={busy || uploading || (!text.trim() && !photo)}>
+            {busy ? '…' : uploading ? '…' : 'Post'}
           </button>
         </div>
 
@@ -469,6 +504,9 @@ export default function Wall({ initial, me = { name: null, avatar: null }, mark 
                     disabled={busy} onClick={() => setPhoto(null)}>×</button>
           </div>
         )}
+
+        {uploading && <p className="canon-note">Adding your photo…</p>}
+        {postErr && <p className="phserr" role="alert">{postErr}</p>}
 
         <div className="cas">
           <span>Posting as</span>
@@ -567,7 +605,10 @@ export default function Wall({ initial, me = { name: null, avatar: null }, mark 
                 </div>
               )}
 
-              <p className="bd">{p.body}</p>
+              {/* A photo-only post has an empty body. Rendering the empty
+                  paragraph anyway leaves a blank gap above the picture that
+                  looks like text failed to load. */}
+              {p.body ? <p className="bd">{p.body}</p> : null}
 
               {/* ⚠️ `p.photo_url` is null on every anonymous post because
                   feed_posts nulls it — this does not need, and must not

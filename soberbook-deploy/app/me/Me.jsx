@@ -44,7 +44,7 @@ function ago(iso) {
   return Math.floor(h / 24) + 'd ago';
 }
 
-export default function Me({ email, profile, posts, initialAvatarUrl }) {
+export default function Me({ email, profile, posts, initialAvatarUrl, postPhotoUrls = {} }) {
   const router = useRouter();
   const supabase = browserClient();
 
@@ -206,6 +206,47 @@ export default function Me({ email, profile, posts, initialAvatarUrl }) {
   }
 
   const anon = privacy === 'anonymous';
+
+  /* =================================================================
+     WHAT GOES IN THE CIRCLE — decided ONCE.
+
+     ⚠️ THE BUG THIS REPLACES WAS WORSE THAN IT LOOKED. This page drew a
+     face in three places and each one answered the question differently:
+
+       the big circle   →  {avatar || 'TY'}     ← literally the string "TY"
+       the edit card    →  {avatar || '🌱'}
+       the picker       →  the photo
+
+     So the photo showed in one place out of three, which is why it read
+     as "the feature is broken" rather than "one branch is missing".
+
+     And the first one is the bad one: 'TY' is a HARDCODED LITERAL. It is
+     not derived from anybody. Every member with no emoji and no photo saw
+     TY on their own page — Jacoby's profile said TY, Ivyblue's profile
+     said TY. My initials, on other people's accounts, on the one screen
+     that is supposed to be theirs.
+
+     Three copies of a rule is three chances to get it wrong, and the copy
+     that goes wrong is the one nobody re-reads. So: one function, three
+     call sites, no literals.
+     ================================================================= */
+  const initials =
+    ((dname || profile.handle || '').match(/[A-Za-z0-9]/g) || ['?'])
+      .slice(0, 2).join('').toUpperCase();
+
+  /* photo → chosen emoji → initials. Anonymous short-circuits the lot,
+     because on an anonymous profile a face is the thing we are hiding. */
+  function Face({ cls }) {
+    if (!anon && photoKind === 'photo' && photoUrl) {
+      return <img className={`${cls} ${cls}-photo`} src={photoUrl}
+                  alt="" aria-hidden="true" />;
+    }
+    return (
+      <div className={cls} aria-hidden="true">
+        {anon ? '🤫' : (avatar || initials)}
+      </div>
+    );
+  }
   const deetsDirty =
     bio !== (profile.bio || '') || town !== (profile.town || '') ||
     state !== (profile.state || '') || programs !== (profile.programs || '') ||
@@ -353,7 +394,9 @@ export default function Me({ email, profile, posts, initialAvatarUrl }) {
         {!editing && (
           <>
             <div className="phead">
-              <div className="pface" aria-hidden="true">{avatar || (anon ? '🤫' : 'TY')}</div>
+              {/* The big circle at the top of your own page — the first
+                  thing you look at, and the one that was drawing "TY". */}
+              <Face cls="pface" />
               <h2 className="pn">
                 {anon ? profile.handle : (dname || profile.handle)}
                 {!anon && showLoc && town ? <span className="pdot"> · {town}{state ? ', ' + state : ''}</span> : null}
@@ -443,7 +486,10 @@ export default function Me({ email, profile, posts, initialAvatarUrl }) {
         <h2 className="sec">Your name and face</h2>
 
         <div className="pcard">
-          <div className="pav" aria-hidden="true">{avatar || '🌱'}</div>
+          {/* "This is exactly how your card looks to everybody else" — a
+              claim that was false while this drew a seedling and the Wall
+              drew the photo. */}
+          <Face cls="pav" />
           <div className="pwho">
             <span className="pname">{anon ? profile.handle : (dname || profile.handle)}</span>
             <span className="phandle">@{profile.handle}</span>
@@ -955,7 +1001,15 @@ export default function Me({ email, profile, posts, initialAvatarUrl }) {
           <ul className="mine">
             {posts.map((p) => (
               <li key={p.id} className={p.is_anonymous ? 'screened' : ''}>
-                <p className="mb">{p.body}</p>
+                {p.body ? <p className="mb">{p.body}</p> : null}
+                {/* Your page should show what you actually put up — the
+                    picture as much as the words. This list showed only text,
+                    so a photo post appeared here as a blank entry. */}
+                {p.photo_url && postPhotoUrls[p.photo_url] && (
+                  <div className="mphoto">
+                    <img src={postPhotoUrls[p.photo_url]} alt="" loading="lazy" />
+                  </div>
+                )}
                 <div className="mm">
                   {ago(p.created_at)}
                   {p.is_anonymous ? ' · posted anonymously' : ''}
