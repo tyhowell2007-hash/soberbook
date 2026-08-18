@@ -200,3 +200,20 @@
 @media (prefers-reduced-motion: reduce){
   .mchev{ transition:none; }
 }
+
+/* A quiet second line inside a details row — "only you see this",
+   "only members with a year can see this".
+
+   ⚠️ It exists because a hidden setting and a broken setting look
+   identical, and the person who filled it in is the one who can least
+   afford to guess which. Smaller and lighter than the fact itself, so it
+   reads as a footnote rather than competing with it. */
+.deet-sub{
+  display:block; width:100%;
+  margin-top:2px; font-size:11.5px; line-height:1.45;
+  color:var(--gm-t); opacity:.85;
+}
+/* .deet is a flex row; the sub-line needs the whole second line rather
+   than a third column squeezed beside the icon and the text. */
+.deet{ flex-wrap:wrap; }
+.deet .di{ flex:none; }

@@ -522,6 +522,53 @@ export default function Me({ email, profile, posts, initialAvatarUrl,
                   <span>Available to sponsor</span>
                 </div>
               )}
+
+              {/* ⚠️ THE BUG THIS FIXES, Aug 18: your own page showed only
+                  programs and interests. Everything else you'd filled in —
+                  your sponsor status, your town — was saved and invisible
+                  to you, while a stranger's page showed theirs.
+
+                  That's worse than a missing feature. You tick "looking
+                  for a sponsor", come back to your page, see nothing, and
+                  reasonably conclude it didn't save. The only page where
+                  you can check your own settings has to show all of them.
+
+                  ⚠️ ONE EXCEPTION, DELIBERATE: this is your OWN page, so
+                  `looking` is shown to you regardless of your day count.
+                  The 0031 gate is about who may see it on SOMEBODY ELSE'S
+                  page. Hiding your own setting from yourself would mean a
+                  member under a year could never confirm what they'd
+                  chosen — a privacy rule turned into a trap. */}
+              {!anon && sponsor === 'has_sponsor' && (
+                <div className="deet">
+                  <span className="di" aria-hidden="true">🤝</span>
+                  <span>Has a sponsor</span>
+                </div>
+              )}
+              {!anon && sponsor === 'looking' && (
+                <div className="deet sponsor">
+                  <span className="di" aria-hidden="true">🔎</span>
+                  <span>Looking for a sponsor</span>
+                  {/* Say who can see it, right where it's shown. Otherwise
+                      "quiet" is indistinguishable from "broken". */}
+                  <span className="deet-sub">only members with a year can see this</span>
+                </div>
+              )}
+
+              {/* Your town, on your own page. It was only in the small grey
+                  line next to your name — easy to miss, and absent
+                  entirely if you'd typed a town but left it hidden. Now
+                  it's a row like every other fact, and it says which of
+                  those two states you're in. */}
+              {!anon && town && (
+                <div className="deet">
+                  <span className="di" aria-hidden="true">📍</span>
+                  <span>{town}{state ? ', ' + state : ''}</span>
+                  {!showLoc && (
+                    <span className="deet-sub">hidden — only you see this</span>
+                  )}
+                </div>
+              )}
               {!anon && programs && (
                 <div className="deet">
                   <span className="di" aria-hidden="true">🧭</span><span>{programs}</span>
@@ -541,11 +588,21 @@ export default function Me({ email, profile, posts, initialAvatarUrl,
 
               {/* An empty card with a pencil is a dead end — say what the
                   pencil is for rather than showing four blank rows. */}
-              {(anon || (!programs && !interests && !(showLoc && town) && sponsor !== 'available')) && (
+              {/* ⚠️ THIS CONDITION HAS TO MIRROR THE ROWS ABOVE, EXACTLY.
+                  It used to read `!(showLoc && town) && sponsor !== 'available'`,
+                  which was right when a town only appeared if it was public
+                  and the only sponsor state was 'available'. Both changed
+                  today, and a stale emptiness test is worse than none: it
+                  prints "Nothing filled in yet" directly above the three
+                  things you just filled in.
+
+                  Derived from the same values the rows use, so the two
+                  can't drift again. */}
+              {(anon || (!programs && !interests && !town && sponsor === 'private')) && (
                 <p className="hint" style={{ margin: 0 }}>
                   {anon
                     ? 'You’re anonymous, so nothing here is shown to anybody. The pencil still opens your settings.'
-                    : 'Nothing filled in yet. The pencil adds your programs, where you are, and what you’re into.'}
+                    : 'Nothing filled in yet. The pencil adds your programs, where you are, what you’re into, and anything about sponsoring.'}
                 </p>
               )}
             </div>
@@ -573,7 +630,7 @@ export default function Me({ email, profile, posts, initialAvatarUrl,
         </div>
 
         {/* ---- name and face ---- */}
-        <Section title="Your name and face" open>
+        <Section title="🙂 Your name and face" open>
 
           <div className="pcard">
             {/* "This is exactly how your card looks to everybody else" — a
@@ -755,7 +812,7 @@ export default function Me({ email, profile, posts, initialAvatarUrl,
 
           {/* ---- privacy ---- */}
         </Section>
-        <Section title="How you show up">
+        <Section title="👀 How you show up">
           <button type="button"
                   className={'choice' + (privacy === 'open' ? ' sel' : '')}
                   aria-pressed={privacy === 'open'} disabled={busy}
@@ -780,7 +837,7 @@ export default function Me({ email, profile, posts, initialAvatarUrl,
 
           {/* ---- sober date ---- */}
         </Section>
-        <Section title="Your date">
+        <Section title="🌱 Your date">
           <label htmlFor="sd">Sober since</label>
           <input id="sd" type="date" value={since} max={today} disabled={busy}
                  onChange={(e) => { setSince(e.target.value); setReset('no'); }} />
@@ -886,7 +943,7 @@ export default function Me({ email, profile, posts, initialAvatarUrl,
 
           {/* ---- about you ---- */}
         </Section>
-        <Section title="About you">
+        <Section title="📝 About you">
 
           {/* One notice, stated once, rather than the same warning stapled
               to five fields. If none of this shows, say so plainly and
@@ -936,7 +993,7 @@ export default function Me({ email, profile, posts, initialAvatarUrl,
 
           {/* ---- where you are ---- */}
         </Section>
-        <Section title="Where you are">
+        <Section title="📍 Where you are">
           <div className="tworow">
             <div>
               <label htmlFor="town">Town</label>
@@ -973,7 +1030,7 @@ export default function Me({ email, profile, posts, initialAvatarUrl,
 
           {/* ---- sponsoring ---- */}
         </Section>
-        <Section title="Sponsoring">
+        <Section title="🤝 Sponsoring">
           {/* ⚠️ FOUR CHOICES, NOT FOUR TOGGLES. Sponsor status is ONE
               fact about you, so it's one exclusive pick — the same
               reason `one_medium_per_post` exists on the wall. Separate
@@ -1029,7 +1086,7 @@ export default function Me({ email, profile, posts, initialAvatarUrl,
 
           {/* ---- your song ---- */}
         </Section>
-        <Section title="Your song">
+        <Section title="🎵 Your song">
           <p className="hint" style={{ marginTop: 0 }}>
             The one that got you through. It plays on your page —{' '}
             <Link href={`/u/${profile.handle}`}>see how it looks</Link>.
@@ -1070,7 +1127,7 @@ export default function Me({ email, profile, posts, initialAvatarUrl,
 
           {/* ---- autoplay ---- */}
         </Section>
-        <Section title="When you visit someone">
+        <Section title="🚪 When you visit someone">
           <button type="button"
                   className={'choice' + (auto ? ' sel' : '')}
                   aria-pressed={auto} disabled={busy}
@@ -1097,7 +1154,7 @@ export default function Me({ email, profile, posts, initialAvatarUrl,
               on. It is the one control here you can't undo by tapping again,
               and it does not belong next to your own face. */}
         </Section>
-        <Section title="Account">
+        <Section title="🔑 Account">
           <p className="hint">Signed in as {email}</p>
           <button className={'btn out' + (confirmOut ? ' arm' : '')} type="button"
                   disabled={busy} onClick={signOut}>
