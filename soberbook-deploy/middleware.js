@@ -48,6 +48,32 @@ export async function middleware(request) {
   return response;
 }
 
+/* ⚠️ THE THREE INSTALL FILES HAVE TO BE PUBLIC, AND THEY WEREN'T.
+   ---------------------------------------------------------------------
+   Found the moment soberbook.app went live, Aug 18. The matcher already
+   let images through, but not `manifest.webmanifest`, `sw.js` or
+   `offline.html` — so a signed-OUT visitor asking for any of them got
+   bounced to /login and received an HTML page where a manifest should
+   be.
+
+   That means a stranger could not install the app. At all. The browser
+   needs the manifest and the service worker to offer "Add to Home
+   Screen", and it could reach neither until you had an account.
+
+   🔴 It was invisible on soberbook.vercel.app for a month because Ty
+   was permanently signed in there — the files loaded fine for the one
+   person who never needed them to. The new domain had no session
+   cookie, which is the first time anything asked for these files as a
+   stranger would. **A new domain is an accidental logged-out test of
+   your entire app.**
+
+   Safe to open: the manifest is a name, some colours and icon paths;
+   sw.js is our own code with no secrets in it; offline.html is a static
+   page. Nothing here reads a session or touches the database. */
 export const config = {
-  matcher: ['/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)'],
+  matcher: [
+    '/((?!_next/static|_next/image|favicon.ico'
+    + '|manifest\\.webmanifest|sw\\.js|offline\\.html'
+    + '|.*\\.(?:svg|png|jpg|jpeg|gif|webp|webmanifest|ico)$).*)',
+  ],
 };
