@@ -109,3 +109,26 @@ input:focus-visible{ outline:4px solid var(--acid); outline-offset:0; box-shadow
 .choice.sel.dark .ct{ color:var(--acid); }
 .choice.sel.dark .cd{ color:#C9C4B7; }
 .choice:focus-visible{ outline:4px solid var(--x); outline-offset:4px; }
+
+/* =====================================================================
+   THE LEGAL PAGES (privacy, and anything like it later)
+
+   Deliberately plain — no green room, no grunge. Somebody reading this
+   is checking whether to trust us, and a document that's been art
+   directed reads as marketing. This should look like a document.
+   ===================================================================== */
+.legal{
+  max-width:660px; margin:0 auto; padding:32px 22px 72px;
+  font-family:'Archivo',system-ui,sans-serif; color:#1C2320;
+  line-height:1.7; font-size:16px;
+}
+.legal h1{ font-size:30px; margin:0 0 14px; letter-spacing:-.01em; }
+.legal h2{ font-size:19px; margin:32px 0 8px; letter-spacing:-.005em; }
+.legal .lead{ font-size:17px; margin:0 0 6px; }
+.legal .upd{ font-size:13px; color:#63716A; margin:0 0 8px; }
+.legal ul{ padding-left:20px; margin:8px 0 0; }
+.legal li{ margin:7px 0; }
+.legal a{ color:#1B6B4A; }
+.legal hr{ border:0; border-top:1px solid #DCE7E1; margin:34px 0 18px; }
+.legal .fine{ font-size:14px; color:#63716A; }
+.legal .back{ margin-top:22px; font-size:15px; }

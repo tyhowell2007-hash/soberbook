@@ -37,7 +37,12 @@ export async function middleware(request) {
      to be allowed to load first. It is safe: arriving at /reset with no
      valid token gets you a form that can't do anything, because
      updateUser needs a session the token is the only way to obtain. */
-  const open = ['/login', '/auth', '/reset'];
+  /* ⚠️ /privacy IS OPEN, and it has to be. Google Play and the App Store
+     both require a privacy policy at a URL anyone can reach without an
+     account — and putting the page that explains what we collect behind
+     a sign-up form would be its own small joke. It contains no personal
+     data; it's a document. */
+  const open = ['/login', '/auth', '/reset', '/privacy'];
   const isOpen = open.some((p) => request.nextUrl.pathname.startsWith(p));
 
   if (!user && !isOpen) {
