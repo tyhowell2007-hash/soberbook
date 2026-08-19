@@ -70,10 +70,25 @@ export async function middleware(request) {
    Safe to open: the manifest is a name, some colours and icon paths;
    sw.js is our own code with no secrets in it; offline.html is a static
    page. Nothing here reads a session or touches the database. */
+/* 🔴 ONE UNBROKEN STRING. DO NOT SPLIT IT ACROSS LINES WITH `+`.
+   ---------------------------------------------------------------------
+   I wrote this as three concatenated strings the first time, purely so
+   it would fit on a screen. It deployed, the build went green, and the
+   fix did nothing.
+
+   Next.js reads `matcher` by STATIC ANALYSIS at build time — it looks at
+   the literal in the source, it does not run the file. `'a' + 'b'` is an
+   expression, not a literal, so the config was unreadable and the
+   middleware fell back to guarding everything, exactly as before.
+
+   ⚠️ Nothing warned about this. No build error, no console message. The
+   deployment was "Ready" and the behaviour was unchanged, which is the
+   worst combination — it looks like your change was wrong when in fact
+   your change was never read.
+
+   ⭐ Same family as the two `app/` folders and the dropped `lib` folder:
+   a silent no-op that reports success. When a change appears to have no
+   effect, check whether it was READ before assuming it was wrong. */
 export const config = {
-  matcher: [
-    '/((?!_next/static|_next/image|favicon.ico'
-    + '|manifest\\.webmanifest|sw\\.js|offline\\.html'
-    + '|.*\\.(?:svg|png|jpg|jpeg|gif|webp|webmanifest|ico)$).*)',
-  ],
+  matcher: ['/((?!_next/static|_next/image|favicon.ico|manifest\\.webmanifest|sw\\.js|offline\\.html|.*\\.(?:svg|png|jpg|jpeg|gif|webp|webmanifest|ico)$).*)'],
 };
