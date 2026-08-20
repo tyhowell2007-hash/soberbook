@@ -737,14 +737,18 @@ export default function Wall({ initial, me = { name: null, avatar: null }, mark 
                 </button>
                 {/* is_mine, never author_id — an anonymous post still shows
                     the author their own controls without exposing them */}
-                {p.is_mine
-                  ? <span className="mine">yours</span>
-                  : (
-                    /* No ⋯ on your own post: there is nobody to report or
-                       block but yourself, and offering it would be noise. */
-                    <button className="dots" aria-label="Report or block"
-                            onClick={() => setMenu(p)}>⋯</button>
-                  )}
+                {/* ⚠️ THE ⋯ NOW APPEARS ON YOUR OWN POSTS, and this is a bug
+                    fix rather than a tidy-up. It was hidden here because
+                    "there is nobody to report or block but yourself" —
+                    true, and it left nowhere to put DELETE. A member told
+                    Ty on Aug 19 he couldn't take his own post down. He was
+                    right: the database allowed it and the API existed, and
+                    the wall showed him the word "yours" with nothing to
+                    tap. The menu decides what to offer from post.is_mine. */}
+                {p.is_mine && <span className="mine">yours</span>}
+                <button className="dots"
+                        aria-label={p.is_mine ? 'Delete this post' : 'Report or block'}
+                        onClick={() => setMenu(p)}>⋯</button>
               </div>
             </article>
           );

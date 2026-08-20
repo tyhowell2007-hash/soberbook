@@ -54,6 +54,43 @@ export default function PostMenu({ post, onClose, onBlocked }) {
      that *appears* to work and didn't means someone thinks they're safe from
      a person who can still reach them. So: wait for the database, and only
      then close the sheet and refresh the wall. */
+  /* ⚠️ DELETING YOUR OWN POST WAS MISSING ENTIRELY UNTIL AUG 19, and a
+     member hit it before we did. The database has always allowed it and
+     the API route has existed since the photo work — but the wall showed
+     a plain "yours" label with nothing to tap, and the ⋯ was hidden on
+     your own posts on the grounds that there was nobody to report or
+     block but yourself. True, and it left no room for the one control
+     you actually need.
+
+     ⭐ It goes through the SAME route /me uses. A second delete path
+     would be a second place to forget the photo, the video, and the
+     storage cleanup — and the one that drifts is always the one nobody
+     is reading.
+
+     No optimistic update: the post disappears when the server says it's
+     gone, not before. Somebody deleting something they regret needs to
+     know it is actually gone, and a row that vanishes locally while the
+     request fails is a lie told at the worst possible moment. */
+  async function del() {
+    setBusy(true); setErr('');
+    try {
+      const res = await fetch('/api/photo/delete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ postId: post.id }),
+      });
+      if (!res.ok) {
+        const d = await res.json().catch(() => ({}));
+        throw new Error(d.error || "That couldn't be deleted.");
+      }
+      await onBlocked();          // same re-read of the wall
+      onClose();
+    } catch (e) {
+      setErr(e.message);
+      setBusy(false);
+    }
+  }
+
   async function block() {
     setErr(''); setBusy(true);
     try {
@@ -75,6 +112,7 @@ export default function PostMenu({ post, onClose, onBlocked }) {
           <span className="tt">
             {view === 'report' ? "What's wrong?"
               : view === 'blockConfirm' ? 'Block this person?'
+              : view === 'delConfirm' ? 'Delete this?'
               : view === 'done' ? 'Sent' : 'This post'}
           </span>
           <button className="x" aria-label="Close" onClick={onClose}>✕</button>
@@ -82,7 +120,36 @@ export default function PostMenu({ post, onClose, onBlocked }) {
 
         <div className="menubody">
 
-          {view === 'menu' && (
+          {/* ⚠️ YOUR OWN POST GETS A DIFFERENT MENU. Reporting or blocking
+              yourself is nonsense, so those rows are absent rather than
+              greyed out — a dead control is an invitation to work out how
+              to enable it. */}
+          {view === 'menu' && post.is_mine && (
+            <button className="mrow danger" onClick={() => setView('delConfirm')}>
+              <span className="mt2">🗑 Delete this post</span>
+              <span className="md">
+                Takes it off the wall for good, along with any photo or video on it.
+              </span>
+            </button>
+          )}
+
+          {view === 'delConfirm' && (
+            <>
+              <p className="mnote">
+                This cannot be undone. Any replies underneath go with it.
+              </p>
+              <button className="mrow danger" disabled={busy} onClick={del}>
+                <span className="mt2">{busy ? 'Deleting…' : 'Yes, delete it'}</span>
+                <span className="md">Gone from the wall and from your page.</span>
+              </button>
+              <button className="mrow" disabled={busy} onClick={() => setView('menu')}>
+                <span className="mt2">Never mind</span>
+                <span className="md">Leave it up.</span>
+              </button>
+            </>
+          )}
+
+          {view === 'menu' && !post.is_mine && (
             <>
               <button className="mrow" onClick={() => setView('report')}>
                 <span className="mt2">🚩 Report this post</span>
