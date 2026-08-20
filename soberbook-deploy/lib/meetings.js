@@ -169,7 +169,11 @@ function normalize(row) {
            + Number(String(row.duration_time || '').slice(3, 5)) || null,
     access:  accessOf(formats),
     formats,
-    link:    safeLink,
+    /* ⚠️ The passcode is folded into the link AND still shown on the
+       card. Both, deliberately — see withPasscode(). If the parse is
+       wrong the printed code is the fallback, which is exactly today's
+       behaviour, so this can only help. */
+    link:    withPasscode(safeLink, String(row.virtual_meeting_additional_info || row.comments || '').trim()),
     phone,
     /* The feed puts meeting IDs and passwords in free text. Passed through
        for the dial-in case, but never parsed — guessing at a password out
@@ -177,6 +181,55 @@ function normalize(row) {
     note:    String(row.virtual_meeting_additional_info || row.comments || '').trim(),
     lang:    String(row.lang_enum || '').trim(),
   };
+}
+
+/* =====================================================================
+   THE PASSCODE, PUT INTO THE LINK.
+
+   Ty, Aug 20, after getting stuck on Zoom's passcode screen:
+   "We need an easier way to get into these meetings because people won't
+   go through all of this to get through."
+
+   He's right, and the old note here was wrong. It said passwords in the
+   free-text field were "never parsed — guessing at a password out of a
+   comment string and getting it wrong locks somebody out."
+
+   ⚠️ THAT REASONING DOESN'T HOLD, BECAUSE WE ALSO PRINT THE NOTE. The
+   passcode is already on the card, under the button. So a wrong guess
+   leaves a person exactly where they are today — reading the code off
+   the screen and typing it. A right guess saves them the trip. The
+   downside of trying IS the status quo, which makes not trying the
+   worse option.
+
+   ⚠️ Verified against a live meeting before shipping, not assumed:
+   zoom.us/j/<id>?pwd=<code> consumes the passcode and lands on
+   "#success". The web-client form (/wc/join/) skips one screen more,
+   but Zoom's web client is unreliable on phones and most people here
+   are on a phone. Fewer taps on a laptop is not worth a dead end on a
+   phone.
+
+   ⚠️ Zoom hosts ONLY. Other platforms use other parameter names, and
+   appending the wrong one could turn a working link into a broken one.
+   ===================================================================== */
+function passcodeFrom(note) {
+  if (!note) return '';
+  /* Anchored on the WORD, so "Zoom ID: 558 544 927 Pass: 247247" takes
+     247247 and not the meeting id. Bounded length so a sentence
+     fragment can't be mistaken for a code. */
+  const m = note.match(/\b(?:passcode|password|pass|pw)\b\s*[:#-]?\s*([A-Za-z0-9]{4,16})\b/i);
+  return m ? m[1] : '';
+}
+
+function withPasscode(link, note) {
+  if (!link) return link;
+  let u;
+  try { u = new URL(link); } catch { return link; }
+  if (!/(^|\.)zoom\.us$/i.test(u.hostname)) return link;   // Zoom only
+  if (u.searchParams.get('pwd')) return link;               // already has one
+  const code = passcodeFrom(note);
+  if (!code) return link;
+  u.searchParams.set('pwd', code);
+  return u.toString();
 }
 
 /* =====================================================================
