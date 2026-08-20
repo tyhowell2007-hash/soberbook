@@ -45,6 +45,31 @@ export async function middleware(request) {
   const open = ['/login', '/auth', '/reset', '/privacy'];
   const isOpen = open.some((p) => request.nextUrl.pathname.startsWith(p));
 
+  /* 🔴 A STRANGER AT THE FRONT DOOR GETS THE PITCH, NOT A PASSWORD BOX.
+     ---------------------------------------------------------------------
+     Found Aug 18, the night the posters were made. Every poster and the
+     flyer send people to soberbook.app — and a signed-out visitor was
+     being redirected straight to /login, which says **"Welcome back —
+     sign in to pick up where you left off."**
+
+     To somebody who has never heard of Sober Book, that is a password
+     box and a sentence implying they've already been here. Nothing on
+     the screen says what this is or why they'd want it. Every scan of
+     every poster would have landed there.
+
+     ⚠️ REWRITE, NOT REDIRECT. A redirect would change the address bar to
+     /home.html — ugly on a poster scan and it leaks an implementation
+     detail. A rewrite serves the file while the URL stays soberbook.app,
+     which is the address printed on the poster.
+
+     ⭐ And the page served is Ty's approved landing page, byte for byte.
+     It was not rebuilt, restyled or "improved" on the way through — only
+     its links were made relative. He signed that design off on Aug 15
+     and it is not mine to redraw. */
+  if (!user && request.nextUrl.pathname === '/') {
+    return NextResponse.rewrite(new URL('/home.html', request.url));
+  }
+
   if (!user && !isOpen) {
     const url = request.nextUrl.clone();
     url.pathname = '/login';
@@ -95,5 +120,5 @@ export async function middleware(request) {
    a silent no-op that reports success. When a change appears to have no
    effect, check whether it was READ before assuming it was wrong. */
 export const config = {
-  matcher: ['/((?!_next/static|_next/image|favicon.ico|manifest\\.webmanifest|sw\\.js|offline\\.html|.*\\.(?:svg|png|jpg|jpeg|gif|webp|webmanifest|ico)$).*)'],
+  matcher: ['/((?!_next/static|_next/image|favicon.ico|manifest\\.webmanifest|sw\\.js|offline\\.html|home\\.html|.*\\.(?:svg|png|jpg|jpeg|gif|webp|webmanifest|ico)$).*)'],
 };
