@@ -1,0 +1,346 @@
+/* =====================================================================
+   PHOTOS — profile pictures and pictures on the wall.
+
+   Loaded AFTER theme-green.css by the wall and me layouts, so it can
+   reshape green-room rules without !important.
+
+   ⚠️ EVERY CLASS IN HERE IS PREFIXED — ph- for the profile picker,
+   cphoto- for the composer, pphoto for a post. Learned the hard way on
+   Aug 16: chat reused `.composer` and the green room re-declares that
+   name as position:static, which silently unpinned the message box. A
+   name that already exists somewhere in 42KB of CSS is not a free name.
+   ===================================================================== */
+
+/* ---------- a real face where an emoji used to be ---------- *
+   .pa is already sized and centred by theme-green (36px, round, pale
+   green fill). This only has to stop the image from stretching.
+
+   object-fit:cover is doing the real work: photos are not square and a
+   round frame is. Without it the browser squashes the image to fit,
+   which on a face is uniquely awful — it makes everybody look wrong in a
+   way that's hard to name and impossible to unsee. cover crops to the
+   middle instead, which is where faces are. */
+.item .pa-photo{
+  padding:0; object-fit:cover; background:var(--gl);
+}
+
+/* The big one on a profile card. .pav is already sized by theme-green;
+   same cover-don't-squash argument as above. */
+.pcard .pav-photo{
+  padding:0; object-fit:cover; background:var(--gl);
+}
+
+/* ⚠️ The one that was MISSING and caused the whole feature to look dead.
+   .pface is the big circle at the top of your own page — the first thing
+   you look at. The photo saved, and this never drew it. */
+.phead .pface-photo{
+  padding:0; object-fit:cover; background:var(--gl);
+}
+
+/* ---------- the picture on a post ---------- */
+.pphoto{
+  margin:10px 0 2px; border-radius:12px; overflow:hidden;
+  border:2px solid var(--gm); background:var(--gl);
+  /* A hard ceiling on height. A portrait photo from a phone is roughly
+     3:4 and would otherwise fill the whole screen, pushing every other
+     post out of view — one person's picture becoming the entire wall.
+     Tall images get cropped in the frame rather than allowed to shove
+     everybody else off the page. */
+  max-height:420px; display:flex;
+}
+.pphoto img{
+  width:100%; height:auto; max-height:420px;
+  object-fit:cover; display:block;
+}
+
+/* ---------- the video on a post (0029) ----------
+   ⚠️ `object-fit:contain`, NOT `cover` like the photo above it, and the
+   difference matters. `cover` crops to fill the frame — fine for a
+   still, because you can see at a glance what got cut. On a video the
+   crop follows the whole clip: somebody films themselves talking, the
+   top of the frame is trimmed, and their head is missing for ninety
+   seconds. Letterbox instead. Black bars are honest.
+
+   The black background is the letterbox itself, and it's the one place
+   in the green room where black is correct — a video's own frame is
+   black at the edges anyway, so anything else reads as a rendering bug. */
+.pphoto.pvideo{ background:#000; }
+.pphoto video{
+  width:100%; height:auto; max-height:420px;
+  object-fit:contain; display:block; background:#000;
+}
+.mine .mphoto video{
+  width:100%; max-height:240px;
+  object-fit:contain; display:block; background:#000;
+}
+.cphoto video{
+  width:100%; max-height:200px;
+  object-fit:contain; display:block; background:#000;
+}
+
+/* A picture inside the "what you've put up" list, on either profile page.
+   Shorter than a wall photo — this is a list you scan, not a feed you
+   read, and a full-height picture per entry turns 30 posts into a mile. */
+.mine .mphoto{
+  margin:8px 0 6px; border-radius:10px; overflow:hidden;
+  border:2px solid var(--gm); background:var(--gl);
+  max-height:240px; display:flex;
+}
+.mine .mphoto img{
+  width:100%; max-height:240px; object-fit:cover; display:block;
+}
+
+/* ---------- the camera in the composer ---------- */
+.composer .camera{
+  flex:none; width:38px; height:38px; padding:0;
+  border:2px solid var(--gm); border-radius:11px;
+  background:#fff; color:var(--gm-t); font-size:16px; line-height:1;
+  display:flex; align-items:center; justify-content:center;
+}
+.composer .camera:disabled{ opacity:.5; }
+
+/* What you're about to post, before you post it. */
+.cphoto{
+  position:relative; margin:9px 0 0;
+  border:2px solid var(--gm); border-radius:12px; overflow:hidden;
+  max-height:200px; display:flex;
+}
+.cphoto img{ width:100%; max-height:200px; object-fit:cover; display:block; }
+.cphoto-x{
+  position:absolute; top:6px; right:6px;
+  width:28px; height:28px; border:0; border-radius:50%;
+  background:var(--x); color:#fff; font-size:17px; line-height:1;
+  display:flex; align-items:center; justify-content:center;
+}
+
+/* The line that appears only while anonymous is on. */
+.canon-note{
+  margin:8px 0 0; font-size:12px; line-height:1.5; color:var(--gm-t);
+}
+
+/* ---------- the picker on /me ---------- */
+.phrow{ display:flex; gap:14px; align-items:flex-start; margin:2px 0 14px; }
+
+.phnow{
+  flex:none; width:78px; height:78px; border-radius:50%;
+  border:3px solid var(--gm); background:var(--gl); overflow:hidden;
+  display:flex; align-items:center; justify-content:center; font-size:32px;
+}
+.phnow.has{ border-color:var(--gd); }
+.phnow img{ width:100%; height:100%; object-fit:cover; display:block; }
+
+.phacts{ display:flex; flex-direction:column; gap:8px; align-items:flex-start;
+         min-width:0; flex:1; }
+.phacts .btn{ width:auto; }
+
+/* ⚠️ Not red. The convention for a destructive button is red, and it is
+   wrong here: removing your own photo is not a dangerous act, it's a
+   person changing their mind about how visible they want to be, and it
+   should never feel like defusing something. It's a plain button that
+   does what it says. */
+.phacts .phdel{ color:var(--gm-t); }
+
+.phnote{ margin:2px 0 0; font-size:12px; line-height:1.5; }
+
+/* Shown when the profile is anonymous and the picker is absent. */
+.phoff{
+  margin:2px 0 14px; padding:10px 12px;
+  border-left:3px solid var(--gm); background:var(--gl);
+  border-radius:0; font-size:13px; line-height:1.6; color:var(--gt);
+}
+
+/* Upload errors, next to the control rather than in an alert box. */
+.phserr{
+  margin:6px 0 0; font-size:12.5px; line-height:1.5; color:#8A2B2B;
+}
+
+/* =====================================================================
+   THE PROFILE EDITOR, FOLDED UP (Aug 18)
+
+   Nine sections used to sit open at once — about 500 lines of controls
+   in one scroll. Ty had already filled in his programs and interests
+   and didn't remember the page could do it, which is the clearest
+   possible signal: if the person who commissioned it can't find a
+   field, nobody can. A long page doesn't read as "lots of options", it
+   reads as "I don't know where anything is."
+   ===================================================================== */
+.msec{
+  border:2px solid var(--gm); border-radius:12px;
+  background:#fff; margin:10px 0; overflow:hidden;
+}
+.msum{
+  display:flex; align-items:center; justify-content:space-between;
+  gap:10px; padding:14px 14px;
+  font-weight:700; font-size:15px; color:var(--gm-t);
+  cursor:pointer; list-style:none;
+  /* ⚠️ 44px minimum. The Aug 17 lesson from the post footer: a control
+     that's only as tall as its text is a control most thumbs miss. */
+  min-height:44px; box-sizing:border-box;
+}
+/* Safari draws its own triangle unless you kill this pseudo-element,
+   which would sit next to our chevron looking like a rendering bug. */
+.msum::-webkit-details-marker{ display:none; }
+.msum::marker{ content:''; }
+
+.msum:focus-visible{ outline:3px solid var(--gd); outline-offset:-3px; }
+
+.mchev{
+  flex:none; font-size:20px; line-height:1; color:var(--gm);
+  transform:rotate(90deg); transition:transform .15s ease;
+}
+.msec[open] .mchev{ transform:rotate(-90deg); }
+.msec[open] .msum{ border-bottom:2px solid var(--gl); }
+
+.mbody{ padding:4px 14px 16px; }
+
+/* The section headings inside the editor are gone — the summary IS the
+   heading now. Any that survive shouldn't add a second layer of space. */
+.mbody .sec{ display:none; }
+
+@media (prefers-reduced-motion: reduce){
+  .mchev{ transition:none; }
+}
+
+/* A quiet second line inside a details row — "only you see this",
+   "only members with a year can see this".
+
+   ⚠️ It exists because a hidden setting and a broken setting look
+   identical, and the person who filled it in is the one who can least
+   afford to guess which. Smaller and lighter than the fact itself, so it
+   reads as a footnote rather than competing with it. */
+.deet-sub{
+  display:block; width:100%;
+  margin-top:2px; font-size:11.5px; line-height:1.45;
+  color:var(--gm-t); opacity:.85;
+}
+/* .deet is a flex row; the sub-line needs the whole second line rather
+   than a third column squeezed beside the icon and the text. */
+.deet{ flex-wrap:wrap; }
+.deet .di{ flex:none; }
+
+/* =====================================================================
+   LEAVING (0032)
+
+   ⚠️ Red is used HERE and almost nowhere else in this app. The photo
+   remove button deliberately isn't red — taking your own picture down
+   is a person changing their mind, not defusing something. This one is
+   different: it cannot be undone, and the colour should say so.
+   ===================================================================== */
+.delsep{
+  height:1px; background:var(--line); margin:22px 0 16px;
+}
+.delbox{
+  border:2px solid #C62828; border-radius:12px;
+  background:#FFF8F8; padding:14px 14px 16px; margin-top:4px;
+}
+.delh{
+  margin:0 0 8px; font-family:'Archivo',system-ui,sans-serif;
+  font-size:15px; font-weight:700; color:#8A2B2B;
+}
+.delp{
+  margin:0 0 12px; font-size:13.5px; line-height:1.65; color:var(--body);
+}
+.dellab{
+  display:block; margin:6px 0 6px; font-size:13px; color:var(--body);
+}
+.delbox input[type=text]{
+  width:100%; box-sizing:border-box; min-height:44px;
+  border:2px solid var(--gm); border-radius:10px; padding:10px 12px;
+  font-size:16px; /* ⚠️ 16px exactly — iOS zooms the whole page in on any
+                     input smaller than this, and doing that to somebody
+                     mid-way through deleting their account is horrible */
+  background:#fff;
+}
+.delrow{
+  display:flex; gap:10px; margin-top:14px;
+}
+.delrow .btn{ flex:1; min-height:44px; }
+
+/* The only red button in the app. */
+.btn.del{
+  background:#C62828; border-color:#C62828; color:#fff;
+}
+.btn.del:disabled{ opacity:.45; }
+
+/* =====================================================================
+   FOLLOWING AND FINDING (0035–0038)
+   ===================================================================== */
+
+/* ⚠️ The counts are LINKS, not decoration. A number you cannot open is
+   a scoreboard; a number you can open is a door to people. */
+.fstats{ display:flex; gap:26px; margin:16px 0 14px; }
+.fstat{
+  display:flex; align-items:baseline; gap:6px; text-decoration:none;
+  color:var(--body); min-height:44px; align-items:center;
+}
+.fstat b{ font-size:19px; font-weight:700; color:var(--gd); }
+.fstat span{ font-size:13.5px; color:var(--gm-t); }
+
+/* Same correction as .findbar — see the note above. */
+.pacts{ display:flex; gap:10px; flex-wrap:wrap; width:100%; }
+.pacts .btn{
+  flex:1 1 140px; width:auto; min-width:0;
+  margin-top:0; box-shadow:none;
+  min-height:46px; padding:0 16px; font-size:15px;
+  display:flex; align-items:center; justify-content:center;
+}
+
+/* Following reads as DONE, not as a call to action — so it loses the
+   fill and keeps the outline. The un-follow is deliberately quieter than
+   the follow. */
+.btn.follow.on{
+  background:#fff; color:var(--gd); border:2px solid var(--gd);
+}
+
+/* ---------- find ---------- */
+.findwrap{ padding-top:4px; }
+
+/* ⚠️ `.btn` IS `display:block; width:100%` WITH A 22px TOP MARGIN AND AN
+   OFFSET SHADOW (globals.css). Drop that into a flex row and it refuses
+   to shrink, sits 22px low, and throws its shadow past the container —
+   which is exactly what happened: the Find button overflowed the page
+   and its label went off the edge.
+
+   So anything of mine that puts a .btn in a row has to undo those four
+   things explicitly. Reaching for a shared class means inheriting every
+   decision it already made. */
+.findbar{ display:flex; gap:9px; align-items:stretch; width:100%; }
+.findbar input{
+  flex:1 1 auto;
+  min-width:0;              /* without this a flex item won't shrink below
+                               its content width and pushes the row wide */
+  min-height:46px; box-sizing:border-box;
+  border:2px solid var(--gm); border-radius:11px; padding:10px 13px;
+  /* ⚠️ 16px exactly. Anything smaller and iOS zooms the page in on focus,
+     which on a search field means the keyboard shoves the results off
+     screen the moment you start typing. */
+  font-size:16px; background:#fff; margin:0;
+}
+.findbar .btn{
+  flex:0 0 auto;            /* size to its label, never grow */
+  width:auto;               /* undo width:100% */
+  margin-top:0;             /* undo margin-top:22px */
+  box-shadow:none;          /* undo the 5px offset that ran past the edge */
+  min-height:46px; padding:0 22px; font-size:15px;
+  display:flex; align-items:center; justify-content:center;
+}
+.findhint{ margin:10px 2px 16px; }
+
+.findlist{ list-style:none; padding:0; margin:0; }
+.findlist li{ margin:0 0 9px; }
+.findrow{
+  display:flex; align-items:center; gap:12px;
+  padding:12px 13px; min-height:44px;
+  border:1px solid var(--line); border-radius:12px; background:#fff;
+  text-decoration:none; color:var(--body);
+}
+.fav{
+  flex:none; width:40px; height:40px; border-radius:50%;
+  background:var(--gl); display:flex; align-items:center;
+  justify-content:center; font-size:19px;
+}
+.fav-photo{ background:var(--gl); }
+.fmeta{ display:flex; flex-direction:column; min-width:0; flex:1; }
+.fname{ font-size:15px; font-weight:600; }
+.fhandle{ font-size:12.5px; color:var(--gm-t); }
+.fcount{ flex:none; font-size:12px; color:var(--gm-t); }
