@@ -400,6 +400,24 @@ export default function List({ meetings, fetchedAt, source, going: initialGoing 
             "verified, real people" claim removed on Aug 15: a
             reassurance the app can't keep is worse than no reassurance,
             because somebody believes it at the worst possible moment. */}
+        {/* ⭐ CALL IN. The way past a "signed-in Zoom accounts only" room —
+            a telephone caller has no Zoom account, so the host's setting
+            cannot apply to them.
+
+            One tap dials the number, the meeting id and the passcode; the
+            commas in a tel: URL are pauses. 29 of 61 meetings publish a
+            number and until tonight every one was plain text you had to
+            copy out by hand.
+
+            ⚠️ It moves ABOVE the Join button when somebody has reported
+            being asked to sign in — at that point it isn't the fallback,
+            it's the door. */}
+        {m.tel && (
+          <a className={'mt-call' + (flagged ? ' mt-call-first' : '')} href={m.tel}>
+            ☎ Call in{flagged ? ' — no Zoom account needed' : ''}
+          </a>
+        )}
+
         {m.link && (
           flagged ? (
             <div className="mt-noacct mt-warn">

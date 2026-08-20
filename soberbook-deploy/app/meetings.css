@@ -238,3 +238,22 @@
   background:#fff; border-color:var(--gm); color:var(--gt);
 }
 .mt-nownone .mt-nows{ color:var(--soft); }
+
+/* ---- "Call in" -------------------------------------------------------
+   ⭐ The way past a room that demands a Zoom account. A phone caller has
+   no account to sign into, so the host's setting can't reach them.
+   Deliberately a full-width, obvious control rather than a line of grey
+   text — at 2am this may be the only door that opens. */
+.mt-call{
+  display:flex; align-items:center; justify-content:center;
+  margin:8px 0 0; min-height:46px; padding:0 16px;
+  text-decoration:none; font-size:15px;
+  background:#fff; color:var(--gt);
+  border:2px solid var(--gm); border-radius:12px;
+}
+/* When somebody has reported the sign-in wall, this stops being the
+   fallback and becomes the main way in. */
+.mt-call-first{
+  background:var(--gd); color:#fff; border-color:var(--gt);
+  font-weight:500;
+}
