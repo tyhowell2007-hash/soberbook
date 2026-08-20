@@ -29,7 +29,21 @@ export default function Convo({ thread, initial }) {
   const [err, setErr] = useState('');
   const foot = useRef(null);
 
-  const waiting = thread.state === 'sent';   // they haven't answered yet
+  /* 🔴 'sent' means A MESSAGE IS ALREADY OUT and they haven't answered.
+     It does NOT mean "you opened this thread" — that's 'new', and the box
+     must be live for it.
+
+     This line was right; the view feeding it was wrong (0046). Tapping
+     Message created the thread, the view said 'sent' with zero messages
+     sent, and the box was dead before anybody typed a word. Ty found it:
+     "Every time I try to chat with somebody, I can't."
+
+     ⚠️ If a state ever shows up here that isn't in this list, the box
+     stays LIVE. Failing open is right for a message box and wrong almost
+     everywhere else in this app — the database refuses what it must
+     refuse, so the worst case is a rejected send, while failing shut is
+     a person silently unable to speak. */
+  const waiting = thread.state === 'sent';
 
   useEffect(() => { foot.current?.scrollIntoView({ block: 'end' }); }, [msgs.length]);
 

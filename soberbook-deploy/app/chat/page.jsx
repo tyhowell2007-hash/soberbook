@@ -5,10 +5,30 @@ import Link from 'next/link';
 
 export const dynamic = 'force-dynamic';
 
-export default async function ChatPage() {
+export default async function ChatPage({ searchParams }) {
   const supabase = serverClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');
+
+  /* ?to=handle — "Say hi" from the friends list, and anywhere else that
+     wants to drop somebody straight into a conversation.
+
+     ⚠️ Added because the friends page shipped with this link and nothing
+     read it, so every "Say hi" quietly landed on the inbox instead. A
+     link that goes to the right page but does the wrong thing is worse
+     than a broken one: nothing errors, so nobody reports it.
+
+     start_thread() is idempotent — it hands back the existing thread if
+     there is one — so arriving here twice cannot create a duplicate. And
+     it does all the refusing itself: no such handle, suspended, blocked
+     either way, or yourself. If it refuses we just fall through to the
+     inbox rather than showing an error, because every one of those
+     reasons is one an error message must not distinguish between. */
+  const to = typeof searchParams?.to === 'string' ? searchParams.to : null;
+  if (to) {
+    const { data: threadId } = await supabase.rpc('start_thread', { target_handle: to });
+    if (threadId) redirect(`/chat/${threadId}`);
+  }
 
   /* RULE 1 again: the view, never the table. Here it does more work than
      usual — chat_threads is what drops a conversation you ignored and a
