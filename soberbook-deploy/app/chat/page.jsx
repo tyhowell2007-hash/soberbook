@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
 import { serverClient, assertReadable } from '../../lib/supabase-server';
 import Inbox from './Inbox';
+import Link from 'next/link';
 
 export const dynamic = 'force-dynamic';
 
@@ -51,6 +52,11 @@ export default async function ChatPage() {
         <span className="rt">chat</span>
       </div>
       <div className="bar">One to one · nobody else can read this</div>
+      {/* The directory lists everyone, which is fine at five members
+          and a problem at five hundred. Search is the way this scales. */}
+      <div className="pad" style={{ paddingBottom: 0 }}>
+        <Link href="/find" className="btn ghost">🔍 Find someone by name or handle</Link>
+      </div>
       {error
         ? <div className="pad"><div className="err">Couldn&apos;t load chat: {error.message}</div></div>
         : <Inbox inbox={inbox} requests={requests} members={members} />}

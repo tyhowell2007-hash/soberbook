@@ -261,3 +261,60 @@
   background:#C62828; border-color:#C62828; color:#fff;
 }
 .btn.del:disabled{ opacity:.45; }
+
+/* =====================================================================
+   FOLLOWING AND FINDING (0035–0038)
+   ===================================================================== */
+
+/* ⚠️ The counts are LINKS, not decoration. A number you cannot open is
+   a scoreboard; a number you can open is a door to people. */
+.fstats{ display:flex; gap:26px; margin:16px 0 14px; }
+.fstat{
+  display:flex; align-items:baseline; gap:6px; text-decoration:none;
+  color:var(--body); min-height:44px; align-items:center;
+}
+.fstat b{ font-size:19px; font-weight:700; color:var(--gd); }
+.fstat span{ font-size:13.5px; color:var(--gm-t); }
+
+.pacts{ display:flex; gap:10px; flex-wrap:wrap; }
+.pacts .btn{ flex:1; min-width:140px; min-height:44px; }
+
+/* Following reads as DONE, not as a call to action — so it loses the
+   fill and keeps the outline. The un-follow is deliberately quieter than
+   the follow. */
+.btn.follow.on{
+  background:#fff; color:var(--gd); border:2px solid var(--gd);
+}
+
+/* ---------- find ---------- */
+.findwrap{ padding-top:4px; }
+.findbar{ display:flex; gap:9px; }
+.findbar input{
+  flex:1; min-height:46px; box-sizing:border-box;
+  border:2px solid var(--gm); border-radius:11px; padding:10px 13px;
+  /* ⚠️ 16px exactly. Anything smaller and iOS zooms the page in on focus,
+     which on a search field means the keyboard shoves the results off
+     screen the moment you start typing. */
+  font-size:16px; background:#fff;
+}
+.findbar .btn{ flex:none; min-height:46px; padding:0 20px; }
+.findhint{ margin:10px 2px 16px; }
+
+.findlist{ list-style:none; padding:0; margin:0; }
+.findlist li{ margin:0 0 9px; }
+.findrow{
+  display:flex; align-items:center; gap:12px;
+  padding:12px 13px; min-height:44px;
+  border:1px solid var(--line); border-radius:12px; background:#fff;
+  text-decoration:none; color:var(--body);
+}
+.fav{
+  flex:none; width:40px; height:40px; border-radius:50%;
+  background:var(--gl); display:flex; align-items:center;
+  justify-content:center; font-size:19px;
+}
+.fav-photo{ background:var(--gl); }
+.fmeta{ display:flex; flex-direction:column; min-width:0; flex:1; }
+.fname{ font-size:15px; font-weight:600; }
+.fhandle{ font-size:12.5px; color:var(--gm-t); }
+.fcount{ flex:none; font-size:12px; color:var(--gm-t); }

@@ -4,6 +4,7 @@ import { serverClient, assertReadable } from '../../../lib/supabase-server';
 import SongPlayer from '../../components/SongPlayer';
 import Milestones from '../../components/Milestones';
 import MessageButton from './MessageButton';
+import FollowButton from './FollowButton';
 import { sinceFromCount } from '../../../lib/milestones';
 import { signPhotoPaths } from '../../../lib/sign-photos';
 
@@ -60,7 +61,7 @@ export default async function ProfilePage({ params }) {
             'anthem_url, anthem_title, anthem_art, anthem_preview, anthem_youtube, ' +
             'is_mine, joined_at, total_days, ' +
             'bio, location, programs, interests, sponsor_open, ' +
-            'sponsor_has, sponsor_looking')
+            'sponsor_has, sponsor_looking, followers, following, is_following')
     .eq('handle_key', handle.toLowerCase())
     .maybeSingle();
 
@@ -271,9 +272,29 @@ export default async function ProfilePage({ params }) {
 
         <p className="hint">Here since {joined}.</p>
 
+        {/* Follower / following counts. Ty chose the public model on
+            Aug 19 knowing the argument against it — see 0035. They are
+            links, because a count you can't open is just a scoreboard. */}
+        <div className="fstats">
+          <Link href={`/u/${p.handle}/followers`} className="fstat">
+            <b>{p.followers}</b>
+            <span>{p.followers === 1 ? 'follower' : 'followers'}</span>
+          </Link>
+          <Link href={`/u/${p.handle}/following`} className="fstat">
+            <b>{p.following}</b><span>following</span>
+          </Link>
+        </div>
+
         {p.is_mine
           ? <Link href="/me" className="btn">Edit your page</Link>
-          : <MessageButton handle={p.handle} />}
+          : (
+            <div className="pacts">
+              <FollowButton handle={p.handle}
+                            initialFollowing={p.is_following}
+                            initialCount={p.followers} />
+              <MessageButton handle={p.handle} />
+            </div>
+          )}
       </div>
     </>
   );

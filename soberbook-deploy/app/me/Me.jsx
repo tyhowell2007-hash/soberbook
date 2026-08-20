@@ -125,6 +125,7 @@ export default function Me({ email, profile, posts, initialAvatarUrl,
   const [programs, setPrograms] = useState(profile.programs || '');
   const [interests, setInterests] = useState(profile.interests || '');
   const [sponsor, setSponsor] = useState(profile.sponsor_status || 'private');
+  const [findable, setFindable] = useState(!!profile.findable_by_name);
 
   /* ---- name and face (0012) ---- */
   const [dname, setDname] = useState(profile.display_name || '');
@@ -980,6 +981,32 @@ export default function Me({ email, profile, posts, initialAvatarUrl,
           <p className="hint">
             The thing people actually message you about. Worth more than the rest of this put together.
           </p>
+
+          {/* ⚠️ OFF BY DEFAULT, AND THAT DEFAULT IS THE FEATURE.
+              A handle is a name you invented for this place. Your real
+              name is not. With this on, anybody can type your name and
+              learn you are in recovery — an employer checking a
+              candidate, a relative looking for someone who left. Being
+              visible on your own page and being findable by name are
+              different things, and only you should decide the second.
+              Same pattern as your town, which is also off until you
+              choose otherwise. */}
+          <button type="button"
+                  className={'choice' + (findable ? ' sel' : '')}
+                  aria-pressed={findable} disabled={busy}
+                  onClick={() => { const n = !findable; setFindable(n);
+                    save({ findable_by_name: n }, n
+                      ? 'On. People can find you by your name.'
+                      : 'Off. Only your handle finds you.'); }}>
+            <span className="ct">
+              {findable ? '🔎 Findable by your name' : '🔒 Only your handle finds you'}
+            </span>
+            <span className="cd">
+              {findable
+                ? 'Someone who knows your name can search it and land on your page.'
+                : 'People can still find you by handle — just not by the name you were given.'}
+            </span>
+          </button>
 
           <button className="btn" type="button" disabled={busy || !deetsDirty}
                   onClick={() => save({

@@ -77,6 +77,12 @@ export default async function WallPage() {
             everyone else's lives on theirs. */}
         <Link href={`/u/${profile.handle}`} className="songlink"
               aria-label="Your page">♫</Link>
+          {/* ⚠️ NOT A FIFTH TAB. The bottom bar opens with a note about why
+              there are so few tabs, and search isn't a daily act — it's the
+              thing you do once, when you've met somebody and want to find
+              them again. It sits in the masthead with the other small links. */}
+          <Link href="/find" className="songlink findlink"
+                aria-label="Find someone">🔍</Link>
         {/* The day count was already here doing nothing. Making it the way
             into your own page means no new chrome on the masthead — the
             thing you look at anyway becomes the thing you tap. */}
