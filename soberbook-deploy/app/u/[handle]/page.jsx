@@ -4,7 +4,7 @@ import { serverClient, assertReadable } from '../../../lib/supabase-server';
 import SongPlayer from '../../components/SongPlayer';
 import Milestones from '../../components/Milestones';
 import MessageButton from './MessageButton';
-import FollowButton from './FollowButton';
+import FriendButton from './FriendButton';
 import { sinceFromCount } from '../../../lib/milestones';
 import { signPhotoPaths } from '../../../lib/sign-photos';
 
@@ -61,7 +61,7 @@ export default async function ProfilePage({ params }) {
             'anthem_url, anthem_title, anthem_art, anthem_preview, anthem_youtube, ' +
             'is_mine, joined_at, total_days, ' +
             'bio, location, programs, interests, sponsor_open, ' +
-            'sponsor_has, sponsor_looking, followers, following, is_following')
+            'sponsor_has, sponsor_looking, friends, friend_state')
     .eq('handle_key', handle.toLowerCase())
     .maybeSingle();
 
@@ -272,26 +272,27 @@ export default async function ProfilePage({ params }) {
 
         <p className="hint">Here since {joined}.</p>
 
-        {/* Follower / following counts. Ty chose the public model on
-            Aug 19 knowing the argument against it — see 0035. They are
-            links, because a count you can't open is just a scoreboard. */}
+        {/* One number now, not two. Ty chose to keep it public on Aug 19,
+            knowing the argument against it.
+
+            ⚠️ IT IS NO LONGER A LINK. Following had public LISTS as well
+            as counts; friendship is mutual, so a public friend list is a
+            map of who in recovery knows whom — being on somebody's list
+            outs you by association, whether or not you wanted it. The
+            count says "this person is real and connected", which is what
+            it was for. The list said more than that. */}
         <div className="fstats">
-          <Link href={`/u/${p.handle}/followers`} className="fstat">
-            <b>{p.followers}</b>
-            <span>{p.followers === 1 ? 'follower' : 'followers'}</span>
-          </Link>
-          <Link href={`/u/${p.handle}/following`} className="fstat">
-            <b>{p.following}</b><span>following</span>
-          </Link>
+          <span className="fstat">
+            <b>{p.friends}</b>
+            <span>{p.friends === 1 ? 'friend' : 'friends'}</span>
+          </span>
         </div>
 
         {p.is_mine
           ? <Link href="/me" className="btn">Edit your page</Link>
           : (
             <div className="pacts">
-              <FollowButton handle={p.handle}
-                            initialFollowing={p.is_following}
-                            initialCount={p.followers} />
+              <FriendButton handle={p.handle} initialState={p.friend_state} />
               <MessageButton handle={p.handle} />
             </div>
           )}
