@@ -123,6 +123,65 @@ export default function List({ meetings, fetchedAt, source, going: initialGoing 
   const [going, setGoing] = useState(initialGoing || []);
   const [busy, setBusy] = useState(null);
   const [err, setErr] = useState('');
+  /* Meetings other members couldn't get into, and the ones I flagged.
+     Keyed "source|meeting_id" — a flag is about the ROOM, not about one
+     Tuesday, so unlike "I'm going" it deliberately carries no date. */
+  const [flags, setFlags] = useState({});
+  const [myFlags, setMyFlags] = useState({});
+  const [flagging, setFlagging] = useState(null);
+
+  useEffect(() => {
+    const supabase = browserClient();
+    let alive = true;
+    (async () => {
+      const [{ data: counts }, { data: { user } }] = await Promise.all([
+        supabase.from('meeting_flag_counts').select('*').eq('kind', 'needs_account'),
+        supabase.auth.getUser(),
+      ]);
+      if (!alive) return;
+      const c = {}; (counts || []).forEach((r) => { c[r.source + '|' + r.meeting_id] = r.n; });
+      setFlags(c);
+      if (user) {
+        const { data: mine } = await supabase
+          .from('meeting_flags').select('source, meeting_id')
+          .eq('kind', 'needs_account').eq('reporter_id', user.id);
+        if (!alive) return;
+        const m = {}; (mine || []).forEach((r) => { m[r.source + '|' + r.meeting_id] = true; });
+        setMyFlags(m);
+      }
+    })();
+    return () => { alive = false; };
+  }, []);
+
+  /* ⚠️ NOT optimistic, and not because of speed. If the write fails the
+     button must not claim the next person has been warned when they
+     haven't. Same call as the block button (Aug 6) and the friend button
+     — a state that only LOOKS like it worked is the dangerous kind here. */
+  async function flagIt(m, kind) {
+    const fk = source + '|' + m.id;
+    setFlagging(fk); setErr('');
+    try {
+      const supabase = browserClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Sign in first.');
+      if (myFlags[fk]) {
+        const { error } = await supabase.from('meeting_flags').delete()
+          .eq('source', source).eq('meeting_id', m.id)
+          .eq('kind', kind).eq('reporter_id', user.id);
+        if (error) throw error;
+        setMyFlags((x) => { const n = { ...x }; delete n[fk]; return n; });
+        setFlags((x) => ({ ...x, [fk]: Math.max(0, (x[fk] || 1) - 1) }));
+      } else {
+        const { error } = await supabase.from('meeting_flags')
+          .insert({ source, meeting_id: m.id, kind, reporter_id: user.id });
+        if (error) throw error;
+        setMyFlags((x) => ({ ...x, [fk]: true }));
+        setFlags((x) => ({ ...x, [fk]: (x[fk] || 0) + 1 }));
+      }
+    } catch (e) {
+      setErr("Couldn't save that.");
+    } finally { setFlagging(null); }
+  }
 
   useEffect(() => {
     const compute = () => {
@@ -182,6 +241,39 @@ export default function List({ meetings, fetchedAt, source, going: initialGoing 
 
   const visible = showClosed ? rows : rows.filter((r) => r.access !== 'closed');
 
+  /* =====================================================================
+     ⭐ "TAKE ME TO ONE NOW."
+
+     Ty, 2am: "find a way to make it extremely easy to get into the rooms."
+
+     At 2am nobody wants a list. A list is a decision, and a decision is
+     the thing a person in a bad moment has least of. This is one tap to a
+     door that is open right now.
+
+     What it will not do is send somebody somewhere that fails. In order:
+       • happening RIGHT NOW (started, not finished) — not "in 40 minutes"
+       • nobody has reported it asking for a Zoom account
+       • open to anyone, or unstated — never a closed meeting, because
+         being asked to leave at 2am is worse than not going
+       • has a real link
+     ⚠️ If nothing qualifies, it says so plainly rather than picking the
+     least-bad option. Sending someone to a locked door is the failure
+     this whole night was about.
+     ===================================================================== */
+  const liveNow = rows.filter((r) => {
+    if (!r.link) return false;
+    if ((flags[source + '|' + r.id] || 0) > 0) return false;
+    if (r.access === 'closed') return false;
+    const started = r.ts <= Date.now();
+    const ends    = r.ts + (r.minutes || 60) * 60000;
+    return started && Date.now() < ends;
+  });
+  /* Longest still to run, so you're not joining something that ends in
+     four minutes. */
+  const rightNow = liveNow.sort(
+    (a, b) => (b.ts + (b.minutes || 60) * 60000) - (a.ts + (a.minutes || 60) * 60000)
+  )[0] || null;
+
   const peopleFor = (m) =>
     going.filter((g) => g.meeting_id === m.id && g.occurs_on === m.onDate);
 
@@ -199,6 +291,9 @@ export default function List({ meetings, fetchedAt, source, going: initialGoing 
     const others = here.filter((g) => !g.is_mine);
     const names = nameList(others.map((g) => g.display_name));
     const key   = m.id + m.onDate;
+    const fkey  = source + '|' + m.id;
+    const flagged  = (flags[fkey] || 0) > 0;
+    const mineFlag = !!myFlags[fkey];
     const faces = others.slice(0, 4);
 
     return (
@@ -260,7 +355,47 @@ export default function List({ meetings, fetchedAt, source, going: initialGoing 
           </button>
         </div>
 
-        {m.link && <div className="mt-noacct">No Zoom account needed — join as a guest.</div>}
+        {/* ⚠️ THIS LINE USED TO SAY "No Zoom account needed — join as a
+            guest." FULL STOP, ON EVERY MEETING. It was not true.
+
+            Some groups set their own room to "signed-in Zoom accounts
+            only". Zoom enforces that before anyone gets in, NA's feed
+            doesn't publish the setting, and we cannot detect it — both
+            Zoom pages are drawn by JavaScript, so a server fetch reads
+            an empty document.
+
+            Ty hit that wall at 1:40am on the only meeting running. The
+            promise sent him to a locked door. Same category as the
+            "verified, real people" claim removed on Aug 15: a
+            reassurance the app can't keep is worse than no reassurance,
+            because somebody believes it at the worst possible moment. */}
+        {m.link && (
+          flagged ? (
+            <div className="mt-noacct mt-warn">
+              Someone here got asked to sign in to Zoom for this one.
+            </div>
+          ) : (
+            <div className="mt-noacct">
+              Most groups let you straight in as a guest — a few ask you to
+              sign in to Zoom.
+            </div>
+          )
+        )}
+
+        {/* ⭐ The list teaches itself. One tap from the person who hit the
+            wall warns everyone behind them.
+
+            ⚠️ It never HIDES the meeting — a flag adds a warning and
+            nothing else. One annoyed tap must not be able to delete
+            somebody's meeting from the only list they have at 2am. */}
+        {m.link && (
+          <button type="button" className="mt-cantget"
+                  disabled={flagging === fkey}
+                  onClick={() => flagIt(m, 'needs_account')}>
+            {mineFlag ? '✓ you said this one asks you to sign in'
+                      : 'Couldn’t get in?'}
+          </button>
+        )}
 
         {/* ⚠️ THE LINK IS NOT THE ONLY DOOR AND MUST NOT LOOK LIKE IT.
             Tapping a Zoom link on a phone drops you into Zoom's funnel:
@@ -281,6 +416,23 @@ export default function List({ meetings, fetchedAt, source, going: initialGoing 
 
   return (
     <div className="pad">
+
+      {/* One tap, before anything else on the page. */}
+      {rightNow ? (
+        <a className="mt-now" href={rightNow.link} target="_blank" rel="noopener noreferrer">
+          <span className="mt-nowh">Take me to a meeting now</span>
+          <span className="mt-nows">
+            {rightNow.name} · going on right now
+          </span>
+        </a>
+      ) : (
+        /* ⚠️ Says WHY there's nothing, and still offers the list. An empty
+           promise here reads as "even this doesn't want me". */
+        <div className="mt-now mt-nownone">
+          <span className="mt-nowh">Nothing running this minute</span>
+          <span className="mt-nows">The next one is below — or the 24/7 rooms always have someone.</span>
+        </div>
+      )}
 
       {/* ⚠️ THE OPEN/CLOSED CONTROL EXISTS BECAUSE OF WHO ELSE IS HERE.
           A closed meeting is for people who have the addiction themselves.
