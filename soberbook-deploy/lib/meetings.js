@@ -175,6 +175,10 @@ function normalize(row) {
        behaviour, so this can only help. */
     link:    withPasscode(safeLink, String(row.virtual_meeting_additional_info || row.comments || '').trim()),
     phone,
+    /* One tap dials the number, the meeting id and the passcode.
+       ⚠️ The way past a "signed-in Zoom accounts only" room — see
+       telFrom(). Empty string when the feed gave us nothing to dial. */
+    tel:     telFrom(phone, String(row.virtual_meeting_additional_info || row.comments || '').trim()),
     /* The feed puts meeting IDs and passwords in free text. Passed through
        for the dial-in case, but never parsed — guessing at a password out
        of a comment string and getting it wrong locks somebody out. */
@@ -230,6 +234,61 @@ function withPasscode(link, note) {
   if (!code) return link;
   u.searchParams.set('pwd', code);
   return u.toString();
+}
+
+/* =====================================================================
+   ⭐ THE PHONE, MADE TAPPABLE — AND IT IS THE WAY PAST THE SIGN-IN WALL.
+
+   Ty, 2am, blocked by a group that requires a Zoom account: "People might
+   need meetings right now."
+
+   Here is the thing that makes this more than a convenience: a telephone
+   caller HAS no Zoom account, so a host's "signed-in users only" setting
+   cannot apply to the dial-in. When Zoom slams the door, the phone number
+   printed on the same card usually still opens it.
+
+   29 of 61 meetings publish a number, and until now every one was plain
+   TEXT. On a phone that means: read a number, hold it in your head, leave
+   the app, open the dialer, type it, then type a 9-digit meeting ID, then
+   a passcode. At 2am, for somebody who is not steady, that is not a door.
+
+   ⭐ A tel: URL takes commas as PAUSES, so the whole sequence dials
+   itself: number, wait, meeting id, wait, passcode. One tap.
+
+   ⚠️ Only ever built from digits the feed actually gave us. Nothing is
+   invented — no guessed country code, no assumed passcode. If a piece is
+   missing the link still dials the number and the person types the rest,
+   which is exactly where they are today.
+   ===================================================================== */
+function telFrom(phone, note) {
+  const raw = String(phone || '').trim();
+  if (!raw) return '';
+
+  /* First run of 10+ digits is the number. Feeds write it every possible
+     way — "+1 646-558-8656", "6465588656,,123#", "tel:646..." */
+  const digits = (raw.match(/[\d]{7,}/g) || [])
+    .concat((raw.replace(/[^\d]/g, '').length >= 10) ? [raw.replace(/[^\d]/g, '')] : []);
+  if (!digits.length) return '';
+  let num = digits[0];
+  /* US 10-digit → +1. ⚠️ Only for exactly 10 digits; anything else is
+     left alone rather than guessed at, because a wrong country code
+     doesn't fail politely, it calls a stranger. */
+  if (num.length === 10) num = '1' + num;
+
+  let out = '+' + num;
+
+  /* The meeting id, if the feed put one in the phone string or the note.
+     9-11 digits is the Zoom id shape. */
+  const idm = raw.match(/,+\s*(\d{9,11})#?/) || String(note || '').match(/\b(\d{9,11})\b/);
+  if (idm) out += ',,' + idm[1] + '#';
+
+  /* And the passcode, reusing the same parser the join link uses so the
+     two can never disagree about what the code is. ⚠️ Digits only — a
+     word passcode can't be typed on a keypad. */
+  const code = passcodeFrom(note);
+  if (idm && code && /^\d+$/.test(code)) out += ',,' + code + '#';
+
+  return out;
 }
 
 /* =====================================================================
