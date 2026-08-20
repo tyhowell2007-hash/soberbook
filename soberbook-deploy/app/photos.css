@@ -276,8 +276,14 @@
 .fstat b{ font-size:19px; font-weight:700; color:var(--gd); }
 .fstat span{ font-size:13.5px; color:var(--gm-t); }
 
-.pacts{ display:flex; gap:10px; flex-wrap:wrap; }
-.pacts .btn{ flex:1; min-width:140px; min-height:44px; }
+/* Same correction as .findbar — see the note above. */
+.pacts{ display:flex; gap:10px; flex-wrap:wrap; width:100%; }
+.pacts .btn{
+  flex:1 1 140px; width:auto; min-width:0;
+  margin-top:0; box-shadow:none;
+  min-height:46px; padding:0 16px; font-size:15px;
+  display:flex; align-items:center; justify-content:center;
+}
 
 /* Following reads as DONE, not as a call to action — so it loses the
    fill and keeps the outline. The un-follow is deliberately quieter than
@@ -288,16 +294,36 @@
 
 /* ---------- find ---------- */
 .findwrap{ padding-top:4px; }
-.findbar{ display:flex; gap:9px; }
+
+/* ⚠️ `.btn` IS `display:block; width:100%` WITH A 22px TOP MARGIN AND AN
+   OFFSET SHADOW (globals.css). Drop that into a flex row and it refuses
+   to shrink, sits 22px low, and throws its shadow past the container —
+   which is exactly what happened: the Find button overflowed the page
+   and its label went off the edge.
+
+   So anything of mine that puts a .btn in a row has to undo those four
+   things explicitly. Reaching for a shared class means inheriting every
+   decision it already made. */
+.findbar{ display:flex; gap:9px; align-items:stretch; width:100%; }
 .findbar input{
-  flex:1; min-height:46px; box-sizing:border-box;
+  flex:1 1 auto;
+  min-width:0;              /* without this a flex item won't shrink below
+                               its content width and pushes the row wide */
+  min-height:46px; box-sizing:border-box;
   border:2px solid var(--gm); border-radius:11px; padding:10px 13px;
   /* ⚠️ 16px exactly. Anything smaller and iOS zooms the page in on focus,
      which on a search field means the keyboard shoves the results off
      screen the moment you start typing. */
-  font-size:16px; background:#fff;
+  font-size:16px; background:#fff; margin:0;
 }
-.findbar .btn{ flex:none; min-height:46px; padding:0 20px; }
+.findbar .btn{
+  flex:0 0 auto;            /* size to its label, never grow */
+  width:auto;               /* undo width:100% */
+  margin-top:0;             /* undo margin-top:22px */
+  box-shadow:none;          /* undo the 5px offset that ran past the edge */
+  min-height:46px; padding:0 22px; font-size:15px;
+  display:flex; align-items:center; justify-content:center;
+}
 .findhint{ margin:10px 2px 16px; }
 
 .findlist{ list-style:none; padding:0; margin:0; }
