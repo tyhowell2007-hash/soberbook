@@ -119,6 +119,11 @@ export default function List({ meetings, fetchedAt, source, going: initialGoing 
      the page would flicker between two different wrong answers. Empty then
      correct beats wrong then corrected. */
   const [rows, setRows] = useState(null);
+  /* ⚠️ The UNSLICED set. `rows` is capped at 60 for display, which
+     barely covers today — so a meeting that started yesterday and is
+     STILL RUNNING falls off the end. That is exactly the 2am meeting,
+     so the "right now" button must search all of them, not the page. */
+  const [allRows, setAllRows] = useState([]);
   const [showClosed, setShowClosed] = useState(true);
   const [going, setGoing] = useState(initialGoing || []);
   const [busy, setBusy] = useState(null);
@@ -193,6 +198,8 @@ export default function List({ meetings, fetchedAt, source, going: initialGoing 
         out.push({ ...m, ts: nx.ts, onDate: nx.onDate, when: whenLabel(nx.ts, now) });
       }
       out.sort((a, b) => a.ts - b.ts);
+      out.sort((a, b) => a.ts - b.ts);
+      setAllRows(out);
       setRows(out.slice(0, 60));
     };
     compute();
@@ -260,19 +267,43 @@ export default function List({ meetings, fetchedAt, source, going: initialGoing 
      least-bad option. Sending someone to a locked door is the failure
      this whole night was about.
      ===================================================================== */
-  const liveNow = rows.filter((r) => {
+  /* ⚠️ TWO occurrences are checked, not one, and the second is the whole
+     point. `ts` is the NEXT start. A meeting that began BEFORE now and is
+     still going has its next start in the future — so a naive `ts <= now`
+     misses it.
+
+     That is not an edge case, it is the 2am case. The N.A.N.A. 24/7 room
+     runs 1440 minutes; at 1:49am it has been going twenty hours and its
+     "next start" is 5am. Shipped this an hour ago saying "nothing running"
+     while the one meeting that is always open sat directly underneath.
+
+     A week back is the right offset: the feed lists one row per weekday,
+     so the record whose next start is next Wednesday had its previous
+     session yesterday. ⚠️ That record sits ~6 days out, far past the 60
+     shown on screen — which is why this searches `allRows`, not `rows`. */
+  const WEEK = 7 * 24 * 60 * 60 * 1000;
+  const runningAt = (r) => {
+    const dur = (r.minutes || 60) * 60000;
+    const now = Date.now();
+    const inWindow = (start) => start <= now && now < start + dur;
+    return inWindow(r.ts) || inWindow(r.ts - WEEK);
+  };
+
+  const liveNow = allRows.filter((r) => {
     if (!r.link) return false;
     if ((flags[source + '|' + r.id] || 0) > 0) return false;
     if (r.access === 'closed') return false;
-    const started = r.ts <= Date.now();
-    const ends    = r.ts + (r.minutes || 60) * 60000;
-    return started && Date.now() < ends;
+    return runningAt(r);
   });
-  /* Longest still to run, so you're not joining something that ends in
-     four minutes. */
-  const rightNow = liveNow.sort(
-    (a, b) => (b.ts + (b.minutes || 60) * 60000) - (a.ts + (a.minutes || 60) * 60000)
-  )[0] || null;
+
+  /* Longest still to run, so nobody is dropped into something that ends
+     in four minutes. */
+  const endsAt = (r) => {
+    const dur = (r.minutes || 60) * 60000;
+    const now = Date.now();
+    return (r.ts <= now && now < r.ts + dur) ? r.ts + dur : r.ts - WEEK + dur;
+  };
+  const rightNow = liveNow.sort((a, b) => endsAt(b) - endsAt(a))[0] || null;
 
   const peopleFor = (m) =>
     going.filter((g) => g.meeting_id === m.id && g.occurs_on === m.onDate);
