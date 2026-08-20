@@ -349,3 +349,38 @@
 .mnote{
   margin:2px 2px 12px; font-size:13px; line-height:1.6; color:var(--gm-t);
 }
+
+/* ---- the composer's audience row (wall) ----
+   Lives here rather than in wall.css because it only exists because
+   friends do. */
+.cas.cas-aud{ margin-top:6px; }
+/* ⚠️ A BORDER, not just a fill — the Aug 17 audit found a pale chip on a
+   pale card measuring 1.00:1 because the check only looked at text. */
+.asme.fr{
+  background:var(--gl); border:1px solid var(--gm); color:var(--gt);
+}
+
+/* ---- the marker on a friends-only post ---- */
+.mine.aud{
+  background:var(--gl); border:1px solid var(--gm); color:var(--gt);
+}
+
+/* ---- the friend button, on somebody's page ----
+   ⚠️ HERE, not friends.css. This button renders on /u/[handle], whose
+   layout imports theme-green + photos only. Rules for it in
+   friends.css would load on /friends and nowhere the button actually
+   is — the stylesheet would be right and the screen would be wrong,
+   with nothing failing loudly enough to notice. */
+/* ---- the profile-page button ---- */
+.btn.friend{ width:auto; }
+.btn.fr-friends{ background:var(--gl); color:var(--gt); border-color:var(--gm); }
+.btn.fr-pending{ opacity:.72; }
+
+.frconfirm{
+  background:#fff; border:2px solid var(--gm); border-radius:14px;
+  padding:13px; margin:0 0 10px;
+}
+.frconfirm p{ margin:0 0 10px; font-size:14.5px; line-height:1.6; }
+.frconfirm .frrow{ display:flex; gap:8px; }
+.frconfirm .btn{ width:auto; margin:0; }
+.frconfirm .btn.danger{ border-color:#8A2B2B; color:#6B1F1F; }

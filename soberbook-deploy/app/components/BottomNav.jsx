@@ -53,6 +53,16 @@ const TABS = [
      A chair, because that is what the room is: chairs in a circle. */
   { href: '/meetings', icon: '🪑', label: 'Meetings', dot: 'meetings',
     said: 'a meeting you said you’d be at is today' },
+  /* Aug 19. The third tab to earn its way in, and the first one that is
+     about people rather than content. A wave, because the page exists to
+     make you say hi to somebody who went quiet — not to browse a list.
+
+     🔴 Its dot cannot be lit by a request you IGNORED. The `ignored_at is
+     null` line in 0044 does that. Without it, ignoring somebody would
+     leave a dot burning with nothing behind it — which would make the
+     ignore worse than useless. */
+  { href: '/friends',  icon: '👋', label: 'People', dot: 'friends',
+    said: 'someone asked to be your friend' },
   /* no `dot` — see above */
   { href: '/me',       icon: '🙂', label: 'You'  },
 ];

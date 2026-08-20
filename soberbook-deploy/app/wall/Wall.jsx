@@ -115,6 +115,10 @@ export default function Wall({ initial, me = { name: null, avatar: null }, mark 
   const [posts, setPosts] = useState(initial);
   const [text, setText] = useState('');
   const [anon, setAnon] = useState(false);
+  /* 'open' | 'friends'. Resets to open after every post — a sticky
+     audience is how somebody posts to four people believing they
+     posted to the room, or the reverse, which is worse. */
+  const [audience, setAudience] = useState('open');
 
   /* ---- the photo OR video on the post being written (0022, 0029) ----
      { path, preview, isVideo } or null. `path` is what the database
@@ -390,14 +394,26 @@ export default function Wall({ initial, me = { name: null, avatar: null }, mark 
          `one_medium_per_post` compares two values, and "absent" and
          "null" are the same to Postgres but not to a reader. */
       const attached = anon ? null : photo;
+      /* ⚠️ Anonymous forces the audience back to open, for the same
+         belt-and-braces reason as the photo above — 0045 has a CHECK that
+         refuses anonymous + friends-only outright, and this line is so a
+         member never meets it.
+
+         The rule reads backwards until you sit with it: a SMALL audience
+         exposes an anonymous author rather than protecting them. Everyone
+         who can see a friends-only post knows the author is one of their
+         own friends, and each of them knows their own friend list. With a
+         handful of friends that's a name. Anonymity needs a crowd. */
       const { error } = await supabase.from('posts')
         .insert({ author_id: user.id, body, is_anonymous: anon,
+                  audience: anon ? 'open' : audience,
                   photo_url: attached && !attached.isVideo ? attached.path : null,
                   video_url: attached &&  attached.isVideo ? attached.path : null });
       if (error) throw error;
       setText('');
       setPhoto(null);
       setPhotoDropped(false);
+      setAudience('open');
       // re-read through the VIEW, never the base table
       const { data } = await supabase
         .from('feed_posts').select('*').order('created_at', { ascending: false }).limit(60);
@@ -565,6 +581,28 @@ export default function Wall({ initial, me = { name: null, avatar: null }, mark 
             {anon ? 'tap to use your name' : 'tap to post anonymously'}
           </span>
         </div>
+
+        {/* Who can see it. Hidden entirely while anonymous — not disabled,
+            hidden. A greyed-out "Friends only" next to the anonymous chip
+            reads as a thing you're being denied, and invites people to
+            turn anonymity off to reach it. When it can't apply it isn't
+            part of the composer. Same call as the camera above. */}
+        {!anon && (
+          <div className="cas cas-aud">
+            <span>Who sees it</span>
+            <button type="button"
+                    className={'asme' + (audience === 'friends' ? ' fr' : '')}
+                    aria-pressed={audience === 'friends'}
+                    onClick={() => setAudience(audience === 'friends' ? 'open' : 'friends')}>
+              {audience === 'friends' ? '👋 your people' : '🌍 everyone'}
+            </button>
+            <span className="cas-hint">
+              {audience === 'friends'
+                ? 'tap to open it up'
+                : 'tap to keep it to friends'}
+            </span>
+          </div>
+        )}
 
         {/* The explanation, and only when it's relevant. A permanent note
             about anonymous photo rules on a composer nobody is using
@@ -746,6 +784,14 @@ export default function Wall({ initial, me = { name: null, avatar: null }, mark 
                     the wall showed him the word "yours" with nothing to
                     tap. The menu decides what to offer from post.is_mine. */}
                 {p.is_mine && <span className="mine">yours</span>}
+                {/* ⚠️ Shown to EVERYONE who can see the post, not just the
+                    author. A reader needs to know they're in a smaller
+                    room than usual before they answer — replying to what
+                    you think is a public post, in front of four people,
+                    is a different act than you thought you were doing. */}
+                {p.audience === 'friends' && (
+                  <span className="mine aud">friends only</span>
+                )}
                 <button className="dots"
                         aria-label={p.is_mine ? 'Delete this post' : 'Report or block'}
                         onClick={() => setMenu(p)}>⋯</button>

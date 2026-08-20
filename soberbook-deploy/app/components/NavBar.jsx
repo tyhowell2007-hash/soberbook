@@ -22,11 +22,11 @@ export default async function NavBar() {
      renders inside the layout, so an error takes down every page that
      shows the bar, which is all of them. A missing dot is a small bug; a
      white screen is not. */
-  let dots = { home: false, chat: false, meetings: false };
+  let dots = { home: false, chat: false, meetings: false, friends: false };
   try {
     const { data } = await supabase
       .from('my_nav_dots')
-      .select('home, chat, meetings')
+      .select('home, chat, meetings, friends')
       .maybeSingle();
     if (data) dots = data;
   } catch { /* leave them all off */ }

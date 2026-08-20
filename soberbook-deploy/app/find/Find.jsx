@@ -78,10 +78,17 @@ export default function Find() {
                   <span className="fname">{r.display_name}</span>
                   <span className="fhandle">@{r.handle}</span>
                 </span>
-                {/* Follower count, because Ty chose the public model. No
-                    day count — see the note at the top of this file. */}
+                {/* Friend count, public by Ty's call. No day count — see
+                    the note at the top of this file.
+
+                    ⚠️ 'pending' here also covers a request they ignored.
+                    Search must not become the one screen that reveals
+                    what the profile page deliberately hides. */}
                 <span className="fcount">
-                  {r.followers === 1 ? '1 follower' : `${r.followers} followers`}
+                  {r.friend_state === 'friends'  ? 'friends'
+                   : r.friend_state === 'pending'  ? 'requested'
+                   : r.friend_state === 'incoming' ? 'asked you'
+                   : r.friends === 1 ? '1 friend' : `${r.friends} friends`}
                 </span>
               </Link>
             </li>
