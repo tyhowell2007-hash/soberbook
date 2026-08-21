@@ -38,6 +38,14 @@ export const READABLE_VIEWS = [
      people who have blocked you; the view joins through public_profiles
      so blocking, suspension and anonymity are inherited. See 0021. */
   'meeting_attendance',
+  /* open_meeting_rooms — meetings members are holding here (0052).
+     Safe to read for the same reason meeting_attendance is: it never
+     exposes a base table. It joins profiles itself and hands back a
+     handle, a display name and an INTEGER count of who's inside — never
+     the member ids of the people in the room. Reading meeting_rooms or
+     room_presence directly would hand back raw uuids, including for
+     somebody who has blocked you. See 0052. */
+  'open_meeting_rooms',
 ];
 
 export function assertReadable(name) {
