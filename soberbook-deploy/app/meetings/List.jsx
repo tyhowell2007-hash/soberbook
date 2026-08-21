@@ -112,6 +112,44 @@ function nameList(others) {
   return `${others[0]}, ${others[1]} and ${n - 2} others`;
 }
 
+/* =====================================================================
+   🔴 THE JOIN LINK IS DIFFERENT ON A LAPTOP AND ON A PHONE.
+
+   Ty, twice: "I still can't get in."
+
+   What was happening on the laptop: our link is zoom.us/j/<id>?pwd=<code>.
+   Zoom's first page ACCEPTS the passcode — the URL even ends in
+   "#success" — and then, when you click "Join from browser", it hands you
+   to app.zoom.us/wc/<id>/join WITHOUT the pwd. The passcode box comes
+   back, empty, on the very screen you were trying to reach.
+
+   ⚠️ Last night I tested /wc/join/?pwd= , SAW it skip the passcode, and
+   chose /j/ anyway because Zoom's web client is unreliable on phones.
+   That reasoning wasn't wrong — it was incomplete. I never followed the
+   /j/ path to its END on a desktop, so I never saw where the passcode got
+   dropped. **Testing the first hop is not testing the journey.**
+
+   So: the door depends on the device.
+     PHONE   → /j/<id>?pwd=  — deep-links into the Zoom app, which keeps
+               the passcode. The web client is the bad option here.
+     DESKTOP → /wc/join/<id>?pwd=  — goes straight to the name box.
+               Verified on a live meeting: passcode box gone.
+
+   ⚠️ Anything that isn't a plain Zoom /j/ link is returned untouched.
+   ===================================================================== */
+function webClientHref(link) {
+  try {
+    const u = new URL(link);
+    if (!/(^|\.)zoom\.us$/i.test(u.hostname)) return link;
+    const id = u.pathname.match(/\/j\/(\d+)/);
+    if (!id) return link;
+    const out = new URL(`https://${u.hostname}/wc/join/${id[1]}`);
+    const pwd = u.searchParams.get('pwd');
+    if (pwd) out.searchParams.set('pwd', pwd);
+    return out.toString();
+  } catch { return link; }
+}
+
 export default function List({ meetings, fetchedAt, source, going: initialGoing }) {
   /* ⚠️ null until mounted, on purpose. The server has no clock that means
      anything to this reader, so it renders no times at all — if it guessed
@@ -124,6 +162,17 @@ export default function List({ meetings, fetchedAt, source, going: initialGoing 
      STILL RUNNING falls off the end. That is exactly the 2am meeting,
      so the "right now" button must search all of them, not the page. */
   const [allRows, setAllRows] = useState([]);
+  /* ⚠️ false until mounted. The server has no idea what device this
+     is, and guessing would mean a hydration mismatch — same reason
+     `rows` starts null. */
+  const [onPhone, setOnPhone] = useState(false);
+  useEffect(() => {
+    setOnPhone(
+      typeof window !== 'undefined' &&
+      (window.matchMedia('(pointer: coarse)').matches ||
+       /android|iphone|ipad|ipod/i.test(navigator.userAgent))
+    );
+  }, []);
   const [showClosed, setShowClosed] = useState(true);
   const [going, setGoing] = useState(initialGoing || []);
   const [busy, setBusy] = useState(null);
@@ -401,7 +450,7 @@ export default function List({ meetings, fetchedAt, source, going: initialGoing 
           {m.link && (
             /* noreferrer as well as noopener: the meeting host has no
                business learning the click came from a recovery app. */
-            <a className="mt-join" href={m.link} target="_blank" rel="noopener noreferrer">Join ↗</a>
+            <a className="mt-join" href={onPhone ? m.link : webClientHref(m.link)} target="_blank" rel="noopener noreferrer">Join ↗</a>
           )}
           <button type="button"
                   className={'mt-going-btn' + (mine ? ' on' : '')}
@@ -497,7 +546,7 @@ export default function List({ meetings, fetchedAt, source, going: initialGoing 
 
       {/* One tap, before anything else on the page. */}
       {rightNow ? (
-        <a className="mt-now" href={rightNow.link} target="_blank" rel="noopener noreferrer">
+        <a className="mt-now" href={onPhone ? rightNow.link : webClientHref(rightNow.link)} target="_blank" rel="noopener noreferrer">
           <span className="mt-nowh">Take me to a meeting now</span>
           <span className="mt-nows">
             {rightNow.name} · going on right now
