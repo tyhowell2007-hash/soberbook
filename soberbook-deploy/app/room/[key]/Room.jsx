@@ -99,7 +99,15 @@ export default function Room({ roomKey, title, hostName, isMine, me }) {
      starting off. displayName is the member's handle, never their real
      name: a handle is the name they chose for this place. */
   const cfg = [
+    /* ⚠️ BOTH NAMES. Jitsi renamed this option: `prejoinPageEnabled` is
+       the old one and current builds read `prejoinConfig.enabled`.
+       meet.jit.si is new enough to ignore the old name, so setting only
+       that one left the "Enter your name" screen up — exactly the extra
+       screen this was meant to remove. Harmless to send both. */
+    'config.prejoinConfig.enabled=false',
     'config.prejoinPageEnabled=false',
+    /* The room's own name, so the header doesn't read out the random key. */
+    `config.subject=${encodeURIComponent(title)}`,
     'config.startWithAudioMuted=true',
     'config.startWithVideoMuted=true',
     'config.disableDeepLinking=true',
