@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation';
 import { serverClient, assertReadable } from '../../lib/supabase-server';
 import { fetchMeetings, SOURCE } from '../../lib/meetings';
 import List from './List';
+import Rooms from './Rooms';
 
 /* =====================================================================
    MEETINGS.
@@ -75,6 +76,19 @@ export default async function MeetingsPage() {
           server" look identical to somebody at 2am and only one of them
           is true — and the false one tells a person in a bad moment that
           there is nowhere to go tonight. */}
+      {/* ⭐ Sober Book's own rooms sit ABOVE the NA list, and the order is
+          the argument: ours are one tap and can't turn anybody away;
+          theirs cover the hours nobody here is awake for.
+
+          ⚠️ OUTSIDE the !ok branch on purpose — if the NA server is
+          unreachable, members' own rooms must still be listed. That
+          failure has nothing to do with them, and a person at 2am should
+          not lose the room somebody here has open because a volunteer
+          server in another state is down. */}
+      <div className="pad" style={{ paddingBottom: 0 }}>
+        <Rooms />
+      </div>
+
       {!ok ? (
         <div className="pad">
           <div className="mt-down">

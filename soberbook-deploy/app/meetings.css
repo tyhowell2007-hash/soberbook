@@ -271,3 +271,83 @@
   border:2px solid var(--gm); box-shadow:none;
   font-size:13.5px;
 }
+
+/* =====================================================================
+   ROOMS MEMBERS ARE HOLDING HERE.  All classes prefixed rm- .
+   ===================================================================== */
+
+.rmwrap{ margin:0 0 4px; }
+.rmsec{
+  font-family:'Courier Prime',monospace;
+  font-size:11.5px; letter-spacing:.09em; text-transform:uppercase;
+  color:var(--gm-t); margin:0 0 8px;
+}
+
+.rmlist{ list-style:none; margin:0; padding:0; }
+.rmitem{
+  display:flex; align-items:center; gap:10px;
+  background:#fff; border:2px solid var(--gm); border-radius:14px;
+  padding:12px; margin:0 0 9px;
+}
+/* The newest room is the loud one — there's usually only one, and a page
+   of equally-shouting cards is a page with no signal on it. */
+.rmitem.first{ background:var(--gd); border:3px solid var(--gt); }
+.rmmeta{ display:flex; flex-direction:column; min-width:0; flex:1 1 auto; }
+.rmtitle{
+  font-size:16px; color:var(--x);
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+}
+.rmitem.first .rmtitle{ color:#fff; font-weight:500; }
+/* ⚠️ This line never names anybody who is IN the room — only who is
+   chairing, which is a public act they chose. See Rooms.jsx. */
+.rmwho{ font-size:12px; color:var(--soft); margin-top:3px; }
+.rmitem.first .rmwho{ color:#CFEADC; }   /* 8.9:1 on --gd */
+
+.rmgo{
+  flex:0 0 auto; text-decoration:none;
+  display:flex; align-items:center; justify-content:center;
+  min-height:46px; padding:0 20px; font-size:15px;
+  border-radius:11px; border:1px solid var(--gm);
+  background:#fff; color:var(--gm-t);
+}
+.rmitem.first .rmgo{ border-color:#fff; color:var(--gt); font-weight:500; }
+
+.rmempty{ margin:0 0 10px; }
+.rmempty p{ margin:0; font-size:13.5px; color:var(--soft); }
+
+.rmstart{ display:flex; gap:9px; align-items:stretch; margin:10px 0 4px; }
+/* Same shape as the find bar — .btn is display:block/width:100% by
+   default, so it has to be pulled back to sit beside an input. */
+.rmstart input{ flex:1 1 auto; min-width:0; font-size:16px; margin:0; }
+.rmstart .btn{
+  flex:0 0 auto; width:auto; margin-top:0; box-shadow:none;
+  min-height:46px; padding:0 18px; font-size:14.5px;
+  display:flex; align-items:center; justify-content:center;
+}
+.rmlocked{ margin-top:10px; }
+
+/* ---- inside a room ---- */
+.rm-mast .rm-title{
+  font-family:'Archivo',system-ui,sans-serif; font-size:15px;
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+}
+.rm-count{ font-size:11.5px; color:#CFEADC; }
+
+/* The video fills the space between the masthead and the bottom bar.
+   ⚠️ A fixed pixel height would letterbox on a phone and overflow on a
+   laptop; the viewport minus the chrome is the only honest number. */
+.rm-frame{
+  width:100%; height:calc(100vh - 190px); min-height:320px;
+  background:#14181A; border-bottom:3px solid var(--gt);
+}
+.rm-frame iframe{ width:100%; height:100%; border:0; display:block; }
+
+.rm-foot .btn.rm-end{
+  width:auto; margin-top:10px;
+  border-color:#8A2B2B; color:#6B1F1F;
+}
+
+.rm-gone{ text-align:center; padding:34px 14px; }
+.rm-gone h2{ margin:0 0 8px; }
+.rm-gone p{ margin:0 0 16px; font-size:14px; color:var(--soft); line-height:1.6; }
+.rm-gone .btn{ width:auto; display:inline-block; }
