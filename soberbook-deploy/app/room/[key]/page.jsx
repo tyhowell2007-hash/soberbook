@@ -27,12 +27,24 @@ export default async function RoomPage({ params }) {
 
   if (!room) notFound();
 
+  /* ⚠️ The HANDLE, never the display name. A handle is the name somebody
+     chose for this place; a display name may be their real one, and a
+     video room is the last place to surface that by accident.
+
+     🔴 Everyone showed as "Guest" for one deploy because this lookup was
+     removed with the Jitsi code and not reconnected to Daily. In a
+     meeting that isn't cosmetic — a room where nobody has a name is a
+     room where you can't tell who is talking to you. */
+  const { data: mine } = await supabase
+    .from('profiles').select('handle').eq('id', user.id).maybeSingle();
+
   return (
     <Room
       roomKey={room.room_key}
       title={room.title}
       hostName={room.host_name}
       isMine={room.is_mine}
+      me={mine?.handle || 'friend'}
     />
   );
 }

@@ -45,7 +45,7 @@ import { browserClient } from '../../../lib/supabase-browser';
    button somebody could find.
    ===================================================================== */
 
-export default function Room({ roomKey, title, hostName, isMine }) {
+export default function Room({ roomKey, title, hostName, isMine, me }) {
   const [gone, setGone] = useState(false);
   const [people, setPeople] = useState(null);
   const [url, setUrl] = useState(null);
@@ -133,7 +133,10 @@ export default function Room({ roomKey, title, hostName, isMine }) {
         ) : url ? (
           <iframe
             title={title}
-            src={url}
+            /* ⚠️ ?userName= is how Daily takes the name without a prejoin
+               screen. Without it everyone is "Guest", which in a meeting
+               means nobody can tell who is speaking. */
+            src={`${url}?userName=${encodeURIComponent(me || 'friend')}`}
             allow="camera; microphone; fullscreen; display-capture; autoplay; clipboard-write"
           />
         ) : (
