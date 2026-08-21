@@ -225,7 +225,19 @@ export default function List({ meetings, fetchedAt, source, going: initialGoing 
      haven't. Same call as the block button (Aug 6) and the friend button
      — a state that only LOOKS like it worked is the dangerous kind here. */
   async function flagIt(m, kind) {
-    const fk = source + '|' + m.id;
+    /* 🔴 source.id, NOT source. `source` is the SOURCE OBJECT
+       ({ id, name, url, tz, ... }) — the "I'm going" code five lines
+       below always used source.id correctly, and I wrote this block
+       using the bare object.
+
+       Every key became the literal string "[object Object]|2894", so it
+       matched nothing, and every insert sent an object where a text
+       column was expected. **The "Couldn't get in?" button never worked
+       once.** It failed silently into the catch and said "Couldn't save
+       that", which reads like a network blip rather than a broken
+       feature — so the app never learned, and kept sending Ty at the one
+       door it had already been told was locked. */
+    const fk = source.id + '|' + m.id;
     setFlagging(fk); setErr('');
     try {
       const supabase = browserClient();
@@ -233,14 +245,14 @@ export default function List({ meetings, fetchedAt, source, going: initialGoing 
       if (!user) throw new Error('Sign in first.');
       if (myFlags[fk]) {
         const { error } = await supabase.from('meeting_flags').delete()
-          .eq('source', source).eq('meeting_id', m.id)
+          .eq('source', source.id).eq('meeting_id', m.id)
           .eq('kind', kind).eq('reporter_id', user.id);
         if (error) throw error;
         setMyFlags((x) => { const n = { ...x }; delete n[fk]; return n; });
         setFlags((x) => ({ ...x, [fk]: Math.max(0, (x[fk] || 1) - 1) }));
       } else {
         const { error } = await supabase.from('meeting_flags')
-          .insert({ source, meeting_id: m.id, kind, reporter_id: user.id });
+          .insert({ source: source.id, meeting_id: m.id, kind, reporter_id: user.id });
         if (error) throw error;
         setMyFlags((x) => ({ ...x, [fk]: true }));
         setFlags((x) => ({ ...x, [fk]: (x[fk] || 0) + 1 }));
@@ -353,7 +365,7 @@ export default function List({ meetings, fetchedAt, source, going: initialGoing 
 
   const liveNow = allRows.filter((r) => {
     if (!r.link) return false;
-    if ((flags[source + '|' + r.id] || 0) > 0) return false;
+    if ((flags[source.id + '|' + r.id] || 0) > 0) return false;
     if (r.access === 'closed') return false;
     return runningAt(r);
   });
@@ -413,7 +425,7 @@ export default function List({ meetings, fetchedAt, source, going: initialGoing 
     const others = here.filter((g) => !g.is_mine);
     const names = nameList(others.map((g) => g.display_name));
     const key   = m.id + m.onDate;
-    const fkey  = source + '|' + m.id;
+    const fkey  = source.id + '|' + m.id;
     const flagged  = (flags[fkey] || 0) > 0;
     const mineFlag = !!myFlags[fkey];
     /* Running right now — the same test the big button uses, so the two
