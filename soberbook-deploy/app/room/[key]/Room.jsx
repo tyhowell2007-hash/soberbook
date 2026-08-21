@@ -35,6 +35,20 @@ import { browserClient } from '../../../lib/supabase-browser';
    isn't a button, it's being in bed.
 
    ---------------------------------------------------------------------
+   ⭐ YOUR NAME COMES IN A TOKEN, NOT A QUERY STRING.
+
+   For a day everybody in here was called "Guest". The first fix put the
+   name in the URL as ?userName=, which Daily only reads off the PREJOIN
+   SCREEN — and skipping that screen is the whole design. So the setting
+   was ignored and the page looked fine.
+
+   Now /api/room/ensure mints a Daily meeting token with the handle
+   already inside it, and this component just loads whatever src it's
+   handed. ⚠️ Which means the name is now UNSPOOFABLE: a query string is
+   written by the browser, a token is signed by Daily. Nobody walks into
+   a Sober Book meeting wearing someone else's handle.
+
+   ---------------------------------------------------------------------
    ⚠️ WHAT IS DELIBERATELY NOT HERE
 
    No streaks, no attendance count, no "you've been to 7 meetings".
@@ -45,10 +59,10 @@ import { browserClient } from '../../../lib/supabase-browser';
    button somebody could find.
    ===================================================================== */
 
-export default function Room({ roomKey, title, hostName, isMine, me }) {
+export default function Room({ roomKey, title, hostName, isMine }) {
   const [gone, setGone] = useState(false);
   const [people, setPeople] = useState(null);
-  const [url, setUrl] = useState(null);
+  const [src, setSrc] = useState(null);
   const [err, setErr] = useState('');
 
   /* ---- get (or make) the Daily room ---- */
@@ -64,7 +78,15 @@ export default function Room({ roomKey, title, hostName, isMine, me }) {
         const body = await res.json();
         if (!alive) return;
         if (!res.ok) { setErr(body.error || 'Couldn’t open the video room.'); return; }
-        setUrl(body.url);
+        /* ⭐ ?t=<token> is what carries your name in. See the long note
+           above — the token is minted server-side, and this component
+           never learns or handles the handle itself. There is nothing
+           here to spoof because there is nothing here to edit.
+
+           ⚠️ The token is optional on purpose: /api/room/ensure fails
+           soft if minting breaks, so a room with no name still opens
+           rather than showing a 2am error. */
+        setSrc(body.token ? `${body.url}?t=${body.token}` : body.url);
       } catch {
         if (alive) setErr('Couldn’t reach the video room.');
       }
@@ -130,13 +152,10 @@ export default function Room({ roomKey, title, hostName, isMine, me }) {
             <p>{err}</p>
             <Link href="/meetings" className="btn">Back to meetings</Link>
           </div>
-        ) : url ? (
+        ) : src ? (
           <iframe
             title={title}
-            /* ⚠️ ?userName= is how Daily takes the name without a prejoin
-               screen. Without it everyone is "Guest", which in a meeting
-               means nobody can tell who is speaking. */
-            src={`${url}?userName=${encodeURIComponent(me || 'friend')}`}
+            src={src}
             allow="camera; microphone; fullscreen; display-capture; autoplay; clipboard-write"
           />
         ) : (

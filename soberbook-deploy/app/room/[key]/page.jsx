@@ -27,16 +27,16 @@ export default async function RoomPage({ params }) {
 
   if (!room) notFound();
 
-  /* ⚠️ The HANDLE, never the display name. A handle is the name somebody
-     chose for this place; a display name may be their real one, and a
-     video room is the last place to surface that by accident.
+  /* ⚠️ THE HANDLE LOOKUP USED TO LIVE HERE AND IT IS GONE ON PURPOSE.
+     Your name in the meeting is now baked into a Daily meeting token by
+     /api/room/ensure, which reads the handle from the session itself.
 
-     🔴 Everyone showed as "Guest" for one deploy because this lookup was
-     removed with the Jitsi code and not reconnected to Daily. In a
-     meeting that isn't cosmetic — a room where nobody has a name is a
-     room where you can't tell who is talking to you. */
-  const { data: mine } = await supabase
-    .from('profiles').select('handle').eq('id', user.id).maybeSingle();
+     Looking it up here as well would be a second copy of the same fact,
+     and the pattern this codebase keeps getting bitten by is exactly
+     that — a rule enforced in one place and restated in another, where
+     the restatement quietly drifts (0046, then again in 0049). The
+     browser can't be trusted with the name anyway, so the only sensible
+     place to read it is the same request that signs it. */
 
   return (
     <Room
@@ -44,7 +44,6 @@ export default async function RoomPage({ params }) {
       title={room.title}
       hostName={room.host_name}
       isMine={room.is_mine}
-      me={mine?.handle || 'friend'}
     />
   );
 }
