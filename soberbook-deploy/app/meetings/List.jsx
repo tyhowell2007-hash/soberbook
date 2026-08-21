@@ -296,14 +296,43 @@ export default function List({ meetings, fetchedAt, source, going: initialGoing 
     return runningAt(r);
   });
 
-  /* Longest still to run, so nobody is dropped into something that ends
-     in four minutes. */
   const endsAt = (r) => {
     const dur = (r.minutes || 60) * 60000;
     const now = Date.now();
     return (r.ts <= now && now < r.ts + dur) ? r.ts + dur : r.ts - WEEK + dur;
   };
-  const rightNow = liveNow.sort((a, b) => endsAt(b) - endsAt(a))[0] || null;
+
+  /* 🔴 RANKING, and the first rule is the one I got wrong.
+     v1 sorted purely by "longest still to run", so a 24-hour room won
+     every time — including the one room we know demands a Zoom account,
+     while two OPEN meetings that had just started sat right beneath it.
+     Duration is the weakest signal here, not the strongest.
+
+     In order of what actually matters to somebody at 2am:
+       1. ENOUGH TIME LEFT — at least 20 minutes. Walking in as a meeting
+          closes is its own small humiliation.
+       2. KNOWN OPEN beats "not stated". Being asked to leave is worse
+          than not going, so certainty is worth more than convenience.
+       3. Only then, more time remaining.
+
+     ⚠️ 1 and 2 were the other way round at first, and a written-out test
+     caught it: an open meeting with five minutes left beat an unknown one
+     with five hours. Ordering the tie-breaks is the whole design here —
+     get it wrong and the button is confidently useless. */
+  const MIN_LEFT = 20 * 60000;
+  const score = (r) => {
+    const left = endsAt(r) - Date.now();
+    return [
+      left >= MIN_LEFT ? 1 : 0,      // long enough to be worth going
+      r.access === 'open' ? 1 : 0,   // then: certain you're welcome
+      left,                          // then whatever runs longest
+    ];
+  };
+  const rightNow = liveNow.sort((a, b) => {
+    const A = score(a), B = score(b);
+    for (let i = 0; i < A.length; i++) if (B[i] !== A[i]) return B[i] - A[i];
+    return 0;
+  })[0] || null;
 
   const peopleFor = (m) =>
     going.filter((g) => g.meeting_id === m.id && g.occurs_on === m.onDate);
