@@ -52,11 +52,24 @@ function partsIn(date, tz) {
    error. Twice, because correcting once can land on the far side of a DST
    boundary and be an hour out. Two passes settles it. */
 function zonedToUtc(y, mo, d, hh, mi, tz) {
-  let ts = Date.UTC(y, mo - 1, d, hh, mi);
+  /* 🔴 `want` IS THE FIX, AND IT WAS THE WHOLE BUG.
+     Every meeting time in the app was FOUR HOURS LATE from Aug 17 until
+     Aug 20 — the size of the Eastern offset — because the correction
+     compared each guess against `ts`, which changes every pass, instead
+     of against the wall-clock time we were actually aiming for. Pass one
+     corrected properly; pass two then "corrected" a second time in the
+     same direction and doubled the error.
+
+     Ty found it the only way anybody could: "why is there no one in the
+     rooms. usually their packed." He was being sent to meetings that had
+     ended hours earlier. ⚠️ An empty room reads as "nobody came", not as
+     "the app lied about the time" — this bug hid inside a feeling. */
+  const want = Date.UTC(y, mo - 1, d, hh, mi);
+  let ts = want;
   for (let i = 0; i < 2; i++) {
     const g = partsIn(new Date(ts), tz);
     const seen = Date.UTC(+g.year, +g.month - 1, +g.day, +g.hour % 24, +g.minute);
-    ts -= seen - ts;
+    ts -= seen - want;          // ⚠️ `want`, never `ts`
   }
   return ts;
 }
