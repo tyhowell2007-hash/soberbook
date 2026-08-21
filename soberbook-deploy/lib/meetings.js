@@ -221,7 +221,23 @@ function passcodeFrom(note) {
      247247 and not the meeting id. Bounded length so a sentence
      fragment can't be mistaken for a code. */
   const m = note.match(/\b(?:passcode|password|pass|pw)\b\s*[:#-]?\s*([A-Za-z0-9]{4,16})\b/i);
-  return m ? m[1] : '';
+  if (!m) return '';
+
+  /* 🔴 WORDS THAT MEAN "THERE ISN'T ONE".
+     The feed writes "Password: None" — and the first version of this
+     happily produced ?pwd=None, which BREAKS a meeting that needed no
+     passcode at all. Three live rooms were harder to join because of it.
+
+     ⚠️ This is the failure I talked myself out of last night. I said a
+     wrong guess "leaves you where you already were." That is only true
+     when the guess is ABSENT. A wrong passcode makes Zoom throw an
+     error, which is strictly worse than no passcode — I even wrote that
+     sentence about a different case and then didn't guard for this one.
+     Absent is safe; wrong is not. */
+  const NOT_A_CODE = /^(none|no|n\/?a|na|null|nil|tba|tbd|open|nopw|nopass)$/i;
+  if (NOT_A_CODE.test(m[1])) return '';
+
+  return m[1];
 }
 
 function withPasscode(link, note) {
