@@ -257,3 +257,17 @@
   background:var(--gd); color:#fff; border-color:var(--gt);
   font-weight:500;
 }
+
+/* ---- a meeting that hasn't started yet -------------------------------
+   🔴 Not the same button. Tapping this lands you in Zoom's "waiting for
+   the host", which is indistinguishable from being shut out — so it must
+   not look identical to a door that's actually open.
+
+   ⚠️ Still tappable. Turning up early and waiting is a real thing people
+   do, and on a bad night it may be the point. You just aren't told it's
+   open when it isn't. */
+.mt-join.mt-join-early{
+  background:#fff; color:var(--gm-t);
+  border:2px solid var(--gm); box-shadow:none;
+  font-size:13.5px;
+}

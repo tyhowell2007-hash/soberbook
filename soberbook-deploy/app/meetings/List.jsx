@@ -403,6 +403,9 @@ export default function List({ meetings, fetchedAt, source, going: initialGoing 
     const fkey  = source + '|' + m.id;
     const flagged  = (flags[fkey] || 0) > 0;
     const mineFlag = !!myFlags[fkey];
+    /* Running right now — the same test the big button uses, so the two
+       can never disagree about what "open" means. */
+    const live = runningAt(m);
     const faces = others.slice(0, 4);
 
     return (
@@ -450,7 +453,29 @@ export default function List({ meetings, fetchedAt, source, going: initialGoing 
           {m.link && (
             /* noreferrer as well as noopener: the meeting host has no
                business learning the click came from a recovery app. */
-            <a className="mt-join" href={onPhone ? m.link : webClientHref(m.link)} target="_blank" rel="noopener noreferrer">Join ↗</a>
+            /* 🔴 A MEETING THAT HASN'T STARTED MUST NOT LOOK LIKE ONE
+               THAT HAS.
+
+               Ty: "I can get into the first one, but not the rest of
+               them." He was right, and it was never the link. At 10:23pm
+               exactly one meeting was running and the rest all started at
+               10:30 — so every other Join dropped him into Zoom's
+               "waiting for the host" screen, which is indistinguishable
+               from being locked out.
+
+               ⚠️ The button was identically green and identically
+               confident either way. The app knew the meeting hadn't
+               started — it says "IN 7 MIN" two lines above — and then
+               offered the same door anyway.
+
+               Now the button says what will happen. You can still go
+               early and wait, which is a real thing people do; you just
+               aren't told it's open when it isn't. */
+            <a className={'mt-join' + (live ? '' : ' mt-join-early')}
+               href={onPhone ? m.link : webClientHref(m.link)}
+               target="_blank" rel="noopener noreferrer">
+              {live ? 'Join ↗' : `Opens ${m.when.toLowerCase()} ↗`}
+            </a>
           )}
           <button type="button"
                   className={'mt-going-btn' + (mine ? ' on' : '')}
