@@ -27,18 +27,12 @@ export default async function RoomPage({ params }) {
 
   if (!room) notFound();
 
-  /* The handle, not the real name — a handle is the name somebody chose
-     for this place, and it is what the rest of the app calls them. */
-  const { data: mine } = await supabase
-    .from('profiles').select('handle').eq('id', user.id).maybeSingle();
-
   return (
     <Room
       roomKey={room.room_key}
       title={room.title}
       hostName={room.host_name}
       isMine={room.is_mine}
-      me={mine?.handle || 'friend'}
     />
   );
 }

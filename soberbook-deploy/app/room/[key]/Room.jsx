@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { browserClient } from '../../../lib/supabase-browser';
 
@@ -10,50 +10,67 @@ import { browserClient } from '../../../lib/supabase-browser';
    Ty, after showing me In The Rooms: "we gotta make it easy to get in.
    And make it fun to do."
 
-   Video is Jitsi, embedded. Sober Book owns the room, the listing and the
-   rules; Jitsi only carries the picture. Nothing here leaves the app —
-   that was the whole complaint about the Zoom handoff: five screens
-   through somebody else's product.
+   Video is Daily, embedded. Sober Book owns the room — who may open one,
+   who can see it, the count, the invites — and Daily only carries the
+   picture. Nothing here leaves the app, which was the whole complaint
+   about the Zoom handoff: five screens through somebody else's product.
 
    ---------------------------------------------------------------------
-   ⭐ CAMERA AND MIC START OFF, AND THE NAME SCREEN IS SKIPPED.
+   ⚠️ THIS WAS JITSI FIRST, AND meet.jit.si CANNOT HOST THIS.
 
-   Those two settings are the entire "easy AND kind" trade. Skipping the
-   prejoin screen is fewest taps. Starting muted and dark is what makes
-   fewest taps safe — the real barrier at 11pm isn't a button, it's being
-   in bed and not wanting forty people to see it. You arrive already
-   hidden and turn yourself on if you want to.
+   Their public server requires a moderator to LOG IN before a room can
+   start — "no moderators have yet arrived". I checked it beforehand, saw
+   the join screen, and wrote "verified to need no account" into the
+   migration. I never clicked Join. Testing the first hop is not testing
+   the journey, and that mistake cost an evening. Do not go back to
+   meet.jit.si without joining a room end to end first.
 
-   ⚠️ Do not "improve" this by enabling the prejoin screen to let people
-   check themselves first. That's the extra screen we removed, and it
-   solves a problem that starting-muted already solved.
+   ---------------------------------------------------------------------
+   ⭐ CAMERA AND MIC START OFF, AND THERE IS NO NAME SCREEN.
+
+   Set server-side in /api/room/ensure, not here — a config a browser can
+   edit is not a guarantee. Those two settings are the "easy AND kind"
+   trade: skipping the prejoin screen is fewest taps, and starting dark
+   and muted is what makes fewest taps safe. The real barrier at 11pm
+   isn't a button, it's being in bed.
 
    ---------------------------------------------------------------------
    ⚠️ WHAT IS DELIBERATELY NOT HERE
 
    No streaks, no attendance count, no "you've been to 7 meetings".
    A streak punishes the night somebody couldn't come, which is the night
-   it matters most. The growing post works because it rewards showing up
-   FOR SOMEBODY ELSE; a meeting streak would just be one more thing to
-   fail at.
+   it matters most.
 
-   No recording, and the toolbar has no button for it.
+   No recording — off in the room's server-side properties, so it isn't a
+   button somebody could find.
    ===================================================================== */
 
-/* The toolbar, trimmed on purpose. Every button here is one somebody in a
-   meeting actually reaches for. Recording, live-streaming and the invite
-   dialog are absent — the first two because nothing here is ever
-   recorded, the third because the way in is the Sober Book listing, not
-   a link people forward. */
-const TOOLBAR = [
-  'microphone', 'camera', 'hangup', 'chat', 'raisehand',
-  'tileview', 'participants-pane', 'settings', 'videoquality',
-];
-
-export default function Room({ roomKey, title, hostName, isMine, me }) {
-  const frame = useRef(null);
+export default function Room({ roomKey, title, hostName, isMine }) {
   const [gone, setGone] = useState(false);
   const [people, setPeople] = useState(null);
+  const [url, setUrl] = useState(null);
+  const [err, setErr] = useState('');
+
+  /* ---- get (or make) the Daily room ---- */
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      try {
+        const res = await fetch('/api/room/ensure', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ roomKey }),
+        });
+        const body = await res.json();
+        if (!alive) return;
+        if (!res.ok) { setErr(body.error || 'Couldn’t open the video room.'); return; }
+        setUrl(body.url);
+      } catch {
+        if (alive) setErr('Couldn’t reach the video room.');
+      }
+    })();
+    return () => { alive = false; };
+  }, [roomKey]);
 
   /* ---- heartbeat ----
      Tells the database we're in here so the listing can say "3 in there
@@ -93,32 +110,6 @@ export default function Room({ roomKey, title, hostName, isMine, me }) {
     );
   }
 
-  /* ⚠️ Everything after the # is Jitsi config, not a query string — that
-     is how their embed takes options. `prejoinPageEnabled=false` is the
-     skipped name screen; the two startWith* flags are the camera and mic
-     starting off. displayName is the member's handle, never their real
-     name: a handle is the name they chose for this place. */
-  const cfg = [
-    /* ⚠️ BOTH NAMES. Jitsi renamed this option: `prejoinPageEnabled` is
-       the old one and current builds read `prejoinConfig.enabled`.
-       meet.jit.si is new enough to ignore the old name, so setting only
-       that one left the "Enter your name" screen up — exactly the extra
-       screen this was meant to remove. Harmless to send both. */
-    'config.prejoinConfig.enabled=false',
-    'config.prejoinPageEnabled=false',
-    /* The room's own name, so the header doesn't read out the random key. */
-    `config.subject=${encodeURIComponent(title)}`,
-    'config.startWithAudioMuted=true',
-    'config.startWithVideoMuted=true',
-    'config.disableDeepLinking=true',
-    'config.disableInviteFunctions=true',
-    'config.doNotStoreRoom=true',
-    `config.toolbarButtons=${encodeURIComponent(JSON.stringify(TOOLBAR))}`,
-    `userInfo.displayName=${encodeURIComponent(me || 'friend')}`,
-    'interfaceConfig.SHOW_JITSI_WATERMARK=false',
-    'interfaceConfig.MOBILE_APP_PROMO=false',
-  ].join('&');
-
   return (
     <>
       <div className="mast rm-mast">
@@ -132,16 +123,22 @@ export default function Room({ roomKey, title, hostName, isMine, me }) {
       </div>
 
       <div className="rm-frame">
-        <iframe
-          ref={frame}
-          title={title}
-          src={`https://meet.jit.si/${encodeURIComponent(roomKey)}#${cfg}`}
-          allow="camera; microphone; fullscreen; display-capture; autoplay; clipboard-write"
-          /* ⚠️ allow-same-origin is required for Jitsi to work at all, and
-             it is safe here only because meet.jit.si is a different origin
-             from soberbook.app — it cannot reach this page's session. */
-          sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
-        />
+        {err ? (
+          /* ⚠️ Says it plainly and offers the way out. A blank black
+             rectangle at 2am reads as "even this doesn't want me". */
+          <div className="rm-frameerr">
+            <p>{err}</p>
+            <Link href="/meetings" className="btn">Back to meetings</Link>
+          </div>
+        ) : url ? (
+          <iframe
+            title={title}
+            src={url}
+            allow="camera; microphone; fullscreen; display-capture; autoplay; clipboard-write"
+          />
+        ) : (
+          <div className="rm-frameerr"><p>Opening the room…</p></div>
+        )}
       </div>
 
       <div className="pad rm-foot">
