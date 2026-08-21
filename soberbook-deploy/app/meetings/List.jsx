@@ -474,7 +474,12 @@ export default function List({ meetings, fetchedAt, source, going: initialGoing 
             <a className={'mt-join' + (live ? '' : ' mt-join-early')}
                href={onPhone ? m.link : webClientHref(m.link)}
                target="_blank" rel="noopener noreferrer">
-              {live ? 'Join ↗' : `Opens ${m.when.toLowerCase()} ↗`}
+              {/* ⚠️ m.when is an OBJECT — { t, live } from whenLabel(). I
+                  called .toLowerCase() straight on it and white-screened
+                  the whole meetings page in production. `String(...)`
+                  here so a shape change can never take the page down
+                  again; a slightly odd label beats a blank screen. */}
+              {live ? 'Join ↗' : `Opens ${String(m.when?.t || 'soon').toLowerCase()} ↗`}
             </a>
           )}
           <button type="button"
