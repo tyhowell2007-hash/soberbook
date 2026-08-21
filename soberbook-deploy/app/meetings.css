@@ -351,3 +351,14 @@
 .rm-gone h2{ margin:0 0 8px; }
 .rm-gone p{ margin:0 0 16px; font-size:14px; color:var(--soft); line-height:1.6; }
 .rm-gone .btn{ width:auto; display:inline-block; }
+
+/* The video area while it's loading, or when it can't load.
+   ⚠️ Never a blank black rectangle — at 2am that reads as the app not
+   wanting you either. */
+.rm-frameerr{
+  height:100%; display:flex; flex-direction:column;
+  align-items:center; justify-content:center; gap:14px;
+  padding:20px; text-align:center;
+}
+.rm-frameerr p{ margin:0; color:#CFEADC; font-size:14.5px; line-height:1.6; }
+.rm-frameerr .btn{ width:auto; }
