@@ -46,6 +46,15 @@ export const READABLE_VIEWS = [
      room_presence directly would hand back raw uuids, including for
      somebody who has blocked you. See 0052. */
   'open_meeting_rooms',
+  /* what_gets_you_through — the wall of higher powers (0055). Safe for
+     the same reason as the two above: it never exposes a base table.
+     Reading higher_powers directly would hand back author_id for every
+     ANONYMOUS answer on the page, which on that page is the whole point
+     of the feature — somebody who was thrown out of a church, or who
+     doesn't believe and is surrounded by people who do, saying so
+     without signing it. The view nulls the id, swaps in an alias, and
+     drops the day count. See 0055. */
+  'what_gets_you_through',
 ];
 
 export function assertReadable(name) {
