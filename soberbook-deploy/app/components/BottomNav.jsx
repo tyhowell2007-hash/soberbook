@@ -63,6 +63,19 @@ const TABS = [
      ignore worse than useless. */
   { href: '/friends',  icon: '👋', label: 'People', dot: 'friends',
     said: 'someone asked to be your friend' },
+  /* Aug 21. The fourth to earn its way in, and the only tab with NO DOT
+     BY DESIGN rather than by omission.
+
+     Nothing on /quiet can arrive for you. There are no replies on the
+     wall of higher powers — the database has no table to hold one — so
+     there is nothing that could ever be waiting. A dot here would be a
+     summons to a page whose entire premise is that nobody is going to
+     come at you. It would also be the first dot in the app that meant
+     "come back" rather than "someone spoke to you", which is the slot-
+     machine move this bar exists to refuse.
+
+     A candle: a small light somebody lit, that asks nothing of you. */
+  { href: '/quiet',    icon: '🕯️', label: 'Quiet' },
   /* no `dot` — see above */
   { href: '/me',       icon: '🙂', label: 'You'  },
 ];

@@ -769,6 +769,25 @@ ul.mine li > *{ position:relative; z-index:1; }
 .tab.on .tl{ font-weight:700; }
 .tab:focus-visible{ outline:3px solid var(--x); outline-offset:-3px; }
 
+/* ⚠️ SIX TABS SINCE AUG 21 (Quiet). On a 320px phone that is 53px each,
+   and "MEETINGS" — 8 uppercase characters with .12em letter-spacing —
+   no longer fits. It wrapped to two lines, which pushed the bar taller
+   than .navpad reserves and put a strip of the page permanently under
+   it.
+
+   The fix is horizontal only: less padding, less letter-spacing, and
+   nowrap so a stray break can never change the bar's HEIGHT. The font
+   size stays at 10px — shrinking type to fit more tabs is how a nav bar
+   becomes unreadable one feature at a time.
+
+   ⚠️ Whatever is added seventh does not get to solve this the same way.
+   Six is the ceiling for a bar of words. */
+.tab .tl{ white-space:nowrap; }
+@media (max-width:380px){
+  .tab{ padding:7px 1px; }
+  .tab .tl{ letter-spacing:.04em; }
+}
+
 /* Keeps the last post clear of the fixed bar. Must track .tabbar's height. */
 .navpad{ height:60px; }
 

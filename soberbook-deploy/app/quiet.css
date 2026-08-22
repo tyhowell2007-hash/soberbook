@@ -1,0 +1,303 @@
+/* =====================================================================
+   QUIET — the wall of higher powers, the practices, the room.
+
+   ⚠️ EVERY CLASS IN HERE IS PREFIXED hp- OR pr-. That's not tidiness,
+   it's the Aug 16 photos bug: `.composer` was declared here and again
+   in theme-green, and the collision unpinned the message box. A generic
+   name in a per-route stylesheet is a landmine for whichever page loads
+   both files.
+
+   ⚠️ THIS FILE READS --gd / --gl / --gt / --gm-t / --soft OUT OF
+   theme-green.css, so the layout MUST import theme-green first. Swap
+   the two lines and every colour here silently falls back to nothing.
+
+   ⚠️ --gm IS NEVER USED AS TEXT. It measures 4.22:1 on white and fails.
+   Small type uses --gm-t.
+   ===================================================================== */
+
+.hp-wrap { padding-bottom: 2rem; }
+
+.hp-h {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--gt);
+  margin: 0 0 4px;
+  letter-spacing: -0.01em;
+}
+.hp-h2 { margin-top: 34px; }
+
+.hp-lede {
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--soft);
+  margin: 0 0 14px;
+}
+
+.hp-add { width: 100%; margin-bottom: 18px; }
+
+/* ---- the composer ---- */
+.hp-compose {
+  background: var(--paper2);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 12px;
+  margin-bottom: 18px;
+}
+.hp-compose textarea {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 10px;
+  font: inherit;
+  font-size: 16px;      /* ⚠️ 16px or iOS Safari zooms the page on focus */
+  line-height: 1.5;
+  color: var(--body);
+  background: var(--paper);
+  resize: vertical;
+}
+.hp-crow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 8px 0 10px;
+}
+.hp-anon {
+  /* ⚠️ 44px tall. The Aug 18 audit found the two controls everyone
+     actually uses were ~20px targets. This is the switch that decides
+     whether somebody's name goes on the most exposed thing they'll
+     write in this app — it does not get to be fiddly. */
+  min-height: 44px;
+  padding: 0 14px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--paper);
+  color: var(--gm-t);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.hp-anon.on {
+  background: var(--gl);
+  border-color: var(--gd);
+  color: var(--gt);
+}
+.hp-left { font-size: 12px; color: var(--soft); font-variant-numeric: tabular-nums; }
+.hp-left.low { color: var(--gd); font-weight: 700; }
+
+/* ⚠️ Its own error class, NOT .phserr. That one lives only in
+   photos.css, which this route doesn't import — so reusing the name
+   would have rendered an unstyled error message on the one screen where
+   somebody is already having a bad night. Caught by checking every
+   className in this route against the stylesheets actually reachable
+   from it, which is now the habit after the friends page shipped with
+   its CSS in the wrong file. */
+.hp-err {
+  margin: 10px 0 0;
+  font-size: 14px;
+  color: #8C2F1E;
+  background: #FCEFEA;
+  border-radius: 8px;
+  padding: 9px 11px;
+}
+
+.hp-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.hp-del { margin-left: auto; color: var(--soft); }
+.hp-note { margin-top: 10px; }
+
+/* ---- the answers ---- */
+.hp-empty {
+  background: var(--gl);
+  border-radius: 12px;
+  padding: 18px 14px;
+  text-align: center;
+  color: var(--gt);
+  font-size: 14px;
+  margin-bottom: 16px;
+}
+
+.hp-list { list-style: none; margin: 0; padding: 0; }
+
+.hp-card {
+  background: var(--paper2);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 14px;
+  margin-bottom: 10px;
+}
+/* ⚠️ A quiet left edge on yours, NOT a full accent border — the point of
+   the page is that no answer outranks another. And with a single-sided
+   border the corners must be square, or the radius fights the edge. */
+.hp-card.mine {
+  border-left: 3px solid var(--gd);
+  border-radius: 0 12px 12px 0;
+}
+
+.hp-body {
+  font-size: 17px;
+  line-height: 1.5;
+  color: var(--body);
+  margin: 0 0 10px;
+  /* honour the line breaks somebody typed; the good answers are shaped */
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.hp-foot { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+
+.hp-face {
+  width: 26px; height: 26px;
+  border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 15px;
+  background: var(--gl);
+  flex: none;
+}
+.hp-face-blank { color: var(--gm-t); font-size: 12px; font-weight: 700; }
+
+.hp-sig { margin: 0; font-size: 13px; color: var(--soft); }
+.hp-sig a { color: var(--gm-t); text-decoration: none; }
+.hp-sig a:hover { text-decoration: underline; }
+
+.hp-edit {
+  margin-left: auto;
+  min-height: 44px;
+  padding: 0 10px;
+  background: none;
+  border: 0;
+  color: var(--gm-t);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* ---- practices ---- */
+.hp-prac { list-style: none; margin: 0 0 14px; padding: 0; }
+.hp-prac li { margin-bottom: 8px; }
+
+.hp-pbtn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  text-align: left;
+  min-height: 56px;
+  padding: 12px 14px;
+  background: var(--paper2);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  cursor: pointer;
+}
+.hp-pbtn:hover { border-color: var(--gd); }
+.hp-pwhen { font-size: 15px; color: var(--body); }
+.hp-plen  { font-size: 12px; color: var(--soft); flex: none; }
+
+/* 🔴 The care line. Deliberately NOT small print — it is the same size
+   as everything else it sits beside. */
+.hp-care {
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--gt);
+  background: var(--gl);
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin: 0 0 6px;
+}
+
+.hp-room { width: 100%; margin-top: 4px; }
+
+/* =====================================================================
+   A PRACTICE, OPEN
+   ===================================================================== */
+.pr-wrap { padding-bottom: 2rem; }
+
+.pr-back {
+  min-height: 44px;
+  padding: 0 4px 0 0;
+  background: none; border: 0;
+  color: var(--gm-t);
+  font-size: 15px; font-weight: 600;
+  cursor: pointer;
+}
+
+.pr-title {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--gt);
+  margin: 4px 0 2px;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+}
+.pr-when { font-size: 13px; color: var(--soft); margin: 0 0 20px; }
+
+/* ---- the breathing circle ----
+   ⚠️ A CSS animation, not JS. Phones throttle background timers and JS
+   animation drifts — on a breathing guide, drift means telling somebody
+   to inhale for nine seconds. The browser's own clock doesn't drift.
+
+   Total cycle 10s: 2.6s in, 1.2s the second sip, 4.2s out, 2s rest. */
+.pr-breath {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 0 0 26px;
+}
+.pr-circle {
+  width: 120px; height: 120px;
+  border-radius: 50%;
+  background: var(--gl);
+  border: 2px solid var(--gd);
+  animation: pr-breathe 10s ease-in-out infinite;
+}
+@keyframes pr-breathe {
+  0%   { transform: scale(0.62); }
+  26%  { transform: scale(0.92); }
+  38%  { transform: scale(1); }
+  80%  { transform: scale(0.62); }
+  100% { transform: scale(0.62); }
+}
+/* ⚠️ Somebody who gets motion sick, or is on a phone set to reduce
+   motion, must not be handed a pulsing circle as their calm-down tool.
+   The cue text still carries the whole practice without it. */
+@media (prefers-reduced-motion: reduce) {
+  .pr-circle { animation: none; transform: scale(0.85); }
+}
+.pr-cue {
+  margin: 14px 0 0;
+  font-size: 16px;
+  color: var(--gm-t);
+  font-weight: 600;
+  min-height: 1.4em;   /* reserve the line so nothing jumps between cues */
+}
+
+.pr-steps {
+  margin: 0 0 20px;
+  padding-left: 22px;
+  color: var(--body);
+}
+.pr-steps li {
+  font-size: 17px;
+  line-height: 1.65;
+  margin-bottom: 12px;
+}
+
+.pr-note {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--gt);
+  background: var(--gl);
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin: 0 0 12px;
+}
+
+/* The stop line. Same weight as the practice itself, because somebody
+   who needs it is not going to squint at a footnote. */
+.pr-stop {
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--soft);
+  margin: 0 0 20px;
+}
+
+.pr-done { width: 100%; }
