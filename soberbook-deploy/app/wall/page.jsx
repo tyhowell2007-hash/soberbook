@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { serverClient, assertReadable } from '../../lib/supabase-server';
 import { milestoneToday, dayCount } from '../../lib/milestones';
 import { signPhotoPaths, collectPaths } from '../../lib/sign-photos';
+import { fetchPreviews } from '../../lib/previews';
 import Wall from './Wall';
 
 export const dynamic = 'force-dynamic';
@@ -40,6 +41,18 @@ export default async function WallPage() {
      pictures in afterwards — the layout jumping under somebody's thumb
      while they read. Signed up front, a post arrives whole. */
   const photoUrls = await signPhotoPaths(supabase, collectPaths(posts));
+
+  /* The last couple of replies under each post, fetched here rather than
+     in the browser — same reason as the photos above. Loading them client
+     side would paint the wall, then push every answered post downwards as
+     its conversation appeared underneath, moving the page under somebody's
+     thumb while they read it.
+
+     ⚠️ ONE round trip for the whole page, not one per post. The obvious
+     build asks per post as each card renders, which on a full wall is 60
+     requests racing each other — and the first thing to break would be
+     the wall of the person with the most conversation on it. */
+  const previews = await fetchPreviews(supabase, (posts || []).map((p) => p.id));
 
   const days = profile.sober_since
     ? Math.floor((Date.now() - new Date(profile.sober_since).getTime()) / 86400000)
@@ -98,6 +111,7 @@ export default async function WallPage() {
             me={{ name: profile.display_name || null, avatar: profile.avatar || null }}
             mark={mark}
             photoUrls={photoUrls}
+            previews={previews}
           />}
     </>
   );

@@ -8,6 +8,7 @@ import Thread from './Thread';
 import PostMenu from './PostMenu';
 import PhotoUpload from '../components/PhotoUpload';
 import { Body, Player } from '../components/Linked';
+import { fetchPreviews, PREVIEW_COUNT } from '../../lib/previews';
 
 function ago(iso) {
   const mins = Math.floor((Date.now() - new Date(iso).getTime()) / 60000);
@@ -107,13 +108,17 @@ function who(p) {
    renders if it's ever mounted without it — a missing name should cost
    you a greeting, never a blank page. */
 export default function Wall({ initial, me = { name: null, avatar: null }, mark = null,
-                               photoUrls = {} }) {
+                               photoUrls = {}, previews = {} }) {
   const router = useRouter();
   const supabase = browserClient();
   /* The milestone landing today, if there is one and it hasn't been
      answered. Server decides whether to send it; this only renders it. */
   const [offer, setOffer] = useState(mark);
   const [posts, setPosts] = useState(initial);
+  /* The last couple of replies under each post, keyed by post id. Handed
+     down from the server for first paint, then re-read here whenever the
+     conversation actually changes. */
+  const [convo, setConvo] = useState(previews);
   const [text, setText] = useState('');
   const [anon, setAnon] = useState(false);
   /* 'open' | 'friends'. Resets to open after every post — a sticky
@@ -258,6 +263,17 @@ export default function Wall({ initial, me = { name: null, avatar: null }, mark 
     if (data) {
       setPosts(data);
       setOpen((o) => (o ? data.find((p) => p.id === o.id) || o : o));
+      /* ⚠️ The previews are re-read HERE and nowhere else, and that is a
+         deliberately narrow choice. refresh() runs when a reply is added
+         or somebody is blocked — the only two things that change what's
+         underneath a post.
+
+         The tidier-looking build is an effect watching `posts`, the way
+         signMissing does. It would be wrong: `posts` is also replaced on
+         every LIKE, so tapping a heart would re-fetch every conversation
+         on the page. A heart is optimistic precisely because it must
+         cost nothing. */
+      setConvo(await fetchPreviews(supabase, data.map((p) => p.id)));
     }
   }
 
@@ -761,6 +777,48 @@ export default function Wall({ initial, me = { name: null, avatar: null }, mark 
                 </div>
               ) : null}
 
+              {/* ---- THE CONVERSATION, ON THE WALL ----
+
+                  Aug 23. Ty: "allow other users to see the replies. it
+                  will allow others to see the convo and join in."
+
+                  ⚠️ NOT WRAPPED IN A BUTTON, and that's a real constraint
+                  rather than a style choice. Replies can contain links —
+                  <Body> renders anchors — and an <a> inside a <button> is
+                  invalid HTML that browsers resolve differently from each
+                  other. So the preview is static text, and the way in
+                  stays the footer button underneath it, which is a proper
+                  control with a real focus ring.
+
+                  ⚠️ Rendered from `convo`, which comes from feed_comments,
+                  so an anonymous reply arrives already carrying its
+                  per-thread alias and a null author. There is nothing for
+                  this markup to hide — the same rule as the post header
+                  above it. */}
+              {(convo[p.id] || []).length > 0 && (
+                <div className="rpv">
+                  {/* Shown only when there's more than fits. Says how many
+                      are ABOVE what you can see, so the number means
+                      something you can act on rather than restating the
+                      count already in the footer. */}
+                  {p.comment_count > convo[p.id].length && (
+                    <button type="button" className="rpvm" onClick={() => setOpen(p)}>
+                      {p.comment_count - convo[p.id].length} earlier{' '}
+                      {p.comment_count - convo[p.id].length === 1 ? 'reply' : 'replies'} ›
+                    </button>
+                  )}
+                  {convo[p.id].map((c) => (
+                    <div key={c.id}
+                         className={'rpvr' + (c.is_anonymous ? ' screened' : '')}>
+                      <span className="rpvw">
+                        {c.display_name}{c.is_mine ? ' · you' : ''}
+                      </span>
+                      <span className="rpvb"><Body text={c.body} /></span>
+                    </div>
+                  ))}
+                </div>
+              )}
+
               <div className="ft">
                 {/* aria-pressed is what tells a screen reader this is a
                     toggle that's currently on, rather than just a button. */}
@@ -775,10 +833,18 @@ export default function Wall({ initial, me = { name: null, avatar: null }, mark 
                 {/* The reply count is the tap target. Deliberately worded as
                     an invitation when it's zero — that's the post that most
                     needs someone, and it's the one already sized biggest. */}
+                {/* ⚠️ THE WORDING CHANGED WHEN THE REPLIES BECAME VISIBLE.
+                    It used to read "3 replies", which was the only clue
+                    a conversation existed at all. Now the conversation is
+                    sitting right above it, and a button that counts what
+                    you can already see is dead weight in the one spot
+                    where the invitation should be.
+
+                    So: nothing there → "say something". Something there →
+                    "join in". The number moved to the "N earlier replies"
+                    link, where it's still doing a job. */}
                 <button className="replies" onClick={() => setOpen(p)}>
-                  {p.comment_count === 0
-                    ? 'say something'
-                    : p.comment_count + (p.comment_count === 1 ? ' reply' : ' replies')}
+                  {p.comment_count === 0 ? 'say something' : 'join in'}
                 </button>
                 {/* is_mine, never author_id — an anonymous post still shows
                     the author their own controls without exposing them */}

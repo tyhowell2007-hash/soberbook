@@ -1227,3 +1227,80 @@ textarea:focus-visible{ outline:4px solid var(--x); outline-offset:3px; }
   font-family:'Courier Prime',monospace; font-size:11px; font-weight:400;
   color:var(--soft); letter-spacing:.02em; margin-top:2px;
 }
+
+/* =====================================================================
+   THE CONVERSATION, ON THE WALL   (.rpv / .rpvr / .rpvw / .rpvb / .rpvm)
+
+   Aug 23. Ty: "allow other users to see the replies. it will allow others
+   to see the convo and join in." Until tonight a post with six answers
+   and a post with none looked identical from the wall — one line of grey
+   text either way, and you had to tap to find out which was which.
+
+   ---------------------------------------------------------------------
+   ⚠️ HIERARCHY IS DONE WITH SIZE AND WEIGHT, NEVER WITH CONTRAST.
+
+   The obvious way to make a reply read as secondary is to grey it out.
+   That's how the Aug 17 audit failure happened — a pale tag on a pale
+   card measured 1.00 and was invisible on the most important card on the
+   page. So a preview is SMALLER than the post above it and set in a
+   quieter face, but its text colour is the same --body the post uses.
+   Someone reading this at 2am on a cracked phone in bad light gets the
+   full contrast; they just get fewer pixels.
+
+   --soft on --paper measures 4.86:1, which is why it's used for the
+   timestamp-ish furniture and never for the words somebody wrote.
+
+   ⚠️ These classes borrow --x/--body/--soft rather than naming colours,
+   so theme-green.css reskins them for free. A hardcoded hex here would be
+   the one grunge-black element left sitting in the green room.
+   ===================================================================== */
+
+.rpv{ margin:11px 0 3px; }
+
+/* The bar down the left is the same one the thread sheet uses on .reply,
+   so opening a post feels like the same conversation getting bigger
+   rather than a different screen. */
+.rpvr{
+  border-left:3px solid var(--x);
+  padding:2px 0 2px 10px;
+  margin-bottom:7px;
+  font-size:13.5px;
+  line-height:1.5;
+  /* ⚠️ A pasted link with no spaces in it is one very long word. Without
+     this it pushes the whole card wider than the phone and the entire
+     wall scrolls sideways — every post punished for one reply. */
+  overflow-wrap:anywhere;
+}
+.rpvr:last-child{ margin-bottom:0; }
+
+/* ⚠️ Marked the same way an anonymous POST is marked — dashed edge plus
+   the halftone screen. Consistency matters more than novelty here: people
+   learn one visual language for "this person isn't named", and it has to
+   mean the same thing in every place it appears. */
+.rpvr.screened{ border-left-style:dashed; position:relative; }
+.rpvr.screened::after{
+  content:""; position:absolute; inset:0; pointer-events:none;
+  background-image:radial-gradient(rgba(10,10,9,.16) 1.1px, transparent 1.3px);
+  background-size:6px 6px;
+}
+.rpvr.screened > *{ position:relative; z-index:1; }
+
+.rpvw{
+  font-family:'Anton',Impact,sans-serif; font-size:12.5px;
+  text-transform:uppercase; letter-spacing:.02em; color:var(--x);
+}
+.rpvb{ color:var(--body); margin-left:6px; }
+
+/* "3 earlier replies ›" — a real control, so it gets a real tap target.
+   ⚠️ 44px, from the Aug 18 audit that found the two most-used controls on
+   the wall sitting at about 20px. A link this small is exactly the kind
+   that quietly goes back to being untappable. */
+.rpvm{
+  display:flex; align-items:center; min-height:44px;
+  background:none; border:none; padding:0; cursor:pointer;
+  font-family:'Courier Prime',monospace; font-size:11px; font-weight:700;
+  letter-spacing:.06em; text-transform:uppercase; color:var(--soft);
+  text-decoration:underline; text-underline-offset:3px;
+}
+.rpvm:hover{ color:var(--x); }
+.rpvm:focus-visible{ outline:3px solid var(--x); outline-offset:3px; }
