@@ -1304,3 +1304,76 @@ textarea:focus-visible{ outline:4px solid var(--x); outline-offset:3px; }
 }
 .rpvm:hover{ color:var(--x); }
 .rpvm:focus-visible{ outline:3px solid var(--x); outline-offset:3px; }
+
+/* =====================================================================
+   SOMETHING TO WATCH, ON THE WALL   (.cc*)
+
+   Aug 23. Ty: "people are gonna need something more than just looking at
+   themselves… mix with other users posts."
+
+   ⚠️ DELIBERATELY QUIETER THAN A POST. A member's words are the point of
+   this page; a video is the thing you scroll past on the way to them. So
+   the card is flatter, its border is lighter, and it never gets the acid
+   edge or the poster size that an unanswered post can get. If these ever
+   start out-shouting the posts, this block is where that went wrong.
+
+   ⚠️ Same --x/--body/--soft variables as everything else, so
+   theme-green.css reskins it for free.
+   ===================================================================== */
+
+.cc{
+  border:2px solid var(--x); background:var(--paper2);
+  padding:0 0 11px; margin-bottom:14px;
+}
+.cchd{
+  display:flex; align-items:center; justify-content:space-between; gap:8px;
+  padding:9px 12px 8px; border-bottom:1px solid var(--line,#D8E3DC);
+}
+.ccsrc{
+  font-family:'Anton',Impact,sans-serif; font-size:13px; text-transform:uppercase;
+  letter-spacing:.03em; color:var(--x); overflow:hidden; text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.cccat{
+  flex:none; font-family:'Courier Prime',monospace; font-size:10px; font-weight:700;
+  letter-spacing:.06em; text-transform:uppercase; color:var(--gt,#0F3D2A);
+  background:var(--gl,#E8F4ED); padding:3px 8px; border:1px solid var(--gd,#1B6B4A);
+}
+
+.ccframe{ position:relative; width:100%; aspect-ratio:16/9; background:#0d0d0c; }
+.ccif{ position:absolute; inset:0; width:100%; height:100%; border:0; }
+
+/* The whole picture is the button. ⚠️ Nothing inside it is a link — an <a>
+   in a <button> is invalid — so the "open on youtube" link lives below. */
+.ccplay{
+  position:absolute; inset:0; width:100%; height:100%; padding:0; border:0;
+  background:none; cursor:pointer; display:block;
+}
+.ccimg{ width:100%; height:100%; object-fit:cover; display:block; }
+.ccnone{ background:var(--gl,#E8F4ED); }
+.ccbtn{
+  position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+  /* 56px — well past the 44px tap floor from the Aug 18 audit */
+  width:56px; height:56px; border-radius:50%;
+  background:rgba(12,12,11,.72); color:#fff; font-size:21px;
+  display:flex; align-items:center; justify-content:center;
+}
+/* ⭐ Says out loud that nothing has loaded. Same promise as the link
+   player: this app tells you before it talks to anybody on your behalf. */
+.ccnote{
+  position:absolute; left:0; right:0; bottom:0; padding:5px 8px;
+  font-family:'Courier Prime',monospace; font-size:10px; letter-spacing:.04em;
+  color:#F2EFE6; background:rgba(12,12,11,.6); text-align:center;
+}
+
+.cctitle{
+  margin:10px 12px 0; font-size:14.5px; line-height:1.45; color:var(--body);
+  overflow-wrap:anywhere;
+}
+.ccout{
+  display:inline-flex; align-items:center; min-height:44px; margin:0 12px;
+  font-family:'Courier Prime',monospace; font-size:10.5px; font-weight:700;
+  letter-spacing:.06em; text-transform:uppercase; color:var(--soft);
+  text-decoration:underline; text-underline-offset:3px;
+}
+.ccout:hover{ color:var(--x); }
