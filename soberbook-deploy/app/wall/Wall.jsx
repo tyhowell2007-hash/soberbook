@@ -9,6 +9,8 @@ import PostMenu from './PostMenu';
 import PhotoUpload from '../components/PhotoUpload';
 import { Body, Player } from '../components/Linked';
 import { fetchPreviews, PREVIEW_COUNT } from '../../lib/previews';
+import { mixFeed } from '../../lib/mix';
+import ContentCard from '../components/ContentCard';
 
 function ago(iso) {
   const mins = Math.floor((Date.now() - new Date(iso).getTime()) / 60000);
@@ -108,7 +110,8 @@ function who(p) {
    renders if it's ever mounted without it — a missing name should cost
    you a greeting, never a blank page. */
 export default function Wall({ initial, me = { name: null, avatar: null }, mark = null,
-                               photoUrls = {}, previews = {} }) {
+                               photoUrls = {}, previews = {},
+                               content = [], thumbBase = '' }) {
   const router = useRouter();
   const supabase = browserClient();
   /* The milestone landing today, if there is one and it hasn't been
@@ -645,8 +648,18 @@ export default function Wall({ initial, me = { name: null, avatar: null }, mark 
           </div>
         )}
 
-        {/* DOM order is reading order: newest first. Position is CSS only. */}
-        {posts.map((p, i) => {
+        {/* DOM order is reading order: newest first. Position is CSS only.
+
+            ⚠️ The list is now posts AND content, interleaved by lib/mix.js.
+            The rules that protect the wall's promise live in that file, not
+            here — chiefly that a card never sits directly above the post
+            the wall has singled out for being unanswered. */}
+        {mixFeed(posts, content, { lonelyId }).map((row) => {
+          if (row.type === 'content') {
+            return <ContentCard key={'c' + row.item.id} item={row.item}
+                                thumbBase={thumbBase} />;
+          }
+          const p = row.post;
           const w = weight(p, p.id === lonelyId);
           return (
             <article
@@ -654,7 +667,7 @@ export default function Wall({ initial, me = { name: null, avatar: null }, mark 
               className={
                 'item ' + w +
                 (p.is_anonymous ? ' screened' : '') +
-                (i === 0 ? ' newest' : '')
+                (p.id === posts[0]?.id ? ' newest' : '')
               }
             >
               {/* NAME AND FACE ON ONE ROW.

@@ -54,6 +54,27 @@ export default async function WallPage() {
      the wall of the person with the most conversation on it. */
   const previews = await fetchPreviews(supabase, (posts || []).map((p) => p.id));
 
+  /* Something to look at, mixed in with what people wrote (0057).
+
+     ⚠️ Read through feed_content, never content_items — the view is what
+     drops hidden items and switched-off sources. Reading the base table
+     would put something Ty pulled down straight back on the wall.
+
+     Ordering and interleaving happen in lib/mix.js, not here: a plain
+     `order by published_at` hands the whole wall to whichever channel
+     uploads most, which the first real pull demonstrated within minutes. */
+  const { data: content } = await supabase
+    .from('feed_content')
+    .select('id, title, url, embed_id, thumb_path, published_at, source_label, category')
+    .order('published_at', { ascending: false })
+    .limit(60);
+
+  /* The public base for thumbnails. ⭐ Our bucket, not Google's — the
+     puller copies every picture so a member's browser never calls
+     i.ytimg.com just by scrolling. */
+  const thumbBase =
+    `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/content-thumbs`;
+
   const days = profile.sober_since
     ? Math.floor((Date.now() - new Date(profile.sober_since).getTime()) / 86400000)
     : null;
@@ -112,6 +133,8 @@ export default async function WallPage() {
             mark={mark}
             photoUrls={photoUrls}
             previews={previews}
+            content={content || []}
+            thumbBase={thumbBase}
           />}
     </>
   );
