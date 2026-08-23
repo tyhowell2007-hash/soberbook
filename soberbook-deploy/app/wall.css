@@ -1436,3 +1436,128 @@ textarea:focus-visible{ outline:4px solid var(--x); outline-offset:3px; }
   .ccplay,.ccbtn{ transition:none; }
   .ccplay:active{ transform:none; }
 }
+
+/* =====================================================================
+   A MEMBER'S RECORD   (.dp*)   — the only loud card on this wall
+
+   Aug 23. Ty: "something very special for musicians… we just need to make
+   their box unique."
+
+   ⭐ EVERY OTHER CARD HERE WAS MADE QUIETER ON PURPOSE. The YouTube cards
+   recede because they're borrowed. A member's own record is the one thing
+   in this app that is MEANT to shout, so it wears the poster brand —
+   toner black, acid, halftone — which until now lived only on /readings
+   and on the printed flyers.
+
+   ⚠️ THESE ARE HARDCODED GRUNGE VALUES, not the green room's variables,
+   and that is the exception rather than an oversight. theme-green.css
+   repaints --x and --acid for the rooms; a gig poster that quietly turned
+   sage green would lose the entire point. This card is deliberately
+   outside the theme.
+   ===================================================================== */
+
+.dp{
+  position:relative; overflow:hidden;
+  background:#0A0A09; color:#F2F0E9;
+  margin:0 0 18px;
+  box-shadow:0 2px 4px rgba(10,10,9,.22), 0 16px 34px -10px rgba(10,10,9,.42);
+  -webkit-tap-highlight-color:transparent;
+}
+
+/* The halftone. ⚠️ 5px grid — bigger reads as a pattern, smaller turns to
+   mud on a phone and costs paint time for nothing. */
+.dp-dots{
+  position:absolute; inset:0; pointer-events:none;
+  background-image:radial-gradient(rgba(214,255,46,.13) 1px, transparent 1.4px);
+  background-size:5px 5px;
+}
+.dp-in{ position:relative; padding:16px 15px 15px; }
+
+.dp-kicker{
+  font-family:'Courier Prime',monospace; font-size:10px; font-weight:700;
+  letter-spacing:.24em; text-transform:uppercase; color:#D6FF2E;
+}
+.dp-title{
+  margin:13px 0 0; font-family:'Anton',Impact,sans-serif;
+  font-size:30px; line-height:.94; letter-spacing:.005em;
+  text-transform:uppercase; color:#F2F0E9; font-weight:400;
+  overflow-wrap:anywhere;
+}
+.dp-title.dp-out{ margin-top:0; font-size:22px; line-height:1.04; }
+.dp-artist{
+  margin-top:9px; font-family:'Courier Prime',monospace; font-size:12px;
+  font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:#9C9788;
+}
+
+/* ---- the countdown ---- */
+.dp-clock{ margin-top:16px; padding-top:13px; border-top:1px solid rgba(242,240,233,.2); }
+.dp-clabel{
+  font-family:'Courier Prime',monospace; font-size:10px; font-weight:700;
+  letter-spacing:.16em; text-transform:uppercase; color:#9C9788;
+}
+.dp-nums{ margin-top:5px; display:flex; gap:15px; align-items:baseline; color:#D6FF2E; }
+.dp-nums b{
+  font-family:'Anton',Impact,sans-serif; font-size:32px; font-weight:400;
+  /* ⚠️ Tabular figures. Without it the whole row shifts sideways every
+     second as digit widths change, which on a countdown reads as the page
+     glitching rather than time passing. */
+  font-variant-numeric:tabular-nums; font-feature-settings:'tnum';
+}
+.dp-nums i{ font-style:normal; font-family:'Courier Prime',monospace;
+  font-size:11px; margin-left:2px; letter-spacing:.08em; }
+.dp-when{ margin-top:9px; font-size:12.5px; color:#9C9788; }
+
+/* ---- out ---- */
+.dp-frame{ position:relative; width:100%; aspect-ratio:1/1; background:#111110; }
+.dp-media{ width:100%; height:100%; object-fit:contain; background:#000; display:block; }
+/* Audio sits on the sleeve rather than replacing it — the artwork IS part
+   of the release and swapping it for a grey bar throws it away. */
+.dp-audio{ position:absolute; left:12px; right:12px; bottom:12px; width:calc(100% - 24px); }
+
+.dp-play{
+  position:absolute; inset:0; width:100%; height:100%; padding:0; border:0;
+  background:none; cursor:pointer; display:block; transition:transform .18s ease;
+}
+.dp-play:active{ transform:scale(.985); }
+.dp-play:disabled{ cursor:default; }
+.dp-play:focus-visible{ outline:3px solid #D6FF2E; outline-offset:-3px; }
+.dp-art{ width:100%; height:100%; object-fit:cover; display:block; }
+.dp-noart{ background:linear-gradient(150deg,#3d2f52,#151020); }
+
+/* ⭐ ACID ON BLACK, the loudest thing in the app, and it earns it: this is
+   the sentence a member has been waiting to be able to say. */
+.dp-only{
+  position:absolute; top:11px; left:12px;
+  font-family:'Courier Prime',monospace; font-size:10px; font-weight:700;
+  letter-spacing:.14em; text-transform:uppercase;
+  color:#0A0A09; background:#D6FF2E; padding:4px 9px;
+}
+
+.dp-btn{
+  position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+  width:64px; height:64px; border-radius:50%; background:#D6FF2E;
+  display:flex; align-items:center; justify-content:center;
+  box-shadow:0 6px 22px rgba(0,0,0,.45); transition:transform .18s ease;
+}
+.dp-play:hover .dp-btn{ transform:translate(-50%,-50%) scale(1.06); }
+/* Drawn, not the ▶ glyph — that character has a different weight and
+   baseline on every platform and at this size it reads as a mistake. */
+.dp-tri{
+  width:0; height:0; margin-left:5px;
+  border-left:19px solid #0A0A09;
+  border-top:12px solid transparent; border-bottom:12px solid transparent;
+}
+
+.dp-link{
+  display:inline-flex; align-items:center; min-height:44px; margin-top:11px;
+  padding-top:12px; border-top:1px solid rgba(242,240,233,.2); width:100%;
+  font-family:'Courier Prime',monospace; font-size:10.5px; font-weight:700;
+  letter-spacing:.12em; text-transform:uppercase; color:#D6FF2E; text-decoration:none;
+}
+.dp-link:hover{ color:#F2F0E9; }
+.dp-link:focus-visible{ outline:3px solid #D6FF2E; outline-offset:2px; }
+
+@media (prefers-reduced-motion:reduce){
+  .dp-play,.dp-btn{ transition:none; }
+  .dp-play:active{ transform:none; }
+}
