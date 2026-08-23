@@ -66,8 +66,27 @@ export async function middleware(request) {
      It was not rebuilt, restyled or "improved" on the way through — only
      its links were made relative. He signed that design off on Aug 15
      and it is not mine to redraw. */
+  /* ⚠️ Aug 23 — NOW REWRITES TO /login, NOT /home.html.
+     ---------------------------------------------------------------------
+     The note above is kept because the reasoning still holds: a stranger
+     at the front door must not meet a bare password box. What changed is
+     that /login IS the pitch now — one page carrying the sentence, the
+     sign-in box and the make-an-account box together.
+
+     🔴 home.html served the pitch and then handed people to /login, which
+     said "Welcome back". People who loved the idea bounced off a password
+     they'd never set and reported it as "the old version". Serving the
+     pitch and the door as two pages is what created the gap; serving them
+     as one closes it.
+
+     ⚠️ Still a REWRITE, not a redirect — soberbook.app is the address on
+     the posters and the flyer, and it has to stay in the address bar.
+
+     ⚠️ public/home.html is deliberately left in place. It is Ty's approved
+     long-form design and is still reachable directly; nothing links to it
+     for now. Don't delete it. */
   if (!user && request.nextUrl.pathname === '/') {
-    return NextResponse.rewrite(new URL('/home.html', request.url));
+    return NextResponse.rewrite(new URL('/login', request.url));
   }
 
   if (!user && !isOpen) {
