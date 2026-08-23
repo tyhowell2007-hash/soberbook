@@ -21,6 +21,12 @@ import './wall.css';
    override layer that touches no markup and no logic. */
 
 import RegisterSW from './components/RegisterSW';
+/* ⚠️ IN THE ROOT LAYOUT ON PURPOSE, unlike theme-green.css above. It has
+   to see the FIRST tap anybody makes, and for most people that tap is on
+   the sign-in screen — several screens before they ever reach a profile.
+   Mounting it under /u would be too late to be worth having. It renders
+   nothing and paints nothing, so it doesn't touch the door/room split. */
+import AudioUnlock from './components/AudioUnlock';
 
 export const metadata = {
   title: 'Sober Book',
@@ -87,6 +93,10 @@ export default function RootLayout({ children }) {
         {/* Registers the service worker after the page has loaded. Renders
             nothing. Without it Chrome will not offer to install the app. */}
         <RegisterSW />
+        {/* Blesses the shared audio element on the first tap, so profile
+            songs can start on their own afterwards. See lib/song-audio.js
+            for why this is the only thing that works on a phone. */}
+        <AudioUnlock />
       </body>
     </html>
   );
