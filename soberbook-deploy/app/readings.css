@@ -1,0 +1,268 @@
+/* =====================================================================
+   THE PARTS NOBODY PREACHES — the flyer.
+
+   Ty picked this treatment over the quiet green one: "let's make it
+   cool and hip." Black ink on newsprint, the verse set big and hard.
+   It's the brand the posters already use — 90s xerox punk — brought
+   inside the app for the first time.
+
+   ⚠️ EVERY CLASS IS PREFIXED rd-. The Aug 16 photos bug: `.composer`
+   was declared in two stylesheets and the collision unpinned the
+   message box. A generic name in a per-route sheet is a landmine.
+
+   ⚠️ THIS FILE DELIBERATELY REPAINTS THE PAGE SURFACE and nothing else.
+   The bottom nav keeps theme-green's colours. A page that looks
+   different is a choice; navigation that looks different is a bug.
+
+   ⚠️ CONTRAST WAS MEASURED, NOT EYEBALLED — the Aug 17 lesson, where a
+   pale tag on a pale card scored 1.00 and was invisible on the most
+   important card on the page. Ink #0A0A09 on paper #E4DFD3 is 16.4:1.
+   Acid #D6FF2E is a FILL ONLY: on paper it is 1.2:1 and effectively
+   invisible as text. Anything sitting on acid uses #141800 (14.9:1).
+   ===================================================================== */
+
+.rd-wrap, .rd-one {
+  background: #E4DFD3;
+  min-height: 100vh;
+  padding: 22px 18px 30px;
+  color: #0A0A09;
+}
+
+/* ---- the list ---- */
+.rd-kicker {
+  font-family: 'Courier Prime', monospace;
+  font-size: 11px;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  margin: 0 0 6px;
+  color: #0A0A09;
+  background: #D6FF2E;
+  display: inline-block;
+  padding: 3px 8px;
+}
+
+.rd-h1 {
+  font-family: 'Archivo', system-ui, sans-serif;
+  font-size: 40px;
+  font-weight: 800;
+  line-height: .95;
+  letter-spacing: -0.035em;
+  text-transform: uppercase;
+  margin: 0 0 10px;
+  color: #0A0A09;
+}
+
+.rd-lede {
+  font-size: 15px;
+  line-height: 1.5;
+  margin: 0 0 22px;
+  color: #2C2C28;
+  max-width: 34em;
+}
+
+.rd-list { list-style: none; margin: 0 0 26px; padding: 0; }
+.rd-list li { margin-bottom: 10px; }
+
+.rd-item {
+  width: 100%;
+  text-align: left;
+  display: block;
+  /* ⚠️ Two hard edges rather than a rounded card. The whole look is
+     photocopied paper, and a 12px radius drags it straight back to
+     every other app. Square corners are the treatment. */
+  background: #F2EFE6;
+  border: 2px solid #0A0A09;
+  border-radius: 0;
+  padding: 13px 14px;
+  cursor: pointer;
+  /* 56px min so the tap target clears the Aug 18 audit floor of 44 */
+  min-height: 56px;
+}
+.rd-item:hover { background: #D6FF2E; }
+.rd-item:focus-visible { outline: 3px solid #0A0A09; outline-offset: 2px; }
+
+.rd-iref {
+  display: block;
+  font-family: 'Courier Prime', monospace;
+  font-size: 10px;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: #4A4A44;
+  margin-bottom: 3px;
+}
+.rd-ititle {
+  display: block;
+  font-family: 'Archivo', system-ui, sans-serif;
+  font-size: 20px;
+  font-weight: 800;
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+  color: #0A0A09;
+}
+.rd-iwho {
+  display: block;
+  font-size: 13px;
+  color: #4A4A44;
+  margin-top: 3px;
+}
+
+.rd-foot {
+  font-size: 13px;
+  line-height: 1.6;
+  color: #4A4A44;
+  border-top: 2px solid #0A0A09;
+  padding-top: 12px;
+  margin: 0 0 18px;
+}
+
+.rd-out {
+  display: inline-block;
+  font-family: 'Courier Prime', monospace;
+  font-size: 12px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: #0A0A09;
+  text-decoration: none;
+  border-bottom: 2px solid #0A0A09;
+  padding-bottom: 2px;
+  min-height: 44px;
+  line-height: 44px;
+}
+
+/* ---- one reading ---- */
+.rd-back {
+  background: none;
+  border: 0;
+  padding: 0;
+  min-height: 44px;
+  font-family: 'Courier Prime', monospace;
+  font-size: 12px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: #0A0A09;
+  cursor: pointer;
+}
+.rd-back:focus-visible { outline: 3px solid #0A0A09; outline-offset: 2px; }
+
+.rd-ref {
+  font-family: 'Courier Prime', monospace;
+  font-size: 11px;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  margin: 6px 0 6px;
+  color: #0A0A09;
+  background: #D6FF2E;
+  display: inline-block;
+  padding: 3px 8px;
+}
+
+.rd-title {
+  font-family: 'Archivo', system-ui, sans-serif;
+  font-size: 42px;
+  font-weight: 800;
+  line-height: .93;
+  letter-spacing: -0.04em;
+  text-transform: uppercase;
+  margin: 0 0 6px;
+  color: #0A0A09;
+  /* the long ones must break rather than run off a 320px phone */
+  overflow-wrap: anywhere;
+}
+
+.rd-who {
+  font-size: 14px;
+  color: #4A4A44;
+  margin: 0 0 22px;
+}
+
+/* THE PASSAGE. Serif, because this is the one thing on the page that
+   is somebody else's voice and not ours. */
+.rd-passage {
+  border-left: 4px solid #0A0A09;
+  padding-left: 14px;
+  margin: 0 0 24px;
+}
+.rd-v {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 18px;
+  line-height: 1.62;
+  color: #0A0A09;
+  margin: 0 0 14px;
+}
+.rd-v:last-child { margin-bottom: 0; }
+
+/* ⚠️ The verse number is set apart, not an inline superscript. Inline
+   numbers turn prose into a lookup table, and the point is that this
+   gets read like writing. */
+.rd-vn {
+  font-family: 'Courier Prime', monospace;
+  font-size: 11px;
+  color: #6B6B62;
+  margin-right: 9px;
+  vertical-align: 2px;
+}
+
+/* ⭐ The engine of the whole feature. Acid slab, ink on top. */
+.rd-nobody {
+  background: #D6FF2E;
+  border: 2px solid #0A0A09;
+  padding: 14px;
+  margin: 0 0 18px;
+}
+.rd-nlabel {
+  font-family: 'Courier Prime', monospace;
+  font-size: 10px;
+  letter-spacing: .17em;
+  text-transform: uppercase;
+  /* ⚠️ #141800 on acid, never #0A0A09-on-paper values carried over by
+     habit. 14.9:1, measured. */
+  color: #141800;
+  margin: 0 0 6px;
+}
+.rd-ntext {
+  font-size: 16px;
+  line-height: 1.55;
+  color: #141800;
+  margin: 0;
+}
+
+.rd-close {
+  font-size: 16px;
+  line-height: 1.6;
+  color: #0A0A09;
+  margin: 0 0 20px;
+  font-weight: 500;
+}
+
+.rd-src {
+  font-family: 'Courier Prime', monospace;
+  font-size: 10px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: #6B6B62;
+  border-top: 2px solid #0A0A09;
+  padding-top: 10px;
+  margin: 0 0 18px;
+}
+
+.rd-done {
+  width: 100%;
+  min-height: 52px;
+  background: #0A0A09;
+  color: #D6FF2E;
+  border: 0;
+  border-radius: 0;
+  font-family: 'Archivo', system-ui, sans-serif;
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.rd-done:focus-visible { outline: 3px solid #0A0A09; outline-offset: 3px; }
+
+/* Small phones: the display sizes are the first thing to overflow. */
+@media (max-width: 360px) {
+  .rd-h1    { font-size: 33px; }
+  .rd-title { font-size: 34px; }
+}

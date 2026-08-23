@@ -208,7 +208,23 @@ export default function Wall({ answers, mine }) {
         doctor, a therapist and medication — never instead of them.
       </p>
 
-      {/* ---- 3. THE ROOM ---- */}
+      {/* ---- 3. THE READINGS ----
+          ⚠️ A LINK OUT, NOT A SECTION ON THIS PAGE, and that placement
+          is the whole argument. This page runs on "nobody here has to
+          agree". Put scripture ON it and it becomes the house religion
+          — and then a Buddhist sit, or a Muslim member, or an hour with
+          no God in it can only ever be added later as a concession.
+
+          Behind a door, it's one thing on a shelf that other things can
+          go on. On the page, it's the page. */}
+      <h2 className="hp-h hp-h2">If you read scripture</h2>
+      <p className="hp-lede">
+        Six passages where the person in the story is in the state
+        you’re in. Not the fridge-magnet verses.
+      </p>
+      <Link href="/readings" className="btn hp-room">The parts nobody preaches</Link>
+
+      {/* ---- 4. THE ROOM ---- */}
       <h2 className="hp-h hp-h2">Sit with other people</h2>
       <p className="hp-lede">
         Anyone with 90 days can open a room and call it whatever they
