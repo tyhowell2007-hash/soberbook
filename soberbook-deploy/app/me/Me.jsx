@@ -617,6 +617,38 @@ export default function Me({ email, profile, posts, initialAvatarUrl,
                 No song yet. The pencil adds one &mdash; the song that got you through.
               </p>
             )}
+
+            {/* ---- the way out ----
+                🔴 Aug 23. Ty: "we need a log out on the site." It was
+                already built — behind the pencil, at the bottom of a long
+                settings list, under "🔑 Account". THREE STEPS DEEP.
+
+                ⭐ He owns the app and couldn't find it. A member has no
+                chance. This is the same shape as the Aug 19 bug where you
+                couldn't delete your own post: everything built except the
+                way in. Four days of building didn't find that one either —
+                one person using it did.
+
+                ⚠️ It sits at the very BOTTOM of the read view, quiet and
+                small. The original reason for hiding it was sound — sign
+                out is the one control here you can't undo by tapping
+                again, and it doesn't belong next to your own face. That
+                reasoning argued for putting it LAST. It did not argue for
+                putting it behind a pencil.
+
+                ⚠️ Calls the SAME signOut() as the settings one, so there is
+                no second implementation to drift. Two buttons, one door. */}
+            <div className="meout">
+              <button className={'btn out' + (confirmOut ? ' arm' : '')} type="button"
+                      disabled={busy} onClick={signOut}>
+                {confirmOut ? 'Tap again to sign out' : 'Sign out'}
+              </button>
+              {confirmOut && (
+                <button className="nvm" type="button" onClick={() => setConfirmOut(false)}>
+                  never mind
+                </button>
+              )}
+            </div>
           </>
         )}
 

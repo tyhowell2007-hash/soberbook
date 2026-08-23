@@ -299,6 +299,21 @@ ul.mine li > *{ position:relative; z-index:1; }
   text-decoration:underline; text-underline-offset:3px; padding:6px;
 }
 
+/* ⚠️ THE WAY OUT, ON THE PAGE YOU LAND ON — added Aug 23.
+   Sign-out was only reachable behind the pencil, at the bottom of the
+   settings list. Ty owns the app and couldn't find it. Same shape as the
+   Aug 19 bug where you couldn't delete your own post: built, but no way
+   in.
+
+   Separated by a rule and pushed well down the page — the original
+   reasoning (it's the one control you can't undo, so it shouldn't sit
+   next to your own face) argued for putting it LAST, not for hiding it. */
+.meout{
+  margin:34px 0 6px;
+  padding-top:20px;
+  border-top:2px solid var(--line);
+}
+
 /* the day count in the masthead is now the way in to /me */
 .mast .melink{ text-decoration:none; padding:4px 0 4px 6px; }
 .mast .melink:hover{ text-decoration:underline; text-underline-offset:3px; }
