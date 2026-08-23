@@ -7,6 +7,7 @@ import { browserClient } from '../../lib/supabase-browser';
 import Thread from './Thread';
 import PostMenu from './PostMenu';
 import PhotoUpload from '../components/PhotoUpload';
+import { Body, Player } from '../components/Linked';
 
 function ago(iso) {
   const mins = Math.floor((Date.now() - new Date(iso).getTime()) / 60000);
@@ -692,7 +693,13 @@ export default function Wall({ initial, me = { name: null, avatar: null }, mark 
               {/* A photo-only post has an empty body. Rendering the empty
                   paragraph anyway leaves a blank gap above the picture that
                   looks like text failed to load. */}
-              {p.body ? <p className="bd">{p.body}</p> : null}
+              {p.body ? <p className="bd"><Body text={p.body} /></p> : null}
+
+              {/* ⭐ Aug 23. A member posted his music and the link came out
+                  as plain text you had to copy and leave for. It plays
+                  here now. ⚠️ Nothing loads until somebody taps — see
+                  components/Linked.jsx. */}
+              {p.body ? <Player text={p.body} /> : null}
 
               {/* ⚠️ `p.photo_url` is null on every anonymous post because
                   feed_posts nulls it — this does not need, and must not

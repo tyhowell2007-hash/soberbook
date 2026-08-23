@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { browserClient } from '../../lib/supabase-browser';
+import { Body, Player } from '../components/Linked';
 
 /* A post, opened.
    ==========================================================================
@@ -91,7 +92,8 @@ export default function Thread({ post, onClose, onCountChange }) {
         </div>
 
         <div className="threadbody">
-          <p className="orig">{post.body}</p>
+          <p className="orig"><Body text={post.body} /></p>
+          <Player text={post.body} />
           <div className="origmeta">
             {ago(post.created_at)}{post.is_anonymous ? ' · anonymous' : ''}
           </div>
@@ -116,7 +118,11 @@ export default function Thread({ post, onClose, onCountChange }) {
                   {c.is_mine ? ' · yours' : ''}
                 </span>
               </div>
-              <p className="rbody">{c.body}</p>
+              <p className="rbody"><Body text={c.body} /></p>
+              {/* 🔴 THE ACTUAL LINK TY ASKED ABOUT WAS IN A COMMENT, not a
+                  post — which is exactly why my first database search for
+                  it came back empty. Comments carry links too. */}
+              <Player text={c.body} />
             </div>
           ))}
 

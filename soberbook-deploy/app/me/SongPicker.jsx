@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef } from 'react';
+import { youtubeId as ytId } from '../../lib/links';
 
 /* Pick your song in two steps: type a name, tap a result.
 
@@ -83,19 +84,10 @@ export default function SongPicker({ value, onPick, disabled }) {
      decides where the browser goes; eleven characters from a fixed
      alphabet can only ever be a video. Narrow the thing before you
      trust it, not after. */
-  function ytId(raw) {
-    const s = (raw || '').trim();
-    if (!s) return null;
-    if (/^[A-Za-z0-9_-]{11}$/.test(s)) return s;      // they pasted just the id
-    let u;
-    try { u = new URL(s); } catch { return null; }
-    if (!/(^|\.)youtube\.com$|(^|\.)youtu\.be$|(^|\.)youtube-nocookie\.com$/
-          .test(u.hostname)) return null;
-    const v = u.hostname.endsWith('youtu.be')
-      ? u.pathname.slice(1)
-      : (u.searchParams.get('v') || u.pathname.split('/').pop());
-    return /^[A-Za-z0-9_-]{11}$/.test(v) ? v : null;
-  }
+  /* ⚠️ ytId used to live here. It now lives in lib/links.js and is
+     imported, because the wall needed the same parser — and two copies
+     of a hostname check is how one of them quietly stops matching a
+     domain the other one blocks. The 0046 → 0049 lesson. */
 
   function onYt(text) {
     setYtText(text);
