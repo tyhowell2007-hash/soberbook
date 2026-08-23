@@ -106,7 +106,22 @@ export default function DropCard({ drop, artUrl, mediaUrl }) {
       <article className="dp dp-soon">
         <span className="dp-dots" aria-hidden="true" />
         <div className="dp-in">
-          <div className="dp-kicker">Sober Book first</div>
+          {/* 🔴 "SOBER BOOK FIRST" IS A CLAIM, AND IT IS ONLY TRUE WHEN AN
+              EXCLUSIVE WAS ACTUALLY CLAIMED.
+
+              Ty caught this the first time a real card went up: it said
+              "Sober Book first" over a song that came out on Friday. The
+              card was making a promise on the artist's behalf that wasn't
+              theirs to make — the same category as the "verified, real
+              people" line that was killed off the landing page, and worse
+              here, because the person it misrepresents is a member.
+
+              exclusive_hours is NULLABLE precisely so a drop of something
+              already public can have the poster without the claim. This
+              line just has to respect it. */}
+          <div className="dp-kicker">
+            {drop.exclusive_hours ? 'Sober Book first' : 'New release'}
+          </div>
           <h3 className="dp-title">{drop.title}</h3>
           <div className="dp-artist">{drop.artist}</div>
 
