@@ -189,8 +189,14 @@
   cursor: pointer;
 }
 .hp-pbtn:hover { border-color: var(--gd); }
-.hp-pwhen { font-size: 15px; color: var(--body); }
+/* ⚠️ The mark sizes up to 26px. At 15px, an emoji beside 15px text
+   reads as a typo rather than an icon — it has to be clearly a
+   PICTURE, or it just looks like something went wrong. */
+.hp-pmark { font-size: 26px; line-height: 1; flex: none; }
+.hp-pwhen { font-size: 15px; color: var(--body); flex: 1; min-width: 0; }
 .hp-plen  { font-size: 12px; color: var(--soft); flex: none; }
+
+.pr-mark { font-size: 40px; line-height: 1; margin: 8px 0 4px; }
 
 /* 🔴 The care line. Deliberately NOT small print — it is the same size
    as everything else it sits beside. */

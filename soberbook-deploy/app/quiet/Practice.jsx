@@ -46,6 +46,7 @@ import { useEffect, useRef, useState } from 'react';
 export const PRACTICES = [
   {
     id: 'sigh',
+    mark: '🌬️',
     when: 'I can’t breathe, my chest is tight',
     length: '60 seconds',
     title: 'Two breaths in, one long breath out',
@@ -71,6 +72,7 @@ export const PRACTICES = [
   },
   {
     id: 'urge',
+    mark: '🌊',
     when: 'The craving won’t stop',
     length: '3 minutes',
     title: 'Ride it out instead of fighting it',
@@ -91,6 +93,7 @@ export const PRACTICES = [
   },
   {
     id: 'kind',
+    mark: '🫂',
     when: 'I hate myself',
     length: '5 minutes',
     title: 'Say it to yourself first',
@@ -113,6 +116,7 @@ export const PRACTICES = [
   },
   {
     id: 'body',
+    mark: '🛏️',
     when: 'I can’t sleep',
     length: '10 minutes',
     title: 'Go through yourself, slowly',
@@ -134,6 +138,7 @@ export const PRACTICES = [
   },
   {
     id: 'review',
+    mark: '🌇',
     when: 'Looking back on the day',
     length: '5 minutes',
     title: 'Five questions, and nobody owns them',
@@ -207,6 +212,7 @@ export default function Practice({ p, onDone }) {
         ← back
       </button>
 
+      <p className="pr-mark" aria-hidden="true">{p.mark}</p>
       <h2 className="pr-title">{p.title}</h2>
       <p className="pr-when">{p.when} · {p.length}</p>
 

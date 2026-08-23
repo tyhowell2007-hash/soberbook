@@ -63,10 +63,29 @@
 .rd-list { list-style: none; margin: 0 0 26px; padding: 0; }
 .rd-list li { margin-bottom: 10px; }
 
+/* ⚠️ The mark is a big flat stamp, not a tiny icon. At 15px an emoji
+   next to 20px display type reads as a typo; at 30px it reads as a
+   woodblock print, which is the only way emoji survive a xerox layout. */
+.rd-mark {
+  font-size: 30px;
+  line-height: 1;
+  flex: none;
+}
+.rd-itext { display: block; min-width: 0; }
+
+.rd-tmark {
+  font-size: 34px;
+  line-height: 1;
+  display: block;
+  margin-bottom: 6px;
+}
+
 .rd-item {
   width: 100%;
   text-align: left;
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 14px;
   /* ⚠️ Two hard edges rather than a rounded card. The whole look is
      photocopied paper, and a 12px radius drags it straight back to
      every other app. Square corners are the treatment. */

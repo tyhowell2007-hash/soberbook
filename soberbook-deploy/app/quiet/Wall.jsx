@@ -192,6 +192,9 @@ export default function Wall({ answers, mine }) {
         {PRACTICES.map((p) => (
           <li key={p.id}>
             <button type="button" className="hp-pbtn" onClick={() => setPractice(p)}>
+              {/* aria-hidden — "wind face" announced before "I can't
+                  breathe, my chest is tight" helps nobody. */}
+              <span className="hp-pmark" aria-hidden="true">{p.mark}</span>
               <span className="hp-pwhen">{p.when}</span>
               <span className="hp-plen">{p.length}</span>
             </button>
@@ -222,7 +225,9 @@ export default function Wall({ answers, mine }) {
         Six passages where the person in the story is in the state
         you’re in. Not the fridge-magnet verses.
       </p>
-      <Link href="/readings" className="btn hp-room">The parts nobody preaches</Link>
+      <Link href="/readings" className="btn hp-room">
+        <span aria-hidden="true">⛪ </span>The parts nobody preaches
+      </Link>
 
       {/* ---- 4. THE ROOM ---- */}
       <h2 className="hp-h hp-h2">Sit with other people</h2>

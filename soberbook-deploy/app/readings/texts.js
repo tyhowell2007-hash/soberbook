@@ -64,9 +64,27 @@
 
 export const TRANSLATION = 'World English Bible · public domain';
 
+/* ⚠️ THE EMOJI ARE MARKERS, NOT DECORATION, AND NONE OF THEM TOUCH THE
+   SCRIPTURE ITSELF.
+
+   Ty asked for these because the rest of the app is emoji-forward — the
+   whole bottom nav is emoji, the masthead is 🌱, the anonymous switch is
+   🌱/🙂 — and a page with none looked like it belonged to a different
+   product.
+
+   Each one is an OBJECT FROM ITS OWN PASSAGE: the bread the angel
+   leaves for Elijah, the fish, the thorn. Not a mood, not a reaction,
+   not 🙏 or 🔥. That distinction is the whole difference between this
+   and the youth-pastor version — the thing that reads as condescending
+   to somebody who has done a fourth step.
+
+   ⚠️ They appear ONLY in the list, as a way to find your place. There
+   is no emoji anywhere near a verse. */
+
 export const READINGS = [
   {
     id: 'hate',
+    mark: '🔁',
     ref: 'Romans 7:15–20',
     title: 'I do the thing I hate',
     who: 'Paul, on not being able to stop',
@@ -82,6 +100,7 @@ export const READINGS = [
   },
   {
     id: 'elijah',
+    mark: '🍞',
     ref: '1 Kings 19:4–6',
     title: 'He asked God to kill him',
     who: 'Elijah, under the tree',
@@ -97,6 +116,7 @@ export const READINGS = [
   },
   {
     id: 'thorn',
+    mark: '🌵',
     ref: '2 Corinthians 12:7–9',
     title: 'God said no',
     who: 'Paul, and the thing that stayed',
@@ -112,6 +132,7 @@ export const READINGS = [
   },
   {
     id: 'david',
+    mark: '🎭',
     ref: '1 Samuel 21:12–13',
     title: 'He drooled in his beard',
     who: 'David, faking it to stay alive',
@@ -126,6 +147,7 @@ export const READINGS = [
   },
   {
     id: 'jonah',
+    mark: '🐟',
     ref: 'Jonah 4:1–3',
     title: 'He was furious about mercy',
     who: 'Jonah, after the fish',
@@ -141,6 +163,7 @@ export const READINGS = [
   },
   {
     id: 'garden',
+    mark: '🌙',
     ref: 'Luke 22:41–44',
     title: 'He asked to get out of it',
     who: 'The garden, the night before',

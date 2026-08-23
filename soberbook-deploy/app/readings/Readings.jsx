@@ -35,7 +35,10 @@ function One({ r, onBack }) {
       </button>
 
       <p className="rd-ref">{r.ref}</p>
-      <h1 className="rd-title">{r.title}</h1>
+      <h1 className="rd-title">
+        <span className="rd-tmark" aria-hidden="true">{r.mark}</span>
+        {r.title}
+      </h1>
       <p className="rd-who">{r.who}</p>
 
       {/* The passage. ⚠️ Verse numbers are small and set apart rather
@@ -90,9 +93,16 @@ export default function Readings() {
         {READINGS.map((r) => (
           <li key={r.id}>
             <button type="button" className="rd-item" onClick={() => setOpen(r)}>
-              <span className="rd-iref">{r.ref.split(':')[0]}</span>
-              <span className="rd-ititle">{r.title}</span>
-              <span className="rd-iwho">{r.who}</span>
+              {/* ⚠️ aria-hidden. Every one of these is an object from the
+                  passage, so a screen reader announcing "loaf of bread"
+                  before "He asked God to kill him" would be baffling at
+                  best. The title already says everything. */}
+              <span className="rd-mark" aria-hidden="true">{r.mark}</span>
+              <span className="rd-itext">
+                <span className="rd-iref">{r.ref.split(':')[0]}</span>
+                <span className="rd-ititle">{r.title}</span>
+                <span className="rd-iwho">{r.who}</span>
+              </span>
             </button>
           </li>
         ))}

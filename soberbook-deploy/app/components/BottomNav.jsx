@@ -74,8 +74,25 @@ const TABS = [
      "come back" rather than "someone spoke to you", which is the slot-
      machine move this bar exists to refuse.
 
-     A candle: a small light somebody lit, that asks nothing of you. */
-  { href: '/quiet',    icon: '🕯️', label: 'Quiet' },
+     ⚠️ THE ICON IS ⛪ AND THAT WAS TY'S CALL, MADE AFTER BEING TOLD THE
+     ARGUMENT AGAINST IT. Recorded here so nobody "corrects" it later.
+
+     The case against, which he heard and overruled: most of what's
+     behind this tab is not Christian. It's the wall where people say
+     their higher power is their daughter, or the ocean, or nothing —
+     plus breathing and meditation with no tradition attached. A church
+     on the bar asks an atheist member to decide before they tap.
+
+     The case for, which is his: the word "quiet" tells nobody what's in
+     there, a candle is ambiguous, and the people most likely to be
+     looking for this are looking for exactly that building. A door
+     nobody recognises is a door nobody opens.
+
+     ⚠️ If this is ever revisited, revisit the LABEL too — "Quiet" under
+     a church is the compromise holding it together, and swapping the
+     label to "Church" would be a much bigger change than swapping the
+     icon back. */
+  { href: '/quiet',    icon: '⛪', label: 'Quiet' },
   /* no `dot` — see above */
   { href: '/me',       icon: '🙂', label: 'You'  },
 ];
