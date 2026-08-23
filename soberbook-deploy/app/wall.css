@@ -1306,74 +1306,133 @@ textarea:focus-visible{ outline:4px solid var(--x); outline-offset:3px; }
 .rpvm:focus-visible{ outline:3px solid var(--x); outline-offset:3px; }
 
 /* =====================================================================
-   SOMETHING TO WATCH, ON THE WALL   (.cc*)
+   SOMETHING TO WATCH, ON THE WALL   (.cc*)   — premium pass, Aug 23
 
-   Aug 23. Ty: "people are gonna need something more than just looking at
-   themselves… mix with other users posts."
+   Ty: "lets make the box the player sits in more premium!!"
 
-   ⚠️ DELIBERATELY QUIETER THAN A POST. A member's words are the point of
-   this page; a video is the thing you scroll past on the way to them. So
-   the card is flatter, its border is lighter, and it never gets the acid
-   edge or the poster size that an unanswered post can get. If these ever
-   start out-shouting the posts, this block is where that went wrong.
+   ⚠️ PREMIUM, NOT LOUD. This card must stay quieter than a member's post
+   — their words are the page, a video is what you pass on the way to
+   them. So no acid edge, no poster size, no colour competing with the
+   green room. What's left is depth, type and restraint.
 
-   ⚠️ Same --x/--body/--soft variables as everything else, so
-   theme-green.css reskins it for free.
+   ⚠️ It is the only rounded object in the app, on purpose. Sober Book has
+   three border-radius declarations in 60KB of CSS because square IS the
+   house style. Something from outside shouldn't wear the house style —
+   the rounding is the passport stamp.
    ===================================================================== */
 
 .cc{
-  border:2px solid var(--x); background:var(--paper2);
-  padding:0 0 11px; margin-bottom:14px;
+  margin:0 0 18px;
+  border-radius:14px;
+  background:var(--paper2);
+  /* Two layers: a tight contact shadow so it sits ON the page, and a wide
+     soft one so it floats above it. ⚠️ One shadow always looks either
+     glued down or detached — the pair is what reads as a real object. */
+  box-shadow:0 1px 2px rgba(15,61,42,.10), 0 12px 28px -8px rgba(15,61,42,.26);
+  overflow:hidden;                 /* keeps the image inside the radius */
+  -webkit-tap-highlight-color:transparent;
 }
-.cchd{
-  display:flex; align-items:center; justify-content:space-between; gap:8px;
-  padding:9px 12px 8px; border-bottom:1px solid var(--line,#D8E3DC);
+
+.ccframe{ position:relative; width:100%; aspect-ratio:16/9; background:#0B0F0D; }
+.ccif{ position:absolute; inset:0; width:100%; height:100%; border:0; display:block; }
+
+.ccplay{
+  position:absolute; inset:0; width:100%; height:100%;
+  padding:0; border:0; background:none; cursor:pointer; display:block;
+  transition:transform .18s ease;
+}
+/* It presses. Small, and the whole card moves as one piece. */
+.ccplay:active{ transform:scale(.985); }
+.ccplay:focus-visible{ outline:3px solid var(--gd,#1B6B4A); outline-offset:-3px; }
+
+.ccimg{ width:100%; height:100%; object-fit:cover; display:block; }
+.ccnone{ background:linear-gradient(160deg,#1B6B4A,#0F3D2A); }
+
+/* ⚠️ THE GRADIENT IS LOAD-BEARING, not decoration. We do not choose these
+   thumbnails; white type is legible on a dark one and invisible on a
+   bright one. Dark at both ends, clear through the middle so the picture
+   still reads. */
+.ccscrim{
+  position:absolute; inset:0; pointer-events:none;
+  background:
+    linear-gradient(to bottom, rgba(8,12,10,.62) 0%, rgba(8,12,10,0) 34%),
+    linear-gradient(to top,    rgba(8,12,10,.86) 0%, rgba(8,12,10,.28) 32%, rgba(8,12,10,0) 58%);
+}
+
+/* ---- the byline, top of the picture ---- */
+.ccmeta{
+  position:absolute; top:0; left:0; right:0; padding:11px 13px;
+  display:flex; align-items:center; gap:8px; pointer-events:none;
 }
 .ccsrc{
-  font-family:'Anton',Impact,sans-serif; font-size:13px; text-transform:uppercase;
-  letter-spacing:.03em; color:var(--x); overflow:hidden; text-overflow:ellipsis;
-  white-space:nowrap;
+  font-family:'Anton',Impact,sans-serif; font-size:12px; letter-spacing:.09em;
+  text-transform:uppercase; color:#fff; text-shadow:0 1px 3px rgba(0,0,0,.5);
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap; min-width:0;
 }
 .cccat{
-  flex:none; font-family:'Courier Prime',monospace; font-size:10px; font-weight:700;
-  letter-spacing:.06em; text-transform:uppercase; color:var(--gt,#0F3D2A);
-  background:var(--gl,#E8F4ED); padding:3px 8px; border:1px solid var(--gd,#1B6B4A);
+  flex:none; margin-left:auto;
+  font-family:'Courier Prime',monospace; font-size:9.5px; font-weight:700;
+  letter-spacing:.12em; text-transform:uppercase; color:#F2FBF6;
+  padding:3px 8px; border-radius:999px;
+  background:rgba(255,255,255,.16); border:1px solid rgba(255,255,255,.34);
+  -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px);
 }
 
-.ccframe{ position:relative; width:100%; aspect-ratio:16/9; background:#0d0d0c; }
-.ccif{ position:absolute; inset:0; width:100%; height:100%; border:0; }
-
-/* The whole picture is the button. ⚠️ Nothing inside it is a link — an <a>
-   in a <button> is invalid — so the "open on youtube" link lives below. */
-.ccplay{
-  position:absolute; inset:0; width:100%; height:100%; padding:0; border:0;
-  background:none; cursor:pointer; display:block;
-}
-.ccimg{ width:100%; height:100%; object-fit:cover; display:block; }
-.ccnone{ background:var(--gl,#E8F4ED); }
+/* ---- the play affordance ---- */
 .ccbtn{
   position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
-  /* 56px — well past the 44px tap floor from the Aug 18 audit */
-  width:56px; height:56px; border-radius:50%;
-  background:rgba(12,12,11,.72); color:#fff; font-size:21px;
+  /* 64px — comfortably past the 44px tap floor from the Aug 18 audit */
+  width:64px; height:64px; border-radius:50%;
   display:flex; align-items:center; justify-content:center;
+  background:rgba(255,255,255,.17); border:1.5px solid rgba(255,255,255,.62);
+  -webkit-backdrop-filter:blur(10px) saturate(140%);
+  backdrop-filter:blur(10px) saturate(140%);
+  box-shadow:0 6px 22px rgba(0,0,0,.34);
+  transition:background .18s ease, transform .18s ease;
 }
-/* ⭐ Says out loud that nothing has loaded. Same promise as the link
-   player: this app tells you before it talks to anybody on your behalf. */
-.ccnote{
-  position:absolute; left:0; right:0; bottom:0; padding:5px 8px;
-  font-family:'Courier Prime',monospace; font-size:10px; letter-spacing:.04em;
-  color:#F2EFE6; background:rgba(12,12,11,.6); text-align:center;
+.ccplay:hover .ccbtn{ background:rgba(255,255,255,.28); transform:translate(-50%,-50%) scale(1.05); }
+/* A drawn triangle, not the ▶ glyph — ▶ renders as a different weight and
+   a different vertical offset on every platform, and at this size that
+   reads as a mistake. Optically nudged right, because a triangle's visual
+   centre is left of its bounding box. */
+.cctri{
+  width:0; height:0; margin-left:5px;
+  border-left:19px solid #fff;
+  border-top:12px solid transparent;
+  border-bottom:12px solid transparent;
 }
 
+/* ---- title, on the picture ---- */
 .cctitle{
-  margin:10px 12px 0; font-size:14.5px; line-height:1.45; color:var(--body);
-  overflow-wrap:anywhere;
+  position:absolute; left:0; right:0; bottom:0; padding:13px 14px 30px;
+  font-family:'Archivo',system-ui,sans-serif; font-size:16px; font-weight:600;
+  line-height:1.3; color:#fff; text-align:left;
+  text-shadow:0 1px 4px rgba(0,0,0,.55);
+  display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical;
+  overflow:hidden;
+}
+/* ⭐ Still says out loud that nothing has loaded. Quieter than before —
+   it's a promise, not a warning, and it shouldn't shout over the title. */
+.ccnote{
+  position:absolute; left:14px; bottom:10px;
+  font-family:'Courier Prime',monospace; font-size:9.5px; letter-spacing:.07em;
+  color:rgba(255,255,255,.66);
+}
+
+.ccbelow{
+  margin:12px 14px 0; font-size:15px; font-weight:600; line-height:1.35;
+  color:var(--body); overflow-wrap:anywhere;
 }
 .ccout{
-  display:inline-flex; align-items:center; min-height:44px; margin:0 12px;
-  font-family:'Courier Prime',monospace; font-size:10.5px; font-weight:700;
-  letter-spacing:.06em; text-transform:uppercase; color:var(--soft);
-  text-decoration:underline; text-underline-offset:3px;
+  display:inline-flex; align-items:center; min-height:44px; padding:0 14px;
+  font-family:'Courier Prime',monospace; font-size:10px; font-weight:700;
+  letter-spacing:.1em; text-transform:uppercase; color:var(--soft);
+  text-decoration:none;
 }
-.ccout:hover{ color:var(--x); }
+.ccout:hover{ color:var(--gd,#1B6B4A); }
+.ccout:focus-visible{ outline:3px solid var(--gd,#1B6B4A); outline-offset:2px; }
+
+@media (prefers-reduced-motion:reduce){
+  .ccplay,.ccbtn{ transition:none; }
+  .ccplay:active{ transform:none; }
+}

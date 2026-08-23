@@ -3,42 +3,57 @@
 import { useState } from 'react';
 
 /* =====================================================================
-   SOMETHING TO WATCH, SITTING ON THE WALL.
+   SOMETHING TO WATCH, ON THE WALL.
+
+   Aug 23, second pass. Ty: "lets make the box the player sits in more
+   premium!!"
 
    ---------------------------------------------------------------------
-   🔴 NOTHING LOADS UNTIL SOMEBODY TAPS PLAY.
+   ⭐ WHAT PREMIUM MEANS HERE, BECAUSE IT ISN'T "LOUDER".
 
-   Same rule as Linked.jsx and SongPlayer.jsx, third place it applies. An
-   iframe fires the instant the page renders, so a wall carrying eight of
-   these would announce this member's browser to Google eight times over
-   before they had touched anything.
+   This card has to stay QUIETER than a member's post — a person's words
+   are the point of this page and a video is what you pass on the way to
+   them. So none of the usual volume knobs were available: no bigger type
+   than a post, no acid edge, no colour fighting the green room.
 
-   ⚠️ And the thumbnail is served from OUR bucket, not from i.ytimg.com —
-   that is the whole reason the puller downloads and re-encodes it. A
-   picture is a request too. Getting the iframe right and leaving the
-   image pointing at Google would have leaked exactly the same thing,
-   quietly, on every single page load.
+   What's left is the stuff that actually reads as expensive:
+     · the title sits ON the picture over a gradient, not stranded under
+       it in a paragraph. One object instead of three stacked ones.
+     · a real layered shadow instead of a hard border
+     · the source as a byline in small caps, the way a masthead does it
+     · a glass play button rather than a grey circle
+     · it presses when you touch it
+
+   ⚠️ It is the only rounded thing in the app, and that is deliberate
+   rather than sloppy: the whole of Sober Book has three border-radius
+   declarations, because square is the house style. A piece of media from
+   somewhere else is not a Sober Book object and shouldn't pretend to be —
+   the rounding is what says "this came from outside".
 
    ---------------------------------------------------------------------
-   ⚠️ THE SOURCE IS ALWAYS ON THE CARD.
+   🔴 NOTHING LOADS UNTIL SOMEBODY TAPS PLAY. Third place this rule
+   applies, after Linked.jsx and SongPlayer.jsx. An iframe fires the
+   instant the page renders, so a wall carrying seven of these would
+   announce this member's browser to Google seven times before they
+   touched anything.
 
-   Not decoration. In a room where treatment centres pay for referrals,
-   somebody has to be able to see where a thing came from before they tap
-   it — and this feed is curated by us, which makes it MORE our
-   responsibility to say whose voice it is, not less.
+   ⚠️ And the picture comes from OUR bucket, not i.ytimg.com — that is the
+   whole reason the puller downloads and re-encodes it. A picture is a
+   request too. Getting the iframe right and leaving the image pointing at
+   Google would leak the same thing, quietly, on every page load.
 
-   ⚠️ The category chip says 'talk' for the general-interest shows rather
-   than 'recovery'. Putting "recovery" on a card is the app making a claim
-   about somebody's recovery. It only says that where it's true.
+   ⚠️ THE SOURCE IS ALWAYS ON THE CARD. In a room where treatment centres
+   pay for referrals, somebody has to see whose voice this is before they
+   tap. Curating it ourselves makes that more of an obligation, not less.
    ===================================================================== */
 
 const CHIP = {
-  comedy:   '😂 comedy',
-  music:    '🎧 music',
-  recovery: '🌱 recovery',
-  calm:     '🌊 calm',
-  local:    '📍 ohio',
-  talk:     '🎙️ talk',
+  comedy:   'comedy',
+  music:    'music',
+  recovery: 'recovery',
+  calm:     'calm',
+  local:    'ohio',
+  talk:     'talk',
 };
 
 export default function ContentCard({ item, thumbBase }) {
@@ -49,11 +64,6 @@ export default function ContentCard({ item, thumbBase }) {
 
   return (
     <article className="cc">
-      <div className="cchd">
-        <span className="ccsrc">{item.source_label}</span>
-        <span className="cccat">{CHIP[item.category] || item.category}</span>
-      </div>
-
       <div className="ccframe">
         {on && item.embed_id ? (
           <iframe
@@ -63,30 +73,51 @@ export default function ContentCard({ item, thumbBase }) {
             allow="autoplay; encrypted-media; picture-in-picture"
             allowFullScreen
             /* ⚠️ Not no-referrer — YouTube refuses an embed that arrives
-               with no origin at all. This is the tightest setting they
-               accept: they learn the site, never the page or the member. */
+               with no origin at all. This is the tightest they accept:
+               they learn the site, never the page or the member. */
             referrerPolicy="strict-origin-when-cross-origin"
           />
         ) : (
+          /* ⚠️ ONE button, and everything readable is inside it. Nothing in
+             here is a link — an <a> inside a <button> is invalid HTML — so
+             "watch on youtube" lives below the frame. */
           <button type="button" className="ccplay"
                   onClick={() => setOn(true)}
-                  aria-label={`Play: ${item.title}`}>
+                  aria-label={`Play ${item.title}, from ${item.source_label}`}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            {thumb ? <img className="ccimg" src={thumb} alt="" loading="lazy" /> : <span className="ccimg ccnone" />}
-            <span className="ccbtn" aria-hidden="true">▶</span>
+            {thumb
+              ? <img className="ccimg" src={thumb} alt="" loading="lazy" />
+              : <span className="ccimg ccnone" aria-hidden="true" />}
+
+            {/* The gradient is what makes white text on an unknown photo
+                safe. ⚠️ Without it the title is legible on a dark
+                thumbnail and invisible on a bright one, and we do not get
+                to choose the thumbnail. */}
+            <span className="ccscrim" aria-hidden="true" />
+
+            <span className="ccmeta">
+              <span className="ccsrc">{item.source_label}</span>
+              <span className="cccat">{CHIP[item.category] || item.category}</span>
+            </span>
+
+            <span className="ccbtn" aria-hidden="true"><span className="cctri" /></span>
+
+            <span className="cctitle">{item.title}</span>
             <span className="ccnote">nothing loads until you tap</span>
           </button>
         )}
       </div>
 
-      <p className="cctitle">{item.title}</p>
+      {/* Once it's playing the title has nowhere to sit on the picture,
+          so it comes back out underneath. */}
+      {on && <p className="ccbelow">{item.title}</p>}
 
-      {/* ⚠️ no-referrer on the way OUT, unlike the embed above. Opening the
-          link in a new tab has no such requirement, so it gets the strict
-          rule the rest of the app uses for member-facing links. */}
+      {/* ⚠️ no-referrer on the way OUT, unlike the embed above — leaving
+          has no such constraint, so it gets the strict rule the rest of
+          the app uses for links a member might follow. */}
       <a className="ccout" href={item.url} target="_blank"
          rel="noopener noreferrer" referrerPolicy="no-referrer">
-        open on youtube ↗
+        watch on youtube ↗
       </a>
     </article>
   );
