@@ -11,6 +11,7 @@ import { Body, Player } from '../components/Linked';
 import { fetchPreviews, PREVIEW_COUNT } from '../../lib/previews';
 import { mixFeed } from '../../lib/mix';
 import ContentCard from '../components/ContentCard';
+import DropCard from '../components/DropCard';
 
 function ago(iso) {
   const mins = Math.floor((Date.now() - new Date(iso).getTime()) / 60000);
@@ -111,7 +112,8 @@ function who(p) {
    you a greeting, never a blank page. */
 export default function Wall({ initial, me = { name: null, avatar: null }, mark = null,
                                photoUrls = {}, previews = {},
-                               content = [], thumbBase = '' }) {
+                               content = [], thumbBase = '',
+                               drops = {}, dropUrls = {} }) {
   const router = useRouter();
   const supabase = browserClient();
   /* The milestone landing today, if there is one and it hasn't been
@@ -719,16 +721,33 @@ export default function Wall({ initial, me = { name: null, avatar: null }, mark 
                 </div>
               )}
 
+              {/* ⭐ A MEMBER'S RECORD (0058). When a post carries a drop the
+                  poster IS the post — it replaces the body, the photo and
+                  the link player, because a release is one object and
+                  stacking a caption, a picture and a poster makes three.
+
+                  ⚠️ The post header, footer, replies, ⋯ menu and every
+                  audience rule above and below are untouched. A drop is a
+                  post with a record attached, not a new kind of thing —
+                  which is why none of that had to be rebuilt. */}
+              {drops[p.id] && (
+                <DropCard
+                  drop={drops[p.id]}
+                  artUrl={dropUrls[drops[p.id].art_path] || null}
+                  mediaUrl={dropUrls[drops[p.id].media_path] || null}
+                />
+              )}
+
               {/* A photo-only post has an empty body. Rendering the empty
                   paragraph anyway leaves a blank gap above the picture that
                   looks like text failed to load. */}
-              {p.body ? <p className="bd"><Body text={p.body} /></p> : null}
+              {p.body && !drops[p.id] ? <p className="bd"><Body text={p.body} /></p> : null}
 
               {/* ⭐ Aug 23. A member posted his music and the link came out
                   as plain text you had to copy and leave for. It plays
                   here now. ⚠️ Nothing loads until somebody taps — see
                   components/Linked.jsx. */}
-              {p.body ? <Player text={p.body} /> : null}
+              {p.body && !drops[p.id] ? <Player text={p.body} /> : null}
 
               {/* ⚠️ `p.photo_url` is null on every anonymous post because
                   feed_posts nulls it — this does not need, and must not

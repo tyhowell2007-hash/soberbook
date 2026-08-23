@@ -37,6 +37,7 @@ export async function signPhotoPaths(supabase, wanted) {
   const postPaths   = asked.filter((p) => p.startsWith('posts/'));
   const avatarPaths = asked.filter((p) => p.startsWith('avatars/'));
   const videoPaths  = asked.filter((p) => p.startsWith('videos/'));
+  const dropPaths   = asked.filter((p) => p.startsWith('drops/'));
 
   const allowed = new Set();
 
@@ -56,6 +57,30 @@ export async function signPhotoPaths(supabase, wanted) {
     (data || []).forEach((r) => r.video_url && allowed.add(r.video_url));
   }
 
+  /* ⭐ A MEMBER'S RECORD (0058), AND THIS IS WHERE THE EXCLUSIVE HOLDS.
+
+     Same question, same shape — but feed_drops returns `media_path` as
+     NULL until the release time has passed. So asking the view "may this
+     path be signed?" refuses an unreleased track WITHOUT this file
+     knowing anything about release dates, countdowns or windows.
+
+     ⚠️ That is the whole reason this is worth pointing at: had the rule
+     been written here as `if (release_at > now) skip`, it would be a
+     second copy of the rule in the view, and the second copy drifts. The
+     view is asked. It answers. Nothing here decides.
+
+     Cover art is checked separately and is NOT time-gated — a poster for
+     something that hasn't landed yet is the entire point of a countdown. */
+  if (dropPaths.length) {
+    const { data: media } = await supabase
+      .from('feed_drops').select('media_path').in('media_path', dropPaths);
+    (media || []).forEach((r) => r.media_path && allowed.add(r.media_path));
+
+    const { data: art } = await supabase
+      .from('feed_drops').select('art_path').in('art_path', dropPaths);
+    (art || []).forEach((r) => r.art_path && allowed.add(r.art_path));
+  }
+
   if (avatarPaths.length) {
     const { data } = await supabase
       .from('public_profiles')
@@ -69,7 +94,8 @@ export async function signPhotoPaths(supabase, wanted) {
 
   for (const [bucket, prefix] of [['post-photos', 'posts/'],
                                   ['avatars',     'avatars/'],
-                                  ['post-videos', 'videos/']]) {
+                                  ['post-videos', 'videos/'],
+                                  ['drops',       'drops/']]) {
     const paths = [...allowed].filter((p) => p.startsWith(prefix));
     if (!paths.length) continue;
     const { data } = await admin.storage.from(bucket).createSignedUrls(paths, TTL);

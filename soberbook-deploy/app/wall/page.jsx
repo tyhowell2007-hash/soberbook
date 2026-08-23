@@ -69,6 +69,28 @@ export default async function WallPage() {
     .order('published_at', { ascending: false })
     .limit(60);
 
+  /* A member's own record (0058), keyed by post id.
+
+     ⚠️ Read through feed_drops, never the `drops` table — the view is
+     what returns media_path as NULL before the release time and withholds
+     the outbound link during the exclusive window. Reading the base table
+     would hand an unreleased master's file path to every browser on the
+     wall, which is the one thing this whole feature promises not to do. */
+  const { data: dropRows } = await supabase
+    .from('feed_drops')
+    .select('post_id, artist, title, kind, art_path, release_at, exclusive_hours, is_out, is_exclusive_now, exclusive_until, external_url, media_path')
+    .in('post_id', (posts || []).map((p) => p.id));
+
+  const drops = Object.fromEntries((dropRows || []).map((d) => [d.post_id, d]));
+
+  /* Signed in the same pass as the photos. ⚠️ Only paths the VIEW handed
+     back are here — an unreleased track never reaches this array, so it
+     cannot accidentally be signed. */
+  const dropUrls = await signPhotoPaths(
+    supabase,
+    (dropRows || []).flatMap((d) => [d.media_path, d.art_path]).filter(Boolean)
+  );
+
   /* The public base for thumbnails. ⭐ Our bucket, not Google's — the
      puller copies every picture so a member's browser never calls
      i.ytimg.com just by scrolling. */
@@ -135,6 +157,8 @@ export default async function WallPage() {
             previews={previews}
             content={content || []}
             thumbBase={thumbBase}
+            drops={drops}
+            dropUrls={dropUrls}
           />}
     </>
   );
