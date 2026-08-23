@@ -4,6 +4,42 @@ import { NextResponse } from 'next/server';
 // Refreshes the Supabase session on every request and keeps unauthenticated
 // users out of the app. Login and the auth callback stay open.
 export async function middleware(request) {
+
+  /* =====================================================================
+     ONE ADDRESS: soberbook.app.
+     ---------------------------------------------------------------------
+     Aug 23. Ty: "we want an easy nice experience for new and old users."
+
+     soberbook.vercel.app still answers, and anybody who was sent that
+     link months ago still has it in a DM or a bio. It works, so nothing
+     looks broken — it just isn't the address on the posters, the flyer
+     QR or the domain we pay for. Two front doors is how you end up
+     supporting two front doors.
+
+     ⚠️ 307, NOT 308/301. A permanent redirect is cached by the browser
+     more or less forever; if this ever needs undoing — a DNS problem on
+     soberbook.app, say — everyone who hit it once is stuck on a rule we
+     can no longer change. Temporary costs nothing here and stays
+     reversible.
+
+     🔴 /auth AND /reset ARE EXCLUDED, AND THAT IS THE IMPORTANT PART.
+     Supabase puts the recovery token in the URL **fragment**
+     (#access_token=…). A fragment is never sent to the server, so a
+     server-side redirect SILENTLY DROPS IT — the link is spent, the
+     token is gone, and the person is locked out with no explanation.
+     Old reset emails were sent with a vercel.app redirect address and
+     those links must keep working. See the note further down; this is
+     the same trap from the other direction.
+     ===================================================================== */
+  const host = request.headers.get('host') || '';
+  const path = request.nextUrl.pathname;
+  const tokenPath = path.startsWith('/auth') || path.startsWith('/reset');
+
+  if (host.endsWith('.vercel.app') && !tokenPath) {
+    const to = new URL(path + request.nextUrl.search, 'https://soberbook.app');
+    return NextResponse.redirect(to, 307);
+  }
+
   let response = NextResponse.next({ request });
 
   const supabase = createServerClient(
