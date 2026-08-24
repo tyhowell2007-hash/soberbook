@@ -446,24 +446,40 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
          who can see a friends-only post knows the author is one of their
          own friends, and each of them knows their own friend list. With a
          handful of friends that's a name. Anonymity needs a crowd. */
-      /* ⚠️ .select() so we get the id back — a drop needs the post it
-         hangs off, and a second round trip to find "the post I just made"
-         is a race with anybody else posting at the same moment. */
-      const { data: made, error } = await supabase.from('posts')
-        .insert({ author_id: user.id, body, is_anonymous: anon,
+      /* 🔴 THE ID IS MADE HERE, NOT READ BACK. THIS BROKE POSTING.
+
+         The obvious version is `.insert(...).select('id').single()` — and
+         it took the whole app down for everyone, not just drops, with
+         "permission denied for table posts".
+
+         RULE 1 of this schema: members read through feed_posts, NEVER the
+         base table, because `posts` carries author_id on anonymous posts.
+         So `authenticated` has INSERT and DELETE on posts and no SELECT —
+         and .select() on an insert needs SELECT. The grant was right; my
+         insert was wrong.
+
+         ⚠️ Generating the uuid client-side is not a workaround, it's the
+         correct shape: we need to KNOW the id, not to be TOLD it. A v4
+         uuid from the browser is the same value the database would have
+         made, and it means the drop can be attached without ever reading
+         a row back. */
+      const postId = (crypto.randomUUID && crypto.randomUUID())
+        || (URL.createObjectURL(new Blob()).split('/').pop());
+
+      const { error } = await supabase.from('posts')
+        .insert({ id: postId, author_id: user.id, body, is_anonymous: anon,
                   audience: anon ? 'open' : audience,
                   photo_url: attached && !attached.isVideo ? attached.path : null,
-                  video_url: attached &&  attached.isVideo ? attached.path : null })
-        .select('id').single();
+                  video_url: attached &&  attached.isVideo ? attached.path : null });
       if (error) throw error;
 
       /* 🔴 THE DROP IS INSERTED SECOND, AND THE ORDER MATTERS. If this
          fails — the one-a-week limit, a bad claim — the post survives as
          an ordinary post and the member sees the reason. The other order
          would leave a record row pointing at nothing. */
-      if (rec && made?.id) {
+      if (rec) {
         const { error: dErr } = await supabase.from('drops')
-          .insert({ post_id: made.id, ...rec });
+          .insert({ post_id: postId, ...rec });
         if (dErr) throw new Error(dErr.message);
       }
       setText('');
