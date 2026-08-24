@@ -38,6 +38,11 @@ export const READABLE_VIEWS = [
      people who have blocked you; the view joins through public_profiles
      so blocking, suspension and anonymity are inherited. See 0021. */
   'meeting_attendance',
+  /* feed_drops — a member's record (0058). Safe for the same reason as
+     the rest: it never exposes a base table, and it is what returns
+     media_path as NULL before release. Reading `drops` directly would
+     hand every unreleased master's file path to any signed-in member. */
+  'feed_drops',
   /* open_meeting_rooms — meetings members are holding here (0052).
      Safe to read for the same reason meeting_attendance is: it never
      exposes a base table. It joins profiles itself and hands back a

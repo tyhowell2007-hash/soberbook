@@ -9,6 +9,7 @@ import PostMenu from './PostMenu';
 import PhotoUpload from '../components/PhotoUpload';
 import { Body, Player } from '../components/Linked';
 import { fetchPreviews, PREVIEW_COUNT } from '../../lib/previews';
+import { fetchDrops } from '../../lib/drops';
 import { mixFeed } from '../../lib/mix';
 import ContentCard from '../components/ContentCard';
 import DropCard from '../components/DropCard';
@@ -125,6 +126,11 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
      down from the server for first paint, then re-read here whenever the
      conversation actually changes. */
   const [convo, setConvo] = useState(previews);
+  /* 🔴 The records, as STATE rather than a prop. As a prop it only moved
+     when the whole server page re-rendered, which races with the client
+     re-reading posts — so a record you just put out appeared as a post
+     with no poster on it. That was the "it never showed up" bug. */
+  const [recs, setRecs] = useState(drops);
   const [text, setText] = useState('');
   const [anon, setAnon] = useState(false);
   /* 'open' | 'friends'. Resets to open after every post — a sticky
@@ -299,6 +305,10 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
          on the page. A heart is optimistic precisely because it must
          cost nothing. */
       setConvo(await fetchPreviews(supabase, data.map((p) => p.id)));
+      const freshDrops = await fetchDrops(supabase, data.map((p) => p.id));
+      setRecs(freshDrops);
+      signMissing(Object.values(freshDrops).map((d) => ({
+        photo_url: d.media_path, video_url: d.art_path })));
     }
   }
 
@@ -492,6 +502,15 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
       const { data } = await supabase
         .from('feed_posts').select('*').order('created_at', { ascending: false }).limit(60);
       setPosts(data || []);
+      /* ⚠️ The record has to be re-read HERE, in the same breath as the
+         posts. router.refresh() also refetches it, eventually — and
+         "eventually" is what made a brand new poster invisible. */
+      if (data) {
+        const freshDrops = await fetchDrops(supabase, data.map((p) => p.id));
+        setRecs(freshDrops);
+        signMissing(Object.values(freshDrops).map((d) => ({
+          photo_url: d.media_path, video_url: d.art_path })));
+      }
       router.refresh();
     } catch (e2) {
       /* ⚠️ Was alert(). On a phone an alert covers the screen and tells you
@@ -816,24 +835,24 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
                   audience rule above and below are untouched. A drop is a
                   post with a record attached, not a new kind of thing —
                   which is why none of that had to be rebuilt. */}
-              {drops[p.id] && (
+              {recs[p.id] && (
                 <DropCard
-                  drop={drops[p.id]}
-                  artUrl={dropUrls[drops[p.id].art_path] || null}
-                  mediaUrl={dropUrls[drops[p.id].media_path] || null}
+                  drop={recs[p.id]}
+                  artUrl={urlFor(recs[p.id].art_path) || dropUrls[recs[p.id].art_path] || null}
+                  mediaUrl={urlFor(recs[p.id].media_path) || dropUrls[recs[p.id].media_path] || null}
                 />
               )}
 
               {/* A photo-only post has an empty body. Rendering the empty
                   paragraph anyway leaves a blank gap above the picture that
                   looks like text failed to load. */}
-              {p.body && !drops[p.id] ? <p className="bd"><Body text={p.body} /></p> : null}
+              {p.body && !recs[p.id] ? <p className="bd"><Body text={p.body} /></p> : null}
 
               {/* ⭐ Aug 23. A member posted his music and the link came out
                   as plain text you had to copy and leave for. It plays
                   here now. ⚠️ Nothing loads until somebody taps — see
                   components/Linked.jsx. */}
-              {p.body && !drops[p.id] ? <Player text={p.body} /> : null}
+              {p.body && !recs[p.id] ? <Player text={p.body} /> : null}
 
               {/* ⚠️ `p.photo_url` is null on every anonymous post because
                   feed_posts nulls it — this does not need, and must not
