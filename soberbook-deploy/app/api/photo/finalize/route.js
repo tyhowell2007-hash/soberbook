@@ -3,6 +3,7 @@ import sharp from 'sharp';
 import { serverClient } from '../../../../lib/supabase-server';
 import { adminClient } from '../../../../lib/supabase-admin';
 import { stripVideoMetadata } from '../../../../lib/strip-video';
+import { stripAudioMetadata, findAudioTags } from '../../../../lib/strip-audio';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -49,7 +50,39 @@ const MAX_VIDEO_BYTES = 50 * 1024 * 1024;
 const KINDS = {
   post:   { bucket: 'post-photos', prefix: 'posts',   max: 1600, quality: 80 },
   avatar: { bucket: 'avatars',     prefix: 'avatars', max: 512,  quality: 82 },
+  /* Cover art for a record. Bigger than an avatar because a sleeve is
+     looked AT rather than glanced at, smaller than a post photo because
+     it renders in a square that is never full-bleed. */
+  dropart:{ bucket: 'drops',       prefix: 'drops',   max: 1000, quality: 82 },
 };
+
+/* ⚠️ `drop` is deliberately NOT in KINDS above. That map is the
+   image pipeline — resize, re-encode, done. A record is audio or video
+   and takes its own road below, the way video already does. Putting it
+   in the map would send somebody's master through sharp. */
+
+/* An MP3 starts with an ID3 tag or straight into a frame (11 set bits).
+   A WAV is RIFF/WAVE. An M4A is a box tree — same as MP4, so it goes to
+   the video stripper rather than the audio one.
+
+   ⚠️ WE DO NOT ASK THE BROWSER. Same rule as sniffVideo below: the
+   Content-Type was a hint we refused to trust. These are the bytes. */
+function sniffAudio(buf) {
+  if (buf.length < 12) return null;
+  if (buf.toString('latin1', 0, 3) === 'ID3') return { ext: 'mp3', mime: 'audio/mpeg', boxed: false };
+  if (buf[0] === 0xff && (buf[1] & 0xe0) === 0xe0) return { ext: 'mp3', mime: 'audio/mpeg', boxed: false };
+  if (buf.toString('latin1', 0, 4) === 'RIFF' && buf.toString('latin1', 8, 12) === 'WAVE')
+    return { ext: 'wav', mime: 'audio/wav', boxed: false };
+  if (buf.toString('latin1', 4, 8) === 'ftyp') {
+    const brand = buf.toString('latin1', 8, 12);
+    /* M4A/M4B are audio in an MP4 box tree. ⭐ Handed to the VIDEO
+       stripper on purpose — same container, same absolute-offset trap,
+       and lib/strip-audio.js would happily slice bytes out and destroy it. */
+    if (brand.startsWith('M4A') || brand.startsWith('M4B'))
+      return { ext: 'm4a', mime: 'audio/mp4', boxed: true };
+  }
+  return null;
+}
 
 const IMAGE_FORMATS = ['jpeg', 'png', 'webp', 'gif', 'avif', 'heif', 'tiff'];
 
@@ -136,6 +169,92 @@ export async function POST(req) {
   }
 
   const input = Buffer.from(await blob.arrayBuffer());
+
+  /* ---- a record takes its own road ------------------------------- */
+  if (body?.kind === 'drop') {
+    const audio = sniffAudio(input);
+    const vid   = sniffVideo(input);
+
+    if (!audio && !vid) {
+      await admin.storage.from('quarantine').remove([raw]);
+      return NextResponse.json(
+        { error: "We couldn't read that as audio or video. MP3, WAV, M4A, MP4 or MOV." },
+        { status: 415 });
+    }
+
+    let out, ext, mime, isVideo = false;
+
+    if (vid) {
+      /* A music video. Identical treatment to a post video — rename the
+         location boxes to `free` without moving a byte. */
+      let stripped;
+      try { stripped = stripVideoMetadata(input); }
+      catch {
+        await admin.storage.from('quarantine').remove([raw]);
+        return NextResponse.json({ error: "That video couldn't be read." }, { status: 400 });
+      }
+      /* 🔴 Same refusal as a post video. Refusing is allowed to be wrong;
+         publishing is not. */
+      if (stripped.suspicious) {
+        await admin.storage.from('quarantine').remove([raw]);
+        return NextResponse.json({
+          error: "We couldn't confirm the location data was removed, so we "
+               + "didn't publish it. Nothing was saved.",
+        }, { status: 422 });
+      }
+      out = stripped.out; ext = vid.ext; mime = vid.mime; isVideo = true;
+
+    } else if (audio.boxed) {
+      /* M4A — a box tree, so the VIDEO stripper. See sniffAudio. */
+      let stripped;
+      try { stripped = stripVideoMetadata(input); }
+      catch {
+        await admin.storage.from('quarantine').remove([raw]);
+        return NextResponse.json({ error: "That file couldn't be read." }, { status: 400 });
+      }
+      out = stripped.out; ext = audio.ext; mime = audio.mime;
+
+    } else if (audio.ext === 'mp3') {
+      const r = stripAudioMetadata(input);
+      if (!r.ok) {
+        await admin.storage.from('quarantine').remove([raw]);
+        return NextResponse.json(
+          { error: "That file didn't have any audio in it." }, { status: 400 });
+      }
+      /* 🔴 THE REFUSAL, structural rather than textual. Re-walk the OUTPUT
+         and see whether any tag survived — the same shape as the second
+         box-walker pass over stripped video, and for the same reason:
+         checking the output's STRUCTURE beats checking that the thing you
+         meant to remove is spelled differently now. */
+      if (findAudioTags(r.out).length) {
+        await admin.storage.from('quarantine').remove([raw]);
+        return NextResponse.json({
+          error: "We couldn't confirm that file was cleaned, so we didn't "
+               + "publish it. Nothing was saved.",
+        }, { status: 422 });
+      }
+      out = r.out; ext = 'mp3'; mime = 'audio/mpeg';
+
+    } else {
+      /* WAV. ⚠️ Passed through UNSTRIPPED and that is a known gap — a WAV
+         can carry a LIST/INFO chunk with names in it. It is here rather
+         than refused because a WAV off a recorder is usually the rawest,
+         least-tagged thing a member owns. 🔴 Revisit: either write the
+         RIFF chunk walker or stop accepting WAV. Do not leave this
+         comment as the only protection. */
+      out = input; ext = 'wav'; mime = 'audio/wav';
+    }
+
+    const dpath = `drops/${crypto.randomUUID()}.${ext}`;
+    const { error: dErr } = await admin
+      .storage.from('drops').upload(dpath, out, { contentType: mime, upsert: false });
+
+    await admin.storage.from('quarantine').remove([raw]);
+    if (dErr) {
+      return NextResponse.json({ error: "That file couldn't be saved." }, { status: 500 });
+    }
+    return NextResponse.json({ path: dpath, isVideo, kind: isVideo ? 'video' : 'audio' });
+  }
 
   /* ---- video takes a different road entirely --------------------- */
   const video = sniffVideo(input);

@@ -51,6 +51,11 @@ export const dynamic = 'force-dynamic';
 const KINDS = {
   post:   { ext: 'bin' },
   avatar: { ext: 'bin' },
+  /* A member's own record (0058). Same quarantine road as everything
+     else — the file lands somewhere nothing is served from, and finalize
+     decides what it really is by reading the bytes. */
+  drop:   { ext: 'bin' },
+  dropart:{ ext: 'bin' },
 };
 
 /* What the browser is allowed to say it's sending. ⚠️ This is a HINT, not
@@ -60,6 +65,11 @@ const KINDS = {
 const OK_TYPES = new Set([
   'image/jpeg', 'image/png', 'image/webp', 'image/heic', 'image/heif',
   'video/mp4', 'video/quicktime',
+  /* Audio, for drops. ⚠️ Browsers disagree wildly on what an .m4a is —
+     Safari says audio/mp4, Chrome says audio/x-m4a, some Android pickers
+     say octet-stream. All three are here because this list only exists to
+     fail fast; finalize reads the actual bytes either way. */
+  'audio/mpeg', 'audio/mp3', 'audio/mp4', 'audio/x-m4a', 'audio/aac', 'audio/wav', 'audio/x-wav',
   /* ⚠️ WebM is deliberately NOT here. It's a different container with a
      different metadata format, and lib/strip-video.js doesn't understand
      it — so we'd be publishing a file we never actually cleaned. Phones

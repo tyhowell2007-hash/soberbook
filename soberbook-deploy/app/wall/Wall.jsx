@@ -12,6 +12,7 @@ import { fetchPreviews, PREVIEW_COUNT } from '../../lib/previews';
 import { mixFeed } from '../../lib/mix';
 import ContentCard from '../components/ContentCard';
 import DropCard from '../components/DropCard';
+import DropSheet from './DropSheet';
 
 function ago(iso) {
   const mins = Math.floor((Date.now() - new Date(iso).getTime()) / 60000);
@@ -167,6 +168,15 @@ export default function Wall({ initial, me = { name: null, avatar: null }, mark 
      enforced in the database and EXPLAINED in the interface. */
   const [photoDropped, setPhotoDropped] = useState(false);
 
+  /* ---- putting out a record (0058) ----
+     `rec` holds what DropSheet collected; the sheet itself writes nothing.
+     ⚠️ ONE post() creates both rows, so a drop takes the identical insert
+     path as every other post — audience, anonymity and all — instead of a
+     second code path that would drift from the first. */
+  const [rec, setRec] = useState(null);
+  const [sheet, setSheet] = useState(false);
+  const [recDropped, setRecDropped] = useState(false);
+
   /* Shown under the composer when a post fails. */
   const [postErr, setPostErr] = useState('');
 
@@ -181,6 +191,16 @@ export default function Wall({ initial, me = { name: null, avatar: null }, mark 
     const next = !anon;
     if (next && photo) { setPhoto(null); setPhotoDropped(true); }
     else setPhotoDropped(false);
+    /* ⚠️ THE RECORD GOES TOO, and for the same reason the photo does.
+       0058 refuses an anonymous drop outright — a release is credited work
+       by definition. Without this the chip merely HIDES while `rec` stays
+       in state, and the post fails at the database several seconds after
+       the choice was made, with a constraint error nobody can act on.
+
+       Silently keeping it would be worse: somebody would post anonymously
+       believing their record went with it. */
+    if (next && rec) setRecDropped(true); else setRecDropped(false);
+    if (next) setRec(null);
     setAnon(next);
   }
 
@@ -402,7 +422,7 @@ export default function Wall({ initial, me = { name: null, avatar: null }, mark 
 
        Three separate locks all saying "words are mandatory", written back
        when a post could only BE words. A picture is a post. */
-    if (!body && !photo) return;
+    if (!body && !photo && !rec) return;
     setBusy(true);
     try {
       const { data: { user } } = await supabase.auth.getUser();
@@ -426,13 +446,29 @@ export default function Wall({ initial, me = { name: null, avatar: null }, mark 
          who can see a friends-only post knows the author is one of their
          own friends, and each of them knows their own friend list. With a
          handful of friends that's a name. Anonymity needs a crowd. */
-      const { error } = await supabase.from('posts')
+      /* ⚠️ .select() so we get the id back — a drop needs the post it
+         hangs off, and a second round trip to find "the post I just made"
+         is a race with anybody else posting at the same moment. */
+      const { data: made, error } = await supabase.from('posts')
         .insert({ author_id: user.id, body, is_anonymous: anon,
                   audience: anon ? 'open' : audience,
                   photo_url: attached && !attached.isVideo ? attached.path : null,
-                  video_url: attached &&  attached.isVideo ? attached.path : null });
+                  video_url: attached &&  attached.isVideo ? attached.path : null })
+        .select('id').single();
       if (error) throw error;
+
+      /* 🔴 THE DROP IS INSERTED SECOND, AND THE ORDER MATTERS. If this
+         fails — the one-a-week limit, a bad claim — the post survives as
+         an ordinary post and the member sees the reason. The other order
+         would leave a record row pointing at nothing. */
+      if (rec && made?.id) {
+        const { error: dErr } = await supabase.from('drops')
+          .insert({ post_id: made.id, ...rec });
+        if (dErr) throw new Error(dErr.message);
+      }
       setText('');
+      setRec(null);
+      setRecDropped(false);
       setPhoto(null);
       setPhotoDropped(false);
       setAudience('open');
@@ -530,7 +566,8 @@ export default function Wall({ initial, me = { name: null, avatar: null }, mark 
                     body and an optional picture — but "add a caption" tells
                     you the words are now OPTIONAL, which is the part that
                     was impossible to guess while the Post button sat grey. */
-                 placeholder={photo ? 'Add a caption… (or leave it blank)'
+                 placeholder={rec ? 'Say something about it… (optional)'
+                                    : photo ? 'Add a caption… (or leave it blank)'
                                     : anon ? 'Nobody will see who wrote this…'
                                     : 'Share something with people who get it…'} />
           {/* ⚠️ NOT DISABLED WHEN ANONYMOUS — ABSENT.
@@ -543,7 +580,7 @@ export default function Wall({ initial, me = { name: null, avatar: null }, mark 
               toward that trade by a piece of chrome. When you're
               anonymous the camera simply isn't part of the composer, and
               one plain line below says why. */}
-          {!anon && (
+          {!anon && !rec && (
             /* ONE button, both media. A separate 🎥 next to the 📷 was the
                obvious build and it's worse: two controls that do the same
                job, on the narrowest row in the app, forcing a decision
@@ -564,7 +601,7 @@ export default function Wall({ initial, me = { name: null, avatar: null }, mark 
               picture sat attached above it, with nothing on screen saying
               why. A disabled button gives no reason; it just doesn't work. */}
           <button type="submit" className="send"
-                  disabled={busy || uploading || (!text.trim() && !photo)}
+                  disabled={busy || uploading || (!text.trim() && !photo && !rec)}
                   aria-label="Post">
             {busy ? '…' : uploading ? '…' : 'Post'}
           </button>
@@ -626,6 +663,37 @@ export default function Wall({ initial, me = { name: null, avatar: null }, mark 
           </div>
         )}
 
+        {/* ---- PUTTING OUT A RECORD — the second option ----
+
+            Ty: "put it in post, but as a second option." It sits with
+            "Posting as" and "Who sees it" because that row is already
+            where you say WHAT KIND of post this is, and a record is a kind
+            of post rather than a rival action.
+
+            ⚠️ "tap if you made something" — NOT "for musicians". Nobody
+            should have to identify as an artist to use it; the person this
+            most matters to may be putting up the first thing they've made
+            in ten years, and they will not tap a button labelled for
+            musicians.
+
+            ⚠️ Hidden while anonymous, like the camera and the audience
+            chip. A drop is credited work — 0058 refuses an anonymous one
+            outright — so offering it here would be offering something the
+            database will reject. */}
+        {!anon && (
+          <div className="cas cas-aud casrec">
+            <span>Putting out</span>
+            <button type="button" className={'asme' + (rec ? ' on' : '')}
+                    aria-pressed={!!rec}
+                    onClick={() => (rec ? setRec(null) : setSheet(true))}>
+              {rec ? `♪ ${rec.title}` : '♪ a record'}
+            </button>
+            <span className="cas-hint">
+              {rec ? 'tap to take it off' : 'tap if you made something'}
+            </span>
+          </div>
+        )}
+
         {/* The explanation, and only when it's relevant. A permanent note
             about anonymous photo rules on a composer nobody is using
             anonymously is noise; the same sentence at the moment it
@@ -633,7 +701,9 @@ export default function Wall({ initial, me = { name: null, avatar: null }, mark 
         {anon && (
           <p className="canon-note">
             {photoDropped
-              ? 'Taken off — anonymous posts are words only. A face in a mirror or a street sign through a window is the quickest way to stop being anonymous by accident, and a video adds your voice and whatever the room behind you is saying.'
+              ? (recDropped
+                  ? 'Your record was taken off — putting one out means putting your name on it. Anonymous posts are words only.'
+                  : 'Taken off — anonymous posts are words only. A face in a mirror or a street sign through a window is the quickest way to stop being anonymous by accident, and a video adds your voice and whatever the room behind you is saying.')
               : 'Anonymous posts are words only.'}
           </p>
         )}
@@ -914,6 +984,14 @@ export default function Wall({ initial, me = { name: null, avatar: null }, mark 
           post={open}
           onClose={() => setOpen(null)}
           onCountChange={refresh}
+        />
+      )}
+
+      {sheet && (
+        <DropSheet
+          defaultArtist={me.name || ''}
+          onClose={() => setSheet(false)}
+          onDone={(cfg) => { setRec(cfg); setSheet(false); setPostErr(''); }}
         />
       )}
 
