@@ -18,6 +18,11 @@
    to carry the stylesheet. It adds no markup, so it can't affect layout,
    focus order, or anything a screen reader walks. */
 import '../theme-green.css';
+/* ⚠️ The record sheet's styles, split out of wall.css — see the header of
+   dropsheet.css. Imported HERE rather than in the root layout because the
+   sheet only ever opens from the wall, and the sign-in door has no
+   business downloading it. */
+import '../dropsheet.css';
 /* AFTER theme-green, so photo rules can reshape green-room ones without
    reaching for !important. Same ordering argument as the note above. */
 import '../photos.css';
