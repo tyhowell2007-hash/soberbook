@@ -115,7 +115,7 @@ function who(p) {
 export default function Wall({ initial, me = { name: null, avatar: null, handle: null }, mark = null,
                                photoUrls = {}, previews = {},
                                content = [], thumbBase = '',
-                               drops = {}, dropUrls = {} }) {
+                               drops = {}, dropUrls = {}, canHide = false }) {
   const router = useRouter();
   const supabase = browserClient();
   /* The milestone landing today, if there is one and it hasn't been
@@ -764,7 +764,7 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
         {mixFeed(posts, content, { lonelyId }).map((row) => {
           if (row.type === 'content') {
             return <ContentCard key={'c' + row.item.id} item={row.item}
-                                thumbBase={thumbBase} />;
+                                thumbBase={thumbBase} canHide={canHide} />;
           }
           const p = row.post;
           const w = weight(p, p.id === lonelyId);

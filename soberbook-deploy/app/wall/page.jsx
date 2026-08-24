@@ -23,7 +23,7 @@ export default async function WallPage() {
      on anonymous posts. Two different sources on purpose. */
   const { data: profile } = await supabase
     .from('profiles')
-    .select('handle, sober_since, display_name, avatar, milestones_answered')
+    .select('handle, sober_since, display_name, avatar, milestones_answered, is_admin')
     .eq('id', user.id).maybeSingle();
   if (!profile) redirect('/welcome');
 
@@ -65,7 +65,7 @@ export default async function WallPage() {
      uploads most, which the first real pull demonstrated within minutes. */
   const { data: content } = await supabase
     .from('feed_content')
-    .select('id, title, url, embed_id, thumb_path, published_at, source_label, category')
+    .select('id, title, url, embed_id, thumb_path, published_at, source_label, category, source_id')
     .order('published_at', { ascending: false })
     .limit(60);
 
@@ -158,6 +158,11 @@ export default async function WallPage() {
             previews={previews}
             content={content || []}
             thumbBase={thumbBase}
+            /* ⚠️ Passed as a plain boolean, not the profile row. The
+               component only needs to know whether to render a control;
+               handing it the whole profile invites it to start making
+               other decisions from data it shouldn't be reading. */
+            canHide={!!profile.is_admin}
             drops={drops}
             dropUrls={dropUrls}
           />}

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 /* =====================================================================
    SOMETHING TO WATCH, ON THE WALL.
@@ -56,11 +57,52 @@ const CHIP = {
   talk:     'talk',
 };
 
-export default function ContentCard({ item, thumbBase }) {
+export default function ContentCard({ item, thumbBase, canHide = false }) {
+  const router = useRouter();
   const [on, setOn] = useState(false);
+  /* null | 'asking' | 'busy' | 'gone' */
+  const [menu, setMenu] = useState(null);
   if (!item) return null;
 
+  /* 🔴 THE HANDLE ON A SWITCH THAT ALREADY EXISTED.
+
+     `hidden_at` and `active` have been in the schema since 0057. Ty took
+     Rogan and Kratom on auto-pull knowing whatever they upload next lands
+     unreviewed — and there was no way to pull anything down. Sixth time
+     this month something was fully built with no way in.
+
+     ⚠️ Only Ty sees this. Members hiding things for everyone is a
+     different feature with different consequences; letting one person
+     curate the room for five others needs a conversation, not a button. */
+  async function hide(scope) {
+    setMenu('busy');
+    try {
+      const r = await fetch('/api/content/hide', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: scope === 'source' ? item.source_id : item.id, scope }),
+      });
+      if (!r.ok) throw new Error();
+      setMenu('gone');
+      /* Refresh so the rest of that source's cards go too — hiding one
+         video and leaving five more from the same channel on screen would
+         read as the button not working. */
+      router.refresh();
+    } catch { setMenu('asking'); }
+  }
+
   const thumb = item.thumb_path ? `${thumbBase}/${item.thumb_path}` : null;
+
+  /* ⚠️ Says what happened rather than vanishing. A card that silently
+     disappears on tap leaves you unsure whether you hit the right thing —
+     and this is the control that has to feel reliable, because it's the
+     one used when something has gone wrong. */
+  if (menu === 'gone') {
+    return (
+      <article className="cc cc-gone">
+        <p className="ccgone">Taken down. It won&apos;t come back on the next pull.</p>
+      </article>
+    );
+  }
 
   return (
     <article className="cc">
@@ -111,6 +153,25 @@ export default function ContentCard({ item, thumbBase }) {
       {/* Once it's playing the title has nowhere to sit on the picture,
           so it comes back out underneath. */}
       {on && <p className="ccbelow">{item.title}</p>}
+
+      {canHide && (
+        <div className="cchide">
+          {menu === 'asking' ? (
+            <>
+              <button type="button" onClick={() => hide('item')}>Hide this one</button>
+              <button type="button" onClick={() => hide('source')}>
+                Stop {item.source_label}
+              </button>
+              <button type="button" className="ccx" onClick={() => setMenu(null)}>Cancel</button>
+            </>
+          ) : (
+            <button type="button" onClick={() => setMenu('asking')}
+                    disabled={menu === 'busy'}>
+              {menu === 'busy' ? 'Taking it down…' : 'Take this down'}
+            </button>
+          )}
+        </div>
+      )}
 
       {/* ⚠️ no-referrer on the way OUT, unlike the embed above — leaving
           has no such constraint, so it gets the strict rule the rest of

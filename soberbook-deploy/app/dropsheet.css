@@ -107,3 +107,36 @@ select.ds-in{ appearance:none; }
   margin:0; padding:0 15px 14px; background:#0A0A09;
   font-family:'Courier Prime',monospace; font-size:11.5px; color:#9C9788;
 }
+
+/* =====================================================================
+   TAKING A CONTENT CARD DOWN  (.cchide / .ccgone)   — Ty only
+
+   ⚠️ Lives here rather than in wall.css for the same reason the record
+   sheet does: that file is 71KB and GitHub's uploader has dropped it on
+   three of four deploys. See this file's header.
+   ===================================================================== */
+
+/* Quiet by design. It is an owner's tool sitting on a members' wall —
+   it should be findable and never the thing your eye lands on. */
+.cchide{
+  display:flex; flex-wrap:wrap; gap:8px; align-items:center;
+  padding:0 14px 4px;
+}
+.cchide button{
+  min-height:44px; padding:0 12px; background:none;
+  border:1px solid var(--line,#D8E3DC); color:var(--soft,#63716A);
+  font-family:'Courier Prime',monospace; font-size:10.5px; font-weight:700;
+  letter-spacing:.08em; text-transform:uppercase; cursor:pointer;
+}
+.cchide button:hover{ border-color:var(--x,#1C2320); color:var(--x,#1C2320); }
+.cchide button:disabled{ opacity:.5; cursor:default; }
+.cchide .ccx{ border:none; text-decoration:underline; text-underline-offset:3px; }
+
+.cc-gone{ box-shadow:none; border:1px dashed var(--line,#D8E3DC); }
+/* ⭐ Says what happened instead of vanishing. A card that disappears
+   silently leaves you unsure you hit the right thing — and this is the
+   control used when something has already gone wrong. */
+.ccgone{
+  margin:0; padding:16px 14px; font-family:'Courier Prime',monospace;
+  font-size:12px; color:var(--soft,#63716A);
+}
