@@ -97,9 +97,12 @@ export default async function WallPage() {
   const thumbBase =
     `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/content-thumbs`;
 
-  const days = profile.sober_since
-    ? Math.floor((Date.now() - new Date(profile.sober_since).getTime()) / 86400000)
-    : null;
+  /* ⚠️ This used to be its own line of date maths right here:
+     Math.floor((Date.now() - new Date(sober_since)) / 86400000). It looked
+     harmless and it was a second implementation of dayCount() — no clamp,
+     so a member whose sober date is in the future had "day -130" printed
+     across the top of the wall. Ask the library; don't restate it. */
+  const days = dayCount(profile.sober_since);
 
   /* IS TODAY A MILESTONE, AND HAVE WE ALREADY ASKED?
 

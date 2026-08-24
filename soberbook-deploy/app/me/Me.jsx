@@ -7,6 +7,7 @@ import { browserClient } from '../../lib/supabase-browser';
 import SongPicker from './SongPicker';
 import SongPlayer from '../components/SongPlayer';
 import Milestones from '../components/Milestones';
+import { dayCount, startsInDays } from '../../lib/milestones';
 import PhotoUpload from '../components/PhotoUpload';
 import DeleteAccount from './DeleteAccount';
 
@@ -31,10 +32,10 @@ const FACE_GROUPS = [
   { name: 'Things',  items: ['⚓','🧭','🕯','☕','📻','🎧','🎸','🥁','🎣','🎮','🚂','🛠'] },
 ];
 
-function days(since) {
-  if (!since) return null;
-  return Math.floor((Date.now() - new Date(since).getTime()) / 86400000);
-}
+/* ⚠️ There was a private days() here doing its own date maths — the third
+   copy of dayCount(). It didn't clamp, so this page showed "-130" to a
+   member whose sober date hadn't arrived. Deleted rather than fixed: a
+   repaired copy is still a copy, and the next screen would drift too. */
 
 function ago(iso) {
   const mins = Math.floor((Date.now() - new Date(iso).getTime()) / 60000);
@@ -309,7 +310,10 @@ export default function Me({ email, profile, posts, initialAvatarUrl,
     state !== (profile.state || '') || programs !== (profile.programs || '') ||
     interests !== (profile.interests || '');
 
-  const d = days(since);
+  const d = dayCount(since);
+  /* Only ever a number on YOUR page. startsInDays() is never handed to a
+     view, a query or another member — see lib/milestones.js. */
+  const soon = startsInDays(since);
   const today = new Date().toISOString().slice(0, 10);
   const savedSince = profile.sober_since || '';
 
@@ -438,9 +442,54 @@ export default function Me({ email, profile, posts, initialAvatarUrl,
 
       <div className="pad">
 
-        {/* ---- the count ---- */}
-        <Milestones since={since || null} days={d}
-                    sub={(d === 1 ? 'day' : 'days') + ' · @' + profile.handle} />
+        {/* ---- the count ----
+
+            🔴 A DATE THAT HASN'T ARRIVED GETS A SENTENCE, NOT A NUMBER.
+
+            Somebody can set a sober date in the future — a day they mean
+            to start. The app used to answer that with "-130", and before
+            today's fix the honest-looking alternative was "day 0", which
+            is a lie: day 0 means you started today.
+
+            ⚠️ This line exists ONLY here, on your own page, where you set
+            the date. It is not in public_profiles and it never should be
+            (0064): a public countdown announces that a member is using
+            right now, which is the newcomer-flag problem with a clock on
+            it. Everyone else sees nothing at all — the same as a member
+            who chose not to share a date.
+
+            ⚠️ And no encouragement attached. "You've got this!" on a date
+            somebody may have picked in a bad hour is the app having an
+            opinion about a decision it knows nothing about.
+
+            ⚠️ The style is inline rather than a class because wall.css is
+            71KB and failed to upload on three consecutive deploys last
+            night — adding one rule to it means re-running that gauntlet
+            for a single line.
+
+            ⚠️ AND THIS COMMENT LIVES UP HERE ON PURPOSE. It was first
+            written inside the ternary, directly above the p tag, and the
+            build failed with "Expected ',', got 'style'". A braced JSX
+            comment cannot LEAD a ternary branch: the parser meets the
+            opening brace where it expects an expression and starts
+            reading an object literal, so the very next tag looks like a
+            malformed key. Second time in two days — the same thing
+            happened inside an && last night.
+
+            ⚠️ Then the rewrite broke too, because it quoted a comment
+            marker as an example and the closing star-slash ended THIS
+            comment four lines early. A JSX comment cannot contain the
+            characters that end one. Do not write them here. */}
+        {soon !== null ? (
+          <p style={{ margin: '1.2rem 0 1.6rem', fontSize: '15px', lineHeight: 1.6, opacity: 0.85 }}>
+            Your date is set for {new Date(since + 'T00:00:00').toLocaleDateString(
+              undefined, { month: 'long', day: 'numeric', year: 'numeric' })}.
+            {' '}The count starts then.
+          </p>
+        ) : (
+          <Milestones since={since || null} days={d}
+                      sub={(d === 1 ? 'day' : 'days') + ' · @' + profile.handle} />
+        )}
 
         {/* =================================================================
             THE READ VIEW — your page as a page, not a form.

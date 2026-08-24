@@ -66,10 +66,41 @@ function daysBetween(aMs, bMs) {
   return Math.round((bMs - aMs) / 86400000);
 }
 
+/* HOW MANY DAYS. The only place in the app that answers this.
+
+   ⚠️ Aug 24: three other files were computing this by hand and none of
+   them clamped, so a member with a sober date in the future was published
+   as "day -130". The rule is written here and called from there now —
+   the 0046 -> 0049 lesson, which is that a rule RESTATED somewhere else
+   is a second implementation, and the second one drifts.
+
+   🔴 A DATE THAT HASN'T HAPPENED RETURNS null, NOT 0.
+
+   This used to be Math.max(0, ...), which is wrong in a quiet way. "Day
+   0" is not a neutral placeholder — it is a specific claim that somebody
+   started today. null already means "no answer" everywhere in this app
+   (it is what a member who never set a date returns), so a person who
+   hasn't started yet is indistinguishable from a person who didn't
+   share. That is deliberate: see 0064. */
 export function dayCount(sinceISO, now = new Date()) {
   const start = parseISO(sinceISO);
   if (start === null) return null;
-  return Math.max(0, daysBetween(start, utcMidnight(now)));
+  const n = daysBetween(start, utcMidnight(now));
+  return n < 0 ? null : n;
+}
+
+/** Days until a future sober date, or null if it has already arrived.
+ *
+ *  ⚠️ FOR THE MEMBER'S OWN PAGE ONLY. Never send this to anybody else: a
+ *  public countdown doesn't read as "planning something", it reads as
+ *  *this person is using right now and here is the date they mean to
+ *  stop* — a newcomer flag with a clock on it. Same reason there are no
+ *  presence dots. */
+export function startsInDays(sinceISO, now = new Date()) {
+  const start = parseISO(sinceISO);
+  if (start === null) return null;
+  const n = daysBetween(utcMidnight(now), start);
+  return n > 0 ? n : null;
 }
 
 /** Builds every milestone for this person: the four day marks, then a
@@ -186,7 +217,16 @@ export function sinceFromCount(count, now = new Date()) {
    Returns at most one mark. Two marks cannot share a date: the day marks
    are 30/60/90/180 and the year marks are calendar anniversaries, and a
    30-day and a 1-year cannot both be today unless someone's sober date is
-   in the future, which parseISO already refuses. */
+   in the future.
+
+   ⚠️ AN EARLIER VERSION OF THIS COMMENT SAID "which parseISO already
+   refuses". It does not, and never did — parseISO splits a string into
+   three numbers and returns them. A live member had a sober date of
+   2027-01-01 for five days while that sentence sat here claiming it was
+   impossible. Corrected Aug 24. A wrong comment about a safety property
+   is worse than no comment, because the next person builds on it — which
+   is the same thing this file already says forty lines up about
+   sinceFromCount. Twice now. */
 export function milestoneToday(sinceISO, now = new Date()) {
   const all = milestones(sinceISO, now);
   return all.find((mk) => mk.daysAway === 0) || null;
