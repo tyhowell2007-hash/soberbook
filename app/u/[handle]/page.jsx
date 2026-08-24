@@ -3,7 +3,10 @@ import { notFound, redirect } from 'next/navigation';
 import { serverClient, assertReadable } from '../../../lib/supabase-server';
 import SongPlayer from '../../components/SongPlayer';
 import Milestones from '../../components/Milestones';
+import MessageButton from './MessageButton';
+import FriendButton from './FriendButton';
 import { sinceFromCount } from '../../../lib/milestones';
+import { signPhotoPaths } from '../../../lib/sign-photos';
 
 export const dynamic = 'force-dynamic';
 
@@ -54,10 +57,11 @@ export default async function ProfilePage({ params }) {
 
   const { data: p } = await supabase
     .from(assertReadable('public_profiles'))
-    .select('handle, display_name, display_avatar, day_count, ' +
+    .select('handle, display_name, display_avatar, display_avatar_photo, day_count, ' +
             'anthem_url, anthem_title, anthem_art, anthem_preview, anthem_youtube, ' +
             'is_mine, joined_at, total_days, ' +
-            'bio, location, programs, interests, sponsor_open')
+            'bio, location, programs, interests, sponsor_open, ' +
+            'sponsor_has, sponsor_looking, friends, friend_state')
     .eq('handle_key', handle.toLowerCase())
     .maybeSingle();
 
@@ -78,6 +82,36 @@ export default async function ProfilePage({ params }) {
   const joined = new Date(p.joined_at).toLocaleDateString('en-US',
     { month: 'long', year: 'numeric' });
 
+  /* ⚠️ Only ever the ONE path this view handed back. public_profiles nulls
+     display_avatar_photo for an anonymous profile and for anyone who
+     hasn't chosen the photo option, so if there's nothing here there is
+     nothing to sign — the decision was made in the database and this line
+     just does as it's told. */
+  /* ---- what they've put up ----
+     ⚠️ FILTERED BY `author_handle`, AND THAT IS THE SAFETY MECHANISM.
+
+     feed_posts sets author_handle to NULL on an anonymous post. So
+     matching on the handle cannot return one — not because a check
+     remembered to exclude them, but because there is nothing there to
+     match. An anonymous post has no handle to be filed under.
+
+     ⚠️ Do NOT "improve" this into `.eq('author_id', …).neq('is_anonymous',
+     true)`. That version works right up until somebody reorders the
+     conditions, and it also needs author_id, which the view withholds for
+     exactly this reason. The null IS the rule. */
+  const { data: theirPosts } = await supabase
+    .from(assertReadable('feed_posts'))
+    .select('id, body, photo_url, video_url, created_at, like_count, comment_count')
+    .eq('author_handle', p.handle)
+    .order('created_at', { ascending: false })
+    .limit(30);
+
+  const photos = await signPhotoPaths(supabase, [
+    ...(p.display_avatar_photo ? [p.display_avatar_photo] : []),
+    ...(theirPosts || []).flatMap((x) => [x.photo_url, x.video_url]),
+  ]);
+  const facePhoto = photos[p.display_avatar_photo] || null;
+
   return (
     <>
       <div className="mast">
@@ -90,7 +124,9 @@ export default async function ProfilePage({ params }) {
       <div className="pad">
 
         <div className="pcard">
-          <div className="pav" aria-hidden="true">{p.display_avatar || '🌱'}</div>
+          {facePhoto
+            ? <img className="pav pav-photo" src={facePhoto} alt="" aria-hidden="true" />
+            : <div className="pav" aria-hidden="true">{p.display_avatar || '🌱'}</div>}
           <div className="pwho">
             <span className="pname">{p.display_name}</span>
             <span className="phandle">@{p.handle}</span>
@@ -111,12 +147,37 @@ export default async function ProfilePage({ params }) {
 
         {p.bio && <p className="bio">{p.bio}</p>}
 
-        {(p.sponsor_open || p.programs || p.location || p.interests) && (
+        {(p.sponsor_open || p.sponsor_has || p.sponsor_looking
+          || p.programs || p.location || p.interests) && (
           <div className="deets">
             {p.sponsor_open && (
               <div className="deet sponsor">
                 <span className="di" aria-hidden="true">🛟</span>
                 <span>Available to sponsor</span>
+              </div>
+            )}
+            {p.sponsor_has && (
+              <div className="deet">
+                <span className="di" aria-hidden="true">🤝</span>
+                <span>Has a sponsor</span>
+              </div>
+            )}
+            {/* 🔴 NO `!p.sponsor_has &&` GUARD HERE, and no "looking for
+                a sponsor" placeholder anywhere for people who haven't
+                ticked it. The absence has to stay silent.
+
+                `sponsor_looking` is already false for a viewer under a
+                year — the gate is in public_profiles (0031) and asks
+                about the VIEWER, not the person whose page this is. So
+                a newer member cannot tell the difference between
+                "didn't tick it" and "ticked it and I'm not allowed to
+                know". That indistinguishability IS the protection: a
+                flag you can detect the absence of is a flag you can
+                enumerate. */}
+            {p.sponsor_looking && (
+              <div className="deet sponsor">
+                <span className="di" aria-hidden="true">🔎</span>
+                <span>Looking for a sponsor</span>
               </div>
             )}
             {p.programs && (
@@ -172,11 +233,69 @@ export default async function ProfilePage({ params }) {
           </>
         )}
 
+        {/* ---- their posts ---- */}
+        <h2 className="sec">{p.is_mine ? 'What you’ve put up' : 'What they’ve put up'}</h2>
+        {!theirPosts || theirPosts.length === 0 ? (
+          <p className="hint">
+            {p.is_mine
+              ? 'Nothing yet — anything you post openly shows up here.'
+              : 'Nothing here yet.'}
+          </p>
+        ) : (
+          <ul className="mine">
+            {theirPosts.map((t) => (
+              <li key={t.id}>
+                {t.body ? <p className="mb">{t.body}</p> : null}
+                {t.photo_url && photos[t.photo_url] && (
+                  <div className="mphoto">
+                    <img src={photos[t.photo_url]} alt="" loading="lazy" />
+                  </div>
+                )}
+                {t.video_url && photos[t.video_url] && (
+                  <div className="mphoto">
+                    <video src={photos[t.video_url]} controls playsInline
+                           preload="metadata" />
+                  </div>
+                )}
+                <div className="mm">
+                  {new Date(t.created_at).toLocaleDateString('en-US',
+                    { month: 'short', day: 'numeric' })}
+                  {t.like_count > 0 ? ` · ${t.like_count} ♥` : ''}
+                  {t.comment_count > 0
+                    ? ` · ${t.comment_count} ${t.comment_count === 1 ? 'reply' : 'replies'}`
+                    : ''}
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+
         <p className="hint">Here since {joined}.</p>
 
-        {p.is_mine && (
-          <Link href="/me" className="btn">Edit your page</Link>
-        )}
+        {/* One number now, not two. Ty chose to keep it public on Aug 19,
+            knowing the argument against it.
+
+            ⚠️ IT IS NO LONGER A LINK. Following had public LISTS as well
+            as counts; friendship is mutual, so a public friend list is a
+            map of who in recovery knows whom — being on somebody's list
+            outs you by association, whether or not you wanted it. The
+            count says "this person is real and connected", which is what
+            it was for. The list said more than that. */}
+        <div className="fstats">
+          <span className="fstat">
+            <b>{p.friends}</b>
+            <span>{p.friends === 1 ? 'friend' : 'friends'}</span>
+          </span>
+        </div>
+
+        {p.is_mine
+          ? <Link href="/me" className="btn">Edit your page</Link>
+          : (
+            <div className="pacts">
+              <FriendButton handle={p.handle} initialState={p.friend_state} />
+              <MessageButton handle={p.handle} />
+            </div>
+          )}
       </div>
     </>
   );

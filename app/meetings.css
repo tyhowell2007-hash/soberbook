@@ -1,0 +1,364 @@
+/* =====================================================================
+   MEETINGS — its own stylesheet, its own class prefix.
+
+   ⚠️ EVERY CLASS HERE STARTS WITH mt-, AND THAT IS THE POINT.
+
+   On Aug 16 chat nearly shipped using .composer, which the green room
+   re-declares as position:static so the wall's post box can sit at the
+   top. Reusing it would have unpinned the message bar — in one room only,
+   on one page only, which is the hardest kind of bug to find.
+
+   Shared class names are how a fix in one place becomes a bug in
+   another. This file is imported by app/meetings/layout.jsx and nowhere
+   else, and nothing in it can collide with anything.
+
+   ⚠️ COLOUR RULE, INHERITED FROM theme-green.css:
+   --gm is DECORATION ONLY (4.22:1, fails). Text uses --gm-t or --gt.
+   ===================================================================== */
+
+.mt-filter{
+  display:block; width:100%; margin:0 0 14px;
+  padding:11px 14px; border:1px solid var(--line); border-radius:11px;
+  background:var(--paper2); color:var(--gm-t);
+  font:inherit; font-size:13px; text-align:left; cursor:pointer;
+}
+.mt-filter:hover{ border-color:var(--gm); }
+.mt-filter[aria-pressed="true"]{
+  background:var(--gl); border-color:var(--gm); color:var(--gt);
+}
+
+.mt-card{
+  background:var(--paper2); border:1px solid var(--line);
+  border-radius:13px; padding:13px 14px; margin-bottom:9px;
+}
+/* A meeting starting now gets a full border, not a left stripe — a
+   single-sided border with a border-radius renders as a detached line. */
+.mt-card.now{ border-color:var(--gd); background:var(--gl); }
+
+.mt-when{
+  font-size:12px; letter-spacing:.04em; text-transform:uppercase;
+  color:var(--gm-t); margin-bottom:3px;
+}
+.mt-card.now .mt-when{ color:var(--gt); font-weight:600; }
+
+.mt-name{ font-size:15px; color:var(--body); line-height:1.35; }
+
+.mt-tags{ display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; }
+.mt-tag{
+  font-size:11px; padding:3px 9px; border-radius:20px; white-space:nowrap;
+}
+/* 11.4:1 — the pairing theme-green already proved. */
+.mt-tag.open{   background:var(--gl);   color:var(--gt); }
+/* ⚠️ THE INVISIBLE BADGE.
+
+   .mt-card.now is also --gl, so a pale-green tag on a pale-green card is
+   a 1.00 contrast ratio — the "Open to anyone" badge disappears entirely,
+   and it disappears on the ONE card that matters most, the meeting
+   starting in twelve minutes.
+
+   The contrast audit passed 20/20 and missed this completely, because it
+   checks TEXT against its background. This is a FILL against a FILL.
+   Text-only contrast checking has a blind spot exactly here, and the only
+   reason it got caught is that I went looking for it by hand.
+
+   ⚠️ AND THE FIRST FIX WASN'T ONE. I tried a white fill: 1.13:1 against
+   --gl. I'd swapped one invisible fill for another and nearly shipped it
+   because the TEXT still measured 12:1.
+
+   Fills can't solve this — every tag colour in the set lands between 1.01
+   and 1.13 against the wash. So the answer is an EDGE, applied to all of
+   them, not a fill applied to one.
+
+   --gm at 3.74:1 clears the 3:1 bar for a UI boundary, and theme-green
+   already documents --gm as "DECORATION ONLY: borders, edges, fills".
+   This is the one thing it's for. */
+.mt-card.now .mt-tag{ border:1px solid var(--gm); }
+/* Deliberately NOT red or amber-warning. A closed meeting isn't a
+   problem, it's a different room. Warm neutral, no alarm. */
+.mt-tag.closed{ background:#F6EFE3;     color:#6A3F12; }
+.mt-tag.unk{    background:#EEF1F0;     color:#465350; }
+.mt-tag.dur{    background:transparent; color:var(--soft); border:1px solid var(--line); }
+
+.mt-note{
+  margin-top:8px; font-size:12px; color:var(--soft); line-height:1.5;
+  word-break:break-word;
+}
+
+.mt-go{ display:flex; align-items:center; gap:12px; margin-top:11px; flex-wrap:wrap; }
+.mt-join{
+  display:inline-block; background:var(--gd); color:#fff;
+  padding:9px 18px; border-radius:10px; font-size:14px; text-decoration:none;
+}
+.mt-join:hover{ background:var(--gt); }
+.mt-phone{ font-size:12px; color:var(--soft); }
+
+/* =====================================================================
+   ⭐ WHERE PEOPLE ARE GOING — the panel.
+
+   ⚠️ DARK, BECAUSE IT HAS TO READ AS A DIFFERENT PLACE.
+
+   If this were another white card with a heading, it would scan as the top
+   of the same list and get skimmed past. Inverting it makes the eye stop.
+   Same move as the grunge door against the green room: a change of
+   material says "you are somewhere else" faster than any label.
+
+   It is also the only inverted surface in the app, which is what keeps it
+   special. If a second one ever appears, this stops working.
+   ===================================================================== */
+.mt-panel{
+  background:var(--gt); border-radius:14px;
+  padding:12px 12px 4px; margin:0 0 16px;
+}
+.mt-panelh{
+  font-size:11px; letter-spacing:.09em; text-transform:uppercase;
+  /* --gl on --gt is 11.4:1. The pale wash is the only text colour that
+     belongs on the deep green — anything mid-range dies here. */
+  color:var(--gl); margin:0 0 10px; font-weight:600;
+}
+.mt-pcard{
+  background:var(--paper2); border-radius:11px;
+  padding:11px 12px; margin-bottom:8px;
+}
+/* The time is secondary inside the panel — WHO is the headline there, so
+   WHEN drops to a supporting line under the meeting name. */
+.mt-pwhen{ font-size:12px; color:var(--soft); margin-top:2px; }
+
+.mt-resth{
+  font-size:11px; letter-spacing:.09em; text-transform:uppercase;
+  color:var(--soft); margin:0 0 9px;
+}
+
+/* ---- who's going ---------------------------------------------------- */
+.mt-going{ display:flex; align-items:center; gap:7px; margin-top:9px; flex-wrap:wrap; }
+.mt-faces{ display:inline-flex; }
+.mt-face{
+  width:20px; height:20px; border-radius:50%; background:var(--gl);
+  display:inline-flex; align-items:center; justify-content:center;
+  font-size:11px; margin-right:-5px; border:1px solid var(--paper2);
+}
+.mt-card.now .mt-face{ background:var(--paper2); border-color:var(--gl); }
+/* --gm-t, not --gm. A mid-green is 4.02:1 on paper and this is small text. */
+.mt-goingt{ font-size:12px; color:var(--gm-t); }
+.mt-card.now .mt-goingt{ color:var(--gt); }
+
+/* ---- the "I'm going" button ----------------------------------------- */
+.mt-going-btn{
+  font:inherit; font-size:13px; cursor:pointer;
+  padding:8px 15px; border-radius:20px;
+  background:var(--paper2); color:var(--body);
+  /* ⚠️ --soft (#63716A), not --line. An unpressed pill on near-white
+     paper needs a perceivable edge — --line is 1.21:1 and effectively
+     invisible, the same bug caught on the chat Ignore button. */
+  border:1px solid var(--soft);
+}
+.mt-going-btn:hover{ border-color:var(--gd); }
+.mt-going-btn.on{ background:var(--gd); color:#fff; border-color:var(--gd); }
+.mt-going-btn:disabled{ opacity:.6; cursor:default; }
+
+/* ---- getting in without the funnel ---------------------------------- */
+.mt-noacct{ margin-top:7px; font-size:11.5px; color:var(--soft); }
+.mt-how{
+  margin-top:9px; padding-top:9px; border-top:1px solid var(--line);
+  display:flex; flex-direction:column; gap:4px;
+}
+.mt-card.now .mt-how{ border-top-color:var(--gm); }
+/* Monospace and full size, because these are digits somebody types into
+   another app. Grey 11px footnote type is where meeting IDs go to die. */
+.mt-id{
+  font-family:'Courier Prime',ui-monospace,monospace;
+  font-size:12.5px; color:var(--body); line-height:1.5;
+  word-break:break-word;
+}
+
+.mt-src{
+  margin-top:22px; padding-top:14px; border-top:1px solid var(--line);
+  font-size:12px; color:var(--soft); line-height:1.6;
+}
+.mt-src a{ color:var(--gm-t); }
+.mt-src p{ margin:0 0 7px; }
+
+.mt-dim{ color:var(--soft); font-size:12px; line-height:1.6; }
+
+/* The feed-is-down card. Reads as information, not as an error — the
+   person looking at it may be having a bad night and the app failing is
+   not their problem to feel bad about. */
+.mt-down{
+  background:var(--paper2); border:1px solid var(--line);
+  border-radius:13px; padding:16px;
+}
+.mt-downh{ font-size:15px; color:var(--body); margin-bottom:8px; }
+.mt-down p{ font-size:13px; color:var(--body); line-height:1.6; margin:0 0 9px; }
+.mt-down p.mt-dim{ color:var(--soft); font-size:11px; }
+.mt-outs{ display:flex; gap:14px; flex-wrap:wrap; }
+.mt-outs a{ color:var(--gm-t); font-size:14px; }
+
+/* ---- "Couldn't get in?" — the list teaching itself -------------------
+   Quiet on purpose. Most meetings are fine, so this must not read as a
+   warning label on every card. It's a door for the person who just hit a
+   wall, not a banner for everyone else. */
+.mt-cantget{
+  display:inline-block; width:auto; margin:6px 0 0; padding:6px 0;
+  background:none; border:0; box-shadow:none;
+  font-family:'Courier Prime',monospace; font-size:11.5px;
+  color:var(--soft); text-decoration:underline; cursor:pointer;
+  /* 44px of tappable height even though the text is small — the Aug 18
+     audit found 20px targets on the controls people actually use. */
+  min-height:44px;
+}
+.mt-cantget:hover{ color:var(--gm-t); }
+
+/* ⚠️ Gold, not red. Nobody did anything wrong — the group chose its own
+   settings, and the meeting is still listed and still worth going to. */
+.mt-noacct.mt-warn{
+  background:var(--gold-bg); border:1px solid var(--gold);
+  border-radius:10px; padding:7px 10px; color:#5A4409;
+}
+
+/* ---- "Take me to a meeting now" -------------------------------------
+   The loudest thing on the page, deliberately. Everything else here is a
+   list you read; this is a door you walk through. */
+.mt-now{
+  display:flex; flex-direction:column; gap:4px;
+  background:var(--gd); color:#fff; text-decoration:none;
+  border:3px solid var(--gt); border-radius:16px;
+  padding:16px 16px; margin:0 0 14px;
+  /* 44px minimum is the floor everywhere; this one is far past it because
+     it may be tapped by somebody who is not steady. */
+  min-height:64px; justify-content:center;
+}
+.mt-nowh{
+  font-family:'Archivo',system-ui,sans-serif; font-weight:800;
+  font-size:19px; letter-spacing:-.01em;
+}
+.mt-nows{ font-size:13px; color:#CFEADC; line-height:1.5; }  /* 8.9:1 on --gd */
+
+/* Nothing running: same shape, no promise. Not red, not an error — it is
+   simply a fact about the clock. */
+.mt-nownone{
+  background:#fff; border-color:var(--gm); color:var(--gt);
+}
+.mt-nownone .mt-nows{ color:var(--soft); }
+
+/* ---- "Call in" -------------------------------------------------------
+   ⭐ The way past a room that demands a Zoom account. A phone caller has
+   no account to sign into, so the host's setting can't reach them.
+   Deliberately a full-width, obvious control rather than a line of grey
+   text — at 2am this may be the only door that opens. */
+.mt-call{
+  display:flex; align-items:center; justify-content:center;
+  margin:8px 0 0; min-height:46px; padding:0 16px;
+  text-decoration:none; font-size:15px;
+  background:#fff; color:var(--gt);
+  border:2px solid var(--gm); border-radius:12px;
+}
+/* When somebody has reported the sign-in wall, this stops being the
+   fallback and becomes the main way in. */
+.mt-call-first{
+  background:var(--gd); color:#fff; border-color:var(--gt);
+  font-weight:500;
+}
+
+/* ---- a meeting that hasn't started yet -------------------------------
+   🔴 Not the same button. Tapping this lands you in Zoom's "waiting for
+   the host", which is indistinguishable from being shut out — so it must
+   not look identical to a door that's actually open.
+
+   ⚠️ Still tappable. Turning up early and waiting is a real thing people
+   do, and on a bad night it may be the point. You just aren't told it's
+   open when it isn't. */
+.mt-join.mt-join-early{
+  background:#fff; color:var(--gm-t);
+  border:2px solid var(--gm); box-shadow:none;
+  font-size:13.5px;
+}
+
+/* =====================================================================
+   ROOMS MEMBERS ARE HOLDING HERE.  All classes prefixed rm- .
+   ===================================================================== */
+
+.rmwrap{ margin:0 0 4px; }
+.rmsec{
+  font-family:'Courier Prime',monospace;
+  font-size:11.5px; letter-spacing:.09em; text-transform:uppercase;
+  color:var(--gm-t); margin:0 0 8px;
+}
+
+.rmlist{ list-style:none; margin:0; padding:0; }
+.rmitem{
+  display:flex; align-items:center; gap:10px;
+  background:#fff; border:2px solid var(--gm); border-radius:14px;
+  padding:12px; margin:0 0 9px;
+}
+/* The newest room is the loud one — there's usually only one, and a page
+   of equally-shouting cards is a page with no signal on it. */
+.rmitem.first{ background:var(--gd); border:3px solid var(--gt); }
+.rmmeta{ display:flex; flex-direction:column; min-width:0; flex:1 1 auto; }
+.rmtitle{
+  font-size:16px; color:var(--x);
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+}
+.rmitem.first .rmtitle{ color:#fff; font-weight:500; }
+/* ⚠️ This line never names anybody who is IN the room — only who is
+   chairing, which is a public act they chose. See Rooms.jsx. */
+.rmwho{ font-size:12px; color:var(--soft); margin-top:3px; }
+.rmitem.first .rmwho{ color:#CFEADC; }   /* 8.9:1 on --gd */
+
+.rmgo{
+  flex:0 0 auto; text-decoration:none;
+  display:flex; align-items:center; justify-content:center;
+  min-height:46px; padding:0 20px; font-size:15px;
+  border-radius:11px; border:1px solid var(--gm);
+  background:#fff; color:var(--gm-t);
+}
+.rmitem.first .rmgo{ border-color:#fff; color:var(--gt); font-weight:500; }
+
+.rmempty{ margin:0 0 10px; }
+.rmempty p{ margin:0; font-size:13.5px; color:var(--soft); }
+
+.rmstart{ display:flex; gap:9px; align-items:stretch; margin:10px 0 4px; }
+/* Same shape as the find bar — .btn is display:block/width:100% by
+   default, so it has to be pulled back to sit beside an input. */
+.rmstart input{ flex:1 1 auto; min-width:0; font-size:16px; margin:0; }
+.rmstart .btn{
+  flex:0 0 auto; width:auto; margin-top:0; box-shadow:none;
+  min-height:46px; padding:0 18px; font-size:14.5px;
+  display:flex; align-items:center; justify-content:center;
+}
+.rmlocked{ margin-top:10px; }
+
+/* ---- inside a room ---- */
+.rm-mast .rm-title{
+  font-family:'Archivo',system-ui,sans-serif; font-size:15px;
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+}
+.rm-count{ font-size:11.5px; color:#CFEADC; }
+
+/* The video fills the space between the masthead and the bottom bar.
+   ⚠️ A fixed pixel height would letterbox on a phone and overflow on a
+   laptop; the viewport minus the chrome is the only honest number. */
+.rm-frame{
+  width:100%; height:calc(100vh - 190px); min-height:320px;
+  background:#14181A; border-bottom:3px solid var(--gt);
+}
+.rm-frame iframe{ width:100%; height:100%; border:0; display:block; }
+
+.rm-foot .btn.rm-end{
+  width:auto; margin-top:10px;
+  border-color:#8A2B2B; color:#6B1F1F;
+}
+
+.rm-gone{ text-align:center; padding:34px 14px; }
+.rm-gone h2{ margin:0 0 8px; }
+.rm-gone p{ margin:0 0 16px; font-size:14px; color:var(--soft); line-height:1.6; }
+.rm-gone .btn{ width:auto; display:inline-block; }
+
+/* The video area while it's loading, or when it can't load.
+   ⚠️ Never a blank black rectangle — at 2am that reads as the app not
+   wanting you either. */
+.rm-frameerr{
+  height:100%; display:flex; flex-direction:column;
+  align-items:center; justify-content:center; gap:14px;
+  padding:20px; text-align:center;
+}
+.rm-frameerr p{ margin:0; color:#CFEADC; font-size:14.5px; line-height:1.6; }
+.rm-frameerr .btn{ width:auto; }

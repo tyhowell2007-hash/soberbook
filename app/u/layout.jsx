@@ -4,7 +4,15 @@
    Covers every handle under /u because a layout applies to its whole
    subtree, including dynamic segments. */
 import '../theme-green.css';
+import '../photos.css';
+import NavBar from '../components/NavBar';
 
 export default function PublicProfileLayout({ children }) {
-  return children;
+  return (
+    <>
+      {children}
+      <div className="navpad" aria-hidden="true" />
+      <NavBar />
+    </>
+  );
 }
