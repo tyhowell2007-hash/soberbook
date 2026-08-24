@@ -102,7 +102,37 @@ export async function POST(req) {
   /* The row first. As the MEMBER, not as the admin — so the RLS delete
      policy gets a second, independent say. Belt and braces: the check
      above could be wrong, and this one is enforced by the database. */
-  const { error: delErr } = await supabase.from('posts').delete().eq('id', postId);
+  /* 🔴 AN RPC, NOT A DIRECT DELETE, AND THIS WAS A REAL OUTAGE.
+
+     `supabase.from('posts').delete().eq('id', postId)` returned
+     "permission denied for table posts" for every member, on every post.
+
+     `authenticated` has DELETE on posts and NO SELECT — deliberately,
+     because that table carries author_id on anonymous posts. But a DELETE
+     whose WHERE clause reads a column needs SELECT on that column, and
+     the RLS policy's USING clause (author_id = current_uid()) reads one
+     too. The grant was real and unusable: the row could be deleted, but
+     not FOUND.
+
+     ⚠️ The tempting fix — grant SELECT(id, author_id) — would have worked
+     today and left a loaded gun for tomorrow: RLS has no SELECT policy on
+     posts, so nothing would leak NOW, but the day somebody adds one for a
+     good reason, author_id becomes readable on every anonymous post and
+     nothing about that change would look dangerous.
+
+     ⭐ So: delete_my_post() (0062), a SECURITY DEFINER function that does
+     the ownership test in the same statement as the delete. Same rule as
+     owns_post() in 0061 — posts is write-only to members, and anything
+     that needs to ASK about a post goes through a function. */
+  const { data: gone, error: delErr } = await supabase
+    .rpc('delete_my_post', { p_post: postId });
+
+  /* ⚠️ The function returns FALSE rather than erroring when the post
+     isn't yours — it simply doesn't match. That is not an error to
+     forward, it's a 404: nothing here belongs to you. */
+  if (!delErr && gone === false) {
+    return NextResponse.json({ error: 'Nothing to delete.' }, { status: 404 });
+  }
   if (delErr) {
     return NextResponse.json({ error: delErr.message }, { status: 400 });
   }
