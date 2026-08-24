@@ -102,6 +102,24 @@ export async function POST(req) {
   /* The row first. As the MEMBER, not as the admin — so the RLS delete
      policy gets a second, independent say. Belt and braces: the check
      above could be wrong, and this one is enforced by the database. */
+  /* 🔴 THE RECORD'S FILES, READ BEFORE THE ROW IS GONE.
+
+     Deleting a post cascades the `drops` row away — and used to leave its
+     audio and cover art behind forever, because this route knew about
+     photo_url and video_url and nothing else. That is where tonight's
+     33MB of orphans came from.
+
+     ⚠️ READ FIRST, DELETE SECOND. Once the post is gone the drop row is
+     gone with it and there is nothing left to tell us which files to
+     remove. Same ordering the photos below already use.
+
+     ⚠️ Read through feed_drops, and note this only works because it is
+     the AUTHOR asking: the view returns media_path for an unreleased
+     drop when p.is_mine. Anyone else gets null — which is correct, and
+     also means this route can only ever clean up somebody's own files. */
+  const { data: rec } = await supabase
+    .from('feed_drops').select('media_path, art_path').eq('post_id', postId).maybeSingle();
+
   /* 🔴 AN RPC, NOT A DIRECT DELETE, AND THIS WAS A REAL OUTAGE.
 
      `supabase.from('posts').delete().eq('id', postId)` returned
@@ -149,6 +167,14 @@ export async function POST(req) {
      pointing at it, invisible to everyone. That's what the sweeper is
      for, and it's why the sweeper is a tidy-up rather than a safety
      control. */
+  /* The record's files. ⚠️ Both go in one remove() call — two round
+     trips means the second can fail after the first succeeded, leaving
+     exactly the half-cleaned state this whole change exists to prevent. */
+  if (rec && (rec.media_path || rec.art_path)) {
+    await adminClient().storage.from('drops')
+      .remove([rec.media_path, rec.art_path].filter(Boolean));
+  }
+
   if (post.video_url) {
     await adminClient().storage.from('post-videos').remove([post.video_url]);
   }

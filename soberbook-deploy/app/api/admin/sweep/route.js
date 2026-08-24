@@ -68,6 +68,17 @@ const BUCKETS = [
   { bucket: 'post-photos', prefix: 'posts',   grace: GRACE_HOURS },
   { bucket: 'avatars',     prefix: 'avatars', grace: GRACE_HOURS },
   { bucket: 'post-videos', prefix: 'videos',  grace: GRACE_HOURS },
+  /* 🔴 A member's record (0058). Added at the same time as 0063 taught
+     referenced_media() about drops — and the ORDER of those two matters
+     enormously. Listing this bucket while referenced_media() still knew
+     nothing about `drops` would have reported every live record's master
+     as an orphan and offered to delete it.
+
+     ⚠️ So: never add a bucket here without first adding its columns to
+     referenced_media(). The sweeper's whole safety rests on that function
+     being complete, and an incomplete answer doesn't look like an error —
+     it looks like a long list of files to clean up. */
+  { bucket: 'drops',       prefix: 'drops',   grace: GRACE_HOURS },
 ];
 
 /* Supabase's list() is paginated and folder-scoped. It also returns a
