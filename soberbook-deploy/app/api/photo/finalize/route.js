@@ -4,6 +4,7 @@ import { serverClient } from '../../../../lib/supabase-server';
 import { adminClient } from '../../../../lib/supabase-admin';
 import { stripVideoMetadata } from '../../../../lib/strip-video';
 import { stripAudioMetadata, findAudioTags } from '../../../../lib/strip-audio';
+import { stripWavMetadata, listWavChunks } from '../../../../lib/strip-wav';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -266,13 +267,39 @@ export async function POST(req) {
       out = r.out; ext = 'mp3'; mime = 'audio/mpeg';
 
     } else {
-      /* WAV. ⚠️ Passed through UNSTRIPPED and that is a known gap — a WAV
-         can carry a LIST/INFO chunk with names in it. It is here rather
-         than refused because a WAV off a recorder is usually the rawest,
-         least-tagged thing a member owns. 🔴 Revisit: either write the
-         RIFF chunk walker or stop accepting WAV. Do not leave this
-         comment as the only protection. */
-      out = input; ext = 'wav'; mime = 'audio/wav';
+      /* WAV. ⭐ Was the last hole in this pipeline: accepted and passed
+         through UNSTRIPPED, with a comment admitting it. A comment is not
+         protection.
+
+         🔴 A WAV off a handheld recorder is worse than an MP3. `bext`
+         carries the DEVICE SERIAL NUMBER and sometimes GPS; LIST/INFO
+         carries the software's registered user; iXML carries a whole XML
+         document of production notes. Somebody records a voice memo about
+         their worst night and the file names the device, the date and the
+         person the software is registered to.
+
+         ⚠️ lib/strip-wav.js keeps an ALLOWLIST — fmt, data, fact — and
+         drops everything else, because the chunk we've never heard of is
+         exactly the one most likely to surprise us. */
+      const w = stripWavMetadata(input);
+      if (!w.ok) {
+        await admin.storage.from('quarantine').remove([raw]);
+        return NextResponse.json(
+          { error: "That WAV couldn't be read." }, { status: 400 });
+      }
+      /* 🔴 THE REFUSAL, structural rather than textual — a second pass of
+         the chunk walker over the OUTPUT. Same shape as the box walker on
+         stripped video and findAudioTags on stripped MP3. */
+      const left = listWavChunks(w.out).map((c) => c.id)
+        .filter((id) => !['fmt ', 'data', 'fact'].includes(id));
+      if (left.length) {
+        await admin.storage.from('quarantine').remove([raw]);
+        return NextResponse.json({
+          error: "We couldn't confirm that file was cleaned, so we didn't "
+               + "publish it. Nothing was saved.",
+        }, { status: 422 });
+      }
+      out = w.out; ext = 'wav'; mime = 'audio/wav';
     }
 
     const dpath = `drops/${crypto.randomUUID()}.${ext}`;
