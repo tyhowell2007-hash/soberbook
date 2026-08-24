@@ -127,7 +127,19 @@ export async function POST(req) {
   const kind = KINDS[String(body?.kind || '')];
   const raw  = String(body?.path || '');
 
-  if (!kind) {
+  /* 🔴 `drop` IS A VALID KIND THAT IS DELIBERATELY NOT IN THE KINDS MAP.
+     That map is the IMAGE pipeline — bucket, prefix, resize, quality — and
+     a record is audio or video, so it takes its own road further down.
+
+     ⚠️ This line is the bug that shipped. The comment by the KINDS map
+     already said "drop is deliberately not in here"… and this guard, six
+     lines above it, rejected it anyway with "Unknown upload kind." before
+     the road it was meant to take was ever reached.
+
+     ⭐ A comment explaining why something is absent does not stop the code
+     ABOVE it from requiring that thing to be present. The comment was
+     right and the guard never read it. */
+  if (!kind && body?.kind !== 'drop') {
     return NextResponse.json({ error: 'Unknown upload kind.' }, { status: 400 });
   }
 
@@ -184,7 +196,35 @@ export async function POST(req) {
 
     let out, ext, mime, isVideo = false;
 
-    if (vid) {
+    /* 🔴 AUDIO IS CHECKED FIRST, AND THE ORDER IS THE BUG THIS FIXES.
+       An .m4a IS an MP4 box tree, so sniffVideo() matches it too — both
+       sniffers return truthy for the same file. Testing `vid` first stored
+       somebody's SONG as video/mp4 with isVideo:true, and the drop card
+       then rendered a <video> element over an audio file.
+
+       ⚠️ The two are not mutually exclusive and never will be. Whichever
+       one is asked first wins, so the more SPECIFIC question has to go
+       first: "is this an audio file?" is narrower than "is this a box
+       tree?", because every m4a is both and only some mp4s are audio. */
+    if (audio && audio.boxed) {
+      /* M4A — audio, but a box tree, so the VIDEO stripper. Cutting bytes
+         out of it would destroy it: moov holds absolute offsets. */
+      let stripped;
+      try { stripped = stripVideoMetadata(input); }
+      catch {
+        await admin.storage.from('quarantine').remove([raw]);
+        return NextResponse.json({ error: "That file couldn't be read." }, { status: 400 });
+      }
+      if (stripped.suspicious) {
+        await admin.storage.from('quarantine').remove([raw]);
+        return NextResponse.json({
+          error: "We couldn't confirm the metadata was removed, so we didn't "
+               + "publish it. Nothing was saved.",
+        }, { status: 422 });
+      }
+      out = stripped.out; ext = audio.ext; mime = audio.mime;
+
+    } else if (vid) {
       /* A music video. Identical treatment to a post video — rename the
          location boxes to `free` without moving a byte. */
       let stripped;
@@ -203,16 +243,6 @@ export async function POST(req) {
         }, { status: 422 });
       }
       out = stripped.out; ext = vid.ext; mime = vid.mime; isVideo = true;
-
-    } else if (audio.boxed) {
-      /* M4A — a box tree, so the VIDEO stripper. See sniffAudio. */
-      let stripped;
-      try { stripped = stripVideoMetadata(input); }
-      catch {
-        await admin.storage.from('quarantine').remove([raw]);
-        return NextResponse.json({ error: "That file couldn't be read." }, { status: 400 });
-      }
-      out = stripped.out; ext = audio.ext; mime = audio.mime;
 
     } else if (audio.ext === 'mp3') {
       const r = stripAudioMetadata(input);
