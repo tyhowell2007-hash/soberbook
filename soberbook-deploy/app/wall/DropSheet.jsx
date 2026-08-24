@@ -59,6 +59,10 @@ function localValue(d) {
 const tidy = (s) => (s || '').trim().replace(/\s+/g, ' ').toLowerCase();
 
 export default function DropSheet({ defaultArtist = '', onClose, onDone }) {
+  /* ⚠️ defaultArtist may be empty — plenty of members never set a display
+     name. The caller falls back to the handle rather than leaving this
+     blank, because an empty "Credited to" on the sheet that produces a
+     poster with somebody's name on it reads as broken. */
   const [artist, setArtist] = useState(defaultArtist);
   const [title, setTitle]   = useState('');
   const [source, setSource] = useState('file');      // 'file' | 'link'
@@ -144,7 +148,14 @@ export default function DropSheet({ defaultArtist = '', onClose, onDone }) {
           {source === 'file' ? (
             <div className="ds-file">
               <PhotoUpload kind="drop" className="ds-pick" disabled={busy}
-                           accept="audio/*,video/mp4,video/quicktime"
+                           /* ⚠️ EXTENSIONS AS WELL AS MIME TYPES. macOS does
+                              not reliably match `audio/*` to a .m4a in the
+                              file dialog — the file shows up greyed out and
+                              unselectable, which reads as "the app won't take
+                              my song". Listing the extensions costs nothing
+                              and removes the whole class of picker weirdness.
+                              ⚠️ Still only a hint: finalize reads the bytes. */
+                           accept="audio/*,.m4a,.mp3,.wav,.aac,.aiff,video/mp4,video/quicktime,.mov,.mp4"
                            label={media ? '✓ ready' : 'Choose audio or video'}
                            onBusy={setBusy}
                            onDone={(path, _preview, isVideo) => {

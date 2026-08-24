@@ -111,7 +111,7 @@ function who(p) {
 /* `me` defaults rather than being required, so this component still
    renders if it's ever mounted without it — a missing name should cost
    you a greeting, never a blank page. */
-export default function Wall({ initial, me = { name: null, avatar: null }, mark = null,
+export default function Wall({ initial, me = { name: null, avatar: null, handle: null }, mark = null,
                                photoUrls = {}, previews = {},
                                content = [], thumbBase = '',
                                drops = {}, dropUrls = {} }) {
@@ -989,7 +989,7 @@ export default function Wall({ initial, me = { name: null, avatar: null }, mark 
 
       {sheet && (
         <DropSheet
-          defaultArtist={me.name || ''}
+          defaultArtist={me.name || me.handle || ''}
           onClose={() => setSheet(false)}
           onDone={(cfg) => { setRec(cfg); setSheet(false); setPostErr(''); }}
         />

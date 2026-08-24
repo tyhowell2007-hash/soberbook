@@ -151,7 +151,8 @@ export default async function WallPage() {
         ? <div className="pad"><div className="err">Couldn&apos;t load the wall: {error.message}</div></div>
         : <Wall
             initial={posts || []}
-            me={{ name: profile.display_name || null, avatar: profile.avatar || null }}
+            me={{ name: profile.display_name || null, avatar: profile.avatar || null,
+                  handle: profile.handle }}
             mark={mark}
             photoUrls={photoUrls}
             previews={previews}
