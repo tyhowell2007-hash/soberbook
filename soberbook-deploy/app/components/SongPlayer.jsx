@@ -61,6 +61,8 @@ export default function SongPlayer({ song, whose, big = false, autoplay = false 
   const [pos, setPos] = useState(0);
   const [failed, setFailed] = useState(false);
   const [offNow, setOffNow] = useState(false);
+  /* just this page, no write — see the two-step note below */
+  const [hushed, setHushed] = useState(false);
 
   /* ⚠️ NO PRIVATE <audio> AND NO PRIVATE AudioContext ANY MORE.
      Both now live in lib/song-audio.js, shared by the whole app, because
@@ -254,7 +256,29 @@ export default function SongPlayer({ song, whose, big = false, autoplay = false 
      wait on a round trip to stop audio they didn't want is the wrong way
      round. If the write fails they're still silenced for this page and
      the /me toggle is still there. */
-  async function stopAutoplaying() {
+  /* ---- THE OFF SWITCH, IN TWO STEPS ----
+
+     🔴 IT USED TO BE ONE TAP AND PERMANENT, and Ty turned it off twice by
+     accident in a single day without realising. The button said "Stop
+     starting songs for me", which reads like it's about THIS song; it
+     actually silenced every profile in the app, forever, with no
+     confirmation and nothing to undo it from.
+
+     ⭐ Splitting it keeps the thing it was built for and removes the trap.
+     The first tap still silences the room INSTANTLY with one press —
+     that's the whole reason it lives under the song rather than in
+     settings, and somebody whose phone just started playing music in a
+     quiet meeting needs exactly that. But the first tap writes NOTHING.
+     Turning it off for good is a separate, deliberate second press.
+
+     ⚠️ The one-tap emergency stop must not be weakened further. Do not
+     put a confirmation dialog on step one. */
+  function hushThisOne() {
+    sa.pause(me);
+    setHushed(true);
+  }
+
+  async function neverAgain() {
     sa.pause(me);
     setOffNow(true);
     try {
@@ -354,14 +378,38 @@ export default function SongPlayer({ song, whose, big = false, autoplay = false 
           turn off on a page that was never going to play. Once tapped it
           becomes a plain statement rather than vanishing, so the tap
           visibly did something. */}
-      {autoplay && !offNow && (
-        <button type="button" className="soff" onClick={stopAutoplaying}>
-          Stop starting songs for me
+      {/* STEP ONE — always one tap, always instant, never writes. */}
+      {autoplay && !offNow && !hushed && (
+        <button type="button" className="soff" onClick={hushThisOne}>
+          Stop the music
         </button>
       )}
+
+      {/* STEP TWO — offered only after they've already silenced it, so
+          the permanent change is a considered second act rather than
+          something you can do by brushing the screen. */}
+      {hushed && !offNow && (
+        <div style={{ marginTop: 6, paddingLeft: 10,
+                      borderLeft: '2px solid var(--line, #D8E3DC)' }}>
+          {/* ⚠️ Inlined rather than a class in wall.css, deliberately.
+              That file is 71KB and GitHub's uploader has silently dropped
+              it on three of four deploys — not worth making it travel for
+              three cosmetic lines. When wall.css is properly split, this
+              belongs in the player's own stylesheet.
+
+              ⚠️ And it lives INSIDE the div, not beside it: a JSX comment
+              is an expression, so a comment next to an element inside a
+              && is two children with no parent. The build caught it. */}
+          <p className="snote">Stopped.</p>
+          <button type="button" className="soff" onClick={neverAgain}>
+            Don&apos;t start songs on any profile again
+          </button>
+        </div>
+      )}
+
       {offNow && (
         <p className="snote">
-          Off. Nothing will play on its own now &mdash; press ▶ whenever you want it.
+          Off everywhere. You can turn it back on under <b>You → the pencil → settings</b>.
         </p>
       )}
 
