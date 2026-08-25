@@ -72,7 +72,7 @@ export default async function WallPage() {
      uploads most, which the first real pull demonstrated within minutes. */
   const { data: content } = await supabase
     .from('feed_content')
-    .select('id, title, url, embed_id, thumb_path, published_at, source_label, category, source_id, event_at, place')
+    .select('id, title, url, embed_id, thumb_path, published_at, source_label, category, source_id, event_at, place, pinned_at')
     .order('published_at', { ascending: false })
     .limit(60);
 

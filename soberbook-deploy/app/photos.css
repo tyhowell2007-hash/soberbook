@@ -589,3 +589,13 @@
 .ccflyer .ccnote  { display: block; margin: 8px 0 0; font-size: 12px; opacity: .5; }
 /* With an image the meta floats over it, as before. */
 .ccflyer:not(.ccnoimg) .ccflyertitle { margin-top: 8px; }
+
+/* ---- the pin (0072) ----
+   ⚠️ Quieter than a member's post, same rule as every other card here.
+   The only difference from an ordinary flyer card is a left edge and a
+   label — enough to explain itself, not enough to shout. */
+.ccpin .ccflyerlink { border-left: 3px solid var(--acid, #C8FF00); }
+.ccpinlabel {
+  margin: 0 0 6px; font-size: 11px; letter-spacing: .08em;
+  text-transform: uppercase; opacity: .55;
+}

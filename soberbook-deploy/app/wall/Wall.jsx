@@ -1089,8 +1089,14 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
             the wall has singled out for being unanswered. */}
         {mixFeed(posts, content, { lonelyId }).map((row) => {
           if (row.type === 'content') {
+            /* ⚠️ `pinned` is passed, not derived from item.pinned_at.
+               Several items can be pinned; only ONE is shown as the pin,
+               and the mixer is what decides which. Reading pinned_at here
+               would be a second implementation of that choice, and the
+               second one drifts (0046 → 0049 → 0072). */
             return <ContentCard key={'c' + row.item.id} item={row.item}
-                                thumbBase={thumbBase} canHide={canHide} />;
+                                thumbBase={thumbBase} canHide={canHide}
+                                pinned={!!row.pinned} />;
           }
           const p = row.post;
           const w = weight(p, p.id === lonelyId);

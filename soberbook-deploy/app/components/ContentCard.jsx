@@ -57,7 +57,7 @@ const CHIP = {
   talk:     'talk',
 };
 
-export default function ContentCard({ item, thumbBase, canHide = false }) {
+export default function ContentCard({ item, thumbBase, canHide = false, pinned = false }) {
   const router = useRouter();
   const [on, setOn] = useState(false);
   /* null | 'asking' | 'busy' | 'gone' */
@@ -116,7 +116,12 @@ export default function ContentCard({ item, thumbBase, canHide = false }) {
        flyer. An item with no image gets a text card that still reads like
        something you can tap; an item with one gets the poster. */
     return (
-      <article className={'cc ccflyer' + (thumb ? '' : ' ccnoimg')}>
+      <article className={'cc ccflyer' + (thumb ? '' : ' ccnoimg') + (pinned ? ' ccpin' : '')}>
+        {/* ⚠️ The pin SAYS it is pinned. A thing sitting above everybody's
+            posts with no explanation reads as the feed being broken or as
+            an ad that snuck in. One word, in small caps, and it is the
+            same word Ty would use. */}
+        {pinned && <p className="ccpinlabel">Pinned by Sober Book</p>}
         <a href={item.url} target="_blank" rel="noopener noreferrer"
            /* ⚠️ no-referrer, same as every outbound link here: elsewhere
               the referrer is a statistic, here it tells a stranger's logs

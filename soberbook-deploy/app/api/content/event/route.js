@@ -140,6 +140,18 @@ export async function POST(req) {
     published_at: new Date().toISOString(),
     event_at: eventAt,
     place,
+    /* 🔴 PINNED BY DEFAULT (0072). Ty: "everything i give you to post,
+       make sure it starts at the beginning of the feed."
+
+       ⚠️ Default, not forced — pass pin=no to post something that should
+       just take its turn. But the default is the one that matches why
+       this route exists: a thing posted BY HAND is a thing somebody
+       decided mattered today, and burying it four posts down is how the
+       first flyer went unseen for a day.
+
+       Only one pin ever shows, so posting a second flyer quietly retires
+       the first rather than stacking. No unpin step to remember. */
+    pinned_at: String(form.get('pin') || 'yes') === 'no' ? null : new Date().toISOString(),
   });
 
   if (insErr) {
