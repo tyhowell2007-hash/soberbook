@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { browserClient } from '../../lib/supabase-browser';
@@ -11,6 +11,7 @@ import { Body, Player } from '../components/Linked';
 import { fetchPreviews, PREVIEW_COUNT } from '../../lib/previews';
 import { fetchDrops } from '../../lib/drops';
 import { fetchTags, attachTags } from '../../lib/tags';
+import { buildIndex, findMentions, activeQuery, suggest } from '../../lib/mentions';
 import { mixFeed } from '../../lib/mix';
 import ContentCard from '../components/ContentCard';
 import DropCard from '../components/DropCard';
@@ -168,17 +169,21 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
      several minutes after the choice was made. */
   /* ---- tagging a friend (0067) ----
 
-     ⭐ A LIST YOU PICK FROM, not a box you type a name into. The database
-     refuses a tag on anyone who isn't a friend, so free text would mean
-     somebody types a name, posts, and finds out afterwards it didn't
-     take. Offering only the people who CAN be tagged means the refusal
-     never has to happen.
+     ⭐ Ty, after seeing the first version: "I don't want the names to pop
+     up underneath. I just want you to be able to put the @ sign and their
+     handle. Once it recognizes the handle it should light up blue, meaning
+     that it will work."
 
-     ⚠️ The picker is a convenience. The lock is mentions_guard() in the
-     database — this list is not what makes the rule true. */
-  const [tagOpen, setTagOpen] = useState(false);
+     So there is NO picker. You type @handle into the post the way you
+     would anywhere else, and the app tells you whether it landed.
+
+     ⚠️ The friend list is still loaded — it is just never shown as a menu.
+     It is what turns a typed handle blue, and loading it once beats asking
+     the database on every keystroke.
+
+     ⚠️ It remains a convenience. The lock is mentions_guard() in the
+     database; this list is not what makes the rule true. */
   const [friends, setFriends] = useState([]);
-  const [tagged, setTagged] = useState([]);   // handles
 
   /* Taking your own name off somebody else's post.
 
@@ -199,13 +204,48 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
     await supabase.rpc('remove_my_tag', { p_post: postId });
   }
 
-  async function openTags() {
-    setTagOpen((v) => !v);
-    if (friends.length) return;
-    /* my_friends() already returns handles and display names — the friends
-       page uses the identical call. No new query for this. */
-    const { data } = await supabase.rpc('my_friends');
-    setFriends(data || []);
+  /* Loaded once, on mount. my_friends() is the identical call the friends
+     page makes — no new query was added for this. */
+  useEffect(() => {
+    let alive = true;
+    supabase.rpc('my_friends').then(({ data }) => { if (alive) setFriends(data || []); });
+    return () => { alive = false; };
+  }, []);
+
+  /* Where the caret is, so the @menu knows what is being typed AT it
+     rather than anywhere in the box. */
+  const [caret, setCaret] = useState(0);
+  const [pick, setPick] = useState(0);        // highlighted row in the menu
+  const boxRef = useRef(null);
+
+  /* ⭐ A LOOKUP, NOT A REGEX. A name has spaces and there is no way to
+     tell from the text where "@Nic Rossiter and I" stops being a name.
+     So we match against the names we actually know — see lib/mentions.js.
+     One shared implementation, so the menu, the blue and the tag that
+     gets written can never disagree about who was meant. */
+  const index = buildIndex(friends);
+  const { found: mentions, ambiguous } = findMentions(text, index);
+  const tagged = mentions.map((m) => m.handle);
+
+  /* The Facebook menu — null most of the time, which is the point. */
+  const q = anon ? null : activeQuery(text, caret);
+  const options = q ? suggest(friends, q.typed) : [];
+
+  /* Replace "@part" at the caret with the chosen person's name. */
+  function choose(f) {
+    if (!q) return;
+    const label = f.display_name || f.handle;
+    const next = text.slice(0, q.at) + '@' + label + ' ' + text.slice(caret);
+    setText(next);
+    const pos = q.at + 1 + label.length + 1;
+    setPick(0);
+    /* ⚠️ Put the caret back after the name. Without this it jumps to the
+       end of the box, so tagging somebody mid-sentence throws you to the
+       end of what you were writing. */
+    requestAnimationFrame(() => {
+      const el = boxRef.current;
+      if (el) { el.focus(); el.setSelectionRange(pos, pos); setCaret(pos); }
+    });
   }
 
   const MAX_PHOTOS = 10;
@@ -267,7 +307,11 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
        worst thing this app could carry. Without this the chips would
        merely HIDE while the handles stayed in state, and the tag attempt
        would fail seconds after the choice was made. */
-    if (next) { setTagged([]); setTagOpen(false); }
+    /* ⚠️ NOTHING TO CLEAR ANY MORE. The handles live inside the words
+       now, and deleting somebody's text out from under them because they
+       tapped anonymous would be far ruder than the tag not landing. The
+       chips below simply stop being blue, the note explains why, and the
+       post() call skips tagging entirely when anon. */
     /* ⚠️ THE RECORD GOES TOO, and for the same reason the photo does.
        0058 refuses an anonymous drop outright — a release is credited work
        by definition. Without this the chip merely HIDES while `rec` stays
@@ -601,8 +645,6 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
       setRecDropped(false);
       setMedia([]);
       setPhotoDropped(false);
-      setTagged([]);
-      setTagOpen(false);
       setAudience('open');
       // re-read through the VIEW, never the base table
       const { data } = await supabase
@@ -700,8 +742,25 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
              being it. */}
       <form className="composer" onSubmit={post}>
         <div className="ctop">
-          <input value={text} onChange={(e) => setText(e.target.value)} maxLength={5000}
+          <input ref={boxRef} value={text} maxLength={5000}
                  aria-label="Write something for the wall"
+                 /* ⚠️ The caret is read on EVERY interaction, not just on
+                    change. Tapping into the middle of what you already
+                    wrote moves the caret without changing a character —
+                    and the @menu has to follow the caret, not the text. */
+                 onChange={(e) => { setText(e.target.value); setCaret(e.target.selectionStart); setPick(0); }}
+                 onKeyUp={(e) => setCaret(e.target.selectionStart)}
+                 onClick={(e) => setCaret(e.target.selectionStart)}
+                 onBlur={() => setTimeout(() => setCaret(-1), 150)}
+                 onKeyDown={(e) => {
+                   if (!options.length) return;
+                   /* ⚠️ Enter and Tab pick; they must not submit the form
+                      or jump to the Post button while a menu is open. */
+                   if (e.key === 'ArrowDown') { e.preventDefault(); setPick((i) => (i + 1) % options.length); }
+                   else if (e.key === 'ArrowUp') { e.preventDefault(); setPick((i) => (i - 1 + options.length) % options.length); }
+                   else if (e.key === 'Enter' || e.key === 'Tab') { e.preventDefault(); choose(options[pick]); }
+                   else if (e.key === 'Escape') { setCaret(-1); }
+                 }}
                  /* Once a photo is attached the same box becomes the caption,
                     and it says so. Nothing changes underneath — a post is a
                     body and an optional picture — but "add a caption" tells
@@ -811,50 +870,52 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
           </p>
         )}
 
-        {/* ---- tagging a friend (0067) ----
-            ⚠️ ABSENT when anonymous, not disabled — the same reasoning as
-            the camera. A greyed-out "tag" is an invitation to work out
-            how to enable it, and the answer would be "stop being
-            anonymous". Nobody gets nudged toward that trade by chrome. */}
-        {!anon && (
-          <div className="ctags">
-            <button type="button" className="tagbtn" onClick={openTags}
-                    aria-expanded={tagOpen} disabled={busy}>
-              {tagged.length ? `Tagged ${tagged.length}` : '＠ Tag a friend'}
-            </button>
+        {/* ---- tagging, the Facebook way (0067, revised) ----
 
-            {tagged.map((h) => (
-              <span className="tagchip" key={h}>
-                @{h}
-                <button type="button" aria-label={`Untag ${h}`} disabled={busy}
-                        onClick={() => setTagged((t) => t.filter((x) => x !== h))}>×</button>
-              </span>
+            ⭐ Ty asked for two things that sound contradictory: "I don't
+            want the names to pop up underneath" and then "it should work
+            like Facebook." They aren't in conflict. What he refused was a
+            full friend list sitting open BEFORE he'd typed anything.
+            Facebook shows a short filtered list only after an @, only
+            while you're inside the word, and it vanishes the moment you
+            move on. `options` is empty almost always — that emptiness is
+            the whole difference. */}
+        {options.length > 0 && (
+          <div className="atmenu" role="listbox" aria-label="Tag a friend">
+            {options.map((f, i) => (
+              <button type="button" key={f.handle} role="option"
+                      aria-selected={i === pick}
+                      className={'atopt' + (i === pick ? ' on' : '')}
+                      /* ⚠️ onMouseDown, not onClick. A click fires after
+                         blur, and blur closes the menu — so the button
+                         would be gone before the click ever landed. */
+                      onMouseDown={(e) => { e.preventDefault(); choose(f); }}>
+                <b>{f.display_name || f.handle}</b>
+                <span>@{f.handle}</span>
+              </button>
             ))}
+          </div>
+        )}
 
-            {tagOpen && (
-              <div className="taglist">
-                {/* ⭐ Only friends appear, because only friends can be
-                    tagged. The list IS the rule, made visible. */}
-                {friends.length === 0 ? (
-                  <p className="tagnone">
-                    You can only tag friends, and you haven’t got any yet.
-                    {' '}<Link href="/friends">Find some</Link>.
-                  </p>
-                ) : friends.map((f) => {
-                  const on = tagged.includes(f.handle);
-                  return (
-                    <button type="button" key={f.handle}
-                            className={'tagopt' + (on ? ' on' : '')}
-                            aria-pressed={on}
-                            onClick={() => setTagged((t) =>
-                              on ? t.filter((x) => x !== f.handle) : [...t, f.handle])}>
-                      {f.display_name || f.handle}
-                      <span>@{f.handle}</span>
-                    </button>
-                  );
-                })}
-              </div>
-            )}
+        {/* Who this post will actually tag. ⚠️ Only shown once there is
+            something to say — no empty chrome sitting under the box. */}
+        {(mentions.length > 0 || ambiguous.length > 0) && (
+          <div className="ctags">
+            {mentions.map((m) => (
+              <span className="tagok" key={m.handle}>@{m.label}</span>
+            ))}
+            {ambiguous.map((a) => (
+              <span className="tagno" key={a}>@{a}</span>
+            ))}
+            <span className="tagwhy">
+              {anon
+                ? 'an anonymous post can’t tag anyone'
+                : ambiguous.length
+                  /* 🔴 Two friends with the same name. We refuse to guess
+                     rather than tag the wrong person — see lib/mentions.js. */
+                  ? 'more than one friend has that name — use their @handle'
+                  : mentions.length === 1 ? 'will be tagged' : 'will be tagged'}
+            </span>
           </div>
         )}
 
@@ -1043,7 +1104,7 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
               {/* A photo-only post has an empty body. Rendering the empty
                   paragraph anyway leaves a blank gap above the picture that
                   looks like text failed to load. */}
-              {p.body && !recs[p.id] ? <p className="bd"><Body text={p.body} /></p> : null}
+              {p.body && !recs[p.id] ? <p className="bd"><Body text={p.body} tags={tags[p.id]} /></p> : null}
 
               {/* ⭐ Aug 23. A member posted his music and the link came out
                   as plain text you had to copy and leave for. It plays

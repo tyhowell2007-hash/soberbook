@@ -473,37 +473,61 @@
 }
 .ptag button:hover { opacity: 1; }
 
-/* ---- in the composer ---- */
-.ctags { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 8px 0 0; }
-.tagbtn {
-  border: 1px solid rgba(0,0,0,.18); background: none; cursor: pointer;
-  border-radius: 999px; padding: 5px 11px; font-size: 13px; min-height: 32px;
+/* ---- @handle inside the words of a post ---- */
+/* ⭐ THE BLUE. Deliberately the one blue in an otherwise green and acid
+   app — it is the universal "this is a person you can tap", and borrowing
+   the convention costs nothing and explains itself. */
+.mention {
+  color: #2563eb;
+  text-decoration: none;
+  font-weight: 600;
 }
-.tagchip {
-  display: inline-flex; align-items: center; gap: 2px;
-  background: rgba(0,0,0,.05); border-radius: 999px;
-  padding: 4px 4px 4px 10px; font-size: 13px;
-}
-.tagchip button {
-  border: 0; background: none; cursor: pointer;
-  min-width: 26px; min-height: 26px; font-size: 15px; line-height: 1; opacity: .5;
-}
-.tagchip button:hover { opacity: 1; }
+.mention:hover { text-decoration: underline; }
 
-/* ⚠️ Capped and scrollable rather than growing without limit. At six
-   members it is three rows; at six hundred an uncapped list would push
-   the Post button off the bottom of the phone. */
-.taglist {
-  flex-basis: 100%; max-height: 230px; overflow-y: auto;
-  border: 1px solid rgba(0,0,0,.12); border-radius: 8px; margin-top: 4px;
+/* ---- in the composer ---- */
+/* ⚠️ No picker, no dropdown. This strip only appears once there is an
+   @handle in the box, and answers one question: did it land. */
+.ctags {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 6px;
+  margin: 8px 0 0; font-size: 13px;
 }
-.tagopt {
+/* Recognised: it is a friend, it will tag. */
+.tagok {
+  color: #2563eb; font-weight: 600;
+  background: rgba(37, 99, 235, .09);
+  border-radius: 999px; padding: 3px 9px;
+}
+/* ⚠️ Typed but not a friend. Shown, not silently dropped — a handle that
+   looks fine and quietly does nothing is the failure this whole design
+   exists to prevent. Not red: it is not an error, it just won't tag. */
+.tagno {
+  opacity: .45; border-radius: 999px; padding: 3px 9px;
+  background: rgba(0,0,0,.05); text-decoration: line-through;
+}
+.tagwhy { opacity: .55; }
+
+/* ---- the @menu (0067, revised) ----
+   ⭐ Short, filtered, and only while typing after an @. Ty rejected a full
+   friend list sitting open under the composer; this is the Facebook shape
+   he asked for instead — it is absent almost all of the time. */
+.atmenu {
+  margin: 6px 0 0;
+  border: 1px solid rgba(0,0,0,.14);
+  border-radius: 10px;
+  overflow: hidden;
+  /* ⚠️ Capped. Six friends is three rows; six hundred without a cap would
+     push the Post button off the bottom of a phone. */
+  max-height: 232px; overflow-y: auto;
+}
+.atopt {
   display: flex; align-items: baseline; gap: 8px; width: 100%;
-  border: 0; border-bottom: 1px solid rgba(0,0,0,.06); background: none;
-  cursor: pointer; text-align: left; padding: 10px 12px; min-height: 44px;
-  font-size: 14px;
+  border: 0; border-bottom: 1px solid rgba(0,0,0,.06);
+  background: none; cursor: pointer; text-align: left;
+  /* ⚠️ 44px: this is a thumb target on a phone, and picking the wrong
+     person is the failure mode that matters here. */
+  padding: 11px 13px; min-height: 44px; font-size: 15px;
 }
-.tagopt:last-child { border-bottom: 0; }
-.tagopt span { opacity: .5; font-size: 12px; }
-.tagopt.on { background: rgba(0,0,0,.06); font-weight: 600; }
-.tagnone { padding: 12px; font-size: 13px; opacity: .7; margin: 0; }
+.atopt:last-child { border-bottom: 0; }
+.atopt b { font-weight: 600; }
+.atopt span { opacity: .5; font-size: 12.5px; }
+.atopt.on, .atopt:hover { background: rgba(37, 99, 235, .08); }
