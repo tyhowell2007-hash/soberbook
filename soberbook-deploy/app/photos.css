@@ -546,3 +546,22 @@
 /* ⚠️ Quiet on purpose. It is a fact about the post, not a warning about
    the person — an "edited" badge that shouts reads as an accusation. */
 .edited { opacity: .5; font-style: italic; }
+
+/* ---- a flyer on the wall (0071) ----
+   ⭐ A poster, not a video card. No play button, because there is nothing
+   to play — see the note in ContentCard.jsx about the button that did
+   nothing forever. */
+.ccflyer { display: block; }
+.ccflyerlink { display: block; position: relative; text-decoration: none; }
+.ccflyerimg {
+  width: 100%; display: block; border-radius: 12px;
+  /* ⚠️ contain-style: a flyer is designed edge to edge and cropping it
+     removes the date or the address, which are the only two things
+     somebody actually needs off it. */
+  height: auto;
+  background: rgba(0,0,0,.05);
+}
+.ccflyermeta { position: absolute; top: 10px; left: 10px; right: 10px; }
+.ccplace {
+  margin: 2px 0 0; font-size: 13px; opacity: .6;
+}

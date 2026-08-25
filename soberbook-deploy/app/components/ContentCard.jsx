@@ -92,6 +92,63 @@ export default function ContentCard({ item, thumbBase, canHide = false }) {
 
   const thumb = item.thumb_path ? `${thumbBase}/${item.thumb_path}` : null;
 
+  /* ---- a flyer, not a video (0071) ----
+
+     🔴 WITHOUT THIS, A FLYER RENDERED A PLAY BUTTON THAT DID NOTHING.
+     The card's whole structure is `on && embed_id ? <iframe> : <play>`, so
+     an item with no embed_id showed the button, set on=true when tapped,
+     failed the second half of the condition, and drew the button again.
+     A control that visibly does nothing, forever.
+
+     ⚠️ An event also carries things a podcast episode never does — a date
+     and a place — and both matter before somebody decides to go. Goodale
+     Park is two hours from Cadiz. */
+  const isFlyer = !item.embed_id;
+  const when = item.event_at ? new Date(item.event_at) : null;
+
+  if (isFlyer) {
+    return (
+      <article className="cc ccflyer">
+        <a href={item.url} target="_blank" rel="noopener noreferrer"
+           /* ⚠️ no-referrer, same as every outbound link here: elsewhere
+              the referrer is a statistic, here it tells a stranger's logs
+              that the visitor is in recovery. */
+           referrerPolicy="no-referrer" className="ccflyerlink">
+          {thumb && (
+            /* eslint-disable-next-line @next/next/no-img-element */
+            <img className="ccflyerimg" src={thumb} alt={item.title} loading="lazy" />
+          )}
+          <span className="ccmeta ccflyermeta">
+            <span className="ccsrc">{item.source_label}</span>
+            {when && (
+              <span className="cccat">
+                {when.toLocaleDateString(undefined,
+                  { weekday: 'short', month: 'short', day: 'numeric' })}
+              </span>
+            )}
+          </span>
+        </a>
+        <p className="ccbelow">{item.title}</p>
+        {item.place && <p className="ccplace">{item.place}</p>}
+        {canHide && (
+          <div className="cchide">
+            {menu === 'asking' ? (
+              <>
+                <button type="button" onClick={() => hide('item')}>Hide this one</button>
+                <button type="button" onClick={() => hide('source')}>Stop {item.source_label}</button>
+                <button type="button" className="ccx" onClick={() => setMenu(null)}>Cancel</button>
+              </>
+            ) : (
+              <button type="button" onClick={() => setMenu('asking')} disabled={menu === 'busy'}>
+                {menu === 'busy' ? 'Taking it down…' : 'Take this down'}
+              </button>
+            )}
+          </div>
+        )}
+      </article>
+    );
+  }
+
   /* ⚠️ Says what happened rather than vanishing. A card that silently
      disappears on tap leaves you unsure whether you hit the right thing —
      and this is the control that has to feel reliable, because it's the
