@@ -120,11 +120,21 @@ export default function Queue({ rows, urls }) {
               ? <p className="mq-gone">The post has already been deleted.</p>
               : <>
                   <p className="mq-body">{r.body}</p>
-                  {r.photo_url && urls[r.photo_url] && (
-                    <div className="mq-photo">
-                      <img src={urls[r.photo_url]} alt="Reported photo" />
+                  {/* ⚠️ ALL of them, stacked, not a grid (0065). A grid is
+                      for browsing; this is evidence, and a moderator needs
+                      to see each picture at a size they can actually judge.
+                      Numbered so a note can say which one. */}
+                  {(Array.isArray(r.photo_urls) && r.photo_urls.length
+                    ? r.photo_urls
+                    : (r.photo_url ? [r.photo_url] : [])
+                  ).filter((s) => urls[s]).map((s, i, all) => (
+                    <div className="mq-photo" key={s}>
+                      <img src={urls[s]}
+                           alt={all.length > 1
+                             ? `Reported photo ${i + 1} of ${all.length}`
+                             : 'Reported photo'} />
                     </div>
-                  )}
+                  ))}
                 </>}
 
             {r.reason && <p className="mq-reason">“{r.reason}”</p>}

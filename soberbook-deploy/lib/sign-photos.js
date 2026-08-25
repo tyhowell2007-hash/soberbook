@@ -19,7 +19,19 @@ import { adminClient, adminConfigured } from './supabase-admin';
    ===================================================================== */
 
 const TTL = 3600;
-const MAX = 60;
+
+/* ⚠️ RAISED FROM 60 WHEN POSTS COULD CARRY TEN PHOTOS (0065).
+
+   A wall renders up to 60 posts. At one photo each, 60 was plenty. At ten
+   each it is a tenth of what a full page can ask for — and the failure is
+   the bad kind: `.slice()` drops the overflow silently, so pictures would
+   simply not appear, with no error anywhere to notice.
+
+   ⚠️ It is still a cap, not a promise. It bounds one signing request so a
+   crafted page can't ask us to mint ten thousand URLs. If a page ever
+   legitimately needs more than this, the fix is to sign per-post on
+   demand — not to delete the number. */
+const MAX = 400;
 
 export async function signPhotoPaths(supabase, wanted) {
   /* No key, no signed links — but the page still renders. See the note on
@@ -41,10 +53,41 @@ export async function signPhotoPaths(supabase, wanted) {
 
   const allowed = new Set();
 
+  /* A post's photos (0065). Same question as before, asked of the same
+     view — only the shape of the column changed.
+
+     ⚠️ `.in('photo_url', …)` CANNOT WORK against an array column: it tests
+     whether the whole array equals one of the listed values. `.overlaps()`
+     is the array version — "return rows whose photo_urls share at least one
+     entry with this list" — which is precisely the question being asked.
+
+     🔴 AND THEN INTERSECT WITH WHAT WAS ASKED FOR. `.overlaps()` hands back
+     the ENTIRE array of every matching post, including photos the caller
+     never mentioned. Adding those wholesale would not leak anything — if
+     the post is visible, so are all its pictures — but it would sign files
+     nobody asked for, and a permission control should hand back exactly
+     what it was asked about and nothing else. Surprises in this file are
+     how it stops being reviewable.
+
+     ⭐ The rule itself still lives in the view: feed_posts.photo_urls is
+     already NULL on an anonymous post and the row is already gone if
+     either person blocked the other. Photos inherit every rule for free,
+     because we ask instead of deciding. */
   if (postPaths.length) {
+    const askedSet = new Set(postPaths);
     const { data } = await supabase
+      .from('feed_posts').select('photo_urls').overlaps('photo_urls', postPaths);
+    (data || []).forEach((r) =>
+      (r.photo_urls || []).forEach((p) => { if (askedSet.has(p)) allowed.add(p); }));
+
+    /* ⚠️ photo_url (singular) is still read for now. The 0065 trigger keeps
+       it equal to photo_urls[1], so this finds nothing the block above
+       missed — it exists so that a page still rendering the old single
+       column keeps working through the deploy. Delete it in the same
+       change that drops the column. */
+    const { data: legacy } = await supabase
       .from('feed_posts').select('photo_url').in('photo_url', postPaths);
-    (data || []).forEach((r) => r.photo_url && allowed.add(r.photo_url));
+    (legacy || []).forEach((r) => r.photo_url && allowed.add(r.photo_url));
   }
 
   /* Same question, same view, different column. `feed_posts.video_url` is
@@ -113,6 +156,10 @@ export async function signPhotoPaths(supabase, wanted) {
 export function collectPaths(rows) {
   const out = [];
   for (const r of rows || []) {
+    /* ⚠️ EVERY photo, not just the first (0065). Miss this and a post's
+       second through tenth pictures are never signed — which renders as
+       broken images rather than as an error, so nobody reports it. */
+    if (Array.isArray(r.photo_urls)) out.push(...r.photo_urls.filter(Boolean));
     if (r.photo_url)            out.push(r.photo_url);
     if (r.video_url)            out.push(r.video_url);
     if (r.display_avatar_photo) out.push(r.display_avatar_photo);

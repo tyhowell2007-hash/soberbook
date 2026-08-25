@@ -384,3 +384,61 @@
 .frconfirm .frrow{ display:flex; gap:8px; }
 .frconfirm .btn{ width:auto; margin:0; }
 .frconfirm .btn.danger{ border-color:#8A2B2B; color:#6B1F1F; }
+
+/* =====================================================================
+   MORE THAN ONE PICTURE (0065).
+
+   ⚠️ Lives here and not in wall.css on purpose. wall.css is 71KB and
+   failed to upload on three consecutive deploys on Aug 23 — the largest
+   file in app/ is the one GitHub's folder-drag gives up on. photos.css
+   is 15KB and already imported wherever .pphoto is used.
+
+   ⭐ A SINGLE PHOTO NEVER TOUCHES THIS. It keeps .pphoto exactly as it
+   was, because most posts carry one and changing all of them to support
+   the rare ten would alter every existing post on the wall to solve a
+   problem none of them have.
+   ===================================================================== */
+
+.pgrid {
+  display: grid;
+  gap: 3px;
+  margin: 10px 0 0;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+/* ⚠️ Every cell is a fixed aspect ratio, so the grid is the same height
+   whatever lands in it. Without this the row height is set by whichever
+   photo happens to be tallest, and the wall jumps as pictures load. */
+.pgrid img {
+  width: 100%;
+  height: 100%;
+  aspect-ratio: 1 / 1;
+  /* ⚠️ cover, not contain — deliberately the opposite of the rule for
+     video. A cropped thumbnail is obviously a thumbnail and tapping shows
+     the whole thing; a letterboxed one in a tight grid just looks broken.
+     Video keeps `contain` because cropping a video hides somebody's head
+     for ninety seconds. */
+  object-fit: cover;
+  display: block;
+  background: rgba(0, 0, 0, .06);
+}
+
+/* Two side by side. */
+.pgrid[data-n="2"] { grid-template-columns: 1fr 1fr; }
+
+/* ⭐ Three gets one tall and two stacked, not three thin slivers. Three
+   equal columns on a phone is roughly 110px each, which is too small to
+   see a face in. */
+.pgrid[data-n="3"] { grid-template-columns: 2fr 1fr; }
+.pgrid[data-n="3"] img:first-child { grid-row: span 2; aspect-ratio: 1 / 1.02; }
+
+/* Four and up: a 2x2 that simply keeps going. ⚠️ At ten photos this is
+   five rows tall, which is a lot of wall — and that is the honest
+   result of choosing ten. A carousel would hide the cost behind a swipe
+   nobody performs. */
+.pgrid[data-n="4"] { grid-template-columns: 1fr 1fr; }
+
+@media (max-width: 380px) {
+  .pgrid { gap: 2px; }
+}

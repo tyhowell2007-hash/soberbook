@@ -54,7 +54,13 @@ export default async function AdminPage() {
      is_moderator() on the view. */
   const urls = {};
   if (adminConfigured()) {
-    const paths = (rows || []).map((r) => r.photo_url).filter(Boolean);
+    /* 🔴 EVERY reported photo, not the first (0065). A moderator deciding
+       whether to suspend somebody over a ten-photo post, while looking at
+       one of them, is deciding on a tenth of the evidence — and the one
+       they were shown is the one the poster chose to lead with. */
+    const paths = [...new Set((rows || []).flatMap((r) => [
+      ...(Array.isArray(r.photo_urls) ? r.photo_urls : []), r.photo_url,
+    ]).filter(Boolean))];
     if (paths.length) {
       const { data } = await adminClient()
         .storage.from('post-photos').createSignedUrls(paths, 3600);

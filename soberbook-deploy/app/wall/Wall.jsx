@@ -143,12 +143,29 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
      stores; `preview` is a local object URL so it appears the instant
      it's chosen rather than after a round trip.
 
-     ⚠️ ONE piece of state, not two. 0029 adds a `one_medium_per_post`
-     constraint — a post carries a photo or a video, never both. Keeping
-     two state variables would let the interface offer a combination the
-     database refuses, and the person would only find out at Post time.
-     One slot in the UI, one row rule in the database, same shape. */
-  const [photo, setPhoto] = useState(null);
+     ⚠️ ONE piece of state, still — but now a LIST (0065).
+
+     It used to be a single slot because `one_medium_per_post` meant a post
+     carried a photo or a video and never both. Ty dropped that rule, so a
+     post can now hold up to ten photos and a video together.
+
+     ⭐ It stays ONE variable rather than becoming `photos` + `video`. The
+     principle that made it one slot before still applies: the interface
+     must not be able to offer a combination the database refuses, and the
+     surest way to guarantee that is to have a single thing to reason
+     about. The split into photo paths and a video path happens once, at
+     the moment of posting, right next to the insert that cares. */
+  const [media, setMedia] = useState([]);   // [{ path, preview, isVideo }]
+
+  /* The caps, written once. ⚠️ MAX_PHOTOS must match photo_paths_ok() in
+     0065 — the database refuses an eleventh, and a UI that lets somebody
+     pick eleven is a UI that produces a constraint error at Post time,
+     several minutes after the choice was made. */
+  const MAX_PHOTOS = 10;
+  const photos = media.filter((m) => !m.isVideo);
+  const video  = media.find((m) => m.isVideo) || null;
+  const canAddPhoto = photos.length < MAX_PHOTOS;
+  const canAddVideo = !video;
 
   /* Links for photos uploaded during THIS session, merged over the ones
      signed on the server at page load. Without this a new post appears
@@ -195,7 +212,7 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
 
   function toggleAnon() {
     const next = !anon;
-    if (next && photo) { setPhoto(null); setPhotoDropped(true); }
+    if (next && media.length) { setMedia([]); setPhotoDropped(true); }
     else setPhotoDropped(false);
     /* ⚠️ THE RECORD GOES TOO, and for the same reason the photo does.
        0058 refuses an anonymous drop outright — a release is credited work
@@ -223,7 +240,11 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
   async function signMissing(rows) {
     const need = [];
     for (const r of rows || []) {
-      for (const p of [r.photo_url, r.video_url, r.display_avatar_photo]) {
+      /* ⚠️ Spread photo_urls in (0065). Miss it and a post's second
+         through tenth pictures are never signed — they render as broken
+         frames rather than raising anything, so nobody reports it. */
+      for (const p of [...(Array.isArray(r.photo_urls) ? r.photo_urls : []),
+                       r.photo_url, r.video_url, r.display_avatar_photo]) {
         if (p && !freshUrls[p] && !photoUrls[p]) need.push(p);
       }
     }
@@ -432,7 +453,7 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
 
        Three separate locks all saying "words are mandatory", written back
        when a post could only BE words. A picture is a post. */
-    if (!body && !photo && !rec) return;
+    if (!body && !media.length && !rec) return;
     setBusy(true);
     try {
       const { data: { user } } = await supabase.auth.getUser();
@@ -445,7 +466,13 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
          other column goes explicitly null rather than being left out —
          `one_medium_per_post` compares two values, and "absent" and
          "null" are the same to Postgres but not to a reader. */
-      const attached = anon ? null : photo;
+      /* ⚠️ Split here and nowhere else. The composer holds one list; the
+         database wants an array of photos and a single video. Doing the
+         split at the insert means there is exactly one line in the app
+         that knows the shape the table expects. */
+      const attached   = anon ? [] : media;
+      const photoPaths = attached.filter((m) => !m.isVideo).map((m) => m.path);
+      const videoPath  = (attached.find((m) => m.isVideo) || {}).path || null;
       /* ⚠️ Anonymous forces the audience back to open, for the same
          belt-and-braces reason as the photo above — 0045 has a CHECK that
          refuses anonymous + friends-only outright, and this line is so a
@@ -479,8 +506,14 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
       const { error } = await supabase.from('posts')
         .insert({ id: postId, author_id: user.id, body, is_anonymous: anon,
                   audience: anon ? 'open' : audience,
-                  photo_url: attached && !attached.isVideo ? attached.path : null,
-                  video_url: attached &&  attached.isVideo ? attached.path : null });
+                  /* ⚠️ photo_urls, NOT photo_url. The 0065 trigger fills in
+                     the old singular column from photo_urls[1], so nothing
+                     needs to write it — and writing both would be two
+                     sources of truth for one fact. Send null rather than an
+                     empty array: the constraint treats an empty array as
+                     invalid, and "no photos" is genuinely absence. */
+                  photo_urls: photoPaths.length ? photoPaths : null,
+                  video_url: videoPath });
       if (error) throw error;
 
       /* 🔴 THE DROP IS INSERTED SECOND, AND THE ORDER MATTERS. If this
@@ -495,7 +528,7 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
       setText('');
       setRec(null);
       setRecDropped(false);
-      setPhoto(null);
+      setMedia([]);
       setPhotoDropped(false);
       setAudience('open');
       // re-read through the VIEW, never the base table
@@ -602,7 +635,7 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
                     you the words are now OPTIONAL, which is the part that
                     was impossible to guess while the Post button sat grey. */
                  placeholder={rec ? 'Say something about it… (optional)'
-                                    : photo ? 'Add a caption… (or leave it blank)'
+                                    : media.length ? 'Add a caption… (or leave it blank)'
                                     : anon ? 'Nobody will see who wrote this…'
                                     : 'Share something with people who get it…'} />
           {/* ⚠️ NOT DISABLED WHEN ANONYMOUS — ABSENT.
@@ -615,18 +648,40 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
               toward that trade by a piece of chrome. When you're
               anonymous the camera simply isn't part of the composer, and
               one plain line below says why. */}
-          {!anon && !rec && (
+          {/* ⚠️ The camera DISAPPEARS at the cap rather than greying out —
+              same reasoning as the anonymous case just above. A disabled
+              button is an invitation to work out how to enable it, and
+              here there is no answer except "remove one", which the ×
+              buttons below already say more clearly.
+
+              ⚠️ It also disappears when there is a video AND ten photos,
+              because at that point there is genuinely nothing left to
+              add. */}
+          {!anon && !rec && (canAddPhoto || canAddVideo) && (
             /* ONE button, both media. A separate 🎥 next to the 📷 was the
                obvious build and it's worse: two controls that do the same
                job, on the narrowest row in the app, forcing a decision
                ("which button do I want?") the file picker is about to ask
                again anyway. The picker already knows the difference. */
             <PhotoUpload kind="post" disabled={busy} className="camera"
-                         accept="image/*,video/mp4,video/quicktime"
-                         label={photo ? '✓' : '📷'}
+                         /* ⚠️ Narrow the picker once a video is attached —
+                            only one video per post, and letting somebody
+                            choose a second means uploading a file we are
+                            about to refuse. Cheaper to not offer it. */
+                         accept={canAddVideo ? 'image/*,video/mp4,video/quicktime' : 'image/*'}
+                         label={media.length ? `+${media.length}` : '📷'}
                          onBusy={setUploading}
                          onDone={(path, preview, isVideo) => {
-                           setPhoto({ path, preview, isVideo });
+                           setMedia((m) => {
+                             /* ⚠️ Guard here as well as in the picker. The
+                                upload is async — two quick taps can both
+                                pass the check above and land here, and the
+                                database would refuse the eleventh with a
+                                raw constraint error. */
+                             if (isVideo && m.some((x) => x.isVideo)) return m;
+                             if (!isVideo && m.filter((x) => !x.isVideo).length >= MAX_PHOTOS) return m;
+                             return [...m, { path, preview, isVideo }];
+                           });
                            setFreshUrls((u) => ({ ...u, [path]: preview }));
                            setPostErr('');
                          }} />
@@ -636,29 +691,51 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
               picture sat attached above it, with nothing on screen saying
               why. A disabled button gives no reason; it just doesn't work. */}
           <button type="submit" className="send"
-                  disabled={busy || uploading || (!text.trim() && !photo && !rec)}
+                  disabled={busy || uploading || (!text.trim() && !media.length && !rec)}
                   aria-label="Post">
             {busy ? '…' : uploading ? '…' : 'Post'}
           </button>
         </div>
 
-        {photo && (
-          <div className="cphoto">
-            {photo.isVideo ? (
+        {/* ⚠️ Every attachment gets its OWN × (0065). The old single slot
+            only ever needed one. With ten of them, a single "clear" would
+            mean losing nine good pictures to remove one bad one — and the
+            bad one is usually the reason you looked. */}
+        {media.map((m, i) => (
+          <div className="cphoto" key={m.path}>
+            {m.isVideo ? (
               /* ⚠️ `controls` and nothing else. No autoplay on the preview —
                  this is the thing you are about to say to people, and it
                  should not start talking at you in a quiet room while
                  you're deciding whether to send it. `playsInline` stops
                  iOS from throwing it fullscreen the moment it's touched,
                  which loses you the composer you were standing in. */
-              <video src={photo.preview} controls playsInline preload="metadata" />
+              <video src={m.preview} controls playsInline preload="metadata" />
             ) : (
-              <img src={photo.preview} alt="The photo you're about to post" />
+              <img src={m.preview}
+                   alt={media.length > 1
+                     ? `Photo ${i + 1} of ${media.filter((x) => !x.isVideo).length} you're about to post`
+                     : "The photo you're about to post"} />
             )}
             <button type="button" className="cphoto-x"
-                    aria-label={photo.isVideo ? 'Take the video off' : 'Take the photo off'}
-                    disabled={busy} onClick={() => setPhoto(null)}>×</button>
+                    aria-label={m.isVideo ? 'Take the video off' : `Take photo ${i + 1} off`}
+                    disabled={busy}
+                    /* ⚠️ Remove by PATH, not by index. Indexes shift the
+                       moment anything else is removed, so a second tap on
+                       a stale render would take off the wrong picture. */
+                    onClick={() => setMedia((s) => s.filter((x) => x.path !== m.path))}>×</button>
           </div>
+        ))}
+
+        {/* Only once there is more than one — a count over a single photo
+            is noise. ⚠️ It says what is left rather than what is used,
+            because "3 of 10" invites you to fill it and this is not a
+            scoreboard. */}
+        {photos.length > 1 && (
+          <p className="canon-note">
+            {photos.length} photos{video ? ' and a video' : ''}
+            {canAddPhoto ? '' : ' · that’s the limit'}
+          </p>
         )}
 
         {uploading && <p className="canon-note">Adding it…</p>}
@@ -865,11 +942,47 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
                   attached to a post has no description we can honestly
                   give, and inventing one for a screen reader is worse
                   than admitting the picture is decorative to the text. */}
-              {p.photo_url && urlFor(p.photo_url) && (
-                <div className="pphoto">
-                  <img src={urlFor(p.photo_url)} alt="" loading="lazy" />
-                </div>
-              )}
+              {(() => {
+                /* ⚠️ Read photo_urls, fall back to photo_url (0065). The
+                   fallback is not belt-and-braces — a page rendered from a
+                   cached payload during the deploy has only the old column,
+                   and without it those posts render with no picture at all. */
+                const shots = (Array.isArray(p.photo_urls) && p.photo_urls.length
+                  ? p.photo_urls
+                  : (p.photo_url ? [p.photo_url] : [])).filter((s) => urlFor(s));
+                if (!shots.length) return null;
+
+                /* ⭐ ONE PHOTO LOOKS EXACTLY AS IT ALWAYS DID. Most posts
+                   carry one, and making them all become a grid to support
+                   the rare ten would change every existing post on the wall
+                   to solve a problem none of them have. */
+                if (shots.length === 1) {
+                  return (
+                    <div className="pphoto">
+                      <img src={urlFor(shots[0])} alt="" loading="lazy" />
+                    </div>
+                  );
+                }
+
+                /* ⚠️ data-n drives the grid in CSS rather than inline
+                   styles, so two, three and four-plus can each have their
+                   own shape without this component knowing about any of
+                   them. Capped at 4 in the attribute — beyond that they all
+                   lay out the same way. */
+                return (
+                  <div className="pgrid" data-n={Math.min(shots.length, 4)}>
+                    {shots.map((s, i) => (
+                      <img key={s} src={urlFor(s)} loading="lazy"
+                           /* ⚠️ alt="" everywhere else, but with several
+                              pictures a screen reader otherwise hears
+                              nothing at all where sighted people see six
+                              things. The position is the only honest thing
+                              we know about them. */
+                           alt={`Photo ${i + 1} of ${shots.length}`} />
+                    ))}
+                  </div>
+                );
+              })()}
 
               {/* ⚠️ NO autoplay, and this is a decision rather than an
                   oversight. Every feed on earth plays video at you the

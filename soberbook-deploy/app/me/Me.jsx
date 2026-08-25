@@ -1304,7 +1304,23 @@ export default function Me({ email, profile, posts, initialAvatarUrl,
                 {/* Your page should show what you actually put up — the
                     picture as much as the words. This list showed only text,
                     so a photo post appeared here as a blank entry. */}
-                {p.photo_url && postPhotoUrls[p.photo_url] && (
+                {/* ⚠️ 0065: several photos become a grid, one stays exactly
+                    as it was. Same rule as the wall — see app/photos.css. */}
+                {(() => {
+                  const shots = (Array.isArray(p.photo_urls) && p.photo_urls.length
+                    ? p.photo_urls : []).filter((s) => postPhotoUrls[s]);
+                  if (shots.length < 2) return null;
+                  return (
+                    <div className="pgrid" data-n={Math.min(shots.length, 4)}>
+                      {shots.map((s, i) => (
+                        <img key={s} src={postPhotoUrls[s]} loading="lazy"
+                             alt={`Photo ${i + 1} of ${shots.length}`} />
+                      ))}
+                    </div>
+                  );
+                })()}
+                {(!Array.isArray(p.photo_urls) || p.photo_urls.length < 2)
+                  && p.photo_url && postPhotoUrls[p.photo_url] && (
                   <div className="mphoto">
                     <img src={postPhotoUrls[p.photo_url]} alt="" loading="lazy" />
                   </div>
