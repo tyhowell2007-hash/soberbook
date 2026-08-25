@@ -246,7 +246,10 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
      white screen came from unmatched being undefined on an empty box —
      one guard is a fix, two is a fix that survives somebody editing the
      other file. */
-  const { found: mentions = [], ambiguous = [], unmatched = [] } = findMentions(text, index) || {};
+  const { found: mentions = [], ambiguous = [], unmatched: allUnmatched = [] } =
+    findMentions(text, index) || {};
+  /* ⚠️ Computed AFTER `q`, because it depends on what is being typed. */
+  const unmatched = allUnmatched;   // narrowed below, once `q` is known
 
   /* 🔴 WHY an @word didn't tag — the thing that was missing.
      Ty typed @jordancruz and got silence. Two different reasons look
@@ -274,6 +277,17 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
 
   /* The Facebook menu — null most of the time, which is the point. */
   const q = anon ? null : activeQuery(text, caret);
+
+  /* 🔴 DON'T CORRECT SOMEBODY MID-WORD.
+     Typing "@ni" put the menu up offering Nic Rossiter AND printed
+     "nobody here goes by that — check the spelling" underneath at the
+     same time. Both were technically true; together they tell a person
+     they're wrong while they are halfway through being right.
+
+     So the @word being typed RIGHT NOW is excluded from the complaints.
+     It isn't finished yet, and an unfinished word is not a mistake. */
+  const inFlight = q ? (q.typed || '').toLowerCase() : null;
+  const shownUnmatched = unmatched.filter((u) => u.toLowerCase() !== inFlight);
   const options = q ? suggest(friends, q.typed) : [];
 
   /* Replace "@part" at the caret with the chosen person's name. */
@@ -944,7 +958,7 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
 
         {/* Who this post will actually tag. ⚠️ Only shown once there is
             something to say — no empty chrome sitting under the box. */}
-        {(mentions.length > 0 || ambiguous.length > 0 || unmatched.length > 0) && (
+        {(mentions.length > 0 || ambiguous.length > 0 || shownUnmatched.length > 0) && (
           <div className="ctags">
             {mentions.map((m) => (
               <span className="tagok" key={m.handle}>@{m.label}</span>
@@ -952,7 +966,7 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
             {ambiguous.map((a) => (
               <span className="tagno" key={'amb-' + a}>@{a}</span>
             ))}
-            {unmatched.map((u) => (
+            {shownUnmatched.map((u) => (
               <span className="tagno" key={'un-' + u}>@{u}</span>
             ))}
             <span className="tagwhy">
@@ -960,12 +974,12 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
                 ? 'an anonymous post can’t tag anyone'
                 : ambiguous.length
                   ? 'more than one friend has that name — use their @handle'
-                  : unmatched.length
+                  : shownUnmatched.length
                     /* ⚠️ Two different failures, said differently. "Not a
                        friend" is a thing you can fix by sending a request;
                        "nobody by that name" is a typo. Collapsing them into
                        one message makes both unactionable. */
-                    ? (unmatched.some((u) => strangers[u])
+                    ? (shownUnmatched.some((u) => strangers[u])
                         ? 'not on your friends list yet — you can only tag friends'
                         : 'nobody here goes by that — check the spelling')
                     : 'will be tagged'}
