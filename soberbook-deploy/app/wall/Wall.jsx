@@ -242,7 +242,30 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
      One shared implementation, so the menu, the blue and the tag that
      gets written can never disagree about who was meant. */
   const index = buildIndex(friends);
-  const { found: mentions, ambiguous } = findMentions(text, index);
+  const { found: mentions, ambiguous, unmatched } = findMentions(text, index);
+
+  /* 🔴 WHY an @word didn't tag — the thing that was missing.
+     Ty typed @jordancruz and got silence. Two different reasons look
+     identical on screen unless we separate them: a typo, and somebody
+     real who simply isn't a friend. Telling him which one saves a
+     conversation he shouldn't have to have with a database. */
+  const [strangers, setStrangers] = useState({});   // handle -> true if real
+  useEffect(() => {
+    const need = unmatched.filter((h) => !(h in strangers));
+    if (!need.length) return;
+    let alive = true;
+    supabase.from('public_profiles').select('handle').in('handle', need)
+      .then(({ data }) => {
+        if (!alive) return;
+        const real = new Set((data || []).map((r) => r.handle.toLowerCase()));
+        setStrangers((s) => {
+          const next = { ...s };
+          for (const h of need) next[h] = real.has(h.toLowerCase());
+          return next;
+        });
+      });
+    return () => { alive = false; };
+  }, [unmatched.join('|')]);
   const tagged = mentions.map((m) => m.handle);
 
   /* The Facebook menu — null most of the time, which is the point. */
@@ -917,22 +940,31 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
 
         {/* Who this post will actually tag. ⚠️ Only shown once there is
             something to say — no empty chrome sitting under the box. */}
-        {(mentions.length > 0 || ambiguous.length > 0) && (
+        {(mentions.length > 0 || ambiguous.length > 0 || unmatched.length > 0) && (
           <div className="ctags">
             {mentions.map((m) => (
               <span className="tagok" key={m.handle}>@{m.label}</span>
             ))}
             {ambiguous.map((a) => (
-              <span className="tagno" key={a}>@{a}</span>
+              <span className="tagno" key={'amb-' + a}>@{a}</span>
+            ))}
+            {unmatched.map((u) => (
+              <span className="tagno" key={'un-' + u}>@{u}</span>
             ))}
             <span className="tagwhy">
               {anon
                 ? 'an anonymous post can’t tag anyone'
                 : ambiguous.length
-                  /* 🔴 Two friends with the same name. We refuse to guess
-                     rather than tag the wrong person — see lib/mentions.js. */
                   ? 'more than one friend has that name — use their @handle'
-                  : mentions.length === 1 ? 'will be tagged' : 'will be tagged'}
+                  : unmatched.length
+                    /* ⚠️ Two different failures, said differently. "Not a
+                       friend" is a thing you can fix by sending a request;
+                       "nobody by that name" is a typo. Collapsing them into
+                       one message makes both unactionable. */
+                    ? (unmatched.some((u) => strangers[u])
+                        ? 'not on your friends list yet — you can only tag friends'
+                        : 'nobody here goes by that — check the spelling')
+                    : 'will be tagged'}
             </span>
           </div>
         )}

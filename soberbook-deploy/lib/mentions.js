@@ -101,7 +101,28 @@ export function findMentions(text, index) {
   /* One tag per person however many times you wrote them. */
   const seen = new Set();
   const unique = found.filter((m) => (seen.has(m.handle) ? false : seen.add(m.handle)));
-  return { found: unique, spans: found, ambiguous: [...new Set(ambiguous)] };
+
+  /* 🔴 @WORDS THAT MATCHED NOBODY.
+     Ty typed "@jordancruz" — a typo for @jordanxcruz, who is also not one
+     of his friends — and got total silence: nothing blue, nothing said, no
+     reason to think anything was wrong until he checked the database.
+
+     ⚠️ That is precisely the failure this design was supposed to prevent.
+     A handle that looks fine and quietly does nothing is worse than a
+     refusal, because a refusal at least tells you where you stand. */
+  const unmatched = [];
+  const RAW = /(^|[^\w@])@([A-Za-z0-9_]{2,30})/g;
+  let r;
+  while ((r = RAW.exec(text)) !== null) {
+    const word = r[2];
+    const at = r.index + r[1].length;
+    const covered = found.some((m) => at >= m.start && at < m.end);
+    if (!covered) unmatched.push(word);
+  }
+
+  return { found: unique, spans: found,
+           ambiguous: [...new Set(ambiguous)],
+           unmatched: [...new Set(unmatched)] };
 }
 
 /* ---------------------------------------------------------------------
