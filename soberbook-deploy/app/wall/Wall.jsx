@@ -196,6 +196,24 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
 
      🔴 remove_my_tag() takes only a post id. There is no "who"
      parameter, so it can only ever remove YOUR tag. */
+  /* An edit coming back from the menu (0070).
+
+     ⚠️ Applied to state directly rather than re-reading the wall. The
+     drops lesson: waiting on a server round trip is how a change looks
+     like it did nothing for a second and a half, and the person who just
+     made it is the one person who cannot see it worked.
+
+     ⚠️ edited_at is set here only when there ARE replies, matching what
+     the database does. Two places computing it is the drift this codebase
+     keeps getting bitten by — but the database is authoritative and the
+     next real load corrects anything this gets wrong. */
+  function applyEdit(postId, body, audience) {
+    setPosts((list) => list.map((p) => (p.id !== postId ? p : {
+      ...p, body, audience,
+      edited_at: p.comment_count > 0 ? new Date().toISOString() : p.edited_at,
+    })));
+  }
+
   async function untag(postId) {
     setTags((t) => ({
       ...t,
@@ -1319,8 +1337,13 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
                 {p.audience === 'friends' && (
                   <span className="mine aud">friends only</span>
                 )}
+                {/* ⭐ The mark, and it only ever appears on a post whose
+                    replies came BEFORE the edit. A badge on every edited
+                    post would make the badge meaningless, and then the one
+                    that matters would be invisible too. */}
+                {p.edited_at && <span className="mine edited">edited</span>}
                 <button className="dots"
-                        aria-label={p.is_mine ? 'Delete this post' : 'Report or block'}
+                        aria-label={p.is_mine ? 'Edit or delete this post' : 'Report or block'}
                         onClick={() => setMenu(p)}>⋯</button>
               </div>
             </article>
@@ -1352,6 +1375,7 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
           post={menu}
           onClose={() => setMenu(null)}
           onBlocked={refresh}
+          onEdited={applyEdit}
         />
       )}
     </>

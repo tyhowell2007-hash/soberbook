@@ -531,3 +531,18 @@
 .atopt b { font-weight: 600; }
 .atopt span { opacity: .5; font-size: 12.5px; }
 .atopt.on, .atopt:hover { background: rgba(37, 99, 235, .08); }
+
+/* ---- editing a post (0070) ---- */
+.editbox {
+  width: 100%; box-sizing: border-box;
+  border: 1px solid rgba(0,0,0,.18); border-radius: 8px;
+  padding: 11px 12px; font: inherit; font-size: 16px; /* ⚠️ 16px or iOS zooms the page on focus */
+  line-height: 1.5; resize: vertical; margin-bottom: 10px;
+}
+.editaud {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 14px; margin: 2px 0 12px; cursor: pointer;
+}
+/* ⚠️ Quiet on purpose. It is a fact about the post, not a warning about
+   the person — an "edited" badge that shouts reads as an accusation. */
+.edited { opacity: .5; font-style: italic; }
