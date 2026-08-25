@@ -90,7 +90,24 @@ export default function ContentCard({ item, thumbBase, canHide = false, pinned =
     } catch { setMenu('asking'); }
   }
 
-  const thumb = item.thumb_path ? `${thumbBase}/${item.thumb_path}` : null;
+  /* ⭐ A LEADING SLASH MEANS "WE MADE THIS OURSELVES".
+
+     Every YouTube thumbnail is copied into our Supabase bucket, because
+     rendering one from i.ytimg.com makes a member's browser call Google
+     just by scrolling. A picture is a request too.
+
+     A card image we DREW — like the OCAAR one — is already sitting in
+     this app's own public/ folder. Serving it from there is our own
+     origin: no third party, nothing to leak, and no upload step. So a
+     thumb_path starting with / is used as-is.
+
+     ⚠️ This is not a hole in the no-hotlinking rule. It only matches
+     paths beginning with a slash, which cannot name another host — an
+     absolute URL like https://evil.example/x.jpg starts with 'h' and
+     falls through to being treated as a bucket key, where it 404s. */
+  const thumb = !item.thumb_path ? null
+    : item.thumb_path.startsWith('/') ? item.thumb_path
+    : `${thumbBase}/${item.thumb_path}`;
 
   /* ---- a flyer, not a video (0071) ----
 
