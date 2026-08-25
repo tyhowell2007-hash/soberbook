@@ -91,13 +91,71 @@ export function fairOrder(items = []) {
    it out to decide sizing — computing it twice is two implementations of
    one rule, and the second one drifts. (0046 → 0049, three times now.)
    ===================================================================== */
+/* =====================================================================
+   PINNED TO THE TOP (0072).
+
+   Ty, Aug 25: "everything i give you to post, make sure it starts at the
+   beginning of the feed. it still not working."
+
+   ⭐ HE WAS RIGHT AND IT WASN'T A BUG. The OCAAR card rendered perfectly
+   — at article 4, 1,524 pixels down. Three screens on a phone. It existed
+   and he had never seen it, and from where he sits those are the same
+   thing. The lesson is older than this file: something built with no way
+   to reach it is not built.
+
+   ---------------------------------------------------------------------
+   🔴 THE PIN DOES NOT GET TO BREAK RULE 1.
+
+   Rule 1 says a card never sits directly above the post the wall has
+   promoted for being unanswered, because that is the exact moment the
+   only mechanic this app has is doing its job. A pin is a card that goes
+   ABOVE EVERYTHING, so if the promoted post happens to be first, the pin
+   would land on top of it — rule 1 broken by a feature that never
+   mentions rule 1.
+
+   So the pin slides to second place in that one case. One line, below.
+
+   ⚠️ AND THE PIN IS OUTSIDE THE RATIO. It doesn't consume a rotation
+   slot and doesn't reset the counter, because it isn't part of the
+   turn-taking — it's one thing Ty put there on purpose. If it counted,
+   posting a flyer would silently delete one YouTube card from the wall.
+
+   🔴 AT MOST ONE, EVER. Newest pin wins; anything else that is pinned
+   falls back into ordinary rotation rather than vanishing. A stack of
+   pinned org notices at the top of a recovery feed is a noticeboard, and
+   this is not a noticeboard.
+   ===================================================================== */
+export function pickPin(content = []) {
+  const pinned = content.filter((c) => c.pinned_at);
+  if (!pinned.length) return null;
+  return pinned.reduce((newest, c) =>
+    new Date(c.pinned_at) > new Date(newest.pinned_at) ? c : newest
+  );
+}
+
 export function mixFeed(posts = [], content = [], { every = EVERY, lonelyId = null } = {}) {
+  /* Taken out of the pool first so it can't also appear further down. */
+  const pin = pickPin(content);
+  content = pin ? content.filter((c) => c.id !== pin.id) : content;
+
   const queue = fairOrder(content);
   const out = [];
   let sincePost = 0;
 
+  /* 🔴 Rule 1, applied to the pin. If the very first post is the one
+     waiting to be answered, the pin waits one place. Everywhere else it
+     is genuinely first. */
+  const pinGoesFirst = pin && !(posts[0] && posts[0].id === lonelyId);
+  if (pinGoesFirst) out.push({ type: 'content', item: pin, pinned: true });
+
   for (let i = 0; i < posts.length; i++) {
     out.push({ type: 'post', post: posts[i] });
+    /* The displaced pin, placed after the promoted post rather than on
+       top of it. ⚠️ Also guarded so it can't land on a second post if the
+       wall is somehow empty above. */
+    if (pin && !pinGoesFirst && i === 0) {
+      out.push({ type: 'content', item: pin, pinned: true });
+    }
     sincePost++;
 
     if (sincePost < every || !queue.length) continue;
