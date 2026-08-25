@@ -107,29 +107,56 @@ export default function ContentCard({ item, thumbBase, canHide = false }) {
   const when = item.event_at ? new Date(item.event_at) : null;
 
   if (isFlyer) {
+    /* 🔴 A CARD BUILT AROUND A PICTURE, WITH NO PICTURE, IS A 102px
+       SLIVER. That is exactly what shipped: the link wrapped only the
+       source label, so the area a thumb naturally goes for was empty and
+       the title underneath was not a link at all.
+
+       ⭐ So the whole card is the link, and it works with or without a
+       flyer. An item with no image gets a text card that still reads like
+       something you can tap; an item with one gets the poster. */
     return (
-      <article className="cc ccflyer">
+      <article className={'cc ccflyer' + (thumb ? '' : ' ccnoimg')}>
         <a href={item.url} target="_blank" rel="noopener noreferrer"
            /* ⚠️ no-referrer, same as every outbound link here: elsewhere
               the referrer is a statistic, here it tells a stranger's logs
               that the visitor is in recovery. */
            referrerPolicy="no-referrer" className="ccflyerlink">
-          {thumb && (
-            /* eslint-disable-next-line @next/next/no-img-element */
-            <img className="ccflyerimg" src={thumb} alt={item.title} loading="lazy" />
-          )}
-          <span className="ccmeta ccflyermeta">
-            <span className="ccsrc">{item.source_label}</span>
-            {when && (
-              <span className="cccat">
-                {when.toLocaleDateString(undefined,
-                  { weekday: 'short', month: 'short', day: 'numeric' })}
+          {thumb ? (
+            <>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img className="ccflyerimg" src={thumb} alt={item.title} loading="lazy" />
+              <span className="ccmeta ccflyermeta">
+                <span className="ccsrc">{item.source_label}</span>
+                {when && (
+                  <span className="cccat">
+                    {when.toLocaleDateString(undefined,
+                      { weekday: 'short', month: 'short', day: 'numeric' })}
+                  </span>
+                )}
               </span>
-            )}
-          </span>
+            </>
+          ) : (
+            /* No flyer: a plain, obviously-tappable card. ⚠️ The source and
+               date move INTO the flow rather than floating over an image
+               that isn't there. */
+            <span className="ccnoimgtop">
+              <span className="ccsrc">{item.source_label}</span>
+              {when && (
+                <span className="cccat">
+                  {when.toLocaleDateString(undefined,
+                    { weekday: 'short', month: 'short', day: 'numeric' })}
+                </span>
+              )}
+            </span>
+          )}
+          <span className="ccflyertitle">{item.title}</span>
+          {item.place && <span className="ccplace">{item.place}</span>}
+          <span className="ccnote">opens {(() => {
+            try { return new URL(item.url).hostname.replace(/^www\./, ''); }
+            catch { return 'a link'; }
+          })()} ↗</span>
         </a>
-        <p className="ccbelow">{item.title}</p>
-        {item.place && <p className="ccplace">{item.place}</p>}
         {canHide && (
           <div className="cchide">
             {menu === 'asking' ? (

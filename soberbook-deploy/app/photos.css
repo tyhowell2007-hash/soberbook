@@ -565,3 +565,27 @@
 .ccplace {
   margin: 2px 0 0; font-size: 13px; opacity: .6;
 }
+
+/* ---- a flyer card with NO flyer (0071 fix) ----
+   🔴 The first version wrapped only the source label in the link, so a
+   card with no image was a 102px sliver whose tappable area was invisible.
+   Now the whole card is the link. */
+.ccflyer .ccflyerlink {
+  display: block; text-decoration: none; color: inherit;
+  position: relative;
+}
+.ccnoimg .ccflyerlink {
+  border: 1px solid rgba(0,0,0,.14);
+  border-radius: 12px;
+  padding: 14px 16px;
+  background: var(--card, #fff);
+}
+.ccnoimgtop { display: flex; gap: 8px; align-items: center; margin-bottom: 6px; }
+.ccflyertitle {
+  display: block; font-size: 16px; font-weight: 600; line-height: 1.35;
+  margin: 6px 0 2px;
+}
+.ccflyer .ccplace { display: block; margin: 2px 0 0; font-size: 13px; opacity: .6; }
+.ccflyer .ccnote  { display: block; margin: 8px 0 0; font-size: 12px; opacity: .5; }
+/* With an image the meta floats over it, as before. */
+.ccflyer:not(.ccnoimg) .ccflyertitle { margin-top: 8px; }
