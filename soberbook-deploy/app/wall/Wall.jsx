@@ -242,7 +242,11 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
      One shared implementation, so the menu, the blue and the tag that
      gets written can never disagree about who was meant. */
   const index = buildIndex(friends);
-  const { found: mentions, ambiguous, unmatched } = findMentions(text, index);
+  /* ⚠️ Defaults on the destructure as well as inside findMentions. The
+     white screen came from unmatched being undefined on an empty box —
+     one guard is a fix, two is a fix that survives somebody editing the
+     other file. */
+  const { found: mentions = [], ambiguous = [], unmatched = [] } = findMentions(text, index) || {};
 
   /* 🔴 WHY an @word didn't tag — the thing that was missing.
      Ty typed @jordancruz and got silence. Two different reasons look
