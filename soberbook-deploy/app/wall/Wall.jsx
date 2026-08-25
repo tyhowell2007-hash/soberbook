@@ -10,6 +10,7 @@ import PhotoUpload from '../components/PhotoUpload';
 import { Body, Player } from '../components/Linked';
 import { fetchPreviews, PREVIEW_COUNT } from '../../lib/previews';
 import { fetchDrops } from '../../lib/drops';
+import { fetchTags, attachTags } from '../../lib/tags';
 import { mixFeed } from '../../lib/mix';
 import ContentCard from '../components/ContentCard';
 import DropCard from '../components/DropCard';
@@ -113,7 +114,7 @@ function who(p) {
    renders if it's ever mounted without it — a missing name should cost
    you a greeting, never a blank page. */
 export default function Wall({ initial, me = { name: null, avatar: null, handle: null }, mark = null,
-                               photoUrls = {}, previews = {},
+                               photoUrls = {}, previews = {}, tags: tags0 = {},
                                content = [], thumbBase = '',
                                drops = {}, dropUrls = {}, canHide = false }) {
   const router = useRouter();
@@ -131,6 +132,10 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
      re-reading posts — so a record you just put out appeared as a post
      with no poster on it. That was the "it never showed up" bug. */
   const [recs, setRecs] = useState(drops);
+  /* ⚠️ STATE, not a prop. The drops bug: a prop only refreshes when
+     the whole server page re-renders, so a tag added a second ago
+     wouldn't appear until a full reload. */
+  const [tags, setTags] = useState(tags0);
   const [text, setText] = useState('');
   const [anon, setAnon] = useState(false);
   /* 'open' | 'friends'. Resets to open after every post — a sticky
@@ -161,6 +166,48 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
      0065 — the database refuses an eleventh, and a UI that lets somebody
      pick eleven is a UI that produces a constraint error at Post time,
      several minutes after the choice was made. */
+  /* ---- tagging a friend (0067) ----
+
+     ⭐ A LIST YOU PICK FROM, not a box you type a name into. The database
+     refuses a tag on anyone who isn't a friend, so free text would mean
+     somebody types a name, posts, and finds out afterwards it didn't
+     take. Offering only the people who CAN be tagged means the refusal
+     never has to happen.
+
+     ⚠️ The picker is a convenience. The lock is mentions_guard() in the
+     database — this list is not what makes the rule true. */
+  const [tagOpen, setTagOpen] = useState(false);
+  const [friends, setFriends] = useState([]);
+  const [tagged, setTagged] = useState([]);   // handles
+
+  /* Taking your own name off somebody else's post.
+
+     ⚠️ Optimistic, unlike block (which deliberately waits for the
+     database, because a block that only LOOKS like it worked is
+     dangerous). This is the milder case — the worst outcome of being
+     wrong is a name reappearing on the next refresh, and the person is
+     standing right there watching. Making them wait on a round trip to
+     remove their own name from a post reads as the button not working.
+
+     🔴 remove_my_tag() takes only a post id. There is no "who"
+     parameter, so it can only ever remove YOUR tag. */
+  async function untag(postId) {
+    setTags((t) => ({
+      ...t,
+      [postId]: (t[postId] || []).filter((x) => !x.is_me),
+    }));
+    await supabase.rpc('remove_my_tag', { p_post: postId });
+  }
+
+  async function openTags() {
+    setTagOpen((v) => !v);
+    if (friends.length) return;
+    /* my_friends() already returns handles and display names — the friends
+       page uses the identical call. No new query for this. */
+    const { data } = await supabase.rpc('my_friends');
+    setFriends(data || []);
+  }
+
   const MAX_PHOTOS = 10;
   const photos = media.filter((m) => !m.isVideo);
   const video  = media.find((m) => m.isVideo) || null;
@@ -214,6 +261,13 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
     const next = !anon;
     if (next && media.length) { setMedia([]); setPhotoDropped(true); }
     else setPhotoDropped(false);
+    /* 🔴 THE TAGS GO TOO, and this is the sharpest of the three.
+       0067 refuses a tag on an anonymous post outright — "@handle was
+       using last night" from an account with no name attached is the
+       worst thing this app could carry. Without this the chips would
+       merely HIDE while the handles stayed in state, and the tag attempt
+       would fail seconds after the choice was made. */
+    if (next) { setTagged([]); setTagOpen(false); }
     /* ⚠️ THE RECORD GOES TOO, and for the same reason the photo does.
        0058 refuses an anonymous drop outright — a release is credited work
        by definition. Without this the chip merely HIDES while `rec` stays
@@ -326,6 +380,7 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
          on the page. A heart is optimistic precisely because it must
          cost nothing. */
       setConvo(await fetchPreviews(supabase, data.map((p) => p.id)));
+      setTags(await fetchTags(supabase, data.map((p) => p.id)));
       const freshDrops = await fetchDrops(supabase, data.map((p) => p.id));
       setRecs(freshDrops);
       signMissing(Object.values(freshDrops).map((d) => ({
@@ -525,11 +580,29 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
           .insert({ post_id: postId, ...rec });
         if (dErr) throw new Error(dErr.message);
       }
+
+      /* 🔴 TAGS LAST, AND THEY CANNOT LOSE THE POST.
+         Unlike the drop above — which throws, because a record that
+         didn't attach is a broken promise — a tag that fails is a name
+         that didn't stick. The post is already saved and is still worth
+         having, so this reports rather than throws.
+         ⚠️ anon is checked here as well as in toggleAnon: somebody can
+         tag friends, then tap anonymous, and state resets are easy to
+         get wrong. The database would refuse anyway; this stops us
+         asking it to. */
+      if (!anon && tagged.length) {
+        const { refused } = await attachTags(supabase, postId, tagged);
+        if (refused.length) {
+          setPostErr(`Posted, but couldn’t tag ${refused.map((h) => '@' + h).join(', ')}.`);
+        }
+      }
       setText('');
       setRec(null);
       setRecDropped(false);
       setMedia([]);
       setPhotoDropped(false);
+      setTagged([]);
+      setTagOpen(false);
       setAudience('open');
       // re-read through the VIEW, never the base table
       const { data } = await supabase
@@ -738,6 +811,53 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
           </p>
         )}
 
+        {/* ---- tagging a friend (0067) ----
+            ⚠️ ABSENT when anonymous, not disabled — the same reasoning as
+            the camera. A greyed-out "tag" is an invitation to work out
+            how to enable it, and the answer would be "stop being
+            anonymous". Nobody gets nudged toward that trade by chrome. */}
+        {!anon && (
+          <div className="ctags">
+            <button type="button" className="tagbtn" onClick={openTags}
+                    aria-expanded={tagOpen} disabled={busy}>
+              {tagged.length ? `Tagged ${tagged.length}` : '＠ Tag a friend'}
+            </button>
+
+            {tagged.map((h) => (
+              <span className="tagchip" key={h}>
+                @{h}
+                <button type="button" aria-label={`Untag ${h}`} disabled={busy}
+                        onClick={() => setTagged((t) => t.filter((x) => x !== h))}>×</button>
+              </span>
+            ))}
+
+            {tagOpen && (
+              <div className="taglist">
+                {/* ⭐ Only friends appear, because only friends can be
+                    tagged. The list IS the rule, made visible. */}
+                {friends.length === 0 ? (
+                  <p className="tagnone">
+                    You can only tag friends, and you haven’t got any yet.
+                    {' '}<Link href="/friends">Find some</Link>.
+                  </p>
+                ) : friends.map((f) => {
+                  const on = tagged.includes(f.handle);
+                  return (
+                    <button type="button" key={f.handle}
+                            className={'tagopt' + (on ? ' on' : '')}
+                            aria-pressed={on}
+                            onClick={() => setTagged((t) =>
+                              on ? t.filter((x) => x !== f.handle) : [...t, f.handle])}>
+                      {f.display_name || f.handle}
+                      <span>@{f.handle}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        )}
+
         {uploading && <p className="canon-note">Adding it…</p>}
         {postErr && <p className="phserr" role="alert">{postErr}</p>}
 
@@ -930,6 +1050,29 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
                   here now. ⚠️ Nothing loads until somebody taps — see
                   components/Linked.jsx. */}
               {p.body && !recs[p.id] ? <Player text={p.body} /> : null}
+
+              {/* ---- who's tagged (0067) ----
+                  ⚠️ "with" rather than "tagged": the word tagged belongs
+                  to a scrapbook. This line usually means somebody was
+                  there, and reading "with Nic and Dave" is how a person
+                  would actually say it.
+                  🔴 The × only appears on YOUR OWN tag — is_me comes from
+                  the view, so this component never compares ids. */}
+              {(tags[p.id] || []).length > 0 && (
+                <p className="ptags">
+                  <span className="ptagw">with</span>
+                  {(tags[p.id] || []).map((t) => (
+                    <span className="ptag" key={t.handle}>
+                      <Link href={`/u/${t.handle}`}>@{t.handle}</Link>
+                      {t.is_me && (
+                        <button type="button" aria-label="Take my name off this post"
+                                title="Take my name off this post"
+                                onClick={() => untag(p.id)}>×</button>
+                      )}
+                    </span>
+                  ))}
+                </p>
+              )}
 
               {/* ⚠️ `p.photo_url` is null on every anonymous post because
                   feed_posts nulls it — this does not need, and must not

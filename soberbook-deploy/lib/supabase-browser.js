@@ -43,6 +43,12 @@ export const READABLE_VIEWS = [
      media_path as NULL before release. Reading `drops` directly would
      hand every unreleased master's file path to any signed-in member. */
   'feed_drops',
+  /* post_tags — who is tagged on a post (0067). Safe for the same reason
+     as the rest: it never exposes a base table. Reading post_mentions
+     directly would hand back tags somebody has REMOVED from themselves,
+     and tags on posts the reader cannot see — the view drops both, and
+     asks post_visible() rather than restating the audience rule. */
+  'post_tags',
   /* open_meeting_rooms — meetings members are holding here (0052).
      Safe to read for the same reason meeting_attendance is: it never
      exposes a base table. It joins profiles itself and hands back a

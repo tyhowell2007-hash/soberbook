@@ -442,3 +442,68 @@
 @media (max-width: 380px) {
   .pgrid { gap: 2px; }
 }
+
+/* =====================================================================
+   TAGGING A FRIEND (0067).
+
+   ⚠️ In photos.css, not wall.css, for the same reason the photo grid is —
+   wall.css is 71KB and failed three consecutive uploads on Aug 23.
+   ===================================================================== */
+
+/* ---- on a post ---- */
+.ptags {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 6px;
+  margin: 8px 0 0; font-size: 13px;
+}
+/* ⭐ "with", not "tagged". The word tagged belongs to a scrapbook; this
+   line usually means somebody was there, and "with Nic and Dave" is how
+   a person would actually say it out loud. */
+.ptagw { opacity: .55; }
+.ptag { display: inline-flex; align-items: center; gap: 3px; }
+.ptag a { text-decoration: none; font-weight: 600; opacity: .85; }
+.ptag a:hover { text-decoration: underline; opacity: 1; }
+/* ⚠️ 28px, not the 44px the post footer uses. This one is deliberately
+   small: it appears only on YOUR OWN tag, it is not a thing anybody
+   reaches for daily, and a big × next to somebody's name reads like a
+   way to remove THEM. */
+.ptag button {
+  border: 0; background: none; cursor: pointer; padding: 0 4px;
+  min-width: 28px; min-height: 28px; font-size: 15px; line-height: 1;
+  opacity: .45;
+}
+.ptag button:hover { opacity: 1; }
+
+/* ---- in the composer ---- */
+.ctags { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 8px 0 0; }
+.tagbtn {
+  border: 1px solid rgba(0,0,0,.18); background: none; cursor: pointer;
+  border-radius: 999px; padding: 5px 11px; font-size: 13px; min-height: 32px;
+}
+.tagchip {
+  display: inline-flex; align-items: center; gap: 2px;
+  background: rgba(0,0,0,.05); border-radius: 999px;
+  padding: 4px 4px 4px 10px; font-size: 13px;
+}
+.tagchip button {
+  border: 0; background: none; cursor: pointer;
+  min-width: 26px; min-height: 26px; font-size: 15px; line-height: 1; opacity: .5;
+}
+.tagchip button:hover { opacity: 1; }
+
+/* ⚠️ Capped and scrollable rather than growing without limit. At six
+   members it is three rows; at six hundred an uncapped list would push
+   the Post button off the bottom of the phone. */
+.taglist {
+  flex-basis: 100%; max-height: 230px; overflow-y: auto;
+  border: 1px solid rgba(0,0,0,.12); border-radius: 8px; margin-top: 4px;
+}
+.tagopt {
+  display: flex; align-items: baseline; gap: 8px; width: 100%;
+  border: 0; border-bottom: 1px solid rgba(0,0,0,.06); background: none;
+  cursor: pointer; text-align: left; padding: 10px 12px; min-height: 44px;
+  font-size: 14px;
+}
+.tagopt:last-child { border-bottom: 0; }
+.tagopt span { opacity: .5; font-size: 12px; }
+.tagopt.on { background: rgba(0,0,0,.06); font-weight: 600; }
+.tagnone { padding: 12px; font-size: 13px; opacity: .7; margin: 0; }
