@@ -64,7 +64,16 @@ export function buildIndex(friends) {
 export function findMentions(text, index) {
   const found = [];      // { label, handle, start, end }
   const ambiguous = [];  // labels matching more than one friend
-  if (!text || !index) return { found, ambiguous };
+
+  /* 🔴 EVERY KEY, EVERY TIME. This early return used to hand back
+     { found, ambiguous } and nothing else — so on an empty composer
+     `unmatched` was undefined, and the caller's unmatched.filter() threw
+     and took the whole wall down with a white screen.
+
+     ⚠️ The tests never caught it because every case had text in them. A
+     function with two exits must return the same SHAPE from both, or the
+     rarely-taken one is a trapdoor. */
+  if (!text || !index) return { found, spans: [], ambiguous, unmatched: [] };
 
   const lower = text.toLowerCase();
   let i = 0;
