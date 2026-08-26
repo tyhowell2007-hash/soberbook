@@ -273,7 +273,7 @@ export default async function ProfilePage({ params }) {
                 {t.video_url && photos[t.video_url] && (
                   <div className="mphoto">
                     <video src={photos[t.video_url]} controls playsInline
-                           preload="metadata" />
+                           preload="none" />
                   </div>
                 )}
                 <div className="mm">

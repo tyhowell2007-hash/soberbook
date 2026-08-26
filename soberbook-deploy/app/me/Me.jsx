@@ -1348,7 +1348,7 @@ export default function Me({ email, profile, posts, initialAvatarUrl,
                 {p.video_url && postPhotoUrls[p.video_url] && (
                   <div className="mphoto">
                     <video src={postPhotoUrls[p.video_url]} controls playsInline
-                           preload="metadata" />
+                           preload="none" />
                   </div>
                 )}
                 <div className="mm">

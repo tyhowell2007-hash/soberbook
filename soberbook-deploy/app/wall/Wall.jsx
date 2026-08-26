@@ -900,7 +900,18 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
                  should not start talking at you in a quiet room while
                  you're deciding whether to send it. `playsInline` stops
                  iOS from throwing it fullscreen the moment it's touched,
-                 which loses you the composer you were standing in. */
+                 which loses you the composer you were standing in.
+
+                 ⚠️ preload="metadata" HERE AND NOWHERE ELSE. `m.preview` is
+                 a LOCAL object URL — the file is already on this phone, so
+                 reading its first frame costs no bandwidth. Every other
+                 <video> in the app points at Supabase and uses "none".
+
+                 ⚠️ Aug 26: a blind find-and-replace changed this one too
+                 while fixing the egress problem. Build stayed green and it
+                 silently removed the first frame from the thing you check
+                 before posting. A mechanical edit does not know what a
+                 string MEANS. */
               <video src={m.preview} controls playsInline preload="metadata" />
             ) : (
               <img src={m.preview}
@@ -1274,15 +1285,24 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
                   off switch sits under the song. This is a feed you're
                   moving through.)
 
-                  `preload="metadata"` fetches the first few bytes only, so
-                  the frame and duration are right without pulling tens of
-                  megabytes down a phone connection for a video nobody
-                  taps. `playsInline` keeps it in the feed on iOS instead
-                  of hijacking the whole screen. */}
+                  🔴 `preload="none"` — CHANGED FROM "metadata" ON Aug 26.
+                  Cached egress hit 159% of the free tier: 8GB served from
+                  113MB of files. "metadata" made every browser fetch the
+                  header of every video on the wall on every load, and
+                  because the signed URL was different each time, none of it
+                  was ever cached.
+
+                  ⚠️ The honest cost: no first frame and no duration until
+                  somebody presses play — a black rectangle with controls.
+                  That is a real downgrade and it is worth it. A video nobody
+                  watches should cost nothing at all.
+
+                  `playsInline` keeps it in the feed on iOS instead of
+                  hijacking the whole screen. */}
               {p.video_url && urlFor(p.video_url) && (
                 <div className="pphoto pvideo">
                   <video src={urlFor(p.video_url)} controls playsInline
-                         preload="metadata" />
+                         preload="none" />
                 </div>
               )}
 
