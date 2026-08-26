@@ -124,3 +124,80 @@ self.addEventListener('fetch', (event) => {
     }).catch(() => hit))
   );
 });
+
+/* =====================================================================
+   A BUZZ IN YOUR POCKET  (0073).
+
+   Ty, Aug 25: "if a user on soberbook gets notification can we make it so
+   your phone gets a notification?"
+
+   ---------------------------------------------------------------------
+   🔴 EVERYTHING THIS SHOWS IS A CONSTANT. NOTHING COMES OFF THE WIRE.
+
+   The payload the server sends is a single uuid and a destination path.
+   There is no name in it, no words from the post, and not even which kind
+   of thing happened — so there is nothing here that COULD leak, however
+   this file is edited later.
+
+   Why: a notification lands on a LOCK SCREEN. Face up on a break-room
+   table, in front of a partner who doesn't know, on a phone a parole
+   officer or a parent can see. "Jacobycurry96 replied to your post: man
+   that hit home, I was four months in when—" is this app outing somebody
+   who came here specifically so they would never have to explain
+   themselves. That is the day-count-badge risk from
+   `[C] Building for Women.md` with a vibration attached.
+
+   Ty was shown both versions and chose this one.
+
+   ⚠️ IF SOMEBODY LATER "IMPROVES" THIS BY PUTTING THE HANDLE IN THE BODY,
+   they will have to add it to the server payload too — which is the
+   second lock. Both were built that way on purpose.
+   ===================================================================== */
+
+self.addEventListener('push', (event) => {
+  /* ⚠️ A push with no data at all is legal and does happen — some
+     services wake a worker with an empty body. Falling over here would
+     mean a silent dead notification, so it degrades to the same text. */
+  let to = '/wall';
+  try {
+    const d = event.data ? event.data.json() : {};
+    /* Only a path is accepted, and only one that starts with a single
+       slash. ⚠️ Without this check a payload could carry
+       "https://somewhere-else" and the notification would become a link
+       out of the app — a phishing surface aimed at people in recovery. */
+    if (typeof d.to === 'string' && /^\/[A-Za-z0-9/_-]*$/.test(d.to)) to = d.to;
+  } catch { /* keep the default */ }
+
+  event.waitUntil(
+    self.registration.showNotification('Sober Book', {
+      body: 'Somebody answered you.',
+      icon: '/icon-192.png',
+      badge: '/icon-192.png',
+      /* ⚠️ One tag, so a second notification REPLACES the first rather
+         than stacking. Waking up to eleven separate buzzes from a
+         conversation that happened while you slept is the thing every
+         other app does and the thing this one shouldn't. */
+      tag: 'soberbook',
+      renotify: false,
+      data: { to },
+    })
+  );
+});
+
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  const to = (event.notification.data && event.notification.data.to) || '/wall';
+  event.waitUntil((async () => {
+    const all = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
+    /* If the app is already open somewhere, go to that window rather than
+       opening a second copy. */
+    for (const c of all) {
+      if (c.url.includes(self.location.origin)) {
+        await c.focus();
+        if ('navigate' in c) { try { await c.navigate(to); } catch {} }
+        return;
+      }
+    }
+    await self.clients.openWindow(to);
+  })());
+});
