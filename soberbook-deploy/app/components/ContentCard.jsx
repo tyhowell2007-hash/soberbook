@@ -105,8 +105,9 @@ export default function ContentCard({ item, thumbBase, canHide = false, pinned =
      paths beginning with a slash, which cannot name another host — an
      absolute URL like https://evil.example/x.jpg starts with 'h' and
      falls through to being treated as a bucket key, where it 404s. */
+  const ourArt = !!item.thumb_path && item.thumb_path.startsWith('/');
   const thumb = !item.thumb_path ? null
-    : item.thumb_path.startsWith('/') ? item.thumb_path
+    : ourArt ? item.thumb_path
     : `${thumbBase}/${item.thumb_path}`;
 
   /* ---- a flyer, not a video (0071) ----
@@ -148,15 +149,34 @@ export default function ContentCard({ item, thumbBase, canHide = false, pinned =
             <>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img className="ccflyerimg" src={thumb} alt={item.title} loading="lazy" />
-              <span className="ccmeta ccflyermeta">
-                <span className="ccsrc">{item.source_label}</span>
-                {when && (
-                  <span className="cccat">
-                    {when.toLocaleDateString(undefined,
-                      { weekday: 'short', month: 'short', day: 'numeric' })}
-                  </span>
-                )}
-              </span>
+              {/* 🔴 THE OVERLAY IS SKIPPED ON ARTWORK WE MADE OURSELVES.
+
+                  It prints the source and the date over the top-left and
+                  top-right of the picture. On a flyer somebody emailed us
+                  that is the only thing saying who it's from. On a card we
+                  drew, the name is already set 56px on an acid slab — so
+                  the overlay stamped a second faint "OCAAR" over the first
+                  one, and dropped the date chip in the top-right corner,
+                  which is exactly where the QR code is.
+
+                  ⚠️ A label sitting on a QR is not cosmetic. Scanners need
+                  the quiet zone and the finder pattern clean; that chip
+                  covers one of the three corner squares. It looked like a
+                  design nit and it was a broken scan.
+
+                  Same test as the image source: a leading slash means we
+                  drew it, so it already carries its own branding. */}
+              {!ourArt && (
+                <span className="ccmeta ccflyermeta">
+                  <span className="ccsrc">{item.source_label}</span>
+                  {when && (
+                    <span className="cccat">
+                      {when.toLocaleDateString(undefined,
+                        { weekday: 'short', month: 'short', day: 'numeric' })}
+                    </span>
+                  )}
+                </span>
+              )}
             </>
           ) : (
             /* No flyer: a plain, obviously-tappable card. ⚠️ The source and
