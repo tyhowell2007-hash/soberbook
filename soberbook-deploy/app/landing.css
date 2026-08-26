@@ -169,3 +169,10 @@
   .lp-h1{ font-size:31px; }
   .lp-h2{ font-size:26px; }
 }
+
+/* ---- "send it again", Aug 26 ----
+   ⚠️ A quiet link, deliberately not a second big button. The big button is
+   what four people pressed twice this morning. */
+.lp-link{background:none;border:0;padding:0;font:inherit;color:inherit;
+  text-decoration:underline;cursor:pointer}
+.lp-link:disabled{opacity:.5;cursor:default}

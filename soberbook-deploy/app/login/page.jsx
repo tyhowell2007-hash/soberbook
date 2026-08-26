@@ -65,26 +65,73 @@ export default function Landing() {
   const [busy, setBusy]       = useState('');
   const [err, setErr]         = useState('');
   const [note, setNote]       = useState('');
+  /* The address we just sent a confirmation to, if any. */
+  const [sent, setSent]       = useState('');
 
   /* ⚠️ ONE ERROR TRANSLATOR, SHARED. Two copies would drift, and what
      would drift is the rule about never confirming who has an account —
      a safety rule, not a copy preference. */
   function humanise(e) {
     const m = String(e.message || '');
-    return m === 'Invalid login credentials'
-        ? "That email and password don't match."
-      : /already registered|already been registered/i.test(m)
-        ? 'There’s already an account on that email. Sign in above, or use '
-          + '“I forgot my password”.'
-      : /rate limit|too many/i.test(m)
-        ? 'Too many tries in a row. Give it a few minutes and go again.'
-      : /password/i.test(m) && /short|least|weak/i.test(m)
-        ? 'Passwords need to be at least 8 characters.'
-      /* Catch-all. Nobody is shown a database sentence — the Aug 6
-         block-RPC leak quoted an author_id back to a caller with no
-         account, and an error message is an output channel. */
-      : 'Something went wrong on our end, not yours. Try once more, and '
-        + 'if it keeps happening tell Ty.';
+    const code = String(e.code || e.error_code || '');
+
+    /* 🔴 THE BUG THAT SENT PEOPLE TO TY, FOUND Aug 26 IN THE LIVE AUTH LOGS.
+
+       This used to test for the words "rate limit" or "too many". Supabase
+       does not say either of those. It says:
+
+         "For security purposes, you can only request this after 55 seconds."
+
+       So a 429 fell straight through to the catch-all and told somebody
+       whose account had been created perfectly that the app was broken and
+       to go and tell Ty.
+
+       ⭐ THE SHAPE OF IT: sign up → email is slow or lands in spam → press
+       the button again → get told it failed. Four people hit this in one
+       morning. Five people are stranded at the door against ten members.
+
+       ⚠️ MATCH ON THE CODE FIRST, then the text. `over_email_send_rate_limit`
+       and `email_not_confirmed` are stable identifiers; the English is
+       marketing copy that Supabase can reword whenever it likes — which is
+       exactly how this broke. Text matching stays as a fallback for older
+       clients, but it is the belt, not the braces. */
+
+    // ---- you already asked; it's coming ----
+    if (code === 'over_email_send_rate_limit'
+        || /only request this after/i.test(m)
+        || /rate limit|too many/i.test(m)) {
+      /* ⭐ NOT AN ERROR MESSAGE. Their account exists and the email is on
+         its way — telling them "something went wrong" is simply false. */
+      return "You've already asked — it's on its way. Give it a minute and "
+           + 'check your email, spam folder included.';
+    }
+
+    // ---- signed up, hasn't clicked the link yet ----
+    if (code === 'email_not_confirmed' || /email not confirmed/i.test(m)) {
+      return 'Almost — click the link in the email we sent you first, then '
+           + 'come back and sign in. It hides in spam more often than not.';
+    }
+
+    if (m === 'Invalid login credentials') return "That email and password don't match.";
+
+    if (/already registered|already been registered/i.test(m)) {
+      return 'There\u2019s already an account on that email. Sign in above, or use '
+           + '\u201CI forgot my password\u201D.';
+    }
+
+    if (/password/i.test(m) && /short|least|weak/i.test(m)) {
+      return 'Passwords need to be at least 8 characters.';
+    }
+
+    /* Catch-all. Nobody is shown a database sentence — the Aug 6 block-RPC
+       leak quoted an author_id back to a caller with no account, and an
+       error message is an output channel.
+
+       ⚠️ It still mentions Ty, and that is fine HERE: by this point we
+       genuinely don't know what happened. The failure was that four
+       ordinary, expected situations were reaching this line. */
+    return 'Something went wrong on our end, not yours. Try once more, and '
+         + 'if it keeps happening tell Ty.';
   }
 
   async function signIn(e) {
@@ -106,6 +153,12 @@ export default function Landing() {
     try {
       const { error } = await supabase.auth.signUp({ email: upEmail, password: upPw });
       if (error) throw error;
+      /* ⚠️ `sent` is separate from `note` because it changes the SHAPE of
+         the form, not just the text above it. Somebody who has just signed
+         up should not be looking at a Sign up button any more — that button
+         is what they press again, and pressing it again is what produced
+         the 429 that told them the app was broken. */
+      setSent(upEmail);
       setNote('Check your email to confirm, then come back and sign in above. '
             + 'Look in spam too — it hides there more often than not.');
     } catch (e2) { setErr(humanise(e2)); }
@@ -193,6 +246,50 @@ export default function Landing() {
 
             {/* ---------- NEW HERE, directly underneath ---------- */}
             <div className="lp-card lp-new">
+
+              {/* 🔴 AFTER SIGNING UP, THE SIGN-UP BUTTON GOES AWAY.
+
+                  Found Aug 26 in the live auth logs. The old page left the
+                  form exactly as it was and put a note underneath. So the
+                  sequence was: create account → email is slow or in spam →
+                  press the same button again → 429 → "something went wrong,
+                  tell Ty". Four people in one morning, on an account that
+                  had been created perfectly.
+
+                  ⭐ The fix isn't better error copy, it's removing the thing
+                  they press. You cannot get the rate-limit error from a
+                  button that isn't there.
+
+                  ⚠️ "Send it again" is still offered, because the email
+                  genuinely does go missing — but it's a quiet link rather
+                  than the big green button, and if they hit the limit the
+                  message now tells them the truth. */}
+              {sent ? (
+                <>
+                  <h2>Check your email</h2>
+                  <p className="lp-said">
+                    We sent a confirmation link to <strong>{sent}</strong>.
+                    Click it, then come back and sign in above.
+                  </p>
+                  <p className="lp-said">
+                    <strong>Look in your spam folder.</strong> It lands there
+                    more often than not — and it&rsquo;s from Sober Book.
+                  </p>
+                  <button className="lp-go" type="button" disabled={!!busy}
+                          onClick={() => { setSent(''); setNote(''); setErr(''); }}>
+                    Use a different email
+                  </button>
+                  <p className="lp-fineprint">
+                    Didn&rsquo;t arrive after a few minutes?{' '}
+                    <button type="button" className="lp-link"
+                            disabled={!!busy}
+                            onClick={(ev) => { setUpEmail(sent); signUp(ev); }}>
+                      Send it again
+                    </button>
+                  </p>
+                </>
+              ) : (
+              <>
               <h2>New here?</h2>
               <p className="lp-said">
                 Make an account and you’re in. Takes a minute, and you can be
@@ -220,6 +317,8 @@ export default function Landing() {
                 Your email is never shown to another member. Ever. Not a
                 treatment centre, and nobody sells your information.
               </p>
+              </>
+              )}
             </div>
 
             {err && <div className="lp-err" role="alert">{err}</div>}
