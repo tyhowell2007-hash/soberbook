@@ -10,6 +10,7 @@ import Milestones from '../components/Milestones';
 import { dayCount, startsInDays } from '../../lib/milestones';
 import PhotoUpload from '../components/PhotoUpload';
 import DeleteAccount from './DeleteAccount';
+import PushSwitch from '../components/PushSwitch';
 
 /* The faces you can pick from.
 
@@ -1262,6 +1263,15 @@ export default function Me({ email, profile, posts, initialAvatarUrl,
               Sign-out lives in settings now rather than on the page you land
               on. It is the one control here you can't undo by tapping again,
               and it does not belong next to your own face. */}
+        </Section>
+        {/* ⭐ ITS OWN SECTION, ABOVE Account. Notifications are a thing you
+            decide about your phone, not an account setting — and burying
+            it under 🔑 would be the same mistake as sign-out being three
+            steps deep (Aug 23). ⚠️ It renders nothing at all while it's
+            working out what the phone supports, so there is never a
+            control that flickers or lies about its state. */}
+        <Section title="🔔 Notifications">
+          <PushSwitch />
         </Section>
         <Section title="🔑 Account">
           <p className="hint">Signed in as {email}</p>

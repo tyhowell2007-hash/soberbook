@@ -599,3 +599,10 @@
   margin: 0 0 6px; font-size: 11px; letter-spacing: .08em;
   text-transform: uppercase; opacity: .55;
 }
+
+/* ---- buzz my phone (0073) ---- */
+.pushbox { border-top: 1px solid rgba(0,0,0,.12); margin-top: 22px; padding-top: 18px; }
+.pushh   { margin: 0 0 6px; font-size: 16px; }
+.pushp   { margin: 0 0 12px; font-size: 14px; line-height: 1.5; opacity: .8; }
+.pushwhy { margin: 10px 0 0; font-size: 13px; line-height: 1.5; opacity: .75; }
+.pushon  { margin: 0 0 10px; font-size: 14px; font-weight: 600; }
