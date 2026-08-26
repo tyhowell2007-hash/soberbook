@@ -688,6 +688,25 @@ export default function Me({ email, profile, posts, initialAvatarUrl,
 
                 ⚠️ Calls the SAME signOut() as the settings one, so there is
                 no second implementation to drift. Two buttons, one door. */}
+            {/* 🔴 AND I PUT THIS ONE BEHIND THE PENCIL TOO — an hour after
+                writing the note above about why that was wrong.
+
+                The switch shipped inside a <Section>, which only renders
+                in the settings panel. Three steps deep, identical to
+                sign-out on Aug 23, ninth instance this month. Caught by
+                loading the live page and finding .pushbox simply absent —
+                the build was green the whole time.
+
+                ⚠️ ONE COPY, on the read view. The settings version was
+                DELETED rather than left alongside: two mounts of a control
+                that asks the browser for permission would let somebody
+                grant it in one place and see the other still saying "off".
+
+                It sits above sign-out for the same reason sign-out sits
+                last — this is a thing you decide about your phone, not
+                about your account. */}
+            <PushSwitch />
+
             <div className="meout">
               <button className={'btn out' + (confirmOut ? ' arm' : '')} type="button"
                       disabled={busy} onClick={signOut}>
@@ -1263,15 +1282,6 @@ export default function Me({ email, profile, posts, initialAvatarUrl,
               Sign-out lives in settings now rather than on the page you land
               on. It is the one control here you can't undo by tapping again,
               and it does not belong next to your own face. */}
-        </Section>
-        {/* ⭐ ITS OWN SECTION, ABOVE Account. Notifications are a thing you
-            decide about your phone, not an account setting — and burying
-            it under 🔑 would be the same mistake as sign-out being three
-            steps deep (Aug 23). ⚠️ It renders nothing at all while it's
-            working out what the phone supports, so there is never a
-            control that flickers or lies about its state. */}
-        <Section title="🔔 Notifications">
-          <PushSwitch />
         </Section>
         <Section title="🔑 Account">
           <p className="hint">Signed in as {email}</p>
