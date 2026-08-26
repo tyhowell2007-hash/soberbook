@@ -54,6 +54,23 @@ const TTL = 3600;
    OFTEN we mint them, never how long they last.
    ===================================================================== */
 
+/* ⚠️ RAISED FROM 60 WHEN POSTS COULD CARRY TEN PHOTOS (0065).
+
+   A wall renders up to 60 posts. At one photo each, 60 was plenty. At ten
+   each it is a tenth of what a full page can ask for — and the failure is
+   the bad kind: `.slice()` drops the overflow silently, so pictures would
+   simply not appear, with no error anywhere to notice.
+
+   ⚠️ It is still a cap, not a promise. It bounds one signing request so a
+   crafted page can't ask us to mint ten thousand URLs.
+
+   🔴 Aug 26: this declaration was DELETED by accident — a text replacement
+   that swallowed the comment above it took the const with it. `next build`
+   passed clean, because an undefined identifier is a RUNTIME error, and
+   the live wall 500'd for every member for seven minutes. A green build
+   proves it compiles. Nothing more. */
+const MAX = 400;
+
 /* Retired ten minutes early — a URL handed out at the last second would
    be dead by the time the picture loaded. */
 const REUSE_MS = (TTL - 600) * 1000;
