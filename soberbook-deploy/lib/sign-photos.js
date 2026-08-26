@@ -23,67 +23,66 @@ const TTL = 3600;
 /* =====================================================================
    🔴 REUSE THE SIGNED URL. A FRESH ONE EVERY RENDER IS UNCACHEABLE.
 
-   Found Aug 26 while chasing a Supabase "exceeding usage limits" warning.
+   Aug 26. Supabase cached egress hit **7.963 GB of a 5 GB free tier —
+   159%** — from 113 MB of stored files. The same pictures going out
+   roughly seventy times over.
 
-   createSignedUrls() mints a NEW token every time it's called, so the same
-   photo came back as a different URL on every single wall load. A browser
-   cannot use its cache for a URL it has never seen — so every member
-   re-downloaded every avatar, every post photo and every video header,
-   from Supabase, every time they opened Home. Nothing was ever served
-   from cache. Not once.
+   createSignedUrls() mints a NEW token every call, so a photo came back
+   as a different URL on every wall load. A browser cannot use its cache
+   for a URL it has never seen. Nothing was ever served from cache.
 
-   ⭐ The content cards already got this right by accident: their
-   thumbnails come from a PUBLIC bucket, so the URL is stable and the
-   browser caches it forever. That's the behaviour we want — without
-   making these buckets public, because private is the whole point (0022:
-   no client policies at all, GPS destroyed server-side).
+   ⭐ The content cards had this right by accident all along: their
+   thumbnails sit in a PUBLIC bucket, so the URL never changes and the
+   browser caches it forever. This gives private photos the same benefit
+   without making any bucket public — 0022 gave these buckets no client
+   policies at all, on purpose.
 
-   ⚠️ THE TTL IS DELIBERATELY UNCHANGED. The obvious "fix" is a longer
-   expiry, and it's the wrong one: a signed URL is a capability, and
-   anybody who gets hold of one can open a member's photo until it
-   expires. An hour is the exposure Ty already accepted. This changes how
-   OFTEN we mint them, not how long they last.
+   ⚠️ THE FIRST ATTEMPT WAS AN IN-MEMORY Map AND IT FAILED IN PRODUCTION.
+   Three loads, three signings instead of nine, byte-identical URLs — the
+   logic was right. Then live, the URLs still changed every render,
+   because **Vercel throws that memory away between requests.** The test
+   exercised the logic and said nothing about the environment. Same shape
+   as the Aug 25 SQL probe that passed while the app kept failing:
+   testing the wrong layer.
 
-   ⚠️ In-memory, so it dies with the serverless instance and is never a
-   source of truth — a miss just costs one signing call, which is what
-   happened on every request before. It cannot serve a URL to somebody who
-   shouldn't have one either: permission is decided BEFORE this point, by
-   the views, and only paths already in `allowed` ever reach here.
+   So the cache is in Postgres (0078), where it survives instances,
+   regions and deploys.
+
+   ⚠️ THE TOKEN LIFETIME IS UNCHANGED. The obvious fix is a longer expiry
+   and it is the wrong one: a signed URL is a capability, and anyone
+   holding it can open a member's photo until it dies. This changes how
+   OFTEN we mint them, never how long they last.
    ===================================================================== */
-const SIGN_CACHE = new Map();          // path -> { url, until }
 
-/* ⚠️ Retired well before the token actually expires. A URL handed out at
-   the last second would be useless by the time the picture loaded. */
-const REUSE_MS = (TTL - 600) * 1000;   // 50 minutes of a 60 minute token
+/* Retired ten minutes early — a URL handed out at the last second would
+   be dead by the time the picture loaded. */
+const REUSE_MS = (TTL - 600) * 1000;
 
-function cachedUrl(path) {
-  const hit = SIGN_CACHE.get(path);
-  if (hit && hit.until > Date.now()) return hit.url;
-  if (hit) SIGN_CACHE.delete(path);
-  return null;
+async function readCache(admin, paths) {
+  const out = {};
+  if (!paths.length) return out;
+  const { data, error } = await admin
+    .from('signed_url_cache')
+    .select('path, url')
+    .in('path', paths)
+    .gt('good_until', new Date().toISOString());
+  /* ⚠️ Fails OPEN, deliberately. If the cache is unreadable we sign
+     everything and the page still works — a slow wall beats a wall with
+     no pictures. The cache is an optimisation, never a dependency. */
+  if (error) return out;
+  (data || []).forEach((r) => { out[r.path] = r.url; });
+  return out;
 }
 
-function remember(path, url) {
-  /* Bounded, so a long-lived instance can't grow forever. Oldest out
-     first — Map keeps insertion order. */
-  if (SIGN_CACHE.size > 2000) {
-    for (const k of SIGN_CACHE.keys()) { SIGN_CACHE.delete(k); if (SIGN_CACHE.size <= 1500) break; }
-  }
-  SIGN_CACHE.set(path, { url, until: Date.now() + REUSE_MS });
+async function writeCache(admin, minted) {
+  if (!minted.length) return;
+  const until = new Date(Date.now() + REUSE_MS).toISOString();
+  try {
+    await admin.rpc('remember_signed_urls', {
+      p: minted.map(({ path, url }) => ({ path, url, until })),
+    });
+  } catch { /* see above — never let bookkeeping break a render */ }
 }
-
-/* ⚠️ RAISED FROM 60 WHEN POSTS COULD CARRY TEN PHOTOS (0065).
-
-   A wall renders up to 60 posts. At one photo each, 60 was plenty. At ten
-   each it is a tenth of what a full page can ask for — and the failure is
-   the bad kind: `.slice()` drops the overflow silently, so pictures would
-   simply not appear, with no error anywhere to notice.
-
-   ⚠️ It is still a cap, not a promise. It bounds one signing request so a
-   crafted page can't ask us to mint ten thousand URLs. If a page ever
-   legitimately needs more than this, the fix is to sign per-post on
-   demand — not to delete the number. */
-const MAX = 400;
 
 export async function signPhotoPaths(supabase, wanted) {
   /* No key, no signed links — but the page still renders. See the note on
@@ -194,22 +193,24 @@ export async function signPhotoPaths(supabase, wanted) {
     const paths = [...allowed].filter((p) => p.startsWith(prefix));
     if (!paths.length) continue;
 
-    /* Serve what we already minted; only sign what we haven't. On a warm
-       instance a repeat wall load signs NOTHING and every picture comes
-       out of the browser's cache. */
+    /* Serve what was already minted; sign only what's missing. A repeat
+       wall load signs NOTHING and every picture comes out of the browser's
+       cache, because the URL is the same one it saw last time. */
+    const known = await readCache(admin, paths);
     const missing = [];
     for (const p of paths) {
-      const hit = cachedUrl(p);
-      if (hit) urls[p] = hit; else missing.push(p);
+      if (known[p]) urls[p] = known[p]; else missing.push(p);
     }
     if (!missing.length) continue;
 
     const { data } = await admin.storage.from(bucket).createSignedUrls(missing, TTL);
+    const minted = [];
     (data || []).forEach((r) => {
       if (!r.signedUrl) return;
       urls[r.path] = r.signedUrl;
-      remember(r.path, r.signedUrl);
+      minted.push({ path: r.path, url: r.signedUrl });
     });
+    await writeCache(admin, minted);
   }
 
   return urls;
