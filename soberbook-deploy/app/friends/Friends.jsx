@@ -3,6 +3,13 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { browserClient } from '../../lib/supabase-browser';
+/* ⭐ The SAME component the Chat tab uses. One implementation, two
+   mounts — see the note in page.jsx. Its base styles live in
+   wall.css, which the ROOT layout imports, so it is already loaded
+   here. (Checked, rather than assumed — the Aug 19 rule about a
+   stylesheet needing the right layout applies to per-route sheets,
+   and this one isn't.) */
+import Directory from '../chat/Directory';
 
 /* =====================================================================
    YOUR PEOPLE — sorted by silence.
@@ -76,7 +83,7 @@ function Row({ p, warm }) {
   );
 }
 
-export default function Friends({ initialFriends, initialRequests }) {
+export default function Friends({ initialFriends, initialRequests, everyone = [] }) {
   const supabase = browserClient();
   const [friends] = useState(initialFriends || []);
   const [reqs, setReqs] = useState(initialRequests || []);
@@ -131,16 +138,16 @@ export default function Friends({ initialFriends, initialRequests }) {
         </>
       )}
 
+      {/* ⚠️ THIS USED TO SAY "Nobody yet." AND STOP.
+
+          It was true about your friends list and a lie about the room —
+          there were six other people the whole time. One line now, and it
+          points DOWN the page instead of off it. */}
       {friends.length === 0 && (
-        <div className="frempty">
-          <h2>Nobody yet.</h2>
-          <p>
-            Find someone you’ve talked to on the wall and ask. This page
-            works better the fewer people are on it — it’s for keeping up
-            with people, not collecting them.
-          </p>
-          <Link href="/find" className="btn">Find someone</Link>
-        </div>
+        <p className="hint frnone">
+          No friends yet — that&apos;s fine. Everybody on Sober Book is
+          below; say hi to anyone.
+        </p>
       )}
 
       {/* ---- the point of the page ---- */}
@@ -194,6 +201,25 @@ export default function Friends({ initialFriends, initialRequests }) {
           Sorted by who you haven’t talked to longest. Only you see this order.
         </p>
       )}
+
+      {/* ---- EVERYBODY ----
+          Last, deliberately. Your people and the person you haven't heard
+          from in a fortnight come first — that ordering is the whole spin
+          of this page and everybody-in-the-room doesn't get to outrank it.
+
+          ⚠️ No presence dots here either. The Aug 16 refusal was about the
+          chat directory and it travels with the component: a green dot
+          says not just who is vulnerable but when they are awake and
+          alone. Every signal on these rows — "new here", "Posted today",
+          the chip — comes from something the person chose to do in
+          public. */}
+      {everyone.length > 0 && (
+        <>
+          <h2 className="frsec">Everybody on Sober Book</h2>
+          <Directory members={everyone} />
+        </>
+      )}
+
     </div>
   );
 }
