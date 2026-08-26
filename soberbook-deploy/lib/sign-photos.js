@@ -20,6 +20,58 @@ import { adminClient, adminConfigured } from './supabase-admin';
 
 const TTL = 3600;
 
+/* =====================================================================
+   🔴 REUSE THE SIGNED URL. A FRESH ONE EVERY RENDER IS UNCACHEABLE.
+
+   Found Aug 26 while chasing a Supabase "exceeding usage limits" warning.
+
+   createSignedUrls() mints a NEW token every time it's called, so the same
+   photo came back as a different URL on every single wall load. A browser
+   cannot use its cache for a URL it has never seen — so every member
+   re-downloaded every avatar, every post photo and every video header,
+   from Supabase, every time they opened Home. Nothing was ever served
+   from cache. Not once.
+
+   ⭐ The content cards already got this right by accident: their
+   thumbnails come from a PUBLIC bucket, so the URL is stable and the
+   browser caches it forever. That's the behaviour we want — without
+   making these buckets public, because private is the whole point (0022:
+   no client policies at all, GPS destroyed server-side).
+
+   ⚠️ THE TTL IS DELIBERATELY UNCHANGED. The obvious "fix" is a longer
+   expiry, and it's the wrong one: a signed URL is a capability, and
+   anybody who gets hold of one can open a member's photo until it
+   expires. An hour is the exposure Ty already accepted. This changes how
+   OFTEN we mint them, not how long they last.
+
+   ⚠️ In-memory, so it dies with the serverless instance and is never a
+   source of truth — a miss just costs one signing call, which is what
+   happened on every request before. It cannot serve a URL to somebody who
+   shouldn't have one either: permission is decided BEFORE this point, by
+   the views, and only paths already in `allowed` ever reach here.
+   ===================================================================== */
+const SIGN_CACHE = new Map();          // path -> { url, until }
+
+/* ⚠️ Retired well before the token actually expires. A URL handed out at
+   the last second would be useless by the time the picture loaded. */
+const REUSE_MS = (TTL - 600) * 1000;   // 50 minutes of a 60 minute token
+
+function cachedUrl(path) {
+  const hit = SIGN_CACHE.get(path);
+  if (hit && hit.until > Date.now()) return hit.url;
+  if (hit) SIGN_CACHE.delete(path);
+  return null;
+}
+
+function remember(path, url) {
+  /* Bounded, so a long-lived instance can't grow forever. Oldest out
+     first — Map keeps insertion order. */
+  if (SIGN_CACHE.size > 2000) {
+    for (const k of SIGN_CACHE.keys()) { SIGN_CACHE.delete(k); if (SIGN_CACHE.size <= 1500) break; }
+  }
+  SIGN_CACHE.set(path, { url, until: Date.now() + REUSE_MS });
+}
+
 /* ⚠️ RAISED FROM 60 WHEN POSTS COULD CARRY TEN PHOTOS (0065).
 
    A wall renders up to 60 posts. At one photo each, 60 was plenty. At ten
@@ -141,8 +193,23 @@ export async function signPhotoPaths(supabase, wanted) {
                                   ['drops',       'drops/']]) {
     const paths = [...allowed].filter((p) => p.startsWith(prefix));
     if (!paths.length) continue;
-    const { data } = await admin.storage.from(bucket).createSignedUrls(paths, TTL);
-    (data || []).forEach((r) => { if (r.signedUrl) urls[r.path] = r.signedUrl; });
+
+    /* Serve what we already minted; only sign what we haven't. On a warm
+       instance a repeat wall load signs NOTHING and every picture comes
+       out of the browser's cache. */
+    const missing = [];
+    for (const p of paths) {
+      const hit = cachedUrl(p);
+      if (hit) urls[p] = hit; else missing.push(p);
+    }
+    if (!missing.length) continue;
+
+    const { data } = await admin.storage.from(bucket).createSignedUrls(missing, TTL);
+    (data || []).forEach((r) => {
+      if (!r.signedUrl) return;
+      urls[r.path] = r.signedUrl;
+      remember(r.path, r.signedUrl);
+    });
   }
 
   return urls;
