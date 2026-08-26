@@ -61,9 +61,28 @@ export default function PushSwitch() {
         setState('unsupported'); return;
       }
       if (Notification.permission === 'denied') { setState('blocked'); return; }
+
+      /* 🔴 "ON" MEANS THE SERVER HAS THIS DEVICE — NOT THAT THE BROWSER
+         SUBSCRIBED.
+
+         The first version asked only the browser. On Aug 26 that produced
+         a switch reading "Turn it off" while push_subscriptions was
+         completely empty: the browser had a subscription from a failed
+         attempt, the row had never saved, and the control cheerfully
+         insisted notifications were working. A subscription the server
+         has never seen receives nothing, forever.
+
+         ⚠️ Both have to agree. A browser subscription the database
+         doesn't know about is treated as OFF, so tapping the button
+         re-registers it instead of doing nothing. */
       const reg = await navigator.serviceWorker.getRegistration();
       const sub = reg ? await reg.pushManager.getSubscription() : null;
-      setState(sub ? 'on' : 'off');
+      if (!sub) { setState('off'); return; }
+
+      const supabase = browserClient();
+      const { data: rows } = await supabase
+        .from('push_subscriptions').select('id').eq('endpoint', sub.endpoint).limit(1);
+      setState(rows && rows.length ? 'on' : 'off');
     })();
   }, []);
 
@@ -92,12 +111,23 @@ export default function PushSwitch() {
       /* ⭐ Straight into the table, no API route. RLS already says a row
          must carry your own id, so the database is the check — a route
          would just be a second place to get that wrong. */
+      /* ⚠️ `failures` is NOT sent, and its absence is the point.
+
+         It used to be here as `failures: 0` and it cost an hour: the
+         column grant covers the four credential columns, and a
+         column-level grant refuses the WHOLE statement if one column
+         isn't in it. The error is the same unhelpful "permission denied
+         for table push_subscriptions" whether one column is missing or
+         every column is — so each fix looked like it had failed.
+
+         It defaults to 0 on insert, and the send route resets it after a
+         successful delivery. The browser has no business writing the
+         server's own bookkeeping. */
       const { error } = await supabase.from('push_subscriptions').upsert({
         user_id: user.id,
         endpoint: j.endpoint,
         p256dh: j.keys.p256dh,
         auth: j.keys.auth,
-        failures: 0,
       }, { onConflict: 'endpoint' });
       if (error) throw error;
       setState('on');
@@ -108,6 +138,11 @@ export default function PushSwitch() {
   }
 
   async function turnOff() {
+    /* ⚠️ Clear the last failure before trying again. A message from a
+       previous attempt sitting under a button you just pressed reads as a
+       fresh failure — it sent me chasing a bug that was already fixed
+       twice tonight. */
+    setWhy('');
     setState('busy');
     try {
       const reg = await navigator.serviceWorker.getRegistration();
