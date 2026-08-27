@@ -155,7 +155,24 @@ export function unlockFromGesture() {
     blessed = true;              // optimistic; the catch below undoes it
     if (p && p.then) {
       p.then(() => { try { a.pause(); a.currentTime = 0; } catch {} notify(); })
-       .catch(() => { blessed = false; notify(); });
+       .catch((e) => {
+         /* 🔴 AN ABORT IS NOT A REFUSAL — IT IS THE OPPOSITE.
+            Caught Aug 26 by watching real play() calls: tapping ▶ makes the
+            unlock and the song race for the SAME element, the song's src
+            assignment counts as "a new load request", and that aborts the
+            silent play still in flight:
+
+              play()  src=data:audio/wav      ← unlock
+              play()  src=…apple.com/…m4a     ← the song
+              REJECTED  AbortError: interrupted by a new load request
+
+            Treating that as failure set `blessed = false` — so the very act
+            of pressing play un-blessed the element, and on iOS the next
+            profile would then be skipped as "never unlocked." The element
+            was played. It IS blessed. Only a real refusal un-blesses. */
+         if (e && e.name === 'AbortError') { notify(); return; }
+         blessed = false; notify();
+       });
     } else {
       try { a.pause(); } catch {}
       notify();
