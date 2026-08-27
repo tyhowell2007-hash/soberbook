@@ -101,14 +101,17 @@ export default async function ProfilePage({ params }) {
      exactly this reason. The null IS the rule. */
   const { data: theirPosts } = await supabase
     .from(assertReadable('feed_posts'))
-    .select('id, body, photo_url, video_url, created_at, like_count, comment_count')
+    .select('id, body, photo_url, photo_urls, video_url, created_at, like_count, comment_count')
     .eq('author_handle', p.handle)
     .order('created_at', { ascending: false })
     .limit(30);
 
   const photos = await signPhotoPaths(supabase, [
     ...(p.display_avatar_photo ? [p.display_avatar_photo] : []),
-    ...(theirPosts || []).flatMap((x) => [x.photo_url, x.video_url]),
+    /* ⚠️ Spread photo_urls in (0065) — otherwise photos 2..10 are never
+       signed and render as broken frames on somebody else's profile. */
+    ...(theirPosts || []).flatMap((x) => [
+      ...(Array.isArray(x.photo_urls) ? x.photo_urls : []), x.photo_url, x.video_url]),
   ]);
   const facePhoto = photos[p.display_avatar_photo] || null;
 
@@ -246,7 +249,23 @@ export default async function ProfilePage({ params }) {
             {theirPosts.map((t) => (
               <li key={t.id}>
                 {t.body ? <p className="mb">{t.body}</p> : null}
-                {t.photo_url && photos[t.photo_url] && (
+                {/* ⚠️ 0065: several photos become a grid, one stays exactly
+                    as it was. Same rule as the wall — see app/photos.css. */}
+                {(() => {
+                  const shots = (Array.isArray(t.photo_urls) && t.photo_urls.length
+                    ? t.photo_urls : []).filter((s) => photos[s]);
+                  if (shots.length < 2) return null;
+                  return (
+                    <div className="pgrid" data-n={Math.min(shots.length, 4)}>
+                      {shots.map((s, i) => (
+                        <img key={s} src={photos[s]} loading="lazy"
+                             alt={`Photo ${i + 1} of ${shots.length}`} />
+                      ))}
+                    </div>
+                  );
+                })()}
+                {(!Array.isArray(t.photo_urls) || t.photo_urls.length < 2)
+                  && t.photo_url && photos[t.photo_url] && (
                   <div className="mphoto">
                     <img src={photos[t.photo_url]} alt="" loading="lazy" />
                   </div>
@@ -254,7 +273,7 @@ export default async function ProfilePage({ params }) {
                 {t.video_url && photos[t.video_url] && (
                   <div className="mphoto">
                     <video src={photos[t.video_url]} controls playsInline
-                           preload="metadata" />
+                           preload="none" />
                   </div>
                 )}
                 <div className="mm">

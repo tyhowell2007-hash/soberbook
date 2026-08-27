@@ -57,7 +57,7 @@ const CHIP = {
   talk:     'talk',
 };
 
-export default function ContentCard({ item, thumbBase, canHide = false }) {
+export default function ContentCard({ item, thumbBase, canHide = false, pinned = false }) {
   const router = useRouter();
   const [on, setOn] = useState(false);
   /* null | 'asking' | 'busy' | 'gone' */
@@ -90,7 +90,133 @@ export default function ContentCard({ item, thumbBase, canHide = false }) {
     } catch { setMenu('asking'); }
   }
 
-  const thumb = item.thumb_path ? `${thumbBase}/${item.thumb_path}` : null;
+  /* ⭐ A LEADING SLASH MEANS "WE MADE THIS OURSELVES".
+
+     Every YouTube thumbnail is copied into our Supabase bucket, because
+     rendering one from i.ytimg.com makes a member's browser call Google
+     just by scrolling. A picture is a request too.
+
+     A card image we DREW — like the OCAAR one — is already sitting in
+     this app's own public/ folder. Serving it from there is our own
+     origin: no third party, nothing to leak, and no upload step. So a
+     thumb_path starting with / is used as-is.
+
+     ⚠️ This is not a hole in the no-hotlinking rule. It only matches
+     paths beginning with a slash, which cannot name another host — an
+     absolute URL like https://evil.example/x.jpg starts with 'h' and
+     falls through to being treated as a bucket key, where it 404s. */
+  const ourArt = !!item.thumb_path && item.thumb_path.startsWith('/');
+  const thumb = !item.thumb_path ? null
+    : ourArt ? item.thumb_path
+    : `${thumbBase}/${item.thumb_path}`;
+
+  /* ---- a flyer, not a video (0071) ----
+
+     🔴 WITHOUT THIS, A FLYER RENDERED A PLAY BUTTON THAT DID NOTHING.
+     The card's whole structure is `on && embed_id ? <iframe> : <play>`, so
+     an item with no embed_id showed the button, set on=true when tapped,
+     failed the second half of the condition, and drew the button again.
+     A control that visibly does nothing, forever.
+
+     ⚠️ An event also carries things a podcast episode never does — a date
+     and a place — and both matter before somebody decides to go. Goodale
+     Park is two hours from Cadiz. */
+  const isFlyer = !item.embed_id;
+  const when = item.event_at ? new Date(item.event_at) : null;
+
+  if (isFlyer) {
+    /* 🔴 A CARD BUILT AROUND A PICTURE, WITH NO PICTURE, IS A 102px
+       SLIVER. That is exactly what shipped: the link wrapped only the
+       source label, so the area a thumb naturally goes for was empty and
+       the title underneath was not a link at all.
+
+       ⭐ So the whole card is the link, and it works with or without a
+       flyer. An item with no image gets a text card that still reads like
+       something you can tap; an item with one gets the poster. */
+    return (
+      <article className={'cc ccflyer' + (thumb ? '' : ' ccnoimg') + (pinned ? ' ccpin' : '')}>
+        {/* ⚠️ The pin SAYS it is pinned. A thing sitting above everybody's
+            posts with no explanation reads as the feed being broken or as
+            an ad that snuck in. One word, in small caps, and it is the
+            same word Ty would use. */}
+        {pinned && <p className="ccpinlabel">Pinned by Sober Book</p>}
+        <a href={item.url} target="_blank" rel="noopener noreferrer"
+           /* ⚠️ no-referrer, same as every outbound link here: elsewhere
+              the referrer is a statistic, here it tells a stranger's logs
+              that the visitor is in recovery. */
+           referrerPolicy="no-referrer" className="ccflyerlink">
+          {thumb ? (
+            <>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img className="ccflyerimg" src={thumb} alt={item.title} loading="lazy" />
+              {/* 🔴 THE OVERLAY IS SKIPPED ON ARTWORK WE MADE OURSELVES.
+
+                  It prints the source and the date over the top-left and
+                  top-right of the picture. On a flyer somebody emailed us
+                  that is the only thing saying who it's from. On a card we
+                  drew, the name is already set 56px on an acid slab — so
+                  the overlay stamped a second faint "OCAAR" over the first
+                  one, and dropped the date chip in the top-right corner,
+                  which is exactly where the QR code is.
+
+                  ⚠️ A label sitting on a QR is not cosmetic. Scanners need
+                  the quiet zone and the finder pattern clean; that chip
+                  covers one of the three corner squares. It looked like a
+                  design nit and it was a broken scan.
+
+                  Same test as the image source: a leading slash means we
+                  drew it, so it already carries its own branding. */}
+              {!ourArt && (
+                <span className="ccmeta ccflyermeta">
+                  <span className="ccsrc">{item.source_label}</span>
+                  {when && (
+                    <span className="cccat">
+                      {when.toLocaleDateString(undefined,
+                        { weekday: 'short', month: 'short', day: 'numeric' })}
+                    </span>
+                  )}
+                </span>
+              )}
+            </>
+          ) : (
+            /* No flyer: a plain, obviously-tappable card. ⚠️ The source and
+               date move INTO the flow rather than floating over an image
+               that isn't there. */
+            <span className="ccnoimgtop">
+              <span className="ccsrc">{item.source_label}</span>
+              {when && (
+                <span className="cccat">
+                  {when.toLocaleDateString(undefined,
+                    { weekday: 'short', month: 'short', day: 'numeric' })}
+                </span>
+              )}
+            </span>
+          )}
+          <span className="ccflyertitle">{item.title}</span>
+          {item.place && <span className="ccplace">{item.place}</span>}
+          <span className="ccnote">opens {(() => {
+            try { return new URL(item.url).hostname.replace(/^www\./, ''); }
+            catch { return 'a link'; }
+          })()} ↗</span>
+        </a>
+        {canHide && (
+          <div className="cchide">
+            {menu === 'asking' ? (
+              <>
+                <button type="button" onClick={() => hide('item')}>Hide this one</button>
+                <button type="button" onClick={() => hide('source')}>Stop {item.source_label}</button>
+                <button type="button" className="ccx" onClick={() => setMenu(null)}>Cancel</button>
+              </>
+            ) : (
+              <button type="button" onClick={() => setMenu('asking')} disabled={menu === 'busy'}>
+                {menu === 'busy' ? 'Taking it down…' : 'Take this down'}
+              </button>
+            )}
+          </div>
+        )}
+      </article>
+    );
+  }
 
   /* ⚠️ Says what happened rather than vanishing. A card that silently
      disappears on tap leaves you unsure whether you hit the right thing —

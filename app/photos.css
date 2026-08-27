@@ -384,3 +384,225 @@
 .frconfirm .frrow{ display:flex; gap:8px; }
 .frconfirm .btn{ width:auto; margin:0; }
 .frconfirm .btn.danger{ border-color:#8A2B2B; color:#6B1F1F; }
+
+/* =====================================================================
+   MORE THAN ONE PICTURE (0065).
+
+   ⚠️ Lives here and not in wall.css on purpose. wall.css is 71KB and
+   failed to upload on three consecutive deploys on Aug 23 — the largest
+   file in app/ is the one GitHub's folder-drag gives up on. photos.css
+   is 15KB and already imported wherever .pphoto is used.
+
+   ⭐ A SINGLE PHOTO NEVER TOUCHES THIS. It keeps .pphoto exactly as it
+   was, because most posts carry one and changing all of them to support
+   the rare ten would alter every existing post on the wall to solve a
+   problem none of them have.
+   ===================================================================== */
+
+.pgrid {
+  display: grid;
+  gap: 3px;
+  margin: 10px 0 0;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+/* ⚠️ Every cell is a fixed aspect ratio, so the grid is the same height
+   whatever lands in it. Without this the row height is set by whichever
+   photo happens to be tallest, and the wall jumps as pictures load. */
+.pgrid img {
+  width: 100%;
+  height: 100%;
+  aspect-ratio: 1 / 1;
+  /* ⚠️ cover, not contain — deliberately the opposite of the rule for
+     video. A cropped thumbnail is obviously a thumbnail and tapping shows
+     the whole thing; a letterboxed one in a tight grid just looks broken.
+     Video keeps `contain` because cropping a video hides somebody's head
+     for ninety seconds. */
+  object-fit: cover;
+  display: block;
+  background: rgba(0, 0, 0, .06);
+}
+
+/* Two side by side. */
+.pgrid[data-n="2"] { grid-template-columns: 1fr 1fr; }
+
+/* ⭐ Three gets one tall and two stacked, not three thin slivers. Three
+   equal columns on a phone is roughly 110px each, which is too small to
+   see a face in. */
+.pgrid[data-n="3"] { grid-template-columns: 2fr 1fr; }
+.pgrid[data-n="3"] img:first-child { grid-row: span 2; aspect-ratio: 1 / 1.02; }
+
+/* Four and up: a 2x2 that simply keeps going. ⚠️ At ten photos this is
+   five rows tall, which is a lot of wall — and that is the honest
+   result of choosing ten. A carousel would hide the cost behind a swipe
+   nobody performs. */
+.pgrid[data-n="4"] { grid-template-columns: 1fr 1fr; }
+
+@media (max-width: 380px) {
+  .pgrid { gap: 2px; }
+}
+
+/* =====================================================================
+   TAGGING A FRIEND (0067).
+
+   ⚠️ In photos.css, not wall.css, for the same reason the photo grid is —
+   wall.css is 71KB and failed three consecutive uploads on Aug 23.
+   ===================================================================== */
+
+/* ---- on a post ---- */
+.ptags {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 6px;
+  margin: 8px 0 0; font-size: 13px;
+}
+/* ⭐ "with", not "tagged". The word tagged belongs to a scrapbook; this
+   line usually means somebody was there, and "with Nic and Dave" is how
+   a person would actually say it out loud. */
+.ptagw { opacity: .55; }
+.ptag { display: inline-flex; align-items: center; gap: 3px; }
+.ptag a { text-decoration: none; font-weight: 600; opacity: .85; }
+.ptag a:hover { text-decoration: underline; opacity: 1; }
+/* ⚠️ 28px, not the 44px the post footer uses. This one is deliberately
+   small: it appears only on YOUR OWN tag, it is not a thing anybody
+   reaches for daily, and a big × next to somebody's name reads like a
+   way to remove THEM. */
+.ptag button {
+  border: 0; background: none; cursor: pointer; padding: 0 4px;
+  min-width: 28px; min-height: 28px; font-size: 15px; line-height: 1;
+  opacity: .45;
+}
+.ptag button:hover { opacity: 1; }
+
+/* ---- @handle inside the words of a post ---- */
+/* ⭐ THE BLUE. Deliberately the one blue in an otherwise green and acid
+   app — it is the universal "this is a person you can tap", and borrowing
+   the convention costs nothing and explains itself. */
+.mention {
+  color: #2563eb;
+  text-decoration: none;
+  font-weight: 600;
+}
+.mention:hover { text-decoration: underline; }
+
+/* ---- in the composer ---- */
+/* ⚠️ No picker, no dropdown. This strip only appears once there is an
+   @handle in the box, and answers one question: did it land. */
+.ctags {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 6px;
+  margin: 8px 0 0; font-size: 13px;
+}
+/* Recognised: it is a friend, it will tag. */
+.tagok {
+  color: #2563eb; font-weight: 600;
+  background: rgba(37, 99, 235, .09);
+  border-radius: 999px; padding: 3px 9px;
+}
+/* ⚠️ Typed but not a friend. Shown, not silently dropped — a handle that
+   looks fine and quietly does nothing is the failure this whole design
+   exists to prevent. Not red: it is not an error, it just won't tag. */
+.tagno {
+  opacity: .45; border-radius: 999px; padding: 3px 9px;
+  background: rgba(0,0,0,.05); text-decoration: line-through;
+}
+.tagwhy { opacity: .55; }
+
+/* ---- the @menu (0067, revised) ----
+   ⭐ Short, filtered, and only while typing after an @. Ty rejected a full
+   friend list sitting open under the composer; this is the Facebook shape
+   he asked for instead — it is absent almost all of the time. */
+.atmenu {
+  margin: 6px 0 0;
+  border: 1px solid rgba(0,0,0,.14);
+  border-radius: 10px;
+  overflow: hidden;
+  /* ⚠️ Capped. Six friends is three rows; six hundred without a cap would
+     push the Post button off the bottom of a phone. */
+  max-height: 232px; overflow-y: auto;
+}
+.atopt {
+  display: flex; align-items: baseline; gap: 8px; width: 100%;
+  border: 0; border-bottom: 1px solid rgba(0,0,0,.06);
+  background: none; cursor: pointer; text-align: left;
+  /* ⚠️ 44px: this is a thumb target on a phone, and picking the wrong
+     person is the failure mode that matters here. */
+  padding: 11px 13px; min-height: 44px; font-size: 15px;
+}
+.atopt:last-child { border-bottom: 0; }
+.atopt b { font-weight: 600; }
+.atopt span { opacity: .5; font-size: 12.5px; }
+.atopt.on, .atopt:hover { background: rgba(37, 99, 235, .08); }
+
+/* ---- editing a post (0070) ---- */
+.editbox {
+  width: 100%; box-sizing: border-box;
+  border: 1px solid rgba(0,0,0,.18); border-radius: 8px;
+  padding: 11px 12px; font: inherit; font-size: 16px; /* ⚠️ 16px or iOS zooms the page on focus */
+  line-height: 1.5; resize: vertical; margin-bottom: 10px;
+}
+.editaud {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 14px; margin: 2px 0 12px; cursor: pointer;
+}
+/* ⚠️ Quiet on purpose. It is a fact about the post, not a warning about
+   the person — an "edited" badge that shouts reads as an accusation. */
+.edited { opacity: .5; font-style: italic; }
+
+/* ---- a flyer on the wall (0071) ----
+   ⭐ A poster, not a video card. No play button, because there is nothing
+   to play — see the note in ContentCard.jsx about the button that did
+   nothing forever. */
+.ccflyer { display: block; }
+.ccflyerlink { display: block; position: relative; text-decoration: none; }
+.ccflyerimg {
+  width: 100%; display: block; border-radius: 12px;
+  /* ⚠️ contain-style: a flyer is designed edge to edge and cropping it
+     removes the date or the address, which are the only two things
+     somebody actually needs off it. */
+  height: auto;
+  background: rgba(0,0,0,.05);
+}
+.ccflyermeta { position: absolute; top: 10px; left: 10px; right: 10px; }
+.ccplace {
+  margin: 2px 0 0; font-size: 13px; opacity: .6;
+}
+
+/* ---- a flyer card with NO flyer (0071 fix) ----
+   🔴 The first version wrapped only the source label in the link, so a
+   card with no image was a 102px sliver whose tappable area was invisible.
+   Now the whole card is the link. */
+.ccflyer .ccflyerlink {
+  display: block; text-decoration: none; color: inherit;
+  position: relative;
+}
+.ccnoimg .ccflyerlink {
+  border: 1px solid rgba(0,0,0,.14);
+  border-radius: 12px;
+  padding: 14px 16px;
+  background: var(--card, #fff);
+}
+.ccnoimgtop { display: flex; gap: 8px; align-items: center; margin-bottom: 6px; }
+.ccflyertitle {
+  display: block; font-size: 16px; font-weight: 600; line-height: 1.35;
+  margin: 6px 0 2px;
+}
+.ccflyer .ccplace { display: block; margin: 2px 0 0; font-size: 13px; opacity: .6; }
+.ccflyer .ccnote  { display: block; margin: 8px 0 0; font-size: 12px; opacity: .5; }
+/* With an image the meta floats over it, as before. */
+.ccflyer:not(.ccnoimg) .ccflyertitle { margin-top: 8px; }
+
+/* ---- the pin (0072) ----
+   ⚠️ Quieter than a member's post, same rule as every other card here.
+   The only difference from an ordinary flyer card is a left edge and a
+   label — enough to explain itself, not enough to shout. */
+.ccpin .ccflyerlink { border-left: 3px solid var(--acid, #C8FF00); }
+.ccpinlabel {
+  margin: 0 0 6px; font-size: 11px; letter-spacing: .08em;
+  text-transform: uppercase; opacity: .55;
+}
+
+/* ---- buzz my phone (0073) ---- */
+.pushbox { border-top: 1px solid rgba(0,0,0,.12); margin-top: 22px; padding-top: 18px; }
+.pushh   { margin: 0 0 6px; font-size: 16px; }
+.pushp   { margin: 0 0 12px; font-size: 14px; line-height: 1.5; opacity: .8; }
+.pushwhy { margin: 10px 0 0; font-size: 13px; line-height: 1.5; opacity: .75; }
+.pushon  { margin: 0 0 10px; font-size: 14px; font-weight: 600; }

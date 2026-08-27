@@ -4,6 +4,7 @@ import { serverClient, assertReadable } from '../../lib/supabase-server';
 import { milestoneToday, dayCount } from '../../lib/milestones';
 import { signPhotoPaths, collectPaths } from '../../lib/sign-photos';
 import { fetchPreviews } from '../../lib/previews';
+import { fetchTags } from '../../lib/tags';
 import Wall from './Wall';
 
 export const dynamic = 'force-dynamic';
@@ -54,6 +55,12 @@ export default async function WallPage() {
      the wall of the person with the most conversation on it. */
   const previews = await fetchPreviews(supabase, (posts || []).map((p) => p.id));
 
+  /* Who's tagged on each post (0067). Same one-round-trip-for-the-page
+     shape as the photos and the previews above — and fetched on the
+     server for the same reason: names appearing a beat after the post
+     would shift the page under somebody's thumb. */
+  const tags = await fetchTags(supabase, (posts || []).map((p) => p.id));
+
   /* Something to look at, mixed in with what people wrote (0057).
 
      ⚠️ Read through feed_content, never content_items — the view is what
@@ -65,7 +72,7 @@ export default async function WallPage() {
      uploads most, which the first real pull demonstrated within minutes. */
   const { data: content } = await supabase
     .from('feed_content')
-    .select('id, title, url, embed_id, thumb_path, published_at, source_label, category, source_id')
+    .select('id, title, url, embed_id, thumb_path, published_at, source_label, category, source_id, event_at, place, pinned_at')
     .order('published_at', { ascending: false })
     .limit(60);
 
@@ -159,6 +166,7 @@ export default async function WallPage() {
             mark={mark}
             photoUrls={photoUrls}
             previews={previews}
+            tags={tags}
             content={content || []}
             thumbBase={thumbBase}
             /* ⚠️ Passed as a plain boolean, not the profile row. The

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { browserClient } from '../../lib/supabase-browser';
@@ -10,6 +10,8 @@ import PhotoUpload from '../components/PhotoUpload';
 import { Body, Player } from '../components/Linked';
 import { fetchPreviews, PREVIEW_COUNT } from '../../lib/previews';
 import { fetchDrops } from '../../lib/drops';
+import { fetchTags, attachTags } from '../../lib/tags';
+import { buildIndex, findMentions, activeQuery, suggest } from '../../lib/mentions';
 import { mixFeed } from '../../lib/mix';
 import ContentCard from '../components/ContentCard';
 import DropCard from '../components/DropCard';
@@ -113,7 +115,7 @@ function who(p) {
    renders if it's ever mounted without it — a missing name should cost
    you a greeting, never a blank page. */
 export default function Wall({ initial, me = { name: null, avatar: null, handle: null }, mark = null,
-                               photoUrls = {}, previews = {},
+                               photoUrls = {}, previews = {}, tags: tags0 = {},
                                content = [], thumbBase = '',
                                drops = {}, dropUrls = {}, canHide = false }) {
   const router = useRouter();
@@ -131,6 +133,10 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
      re-reading posts — so a record you just put out appeared as a post
      with no poster on it. That was the "it never showed up" bug. */
   const [recs, setRecs] = useState(drops);
+  /* ⚠️ STATE, not a prop. The drops bug: a prop only refreshes when
+     the whole server page re-renders, so a tag added a second ago
+     wouldn't appear until a full reload. */
+  const [tags, setTags] = useState(tags0);
   const [text, setText] = useState('');
   const [anon, setAnon] = useState(false);
   /* 'open' | 'friends'. Resets to open after every post — a sticky
@@ -143,12 +149,169 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
      stores; `preview` is a local object URL so it appears the instant
      it's chosen rather than after a round trip.
 
-     ⚠️ ONE piece of state, not two. 0029 adds a `one_medium_per_post`
-     constraint — a post carries a photo or a video, never both. Keeping
-     two state variables would let the interface offer a combination the
-     database refuses, and the person would only find out at Post time.
-     One slot in the UI, one row rule in the database, same shape. */
-  const [photo, setPhoto] = useState(null);
+     ⚠️ ONE piece of state, still — but now a LIST (0065).
+
+     It used to be a single slot because `one_medium_per_post` meant a post
+     carried a photo or a video and never both. Ty dropped that rule, so a
+     post can now hold up to ten photos and a video together.
+
+     ⭐ It stays ONE variable rather than becoming `photos` + `video`. The
+     principle that made it one slot before still applies: the interface
+     must not be able to offer a combination the database refuses, and the
+     surest way to guarantee that is to have a single thing to reason
+     about. The split into photo paths and a video path happens once, at
+     the moment of posting, right next to the insert that cares. */
+  const [media, setMedia] = useState([]);   // [{ path, preview, isVideo }]
+
+  /* The caps, written once. ⚠️ MAX_PHOTOS must match photo_paths_ok() in
+     0065 — the database refuses an eleventh, and a UI that lets somebody
+     pick eleven is a UI that produces a constraint error at Post time,
+     several minutes after the choice was made. */
+  /* ---- tagging a friend (0067) ----
+
+     ⭐ Ty, after seeing the first version: "I don't want the names to pop
+     up underneath. I just want you to be able to put the @ sign and their
+     handle. Once it recognizes the handle it should light up blue, meaning
+     that it will work."
+
+     So there is NO picker. You type @handle into the post the way you
+     would anywhere else, and the app tells you whether it landed.
+
+     ⚠️ The friend list is still loaded — it is just never shown as a menu.
+     It is what turns a typed handle blue, and loading it once beats asking
+     the database on every keystroke.
+
+     ⚠️ It remains a convenience. The lock is mentions_guard() in the
+     database; this list is not what makes the rule true. */
+  const [friends, setFriends] = useState([]);
+
+  /* Taking your own name off somebody else's post.
+
+     ⚠️ Optimistic, unlike block (which deliberately waits for the
+     database, because a block that only LOOKS like it worked is
+     dangerous). This is the milder case — the worst outcome of being
+     wrong is a name reappearing on the next refresh, and the person is
+     standing right there watching. Making them wait on a round trip to
+     remove their own name from a post reads as the button not working.
+
+     🔴 remove_my_tag() takes only a post id. There is no "who"
+     parameter, so it can only ever remove YOUR tag. */
+  /* An edit coming back from the menu (0070).
+
+     ⚠️ Applied to state directly rather than re-reading the wall. The
+     drops lesson: waiting on a server round trip is how a change looks
+     like it did nothing for a second and a half, and the person who just
+     made it is the one person who cannot see it worked.
+
+     ⚠️ edited_at is set here only when there ARE replies, matching what
+     the database does. Two places computing it is the drift this codebase
+     keeps getting bitten by — but the database is authoritative and the
+     next real load corrects anything this gets wrong. */
+  function applyEdit(postId, body, audience) {
+    setPosts((list) => list.map((p) => (p.id !== postId ? p : {
+      ...p, body, audience,
+      edited_at: p.comment_count > 0 ? new Date().toISOString() : p.edited_at,
+    })));
+  }
+
+  async function untag(postId) {
+    setTags((t) => ({
+      ...t,
+      [postId]: (t[postId] || []).filter((x) => !x.is_me),
+    }));
+    await supabase.rpc('remove_my_tag', { p_post: postId });
+  }
+
+  /* Loaded once, on mount. my_friends() is the identical call the friends
+     page makes — no new query was added for this. */
+  useEffect(() => {
+    let alive = true;
+    supabase.rpc('my_friends').then(({ data }) => { if (alive) setFriends(data || []); });
+    return () => { alive = false; };
+  }, []);
+
+  /* Where the caret is, so the @menu knows what is being typed AT it
+     rather than anywhere in the box. */
+  const [caret, setCaret] = useState(0);
+  const [pick, setPick] = useState(0);        // highlighted row in the menu
+  const boxRef = useRef(null);
+
+  /* ⭐ A LOOKUP, NOT A REGEX. A name has spaces and there is no way to
+     tell from the text where "@Nic Rossiter and I" stops being a name.
+     So we match against the names we actually know — see lib/mentions.js.
+     One shared implementation, so the menu, the blue and the tag that
+     gets written can never disagree about who was meant. */
+  const index = buildIndex(friends);
+  /* ⚠️ Defaults on the destructure as well as inside findMentions. The
+     white screen came from unmatched being undefined on an empty box —
+     one guard is a fix, two is a fix that survives somebody editing the
+     other file. */
+  const { found: mentions = [], ambiguous = [], unmatched: allUnmatched = [] } =
+    findMentions(text, index) || {};
+  /* ⚠️ Computed AFTER `q`, because it depends on what is being typed. */
+  const unmatched = allUnmatched;   // narrowed below, once `q` is known
+
+  /* 🔴 WHY an @word didn't tag — the thing that was missing.
+     Ty typed @jordancruz and got silence. Two different reasons look
+     identical on screen unless we separate them: a typo, and somebody
+     real who simply isn't a friend. Telling him which one saves a
+     conversation he shouldn't have to have with a database. */
+  const [strangers, setStrangers] = useState({});   // handle -> true if real
+  useEffect(() => {
+    const need = unmatched.filter((h) => !(h in strangers));
+    if (!need.length) return;
+    let alive = true;
+    supabase.from('public_profiles').select('handle').in('handle', need)
+      .then(({ data }) => {
+        if (!alive) return;
+        const real = new Set((data || []).map((r) => r.handle.toLowerCase()));
+        setStrangers((s) => {
+          const next = { ...s };
+          for (const h of need) next[h] = real.has(h.toLowerCase());
+          return next;
+        });
+      });
+    return () => { alive = false; };
+  }, [unmatched.join('|')]);
+  const tagged = mentions.map((m) => m.handle);
+
+  /* The Facebook menu — null most of the time, which is the point. */
+  const q = anon ? null : activeQuery(text, caret);
+
+  /* 🔴 DON'T CORRECT SOMEBODY MID-WORD.
+     Typing "@ni" put the menu up offering Nic Rossiter AND printed
+     "nobody here goes by that — check the spelling" underneath at the
+     same time. Both were technically true; together they tell a person
+     they're wrong while they are halfway through being right.
+
+     So the @word being typed RIGHT NOW is excluded from the complaints.
+     It isn't finished yet, and an unfinished word is not a mistake. */
+  const inFlight = q ? (q.typed || '').toLowerCase() : null;
+  const shownUnmatched = unmatched.filter((u) => u.toLowerCase() !== inFlight);
+  const options = q ? suggest(friends, q.typed) : [];
+
+  /* Replace "@part" at the caret with the chosen person's name. */
+  function choose(f) {
+    if (!q) return;
+    const label = f.display_name || f.handle;
+    const next = text.slice(0, q.at) + '@' + label + ' ' + text.slice(caret);
+    setText(next);
+    const pos = q.at + 1 + label.length + 1;
+    setPick(0);
+    /* ⚠️ Put the caret back after the name. Without this it jumps to the
+       end of the box, so tagging somebody mid-sentence throws you to the
+       end of what you were writing. */
+    requestAnimationFrame(() => {
+      const el = boxRef.current;
+      if (el) { el.focus(); el.setSelectionRange(pos, pos); setCaret(pos); }
+    });
+  }
+
+  const MAX_PHOTOS = 10;
+  const photos = media.filter((m) => !m.isVideo);
+  const video  = media.find((m) => m.isVideo) || null;
+  const canAddPhoto = photos.length < MAX_PHOTOS;
+  const canAddVideo = !video;
 
   /* Links for photos uploaded during THIS session, merged over the ones
      signed on the server at page load. Without this a new post appears
@@ -195,8 +358,19 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
 
   function toggleAnon() {
     const next = !anon;
-    if (next && photo) { setPhoto(null); setPhotoDropped(true); }
+    if (next && media.length) { setMedia([]); setPhotoDropped(true); }
     else setPhotoDropped(false);
+    /* 🔴 THE TAGS GO TOO, and this is the sharpest of the three.
+       0067 refuses a tag on an anonymous post outright — "@handle was
+       using last night" from an account with no name attached is the
+       worst thing this app could carry. Without this the chips would
+       merely HIDE while the handles stayed in state, and the tag attempt
+       would fail seconds after the choice was made. */
+    /* ⚠️ NOTHING TO CLEAR ANY MORE. The handles live inside the words
+       now, and deleting somebody's text out from under them because they
+       tapped anonymous would be far ruder than the tag not landing. The
+       chips below simply stop being blue, the note explains why, and the
+       post() call skips tagging entirely when anon. */
     /* ⚠️ THE RECORD GOES TOO, and for the same reason the photo does.
        0058 refuses an anonymous drop outright — a release is credited work
        by definition. Without this the chip merely HIDES while `rec` stays
@@ -223,7 +397,11 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
   async function signMissing(rows) {
     const need = [];
     for (const r of rows || []) {
-      for (const p of [r.photo_url, r.video_url, r.display_avatar_photo]) {
+      /* ⚠️ Spread photo_urls in (0065). Miss it and a post's second
+         through tenth pictures are never signed — they render as broken
+         frames rather than raising anything, so nobody reports it. */
+      for (const p of [...(Array.isArray(r.photo_urls) ? r.photo_urls : []),
+                       r.photo_url, r.video_url, r.display_avatar_photo]) {
         if (p && !freshUrls[p] && !photoUrls[p]) need.push(p);
       }
     }
@@ -305,6 +483,7 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
          on the page. A heart is optimistic precisely because it must
          cost nothing. */
       setConvo(await fetchPreviews(supabase, data.map((p) => p.id)));
+      setTags(await fetchTags(supabase, data.map((p) => p.id)));
       const freshDrops = await fetchDrops(supabase, data.map((p) => p.id));
       setRecs(freshDrops);
       signMissing(Object.values(freshDrops).map((d) => ({
@@ -432,7 +611,7 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
 
        Three separate locks all saying "words are mandatory", written back
        when a post could only BE words. A picture is a post. */
-    if (!body && !photo && !rec) return;
+    if (!body && !media.length && !rec) return;
     setBusy(true);
     try {
       const { data: { user } } = await supabase.auth.getUser();
@@ -445,7 +624,13 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
          other column goes explicitly null rather than being left out —
          `one_medium_per_post` compares two values, and "absent" and
          "null" are the same to Postgres but not to a reader. */
-      const attached = anon ? null : photo;
+      /* ⚠️ Split here and nowhere else. The composer holds one list; the
+         database wants an array of photos and a single video. Doing the
+         split at the insert means there is exactly one line in the app
+         that knows the shape the table expects. */
+      const attached   = anon ? [] : media;
+      const photoPaths = attached.filter((m) => !m.isVideo).map((m) => m.path);
+      const videoPath  = (attached.find((m) => m.isVideo) || {}).path || null;
       /* ⚠️ Anonymous forces the audience back to open, for the same
          belt-and-braces reason as the photo above — 0045 has a CHECK that
          refuses anonymous + friends-only outright, and this line is so a
@@ -479,8 +664,14 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
       const { error } = await supabase.from('posts')
         .insert({ id: postId, author_id: user.id, body, is_anonymous: anon,
                   audience: anon ? 'open' : audience,
-                  photo_url: attached && !attached.isVideo ? attached.path : null,
-                  video_url: attached &&  attached.isVideo ? attached.path : null });
+                  /* ⚠️ photo_urls, NOT photo_url. The 0065 trigger fills in
+                     the old singular column from photo_urls[1], so nothing
+                     needs to write it — and writing both would be two
+                     sources of truth for one fact. Send null rather than an
+                     empty array: the constraint treats an empty array as
+                     invalid, and "no photos" is genuinely absence. */
+                  photo_urls: photoPaths.length ? photoPaths : null,
+                  video_url: videoPath });
       if (error) throw error;
 
       /* 🔴 THE DROP IS INSERTED SECOND, AND THE ORDER MATTERS. If this
@@ -492,10 +683,26 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
           .insert({ post_id: postId, ...rec });
         if (dErr) throw new Error(dErr.message);
       }
+
+      /* 🔴 TAGS LAST, AND THEY CANNOT LOSE THE POST.
+         Unlike the drop above — which throws, because a record that
+         didn't attach is a broken promise — a tag that fails is a name
+         that didn't stick. The post is already saved and is still worth
+         having, so this reports rather than throws.
+         ⚠️ anon is checked here as well as in toggleAnon: somebody can
+         tag friends, then tap anonymous, and state resets are easy to
+         get wrong. The database would refuse anyway; this stops us
+         asking it to. */
+      if (!anon && tagged.length) {
+        const { refused } = await attachTags(supabase, postId, tagged);
+        if (refused.length) {
+          setPostErr(`Posted, but couldn’t tag ${refused.map((h) => '@' + h).join(', ')}.`);
+        }
+      }
       setText('');
       setRec(null);
       setRecDropped(false);
-      setPhoto(null);
+      setMedia([]);
       setPhotoDropped(false);
       setAudience('open');
       // re-read through the VIEW, never the base table
@@ -594,15 +801,32 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
              being it. */}
       <form className="composer" onSubmit={post}>
         <div className="ctop">
-          <input value={text} onChange={(e) => setText(e.target.value)} maxLength={5000}
+          <input ref={boxRef} value={text} maxLength={5000}
                  aria-label="Write something for the wall"
+                 /* ⚠️ The caret is read on EVERY interaction, not just on
+                    change. Tapping into the middle of what you already
+                    wrote moves the caret without changing a character —
+                    and the @menu has to follow the caret, not the text. */
+                 onChange={(e) => { setText(e.target.value); setCaret(e.target.selectionStart); setPick(0); }}
+                 onKeyUp={(e) => setCaret(e.target.selectionStart)}
+                 onClick={(e) => setCaret(e.target.selectionStart)}
+                 onBlur={() => setTimeout(() => setCaret(-1), 150)}
+                 onKeyDown={(e) => {
+                   if (!options.length) return;
+                   /* ⚠️ Enter and Tab pick; they must not submit the form
+                      or jump to the Post button while a menu is open. */
+                   if (e.key === 'ArrowDown') { e.preventDefault(); setPick((i) => (i + 1) % options.length); }
+                   else if (e.key === 'ArrowUp') { e.preventDefault(); setPick((i) => (i - 1 + options.length) % options.length); }
+                   else if (e.key === 'Enter' || e.key === 'Tab') { e.preventDefault(); choose(options[pick]); }
+                   else if (e.key === 'Escape') { setCaret(-1); }
+                 }}
                  /* Once a photo is attached the same box becomes the caption,
                     and it says so. Nothing changes underneath — a post is a
                     body and an optional picture — but "add a caption" tells
                     you the words are now OPTIONAL, which is the part that
                     was impossible to guess while the Post button sat grey. */
                  placeholder={rec ? 'Say something about it… (optional)'
-                                    : photo ? 'Add a caption… (or leave it blank)'
+                                    : media.length ? 'Add a caption… (or leave it blank)'
                                     : anon ? 'Nobody will see who wrote this…'
                                     : 'Share something with people who get it…'} />
           {/* ⚠️ NOT DISABLED WHEN ANONYMOUS — ABSENT.
@@ -615,18 +839,40 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
               toward that trade by a piece of chrome. When you're
               anonymous the camera simply isn't part of the composer, and
               one plain line below says why. */}
-          {!anon && !rec && (
+          {/* ⚠️ The camera DISAPPEARS at the cap rather than greying out —
+              same reasoning as the anonymous case just above. A disabled
+              button is an invitation to work out how to enable it, and
+              here there is no answer except "remove one", which the ×
+              buttons below already say more clearly.
+
+              ⚠️ It also disappears when there is a video AND ten photos,
+              because at that point there is genuinely nothing left to
+              add. */}
+          {!anon && !rec && (canAddPhoto || canAddVideo) && (
             /* ONE button, both media. A separate 🎥 next to the 📷 was the
                obvious build and it's worse: two controls that do the same
                job, on the narrowest row in the app, forcing a decision
                ("which button do I want?") the file picker is about to ask
                again anyway. The picker already knows the difference. */
             <PhotoUpload kind="post" disabled={busy} className="camera"
-                         accept="image/*,video/mp4,video/quicktime"
-                         label={photo ? '✓' : '📷'}
+                         /* ⚠️ Narrow the picker once a video is attached —
+                            only one video per post, and letting somebody
+                            choose a second means uploading a file we are
+                            about to refuse. Cheaper to not offer it. */
+                         accept={canAddVideo ? 'image/*,video/mp4,video/quicktime' : 'image/*'}
+                         label={media.length ? `+${media.length}` : '📷'}
                          onBusy={setUploading}
                          onDone={(path, preview, isVideo) => {
-                           setPhoto({ path, preview, isVideo });
+                           setMedia((m) => {
+                             /* ⚠️ Guard here as well as in the picker. The
+                                upload is async — two quick taps can both
+                                pass the check above and land here, and the
+                                database would refuse the eleventh with a
+                                raw constraint error. */
+                             if (isVideo && m.some((x) => x.isVideo)) return m;
+                             if (!isVideo && m.filter((x) => !x.isVideo).length >= MAX_PHOTOS) return m;
+                             return [...m, { path, preview, isVideo }];
+                           });
                            setFreshUrls((u) => ({ ...u, [path]: preview }));
                            setPostErr('');
                          }} />
@@ -636,28 +882,119 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
               picture sat attached above it, with nothing on screen saying
               why. A disabled button gives no reason; it just doesn't work. */}
           <button type="submit" className="send"
-                  disabled={busy || uploading || (!text.trim() && !photo && !rec)}
+                  disabled={busy || uploading || (!text.trim() && !media.length && !rec)}
                   aria-label="Post">
             {busy ? '…' : uploading ? '…' : 'Post'}
           </button>
         </div>
 
-        {photo && (
-          <div className="cphoto">
-            {photo.isVideo ? (
+        {/* ⚠️ Every attachment gets its OWN × (0065). The old single slot
+            only ever needed one. With ten of them, a single "clear" would
+            mean losing nine good pictures to remove one bad one — and the
+            bad one is usually the reason you looked. */}
+        {media.map((m, i) => (
+          <div className="cphoto" key={m.path}>
+            {m.isVideo ? (
               /* ⚠️ `controls` and nothing else. No autoplay on the preview —
                  this is the thing you are about to say to people, and it
                  should not start talking at you in a quiet room while
                  you're deciding whether to send it. `playsInline` stops
                  iOS from throwing it fullscreen the moment it's touched,
-                 which loses you the composer you were standing in. */
-              <video src={photo.preview} controls playsInline preload="metadata" />
+                 which loses you the composer you were standing in.
+
+                 ⚠️ preload="metadata" HERE AND NOWHERE ELSE. `m.preview` is
+                 a LOCAL object URL — the file is already on this phone, so
+                 reading its first frame costs no bandwidth. Every other
+                 <video> in the app points at Supabase and uses "none".
+
+                 ⚠️ Aug 26: a blind find-and-replace changed this one too
+                 while fixing the egress problem. Build stayed green and it
+                 silently removed the first frame from the thing you check
+                 before posting. A mechanical edit does not know what a
+                 string MEANS. */
+              <video src={m.preview} controls playsInline preload="metadata" />
             ) : (
-              <img src={photo.preview} alt="The photo you're about to post" />
+              <img src={m.preview}
+                   alt={media.length > 1
+                     ? `Photo ${i + 1} of ${media.filter((x) => !x.isVideo).length} you're about to post`
+                     : "The photo you're about to post"} />
             )}
             <button type="button" className="cphoto-x"
-                    aria-label={photo.isVideo ? 'Take the video off' : 'Take the photo off'}
-                    disabled={busy} onClick={() => setPhoto(null)}>×</button>
+                    aria-label={m.isVideo ? 'Take the video off' : `Take photo ${i + 1} off`}
+                    disabled={busy}
+                    /* ⚠️ Remove by PATH, not by index. Indexes shift the
+                       moment anything else is removed, so a second tap on
+                       a stale render would take off the wrong picture. */
+                    onClick={() => setMedia((s) => s.filter((x) => x.path !== m.path))}>×</button>
+          </div>
+        ))}
+
+        {/* Only once there is more than one — a count over a single photo
+            is noise. ⚠️ It says what is left rather than what is used,
+            because "3 of 10" invites you to fill it and this is not a
+            scoreboard. */}
+        {photos.length > 1 && (
+          <p className="canon-note">
+            {photos.length} photos{video ? ' and a video' : ''}
+            {canAddPhoto ? '' : ' · that’s the limit'}
+          </p>
+        )}
+
+        {/* ---- tagging, the Facebook way (0067, revised) ----
+
+            ⭐ Ty asked for two things that sound contradictory: "I don't
+            want the names to pop up underneath" and then "it should work
+            like Facebook." They aren't in conflict. What he refused was a
+            full friend list sitting open BEFORE he'd typed anything.
+            Facebook shows a short filtered list only after an @, only
+            while you're inside the word, and it vanishes the moment you
+            move on. `options` is empty almost always — that emptiness is
+            the whole difference. */}
+        {options.length > 0 && (
+          <div className="atmenu" role="listbox" aria-label="Tag a friend">
+            {options.map((f, i) => (
+              <button type="button" key={f.handle} role="option"
+                      aria-selected={i === pick}
+                      className={'atopt' + (i === pick ? ' on' : '')}
+                      /* ⚠️ onMouseDown, not onClick. A click fires after
+                         blur, and blur closes the menu — so the button
+                         would be gone before the click ever landed. */
+                      onMouseDown={(e) => { e.preventDefault(); choose(f); }}>
+                <b>{f.display_name || f.handle}</b>
+                <span>@{f.handle}</span>
+              </button>
+            ))}
+          </div>
+        )}
+
+        {/* Who this post will actually tag. ⚠️ Only shown once there is
+            something to say — no empty chrome sitting under the box. */}
+        {(mentions.length > 0 || ambiguous.length > 0 || shownUnmatched.length > 0) && (
+          <div className="ctags">
+            {mentions.map((m) => (
+              <span className="tagok" key={m.handle}>@{m.label}</span>
+            ))}
+            {ambiguous.map((a) => (
+              <span className="tagno" key={'amb-' + a}>@{a}</span>
+            ))}
+            {shownUnmatched.map((u) => (
+              <span className="tagno" key={'un-' + u}>@{u}</span>
+            ))}
+            <span className="tagwhy">
+              {anon
+                ? 'an anonymous post can’t tag anyone'
+                : ambiguous.length
+                  ? 'more than one friend has that name — use their @handle'
+                  : shownUnmatched.length
+                    /* ⚠️ Two different failures, said differently. "Not a
+                       friend" is a thing you can fix by sending a request;
+                       "nobody by that name" is a typo. Collapsing them into
+                       one message makes both unactionable. */
+                    ? (shownUnmatched.some((u) => strangers[u])
+                        ? 'not on your friends list yet — you can only tag friends'
+                        : 'nobody here goes by that — check the spelling')
+                    : 'will be tagged'}
+            </span>
           </div>
         )}
 
@@ -763,8 +1100,14 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
             the wall has singled out for being unanswered. */}
         {mixFeed(posts, content, { lonelyId }).map((row) => {
           if (row.type === 'content') {
+            /* ⚠️ `pinned` is passed, not derived from item.pinned_at.
+               Several items can be pinned; only ONE is shown as the pin,
+               and the mixer is what decides which. Reading pinned_at here
+               would be a second implementation of that choice, and the
+               second one drifts (0046 → 0049 → 0072). */
             return <ContentCard key={'c' + row.item.id} item={row.item}
-                                thumbBase={thumbBase} canHide={canHide} />;
+                                thumbBase={thumbBase} canHide={canHide}
+                                pinned={!!row.pinned} />;
           }
           const p = row.post;
           const w = weight(p, p.id === lonelyId);
@@ -846,13 +1189,36 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
               {/* A photo-only post has an empty body. Rendering the empty
                   paragraph anyway leaves a blank gap above the picture that
                   looks like text failed to load. */}
-              {p.body && !recs[p.id] ? <p className="bd"><Body text={p.body} /></p> : null}
+              {p.body && !recs[p.id] ? <p className="bd"><Body text={p.body} tags={tags[p.id]} /></p> : null}
 
               {/* ⭐ Aug 23. A member posted his music and the link came out
                   as plain text you had to copy and leave for. It plays
                   here now. ⚠️ Nothing loads until somebody taps — see
                   components/Linked.jsx. */}
               {p.body && !recs[p.id] ? <Player text={p.body} /> : null}
+
+              {/* ---- who's tagged (0067) ----
+                  ⚠️ "with" rather than "tagged": the word tagged belongs
+                  to a scrapbook. This line usually means somebody was
+                  there, and reading "with Nic and Dave" is how a person
+                  would actually say it.
+                  🔴 The × only appears on YOUR OWN tag — is_me comes from
+                  the view, so this component never compares ids. */}
+              {(tags[p.id] || []).length > 0 && (
+                <p className="ptags">
+                  <span className="ptagw">with</span>
+                  {(tags[p.id] || []).map((t) => (
+                    <span className="ptag" key={t.handle}>
+                      <Link href={`/u/${t.handle}`}>@{t.handle}</Link>
+                      {t.is_me && (
+                        <button type="button" aria-label="Take my name off this post"
+                                title="Take my name off this post"
+                                onClick={() => untag(p.id)}>×</button>
+                      )}
+                    </span>
+                  ))}
+                </p>
+              )}
 
               {/* ⚠️ `p.photo_url` is null on every anonymous post because
                   feed_posts nulls it — this does not need, and must not
@@ -865,11 +1231,47 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
                   attached to a post has no description we can honestly
                   give, and inventing one for a screen reader is worse
                   than admitting the picture is decorative to the text. */}
-              {p.photo_url && urlFor(p.photo_url) && (
-                <div className="pphoto">
-                  <img src={urlFor(p.photo_url)} alt="" loading="lazy" />
-                </div>
-              )}
+              {(() => {
+                /* ⚠️ Read photo_urls, fall back to photo_url (0065). The
+                   fallback is not belt-and-braces — a page rendered from a
+                   cached payload during the deploy has only the old column,
+                   and without it those posts render with no picture at all. */
+                const shots = (Array.isArray(p.photo_urls) && p.photo_urls.length
+                  ? p.photo_urls
+                  : (p.photo_url ? [p.photo_url] : [])).filter((s) => urlFor(s));
+                if (!shots.length) return null;
+
+                /* ⭐ ONE PHOTO LOOKS EXACTLY AS IT ALWAYS DID. Most posts
+                   carry one, and making them all become a grid to support
+                   the rare ten would change every existing post on the wall
+                   to solve a problem none of them have. */
+                if (shots.length === 1) {
+                  return (
+                    <div className="pphoto">
+                      <img src={urlFor(shots[0])} alt="" loading="lazy" />
+                    </div>
+                  );
+                }
+
+                /* ⚠️ data-n drives the grid in CSS rather than inline
+                   styles, so two, three and four-plus can each have their
+                   own shape without this component knowing about any of
+                   them. Capped at 4 in the attribute — beyond that they all
+                   lay out the same way. */
+                return (
+                  <div className="pgrid" data-n={Math.min(shots.length, 4)}>
+                    {shots.map((s, i) => (
+                      <img key={s} src={urlFor(s)} loading="lazy"
+                           /* ⚠️ alt="" everywhere else, but with several
+                              pictures a screen reader otherwise hears
+                              nothing at all where sighted people see six
+                              things. The position is the only honest thing
+                              we know about them. */
+                           alt={`Photo ${i + 1} of ${shots.length}`} />
+                    ))}
+                  </div>
+                );
+              })()}
 
               {/* ⚠️ NO autoplay, and this is a decision rather than an
                   oversight. Every feed on earth plays video at you the
@@ -883,15 +1285,24 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
                   off switch sits under the song. This is a feed you're
                   moving through.)
 
-                  `preload="metadata"` fetches the first few bytes only, so
-                  the frame and duration are right without pulling tens of
-                  megabytes down a phone connection for a video nobody
-                  taps. `playsInline` keeps it in the feed on iOS instead
-                  of hijacking the whole screen. */}
+                  🔴 `preload="none"` — CHANGED FROM "metadata" ON Aug 26.
+                  Cached egress hit 159% of the free tier: 8GB served from
+                  113MB of files. "metadata" made every browser fetch the
+                  header of every video on the wall on every load, and
+                  because the signed URL was different each time, none of it
+                  was ever cached.
+
+                  ⚠️ The honest cost: no first frame and no duration until
+                  somebody presses play — a black rectangle with controls.
+                  That is a real downgrade and it is worth it. A video nobody
+                  watches should cost nothing at all.
+
+                  `playsInline` keeps it in the feed on iOS instead of
+                  hijacking the whole screen. */}
               {p.video_url && urlFor(p.video_url) && (
                 <div className="pphoto pvideo">
                   <video src={urlFor(p.video_url)} controls playsInline
-                         preload="metadata" />
+                         preload="none" />
                 </div>
               )}
 
@@ -1002,8 +1413,13 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
                 {p.audience === 'friends' && (
                   <span className="mine aud">friends only</span>
                 )}
+                {/* ⭐ The mark, and it only ever appears on a post whose
+                    replies came BEFORE the edit. A badge on every edited
+                    post would make the badge meaningless, and then the one
+                    that matters would be invisible too. */}
+                {p.edited_at && <span className="mine edited">edited</span>}
                 <button className="dots"
-                        aria-label={p.is_mine ? 'Delete this post' : 'Report or block'}
+                        aria-label={p.is_mine ? 'Edit or delete this post' : 'Report or block'}
                         onClick={() => setMenu(p)}>⋯</button>
               </div>
             </article>
@@ -1035,6 +1451,7 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
           post={menu}
           onClose={() => setMenu(null)}
           onBlocked={refresh}
+          onEdited={applyEdit}
         />
       )}
     </>

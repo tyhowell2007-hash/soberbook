@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { browserClient } from '../../lib/supabase-browser';
 
@@ -78,7 +78,45 @@ function makeHandles(n = 3) {
 export default function Welcome() {
   const router = useRouter();
   const supabase = browserClient();
+  /* 🔴 PRE-FILLED, NOT OFFERED. Aug 26.
+
+     The Aug 16 pass added "Suggest one for me" and said "nobody has to
+     face a blank box". They still did — the suggestion sat behind a
+     button you had to DECIDE TO PRESS, which is its own small wall, and
+     the placeholder "RiverRoad88" quietly set a bar: I'm supposed to be
+     clever about this.
+
+     ⭐ The audit that afternoon found NINE people with an account and no
+     profile — and FIVE of them had signed in first. They reached this
+     page, looked at it, and left. One had been stuck since Aug 4.
+     **47% of everyone who ever tried to join Sober Book was behind this
+     one screen.**
+
+     ⭐ So the page no longer asks. It answers, and lets you disagree.
+     A handle is already in the box when you arrive; changing it is one
+     tap. The hardest question on the page became a default.
+
+     ⚠️ Generated ON MOUNT, not on the server — a server-rendered default
+     would be identical for two people arriving in the same second, and
+     the second one would hit a duplicate-handle error on a name they
+     never chose. */
   const [handle, setHandle] = useState('');
+
+  /* ⚠️ Empty on the first render and filled immediately after, because
+     makeHandles() uses Math.random() — doing it in useState's initialiser
+     runs it on the SERVER too, and React then screams about the markup
+     not matching. */
+  useEffect(() => { setHandle(makeHandles(1)[0]); }, []);
+
+  /* ⭐ THE NAME, ASKED HERE FOR THE FIRST TIME. Only 1 of 10 members has
+     one, which is why "find people by name" searches an empty column —
+     the field was buried in profile settings and nobody ever found it.
+     This is where a person is already thinking about how they appear.
+
+     ⚠️ Optional, and it says so. And it is the FIRST field, above the
+     handle, because a real name is the easy question and answering an
+     easy one makes the next one lighter. */
+  const [name, setName] = useState('');
   const [since, setSince] = useState('');
   const [privacy, setPrivacy] = useState('anonymous');
   const [ideas, setIdeas] = useState([]);
@@ -93,7 +131,7 @@ export default function Welcome() {
        gets a sentence instead of a dead control. */
     const h = handle.trim();
     if (h.length < 3) {
-      setErr('Pick a handle first — three characters or more. Tap “Suggest one for me” if nothing comes to mind.');
+      setErr('A handle needs three characters or more. Tap “Show me other options” if you’d rather we picked.');
       return;
     }
 
@@ -109,6 +147,9 @@ export default function Welcome() {
       const { error } = await supabase.from('profiles').insert({
         id: user.id,
         handle: h,
+        /* ⚠️ Trimmed, and NULL rather than '' when empty — an empty string
+           would count as "has a name" everywhere that checks. */
+        display_name: name.trim() || null,
         privacy_mode: privacy,
         sober_since: since || null,
       });
@@ -175,16 +216,30 @@ export default function Welcome() {
             </span>
           </button>
 
+          {/* ⚠️ The easy question first. Answering something simple makes
+              the next box lighter, and this is the field that has been
+              missing from every member but one. */}
+          <label htmlFor="n">Your name — optional</label>
+          <input id="n" type="text" value={name} maxLength={40} autoComplete="name"
+                 onChange={(e) => setName(e.target.value)} placeholder="Leave blank to stay just a handle" />
+          <p className="hint">
+            Only shown if you chose Open above. Nobody can search for you by
+            name unless you switch that on later.
+          </p>
+
           <label htmlFor="h">Your handle</label>
           <input id="h" type="text" value={handle} minLength={3} maxLength={20}
                  pattern="[A-Za-z0-9_]{3,20}" autoComplete="off"
-                 onChange={(e) => setHandle(e.target.value)} placeholder="RiverRoad88" />
-          <p className="hint">Letters, numbers and underscores. This is what people see.</p>
+                 onChange={(e) => setHandle(e.target.value)} />
+          <p className="hint">
+            We picked this one for you — keep it or change it, whatever you
+            like. Letters, numbers and underscores.
+          </p>
 
-          {/* THE BLANK-BOX FIX. Naming yourself is the hardest thing this
-              page asks and the only thing it won't let you skip. */}
+          {/* ⚠️ Now says "another", not "suggest" — there is already one in
+              the box. It is a refresh, not a rescue. */}
           <button type="button" className="nvm" onClick={() => setIdeas(makeHandles(3))}>
-            {ideas.length ? 'Show me three more' : 'Suggest one for me'}
+            {ideas.length ? 'Three more' : 'Show me other options'}
           </button>
 
           {ideas.length > 0 && (

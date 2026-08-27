@@ -10,6 +10,7 @@ import Milestones from '../components/Milestones';
 import { dayCount, startsInDays } from '../../lib/milestones';
 import PhotoUpload from '../components/PhotoUpload';
 import DeleteAccount from './DeleteAccount';
+import PushSwitch from '../components/PushSwitch';
 
 /* The faces you can pick from.
 
@@ -687,6 +688,25 @@ export default function Me({ email, profile, posts, initialAvatarUrl,
 
                 ⚠️ Calls the SAME signOut() as the settings one, so there is
                 no second implementation to drift. Two buttons, one door. */}
+            {/* 🔴 AND I PUT THIS ONE BEHIND THE PENCIL TOO — an hour after
+                writing the note above about why that was wrong.
+
+                The switch shipped inside a <Section>, which only renders
+                in the settings panel. Three steps deep, identical to
+                sign-out on Aug 23, ninth instance this month. Caught by
+                loading the live page and finding .pushbox simply absent —
+                the build was green the whole time.
+
+                ⚠️ ONE COPY, on the read view. The settings version was
+                DELETED rather than left alongside: two mounts of a control
+                that asks the browser for permission would let somebody
+                grant it in one place and see the other still saying "off".
+
+                It sits above sign-out for the same reason sign-out sits
+                last — this is a thing you decide about your phone, not
+                about your account. */}
+            <PushSwitch />
+
             <div className="meout">
               <button className={'btn out' + (confirmOut ? ' arm' : '')} type="button"
                       disabled={busy} onClick={signOut}>
@@ -1304,7 +1324,23 @@ export default function Me({ email, profile, posts, initialAvatarUrl,
                 {/* Your page should show what you actually put up — the
                     picture as much as the words. This list showed only text,
                     so a photo post appeared here as a blank entry. */}
-                {p.photo_url && postPhotoUrls[p.photo_url] && (
+                {/* ⚠️ 0065: several photos become a grid, one stays exactly
+                    as it was. Same rule as the wall — see app/photos.css. */}
+                {(() => {
+                  const shots = (Array.isArray(p.photo_urls) && p.photo_urls.length
+                    ? p.photo_urls : []).filter((s) => postPhotoUrls[s]);
+                  if (shots.length < 2) return null;
+                  return (
+                    <div className="pgrid" data-n={Math.min(shots.length, 4)}>
+                      {shots.map((s, i) => (
+                        <img key={s} src={postPhotoUrls[s]} loading="lazy"
+                             alt={`Photo ${i + 1} of ${shots.length}`} />
+                      ))}
+                    </div>
+                  );
+                })()}
+                {(!Array.isArray(p.photo_urls) || p.photo_urls.length < 2)
+                  && p.photo_url && postPhotoUrls[p.photo_url] && (
                   <div className="mphoto">
                     <img src={postPhotoUrls[p.photo_url]} alt="" loading="lazy" />
                   </div>
@@ -1312,7 +1348,7 @@ export default function Me({ email, profile, posts, initialAvatarUrl,
                 {p.video_url && postPhotoUrls[p.video_url] && (
                   <div className="mphoto">
                     <video src={postPhotoUrls[p.video_url]} controls playsInline
-                           preload="metadata" />
+                           preload="none" />
                   </div>
                 )}
                 <div className="mm">

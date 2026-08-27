@@ -21,9 +21,14 @@ import { browserClient } from '../../lib/supabase-browser';
    someone's anonymous post also blocks their open account, because it's the
    same person. That's correct. Saying so on screen would tell the user
    something about who wrote it, which is itself a deanonymisation hint. */
-export default function PostMenu({ post, onClose, onBlocked }) {
+export default function PostMenu({ post, onClose, onBlocked, onEdited }) {
   const supabase = browserClient();
-  const [view, setView] = useState('menu');   // menu | report | blockConfirm | done
+  const [view, setView] = useState('menu');   // menu | report | blockConfirm | delConfirm | edit | done
+  /* The words being edited. ⚠️ Seeded when the row is tapped, not here —
+     the menu is mounted for other people's posts too, and post.body is
+     null on an anonymous one you cannot edit anyway. */
+  const [draft, setDraft] = useState('');
+  const [toFriends, setToFriends] = useState(false);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState('');
   const [sent, setSent] = useState(null);     // 'rules' | 'concern'
@@ -71,6 +76,37 @@ export default function PostMenu({ post, onClose, onBlocked }) {
      gone, not before. Somebody deleting something they regret needs to
      know it is actually gone, and a row that vanishes locally while the
      request fails is a lie told at the worst possible moment. */
+  /* Saving an edit (0070).
+
+     🔴 An RPC, not an UPDATE. Members hold UPDATE on exactly one column of
+     posts — audience — and no SELECT at all, so an update whose WHERE
+     reads author_id is a grant that is real and unusable. Same shape as
+     delete_my_post(). */
+  async function save() {
+    setBusy(true); setErr('');
+    try {
+      const { data, error } = await supabase.rpc('edit_my_post', {
+        p_post: post.id,
+        p_body: draft,
+        /* ⚠️ null, not the current value, when nothing is changing. The
+           function only checks the narrowing rule when it is handed an
+           audience, so sending the same one back would make every edit
+           re-run a check it does not need. */
+        p_audience: toFriends ? 'friends' : null,
+      });
+      if (error) throw new Error(error.message);
+      if (data === false) throw new Error('That post is no longer yours to edit.');
+      /* ⚠️ Hand the new words back rather than making the wall re-fetch.
+         The drops bug: waiting for a server round trip is how an edit
+         looks like it did nothing for a second and a half. */
+      if (onEdited) onEdited(post.id, draft, toFriends ? 'friends' : post.audience);
+      onClose();
+    } catch (e) {
+      setErr(e.message);
+      setBusy(false);
+    }
+  }
+
   async function del() {
     setBusy(true); setErr('');
     try {
@@ -113,6 +149,7 @@ export default function PostMenu({ post, onClose, onBlocked }) {
             {view === 'report' ? "What's wrong?"
               : view === 'blockConfirm' ? 'Block this person?'
               : view === 'delConfirm' ? 'Delete this?'
+              : view === 'edit' ? 'Edit this post'
               : view === 'done' ? 'Sent' : 'This post'}
           </span>
           <button className="x" aria-label="Close" onClick={onClose}>✕</button>
@@ -124,6 +161,64 @@ export default function PostMenu({ post, onClose, onBlocked }) {
               yourself is nonsense, so those rows are absent rather than
               greyed out — a dead control is an invitation to work out how
               to enable it. */}
+          {/* ⭐ EDIT SITS ABOVE DELETE, and not only because it's gentler.
+              These two are the only rows on your own post, and the
+              destructive one should never be the first thing your thumb
+              lands on. */}
+          {view === 'menu' && post.is_mine && (
+            <button className="mrow" onClick={() => { setDraft(post.body || ''); setView('edit'); }}>
+              <span className="mt2">✏️ Edit this post</span>
+              <span className="md">
+                Change the words. {post.comment_count > 0
+                  ? 'People have replied, so it will show as edited.'
+                  : 'Nobody has replied yet, so nothing will show.'}
+              </span>
+            </button>
+          )}
+
+          {/* ---- editing (0070) ---- */}
+          {view === 'edit' && (
+            <>
+              <textarea className="editbox" value={draft} maxLength={5000}
+                        autoFocus rows={5} disabled={busy}
+                        aria-label="The words on your post"
+                        onChange={(e) => setDraft(e.target.value)} />
+
+              {/* 🔴 Says what will happen BEFORE it happens. An "edited"
+                  mark that appears as a surprise afterwards is the kind of
+                  thing people feel tricked by. */}
+              {post.comment_count > 0 && (
+                <p className="mnote">
+                  {post.comment_count === 1 ? 'Somebody has' : `${post.comment_count} people have`}
+                  {' '}already replied to this. Their answers stay, and the post will
+                  carry a small “edited” mark from now on — so nobody's reply
+                  can be quietly pointed at different words.
+                </p>
+              )}
+
+              {/* ⚠️ Narrowing only, and OFFERED only in that direction.
+                  edit_my_post() refuses to widen; showing a control that
+                  the database will reject is how you get an error nobody
+                  can act on. */}
+              {post.audience === 'open' && !post.is_anonymous && (
+                <label className="editaud">
+                  <input type="checkbox" checked={toFriends} disabled={busy}
+                         onChange={(e) => setToFriends(e.target.checked)} />
+                  Keep this to friends from now on
+                </label>
+              )}
+
+              {err && <p className="phserr" role="alert">{err}</p>}
+
+              <button className="mrow" disabled={busy || !draft.trim()} onClick={save}>
+                <span className="mt2">{busy ? 'Saving…' : 'Save changes'}</span>
+              </button>
+              <button className="mrow" disabled={busy} onClick={() => { setErr(''); setView('menu'); }}>
+                <span className="mt2">Never mind</span>
+              </button>
+            </>
+          )}
+
           {view === 'menu' && post.is_mine && (
             <button className="mrow danger" onClick={() => setView('delConfirm')}>
               <span className="mt2">🗑 Delete this post</span>

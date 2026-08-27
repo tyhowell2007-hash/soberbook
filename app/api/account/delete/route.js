@@ -77,15 +77,26 @@ export async function POST(req) {
      sees precisely what they own and nothing else. */
   const { data: mine } = await supabase
     .from('feed_posts')
-    .select('photo_url, video_url')
+    .select('photo_url, photo_urls, video_url')
     .eq('is_mine', true);
 
-  const photos = [];
+  /* 🔴 EVERY photo on every post (0065), not one per post. Somebody
+     deleting their account is the one person who most needs the cleanup to
+     be complete — "delete my account" that leaves nine of your ten
+     pictures sitting in a bucket is not the thing the button says it is.
+
+     ⚠️ Deduplicated, because photo_url mirrors photo_urls[1] while that
+     column still exists. Asking storage to remove the same path twice is
+     harmless, but a list that quietly contains duplicates is a list nobody
+     can count. */
+  const photoSet = new Set();
   const videos = [];
   for (const r of mine || []) {
-    if (r.photo_url) photos.push(r.photo_url);
+    if (Array.isArray(r.photo_urls)) r.photo_urls.filter(Boolean).forEach((p) => photoSet.add(p));
+    if (r.photo_url) photoSet.add(r.photo_url);
     if (r.video_url) videos.push(r.video_url);
   }
+  const photos = [...photoSet];
   const avatars = me.avatar_photo ? [me.avatar_photo] : [];
 
   /* ---- 2 · the rows ------------------------------------------------

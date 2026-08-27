@@ -85,11 +85,38 @@ import { browserClient } from '../../lib/supabase-browser';
    ===================================================================== */
 function chipFor(days) {
   if (days == null) return null;               // no date, no chip, no comment
-  if (days >= 3650) return { t: 'platinum', l: '10 years' };
-  if (days >= 1825) return { t: 'platinum', l: '5 years'  };
-  if (days >= 1095) return { t: 'platinum', l: '3 years'  };
-  if (days >= 730)  return { t: 'platinum', l: '2 years'  };
-  if (days >= 365)  return { t: 'gold',     l: '1 year'   };
+
+  /* 🔴 THIS USED TO STOP AT "10 years" AND CALL IT DONE.
+
+     Aug 25: Molly O'Neill joined. Her sober date is 17 February 1985 —
+     15,165 days, FORTY-ONE YEARS. Her row said "10 years". Jacoby, at
+     eleven, said "10 years" too.
+
+     ⭐ A ceiling on a recovery count is not a rounding error. The whole
+     premise of this app is that nobody has to explain themselves and
+     nobody's time gets discounted — and the first thing it did to the
+     person with the most time in the room was take thirty-one years off
+     her. That is the kind of thing somebody notices once and never
+     mentions, and then quietly stops opening the app.
+
+     So above a year it just says the number. No cap, ever.
+
+     ⚠️ Years are derived from DAYS here, not from the date, because
+     public_profiles deliberately doesn't hand out anybody's sober_since —
+     the date itself identifies a person far more than a count does. So
+     this uses the mean Gregorian year (365.2425), which can read one day
+     early on the morning of an anniversary. That is acceptable for a chip
+     on a directory row and NOT acceptable on the profile, which is why
+     lib/milestones.js works off real calendar anniversaries instead (the
+     Aug 9 rule: year marks are calendar dates, never 365×n). Two
+     different jobs, deliberately two different methods. */
+  if (days >= 365) {
+    const y = Math.floor(days / 365.2425);
+    const label = `${y} year${y === 1 ? '' : 's'}`;
+    /* Metal keeps the medallion logic: gold through the first year and a
+       half-decade, platinum once you're past two. */
+    return { t: y >= 2 ? 'platinum' : 'gold', l: label };
+  }
   if (days >= 180)  return { t: 'gold',     l: '6 months' };
   if (days >= 90)   return { t: 'silver',   l: '90 days'  };
   if (days >= 60)   return { t: 'silver',   l: '60 days'  };

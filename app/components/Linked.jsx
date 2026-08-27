@@ -1,5 +1,7 @@
 'use client';
 
+import { buildIndex, findMentions } from '../../lib/mentions';
+
 import { useState } from 'react';
 import { pieces, classify, firstPlayable, host } from '../../lib/links';
 
@@ -48,12 +50,59 @@ function Out({ url }) {
   );
 }
 
-export function Body({ text }) {
+/* @names inside a run of ordinary text (0067, revised).
+
+   ⭐ THE BLUE IS NOW TRUE, NOT A GUESS.
+
+   The first version regex-matched anything shaped like @word. That was
+   already a lie by omission — it lit up handles that belonged to nobody —
+   and once Ty asked for "@ before their NAME" it stopped working at all,
+   because a name has spaces and there is no way to tell from the text
+   where "@Nic Rossiter and I" stops being a name.
+
+   So this takes the post's ACTUAL tags — the rows the database agreed to
+   write — and highlights those names where they appear. A handle lights up
+   because somebody really was tagged, not because it looked like a word.
+
+   ⚠️ Same buildIndex/findMentions the composer uses. One implementation of
+   "which @ refers to whom", so what you saw while typing and what appears
+   on the wall cannot disagree.
+
+   ⚠️ Split AFTER the link pass, never before. A URL can contain an @ —
+   mailto:, an ftp login, tracking parameters — and highlighting the middle
+   of somebody's link as a person is both wrong and ugly. */
+function withHandles(chunk, keyBase, index) {
+  if (!index) return chunk;
+  const { spans } = findMentions(chunk, index);
+  if (!spans || !spans.length) return chunk;
+
+  const out = [];
+  let last = 0;
+  for (const m of spans) {
+    if (m.start > last) out.push(chunk.slice(last, m.start));
+    out.push(
+      <a key={`${keyBase}-${m.start}`} className="mention" href={`/u/${m.handle}`}>
+        @{m.label}
+      </a>
+    );
+    last = m.end;
+  }
+  if (last < chunk.length) out.push(chunk.slice(last));
+  return out;
+}
+
+/* `tags` comes from post_tags — see lib/tags.js. When it's absent (a
+   reply, a preview, anywhere tags aren't fetched) nothing is highlighted,
+   which is correct: no tags means nobody was tagged. */
+export function Body({ text, tags }) {
   if (!text) return null;
+  const index = tags && tags.length ? buildIndex(tags) : null;
   return (
     <>
       {pieces(text).map((p, i) =>
-        p.t === 'link' ? <Out key={i} url={p.v} /> : <span key={i}>{p.v}</span>
+        p.t === 'link'
+          ? <Out key={i} url={p.v} />
+          : <span key={i}>{withHandles(p.v, i, index)}</span>
       )}
     </>
   );

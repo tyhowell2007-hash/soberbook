@@ -89,7 +89,7 @@ export async function POST(req) {
      person who wrote it, so "did I write this" cannot be answered by
      comparing ids on the client. */
   const { data: post } = await supabase
-    .from('feed_posts').select('id, is_mine, photo_url, video_url')
+    .from('feed_posts').select('id, is_mine, photo_url, photo_urls, video_url')
     .eq('id', postId).single();
 
   if (!post?.is_mine) {
@@ -159,8 +159,27 @@ export async function POST(req) {
      anonymous post. That is correct here rather than a bug: 0022 makes it
      impossible for an anonymous post to have a photo at all, so there is
      never anything to clean up in that case. */
-  if (post.photo_url) {
-    await adminClient().storage.from('post-photos').remove([post.photo_url]);
+  /* 🔴 EVERY photo, not just the first (0065). A post can carry ten, and
+     the old line removed exactly one — leaving nine files with nothing
+     pointing at them. That is precisely where Aug 23's 33MB of orphans
+     came from, in a different corner of this same route.
+
+     ⚠️ ONE remove() call, not a loop. Ten round trips means the fourth can
+     fail after three succeeded, which leaves a half-cleaned post — the
+     exact state this ordering exists to prevent.
+
+     ⚠️ photo_url is included and de-duplicated rather than assumed
+     redundant. The 0065 trigger keeps it equal to photo_urls[1], so it
+     normally adds nothing — but if that trigger is ever dropped this line
+     still cleans up, and a cleanup path should not depend on a trigger
+     being alive somewhere else. */
+  const photoPaths = [...new Set([
+    ...(Array.isArray(post.photo_urls) ? post.photo_urls : []),
+    post.photo_url,
+  ].filter(Boolean))];
+
+  if (photoPaths.length) {
+    await adminClient().storage.from('post-photos').remove(photoPaths);
   }
   /* Same for video. ⚠️ If this ever silently stops working, the file is
      not left public — it's left in a private bucket with nothing

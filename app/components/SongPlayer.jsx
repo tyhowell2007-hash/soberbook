@@ -227,19 +227,35 @@ export default function SongPlayer({ song, whose, big = false, autoplay = false 
     /* Already playing this one? Leave it alone — a re-render must never
        restart a song somebody is in the middle of. */
     if (sa.owns(me)) return;
-    /* 🔴 NOT BLESSED YET, SO DON'T EVEN TRY. On a phone this call would
-       be refused and, worse, the rejection is the only signal we'd get —
-       we'd flip `failed` and show an error on a page that is about to
-       work fine two seconds later when the person taps something.
+    /* 🔴 ASK, DON'T ASSUME THE ANSWER IS NO.
+       Ty, Aug 26: "it doesnt auto play." This used to bail out here on
+       `!sa.isBlessed()` — and `blessed` is module state, so it is false on
+       every fresh document load. Cold-open anybody's profile and the app
+       made ZERO play attempts. Proven live: `playAttempts: []` on a page
+       that had the song sitting right there.
 
-       This effect re-runs when the blessing lands (AudioUnlock fires
-       notify()), so the cold-open case resolves itself on the first
-       touch instead of needing the ▶ button. Ty: "I don't want somebody
-       to have to push a button to hear it because they won't." */
-    if (!sa.isBlessed()) return;
+       ⭐ The mistake was applying iOS's rule to every browser. Only Safari
+       blesses per ELEMENT; desktop Chrome decides with a per-site
+       engagement score and would have said yes. We were enforcing the
+       strictest browser's policy on all of them and calling it caution.
 
+       So: attempt it, and let the browser be the one that refuses. The
+       original worry — that a rejection flips `failed` and shows an error
+       on a page about to work fine — was right, and is handled by NOT
+       going through play(): a refused autoplay must leave no mark at all.
+       The ▶ button is already there, and the effect still re-runs when the
+       blessing lands, so a phone gets its second chance on the first tap. */
     let dead = false;
-    (async () => { try { if (!dead) await play(); } catch {} })();
+    (async () => {
+      try {
+        if (dead) return;
+        await sa.play(me, song.anthem_preview, { loop: true });
+        if (!dead) setFailed(false);
+      } catch {
+        /* The browser said no. That is a legitimate answer, not a fault:
+           no `failed`, no error card, no nag. Silence and a ▶. */
+      }
+    })();
     return () => { dead = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [autoplay, canPreview, offNow, sa.isBlessed()]);

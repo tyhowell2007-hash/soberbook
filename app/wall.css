@@ -299,6 +299,21 @@ ul.mine li > *{ position:relative; z-index:1; }
   text-decoration:underline; text-underline-offset:3px; padding:6px;
 }
 
+/* ⚠️ THE WAY OUT, ON THE PAGE YOU LAND ON — added Aug 23.
+   Sign-out was only reachable behind the pencil, at the bottom of the
+   settings list. Ty owns the app and couldn't find it. Same shape as the
+   Aug 19 bug where you couldn't delete your own post: built, but no way
+   in.
+
+   Separated by a rule and pushed well down the page — the original
+   reasoning (it's the one control you can't undo, so it shouldn't sit
+   next to your own face) argued for putting it LAST, not for hiding it. */
+.meout{
+  margin:34px 0 6px;
+  padding-top:20px;
+  border-top:2px solid var(--line);
+}
+
 /* the day count in the masthead is now the way in to /me */
 .mast .melink{ text-decoration:none; padding:4px 0 4px 6px; }
 .mast .melink:hover{ text-decoration:underline; text-underline-offset:3px; }
@@ -545,6 +560,65 @@ ul.mine li > *{ position:relative; z-index:1; }
 .snote{ font-family:'Courier Prime',monospace; font-size:10.5px; color:var(--soft);
   background:var(--paper2); padding:9px 13px; line-height:1.55; }
 
+/* =====================================================================
+   THE MILESTONE OFFER — "You hit 90 days today. Want to put it on
+   the wall?"
+
+   Gold, because gold means milestone everywhere else in this app and
+   nowhere else. Somebody who has scrolled past one gold post already
+   knows what this card is before reading it.
+
+   It sits between the welcome line and the composer, in the flow — not
+   fixed, not floating, not covering anything. You can scroll straight
+   past it and nothing chases you.
+
+   ⚠️ Both buttons are the same size. The obvious move is to make
+   "Share it" bigger and "Not this time" a small grey link, because that
+   is how every product on earth builds a choice it has a preference
+   about. This app does not get to have a preference here. Weighting the
+   buttons would be the app leaning on somebody about a disclosure, which
+   is the exact thing asking was supposed to avoid.
+   ===================================================================== */
+.mstone{
+  display:flex; flex-wrap:wrap; align-items:center; gap:12px;
+  margin:0 0 14px; padding:16px 15px;
+  background:#FBF0D2; border:3px solid var(--x); box-shadow:5px 5px 0 var(--x);
+}
+.mstone-coin{ font-size:30px; line-height:1; flex:none; }
+.mstone-body{ flex:1 1 190px; min-width:0; }
+.mstone-body h3{
+  font-family:'Anton',Impact,sans-serif; font-weight:400; font-size:23px;
+  text-transform:uppercase; color:var(--x); line-height:1.05;
+}
+.mstone-body p{
+  font-family:'Courier Prime',monospace; font-size:12.5px;
+  color:#5A4A18;                       /* 7.1:1 on the gold */
+  margin-top:4px;
+}
+.mstone-acts{ display:flex; gap:9px; flex:1 1 100%; }
+.mstone-acts .btn{ flex:1; min-height:44px; margin-top:0; }
+
+/* THE OFF SWITCH — "stop starting songs for me".
+
+   Full width and directly under the sleeve on purpose. The person
+   reaching for this may be in a quiet room with sound already coming out
+   of their phone, so it is not a small grey link tucked in a corner; it
+   is the widest tappable thing on the block. 44px min-height is the
+   smallest target a thumb reliably hits in a hurry.
+
+   It sits BELOW the player rather than inside the artwork because the
+   artwork already holds ▶ and "whole song ▸", and a third control in
+   that square is where somebody panicking taps the wrong one. */
+.soff{
+  display:block; width:100%; min-height:44px; margin-top:8px;
+  background:var(--paper2); color:var(--x);
+  border:2px solid var(--x); padding:11px 13px;
+  font-family:'Courier Prime',monospace; font-size:11.5px; font-weight:700;
+  letter-spacing:.1em; text-transform:uppercase; cursor:pointer;
+}
+.soff:hover{ background:var(--x); color:var(--paper); }
+.soff:focus-visible{ outline:3px solid var(--acid); outline-offset:2px; }
+
 @media (prefers-reduced-motion: reduce){
   .sart{ transition:none; }
   .sline span{ transition:none; }
@@ -668,6 +742,113 @@ ul.mine li > *{ position:relative; z-index:1; }
   font-size:15px; line-height:1.5; text-align:center; color:var(--body);
   margin:0 0 20px; padding:0 6px;
 }
+/* =====================================================================
+   THE BOTTOM BAR.
+
+   Two tabs, because two destinations exist. See BottomNav.jsx for why it
+   isn't the seven from the prototype.
+
+   ⚠️ THE SAFE-AREA INSET IS NOT OPTIONAL. On any iPhone since the X there
+   is a home indicator sitting in the bottom ~34px of the screen. Without
+   env(safe-area-inset-bottom) the labels sit underneath it — legible in a
+   simulator, half-swallowed on a real phone, and the tap target overlaps
+   the system swipe. It costs one line and it is the difference between
+   this looking designed and looking ported.
+
+   ⚠️ z-index 60 is chosen, not arbitrary. Above the masthead (40) so it
+   never gets painted over on scroll; below .sheetwrap (200) so a report
+   or block sheet still covers it — a nav bar poking through a modal is
+   how somebody taps the wrong thing at the wrong moment.
+   ===================================================================== */
+.tabbar{
+  position:fixed; bottom:0; left:0; right:0; z-index:60;
+  max-width:520px; margin:0 auto;
+  display:flex; background:var(--paper2);
+  border-top:4px solid var(--x);
+  padding-bottom:env(safe-area-inset-bottom, 0px);
+}
+.tab{
+  flex:1; min-height:56px; display:flex; flex-direction:column;
+  align-items:center; justify-content:center; gap:2px;
+  text-decoration:none; color:var(--soft); padding:7px 4px;
+}
+.tab .ti{ font-size:21px; line-height:1; }
+.tab .tl{
+  font-family:'Courier Prime',monospace; font-size:10px; font-weight:700;
+  letter-spacing:.12em; text-transform:uppercase;
+}
+/* The active tab is marked by COLOUR AND WEIGHT, never by colour alone —
+   about one man in twelve can't rely on a hue shift. aria-current carries
+   it for screen readers. */
+.tab.on{ color:var(--x); background:var(--acid); }
+.tab.on .tl{ font-weight:700; }
+.tab:focus-visible{ outline:3px solid var(--x); outline-offset:-3px; }
+
+/* ⚠️ SIX TABS SINCE AUG 21 (Quiet). On a 320px phone that is 53px each,
+   and "MEETINGS" — 8 uppercase characters with .12em letter-spacing —
+   no longer fits. It wrapped to two lines, which pushed the bar taller
+   than .navpad reserves and put a strip of the page permanently under
+   it.
+
+   The fix is horizontal only: less padding, less letter-spacing, and
+   nowrap so a stray break can never change the bar's HEIGHT. The font
+   size stays at 10px — shrinking type to fit more tabs is how a nav bar
+   becomes unreadable one feature at a time.
+
+   ⚠️ Whatever is added seventh does not get to solve this the same way.
+   Six is the ceiling for a bar of words. */
+.tab .tl{ white-space:nowrap; }
+@media (max-width:380px){
+  .tab{ padding:7px 1px; }
+  .tab .tl{ letter-spacing:.04em; }
+}
+
+/* Keeps the last post clear of the fixed bar. Must track .tabbar's height. */
+.navpad{ height:60px; }
+
+/* =====================================================================
+   YOUR PAGE — the read view at the top of /me.
+
+   Ty, Aug 16, looking at ten stacked forms: "it's really messy. there's
+   too many drop down windows." So the landing state is a page you read —
+   face, name, a line about you — and one pencil opens the settings.
+   ===================================================================== */
+.phead{ text-align:center; margin:0 0 20px; }
+.pface{
+  width:96px; height:96px; margin:0 auto 10px;
+  display:flex; align-items:center; justify-content:center;
+  font-family:'Anton',Impact,sans-serif; font-size:34px; letter-spacing:.03em;
+  background:var(--acid); color:var(--acid-ink);
+  border:4px solid var(--x); box-shadow:5px 5px 0 var(--x);
+}
+.pn{
+  font-family:'Anton',Impact,sans-serif; font-size:26px; text-transform:uppercase;
+  color:var(--x); line-height:1.05; letter-spacing:.01em;
+}
+.pn .pdot{ color:var(--soft); }
+.pbio{
+  font-size:15px; color:var(--body); margin:8px auto 0; max-width:34ch;
+  line-height:1.55;
+}
+
+/* The header of the details card, with the one control on the page. */
+.deets-hd{ display:flex; align-items:center; gap:10px; }
+.deets-hd h3{ flex:1; }
+/* 44px, because it is the ONLY way into settings from this screen. A 20px
+   pencil is fine on a laptop and a coin-toss on a phone. */
+.pencil{
+  flex:none; width:44px; height:44px; background:none; border:none;
+  font-size:19px; line-height:1; cursor:pointer; border-radius:0;
+}
+.pencil:hover{ background:var(--acid); }
+.pencil:focus-visible{ outline:3px solid var(--x); outline-offset:2px; }
+
+/* Done, top and bottom of the settings list. Somebody who opened the
+   pencil to change one thing shouldn't have to scroll past nine sections
+   to get out. */
+.editbar{ margin:0 0 18px; }
+.editbar:last-of-type{ margin:22px 0 0; }
+
 .deets{
   border:4px solid var(--x); background:var(--paper2);
   box-shadow:5px 5px 0 var(--x); padding:4px 14px; margin-bottom:22px;
@@ -803,3 +984,580 @@ textarea:focus-visible{ outline:4px solid var(--x); outline-offset:3px; }
 }
 .facenone:hover{ background:var(--paper); color:var(--x); }
 .facenone:focus-visible{ outline:4px solid var(--x); outline-offset:3px; }
+
+/* =====================================================================
+   CHAT — structure. Aug 16.
+
+   Colours here are the base-layer ones; the green room repaints them in
+   theme-green.css. Chat only ever renders inside the room, so what you
+   see on a phone is always the green version — this half exists so the
+   layout can't collapse if the skin ever fails to load.
+   ===================================================================== */
+
+/* one row of the inbox */
+.crow{ display:flex; gap:11px; align-items:center; padding:12px 13px;
+  border:3px solid var(--x); background:var(--paper2); margin-bottom:10px; }
+.clink{ display:block; text-decoration:none; color:inherit; }
+.clink:focus-visible{ outline:4px solid var(--x); outline-offset:3px; }
+
+.cav{ flex-shrink:0; width:42px; height:42px; display:flex; align-items:center;
+  justify-content:center; font-size:21px; line-height:1;
+  border:3px solid var(--x); background:var(--acid); }
+
+/* min-width:0 is load-bearing. A flex child defaults to min-width:auto,
+   which means it refuses to shrink below its content — so one long
+   message would push the unread dot off the screen instead of ellipsing.
+   This is the single most common flexbox bug there is. */
+.cwho{ min-width:0; flex:1; }
+.cname{ display:block; font-family:'Archivo',system-ui,sans-serif;
+  font-weight:700; font-size:15px; color:var(--x); overflow-wrap:anywhere; }
+.clast{ display:block; font-family:'Courier Prime',monospace; font-size:12px;
+  color:var(--soft); margin-top:2px;
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+
+.cdot{ flex-shrink:0; min-width:22px; height:22px; padding:0 6px; border-radius:99px;
+  display:flex; align-items:center; justify-content:center;
+  font-family:'Archivo',system-ui,sans-serif; font-size:11px; font-weight:700;
+  background:var(--x); color:var(--paper2); }
+.csent{ flex-shrink:0; font-family:'Courier Prime',monospace; font-size:10px;
+  letter-spacing:.1em; text-transform:uppercase; color:var(--soft); }
+
+/* the requests lane */
+.creq{ width:100%; display:flex; gap:11px; align-items:center; text-align:left;
+  padding:12px 13px; margin-bottom:10px; cursor:pointer;
+  border:3px dashed var(--x); background:var(--paper); }
+.cnum{ flex-shrink:0; width:30px; height:30px; border-radius:99px;
+  display:flex; align-items:center; justify-content:center;
+  font-family:'Archivo',system-ui,sans-serif; font-weight:700; font-size:13px;
+  background:var(--x); color:var(--paper2); }
+.creqt{ flex:1; font-family:'Archivo',system-ui,sans-serif; font-weight:700;
+  font-size:14px; color:var(--x); }
+.creqs{ display:block; font-family:'Courier Prime',monospace; font-weight:400;
+  font-size:11px; color:var(--soft); margin-top:1px; }
+.ccaret{ flex-shrink:0; color:var(--soft); font-size:14px; }
+.creqlist{ margin:0 0 16px; }
+
+/* ⚠️ ACCEPT AND IGNORE ARE THE SAME SIZE, and that is not a styling
+   preference — same rule as the two milestone buttons. Making Ignore the
+   small grey one is the app leaning on somebody to say yes to a stranger,
+   and the person most affected by that nudge is the newcomer this whole
+   gate exists to protect. */
+.cbtns{ display:flex; gap:7px; flex-shrink:0; }
+.cbtns button{ font-family:'Archivo',system-ui,sans-serif; font-weight:700;
+  font-size:12px; padding:9px 13px; cursor:pointer; border:3px solid var(--x); }
+.cyes{ background:var(--x); color:var(--paper2); }
+.cno{ background:var(--paper2); color:var(--x); }
+.cbtns button[disabled]{ opacity:.5; cursor:default; }
+
+.cgate{ font-family:'Courier Prime',monospace; font-size:11px; line-height:1.55;
+  color:var(--soft); padding:2px 4px 0; }
+
+/* the conversation */
+.convo{ padding:18px 16px 34px; display:flex; flex-direction:column; gap:9px; }
+.bub{ max-width:78%; align-self:flex-start; padding:10px 13px;
+  font-family:'Courier Prime',monospace; font-size:14px; line-height:1.5;
+  color:var(--x); background:var(--paper2); border:3px solid var(--x);
+  overflow-wrap:anywhere; }
+.bub.mine{ align-self:flex-end; background:var(--acid); color:var(--acid-ink); }
+.cnote{ align-self:center; text-align:center; max-width:80%;
+  font-family:'Courier Prime',monospace; font-size:11px; line-height:1.55;
+  color:var(--soft); padding:6px 0; }
+
+/* THE MESSAGE BAR — its own class, NOT .composer, and that is a bug fix
+   rather than a naming preference.
+
+   .composer is the wall's post box, and theme-green.css deliberately
+   re-declares it as `position:static` so it can sit at the TOP of the
+   feed. Reusing the class here would have inherited that: the message box
+   would have unpinned itself and scrolled away with the conversation,
+   only in the green room, only on this one page. Shared class names are
+   how a fix in one place becomes a bug in another. */
+.cbar{
+  position:fixed; left:0; right:0; max-width:520px; margin:0 auto; z-index:55;
+  /* sits ON TOP of the tab bar's 60px, so both are reachable. env() is
+     the iPhone home-indicator strip — without it the send button lands
+     under the little grey bar and can't be tapped. */
+  bottom:calc(60px + env(safe-area-inset-bottom, 0px));
+  display:flex; gap:9px; padding:11px 12px;
+  background:var(--x); border-top:4px solid var(--x);
+}
+.cbar input{
+  flex:1; min-width:0; border:3px solid var(--acid); background:#F2EFE6; padding:11px;
+  font-family:'Courier Prime',monospace; font-size:15px; color:var(--x); outline:none;
+}
+.cbar button{
+  background:var(--acid); color:var(--acid-ink); border:none; padding:11px 15px;
+  font-family:'Anton',Impact,sans-serif; font-size:16px; text-transform:uppercase;
+  letter-spacing:.04em; cursor:pointer; white-space:nowrap;
+}
+.cbar button[disabled], .cbar input[disabled]{ opacity:.55; }
+/* the conversation must clear the bar AND the tabs */
+.convopad{ height:76px; }
+
+/* =====================================================================
+   HANDLE SUGGESTIONS — /welcome. Aug 16.
+
+   Naming yourself is the only thing this page won't let you skip, and
+   it's the hardest thing it asks. Somebody stopped here for 38 seconds
+   on Aug 4 and never came back.
+   ===================================================================== */
+.ideas{ margin:10px 0 4px; display:flex; flex-wrap:wrap; gap:8px; }
+.idea{
+  font-family:'Courier Prime',monospace; font-size:14px; font-weight:700;
+  padding:9px 14px; cursor:pointer;
+  border:3px solid var(--x); background:var(--paper2); color:var(--x);
+  /* 44px is the smallest target most guidance treats as reliably
+     tappable. These are the way past the one wall on the page — they do
+     not get to be fiddly. */
+  min-height:44px;
+}
+.idea:hover{ background:var(--acid); color:var(--acid-ink); }
+.idea:focus-visible{ outline:4px solid var(--x); outline-offset:3px; }
+.ideas .hint{ flex-basis:100%; margin-top:2px; }
+
+/* =====================================================================
+   CHAT TABS + THE DIRECTORY. Aug 17.
+   Structure only; the green room repaints these in theme-green.css.
+   ===================================================================== */
+.ctabs{ display:flex; margin:0 0 12px; border-bottom:3px solid var(--x); }
+.ctab{
+  flex:1; padding:11px 6px; cursor:pointer; background:none; border:0;
+  font-family:'Courier Prime',monospace; font-size:12px; font-weight:700;
+  letter-spacing:.08em; text-transform:uppercase; color:var(--soft);
+  /* 44px so a thumb finds it. This is the control that reveals the whole
+     member list — it does not get to be a tiny word. */
+  min-height:44px;
+}
+.ctab.on{ color:var(--x); box-shadow:inset 0 -3px 0 var(--x); }
+.ctab:focus-visible{ outline:3px solid var(--x); outline-offset:-3px; }
+
+/* a directory row is a button, not a link — tapping it calls start_thread
+   and only then knows where it's going */
+.drow{ width:100%; text-align:left; cursor:pointer; font:inherit; }
+.drow[disabled]{ opacity:.55; cursor:default; }
+.dchip{
+  display:inline-block; margin-left:6px; padding:2px 8px; border-radius:99px;
+  font-family:'Courier Prime',monospace; font-size:10px; font-weight:700;
+  letter-spacing:.04em; vertical-align:1px;
+}
+
+.dgo{
+  flex-shrink:0; font-family:'Courier Prime',monospace; font-size:11px;
+  font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--x);
+}
+
+/* =====================================================================
+   MILESTONE CHIPS — five metals. Aug 17.
+
+   Ty asked for metals, then for pills rather than struck coins. This is
+   the pill, tinted so the tier reads at a glance: pale metal face, dark
+   metal ink, a real metal edge.
+
+   ⚠️ THE TIER IS CARRIED BY THE LABEL AS WELL AS THE COLOUR. "90 days"
+   and "1 year" are different words, not just different browns — about one
+   man in twelve can't rely on the hue to tell copper from bronze, and the
+   whole point of a chip is that it says something.
+
+   Every pair below was measured: text 8.45:1 or better on its own face,
+   and every border clears 3:1 against BOTH the white row and the green
+   hover wash. Copper and gold borders were darkened from the first draft
+   for exactly that reason — they passed on white and failed on hover.
+   ===================================================================== */
+.dchip{
+  display:inline-block; margin-left:6px; padding:2px 9px; border-radius:99px;
+  font-family:'Courier Prime',monospace; font-size:10px; font-weight:700;
+  letter-spacing:.03em; vertical-align:1px; white-space:nowrap;
+  border:1px solid transparent;
+}
+.dchip.m-copper  { background:#FBEADF; color:#6B3410; border-color:#B4652E; }
+.dchip.m-bronze  { background:#F7EEE0; color:#5A3A16; border-color:#A97142; }
+.dchip.m-silver  { background:#EDF0F3; color:#333C44; border-color:#7C8A98; }
+.dchip.m-gold    { background:#FBF0D2; color:#4A3708; border-color:#9A7818; }
+.dchip.m-platinum{ background:#E7EDF2; color:#2B3A47; border-color:#6E8398; }
+
+/* Somebody with no sober date and no chip. Green, not metal — it is not a
+   milestone and must never look like the bottom rung of one. */
+.dchip.new{ background:var(--acid); color:var(--acid-ink); border-color:var(--acid-ink); }
+
+/* =====================================================================
+   LINKS IN POSTS AND COMMENTS — Aug 23.
+
+   A member posted his unreleased music and the link rendered as plain
+   text: select it, copy it, leave. ⭐ The first thing built because
+   somebody USED the app a way it didn't bend to.
+   ===================================================================== */
+.lk{
+  color:var(--gm-t,#256F4C); text-decoration:underline; text-underline-offset:3px;
+  word-break:break-word;
+}
+.lk:hover{ background:var(--acid); text-decoration:none; }
+/* ⚠️ The domain is always shown. In a room where treatment centres pay
+   for referrals, an unlabelled link is how somebody gets sold. */
+.lkh{
+  font-family:'Courier Prime',monospace; font-size:11px; color:var(--soft);
+  text-decoration:none; white-space:nowrap;
+}
+
+.ply{ margin:12px 0 4px; }
+.plyf{
+  width:100%; height:180px; border:0; border-radius:12px;
+  background:var(--x); display:block;
+}
+.ply.tall .plyf{ height:230px; }
+
+/* The resting state: a button, not a player. Nothing has loaded yet. */
+.plyb{
+  width:100%; display:flex; align-items:center; gap:14px;
+  /* 56px — comfortably past the 44px tap floor from the Aug 18 audit */
+  min-height:64px; padding:12px 16px; cursor:pointer; text-align:left;
+  background:var(--paper2); border:2px solid var(--gd,#1B6B4A); border-radius:12px;
+  font-family:inherit;
+}
+.plyb:hover{ background:var(--gl,#E8F4ED); }
+.plyt{
+  flex:none; width:44px; height:44px; border-radius:50%;
+  background:var(--gd,#1B6B4A); color:var(--gl,#E8F4ED);
+  display:flex; align-items:center; justify-content:center; font-size:18px;
+}
+.plyl{
+  display:flex; flex-direction:column; font-size:15px; font-weight:700;
+  color:var(--gt,#0F3D2A);
+}
+.plys{
+  font-family:'Courier Prime',monospace; font-size:11px; font-weight:400;
+  color:var(--soft); letter-spacing:.02em; margin-top:2px;
+}
+
+/* =====================================================================
+   THE CONVERSATION, ON THE WALL   (.rpv / .rpvr / .rpvw / .rpvb / .rpvm)
+
+   Aug 23. Ty: "allow other users to see the replies. it will allow others
+   to see the convo and join in." Until tonight a post with six answers
+   and a post with none looked identical from the wall — one line of grey
+   text either way, and you had to tap to find out which was which.
+
+   ---------------------------------------------------------------------
+   ⚠️ HIERARCHY IS DONE WITH SIZE AND WEIGHT, NEVER WITH CONTRAST.
+
+   The obvious way to make a reply read as secondary is to grey it out.
+   That's how the Aug 17 audit failure happened — a pale tag on a pale
+   card measured 1.00 and was invisible on the most important card on the
+   page. So a preview is SMALLER than the post above it and set in a
+   quieter face, but its text colour is the same --body the post uses.
+   Someone reading this at 2am on a cracked phone in bad light gets the
+   full contrast; they just get fewer pixels.
+
+   --soft on --paper measures 4.86:1, which is why it's used for the
+   timestamp-ish furniture and never for the words somebody wrote.
+
+   ⚠️ These classes borrow --x/--body/--soft rather than naming colours,
+   so theme-green.css reskins them for free. A hardcoded hex here would be
+   the one grunge-black element left sitting in the green room.
+   ===================================================================== */
+
+.rpv{ margin:11px 0 3px; }
+
+/* The bar down the left is the same one the thread sheet uses on .reply,
+   so opening a post feels like the same conversation getting bigger
+   rather than a different screen. */
+.rpvr{
+  border-left:3px solid var(--x);
+  padding:2px 0 2px 10px;
+  margin-bottom:7px;
+  font-size:13.5px;
+  line-height:1.5;
+  /* ⚠️ A pasted link with no spaces in it is one very long word. Without
+     this it pushes the whole card wider than the phone and the entire
+     wall scrolls sideways — every post punished for one reply. */
+  overflow-wrap:anywhere;
+}
+.rpvr:last-child{ margin-bottom:0; }
+
+/* ⚠️ Marked the same way an anonymous POST is marked — dashed edge plus
+   the halftone screen. Consistency matters more than novelty here: people
+   learn one visual language for "this person isn't named", and it has to
+   mean the same thing in every place it appears. */
+.rpvr.screened{ border-left-style:dashed; position:relative; }
+.rpvr.screened::after{
+  content:""; position:absolute; inset:0; pointer-events:none;
+  background-image:radial-gradient(rgba(10,10,9,.16) 1.1px, transparent 1.3px);
+  background-size:6px 6px;
+}
+.rpvr.screened > *{ position:relative; z-index:1; }
+
+.rpvw{
+  font-family:'Anton',Impact,sans-serif; font-size:12.5px;
+  text-transform:uppercase; letter-spacing:.02em; color:var(--x);
+}
+.rpvb{ color:var(--body); margin-left:6px; }
+
+/* "3 earlier replies ›" — a real control, so it gets a real tap target.
+   ⚠️ 44px, from the Aug 18 audit that found the two most-used controls on
+   the wall sitting at about 20px. A link this small is exactly the kind
+   that quietly goes back to being untappable. */
+.rpvm{
+  display:flex; align-items:center; min-height:44px;
+  background:none; border:none; padding:0; cursor:pointer;
+  font-family:'Courier Prime',monospace; font-size:11px; font-weight:700;
+  letter-spacing:.06em; text-transform:uppercase; color:var(--soft);
+  text-decoration:underline; text-underline-offset:3px;
+}
+.rpvm:hover{ color:var(--x); }
+.rpvm:focus-visible{ outline:3px solid var(--x); outline-offset:3px; }
+
+/* =====================================================================
+   SOMETHING TO WATCH, ON THE WALL   (.cc*)   — premium pass, Aug 23
+
+   Ty: "lets make the box the player sits in more premium!!"
+
+   ⚠️ PREMIUM, NOT LOUD. This card must stay quieter than a member's post
+   — their words are the page, a video is what you pass on the way to
+   them. So no acid edge, no poster size, no colour competing with the
+   green room. What's left is depth, type and restraint.
+
+   ⚠️ It is the only rounded object in the app, on purpose. Sober Book has
+   three border-radius declarations in 60KB of CSS because square IS the
+   house style. Something from outside shouldn't wear the house style —
+   the rounding is the passport stamp.
+   ===================================================================== */
+
+.cc{
+  margin:0 0 18px;
+  border-radius:14px;
+  background:var(--paper2);
+  /* Two layers: a tight contact shadow so it sits ON the page, and a wide
+     soft one so it floats above it. ⚠️ One shadow always looks either
+     glued down or detached — the pair is what reads as a real object. */
+  box-shadow:0 1px 2px rgba(15,61,42,.10), 0 12px 28px -8px rgba(15,61,42,.26);
+  overflow:hidden;                 /* keeps the image inside the radius */
+  -webkit-tap-highlight-color:transparent;
+}
+
+.ccframe{ position:relative; width:100%; aspect-ratio:16/9; background:#0B0F0D; }
+.ccif{ position:absolute; inset:0; width:100%; height:100%; border:0; display:block; }
+
+.ccplay{
+  position:absolute; inset:0; width:100%; height:100%;
+  padding:0; border:0; background:none; cursor:pointer; display:block;
+  transition:transform .18s ease;
+}
+/* It presses. Small, and the whole card moves as one piece. */
+.ccplay:active{ transform:scale(.985); }
+.ccplay:focus-visible{ outline:3px solid var(--gd,#1B6B4A); outline-offset:-3px; }
+
+.ccimg{ width:100%; height:100%; object-fit:cover; display:block; }
+.ccnone{ background:linear-gradient(160deg,#1B6B4A,#0F3D2A); }
+
+/* ⚠️ THE GRADIENT IS LOAD-BEARING, not decoration. We do not choose these
+   thumbnails; white type is legible on a dark one and invisible on a
+   bright one. Dark at both ends, clear through the middle so the picture
+   still reads. */
+.ccscrim{
+  position:absolute; inset:0; pointer-events:none;
+  background:
+    linear-gradient(to bottom, rgba(8,12,10,.62) 0%, rgba(8,12,10,0) 34%),
+    linear-gradient(to top,    rgba(8,12,10,.86) 0%, rgba(8,12,10,.28) 32%, rgba(8,12,10,0) 58%);
+}
+
+/* ---- the byline, top of the picture ---- */
+.ccmeta{
+  position:absolute; top:0; left:0; right:0; padding:11px 13px;
+  display:flex; align-items:center; gap:8px; pointer-events:none;
+}
+.ccsrc{
+  font-family:'Anton',Impact,sans-serif; font-size:12px; letter-spacing:.09em;
+  text-transform:uppercase; color:#fff; text-shadow:0 1px 3px rgba(0,0,0,.5);
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap; min-width:0;
+}
+.cccat{
+  flex:none; margin-left:auto;
+  font-family:'Courier Prime',monospace; font-size:9.5px; font-weight:700;
+  letter-spacing:.12em; text-transform:uppercase; color:#F2FBF6;
+  padding:3px 8px; border-radius:999px;
+  background:rgba(255,255,255,.16); border:1px solid rgba(255,255,255,.34);
+  -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px);
+}
+
+/* ---- the play affordance ---- */
+.ccbtn{
+  position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+  /* 64px — comfortably past the 44px tap floor from the Aug 18 audit */
+  width:64px; height:64px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  background:rgba(255,255,255,.17); border:1.5px solid rgba(255,255,255,.62);
+  -webkit-backdrop-filter:blur(10px) saturate(140%);
+  backdrop-filter:blur(10px) saturate(140%);
+  box-shadow:0 6px 22px rgba(0,0,0,.34);
+  transition:background .18s ease, transform .18s ease;
+}
+.ccplay:hover .ccbtn{ background:rgba(255,255,255,.28); transform:translate(-50%,-50%) scale(1.05); }
+/* A drawn triangle, not the ▶ glyph — ▶ renders as a different weight and
+   a different vertical offset on every platform, and at this size that
+   reads as a mistake. Optically nudged right, because a triangle's visual
+   centre is left of its bounding box. */
+.cctri{
+  width:0; height:0; margin-left:5px;
+  border-left:19px solid #fff;
+  border-top:12px solid transparent;
+  border-bottom:12px solid transparent;
+}
+
+/* ---- title, on the picture ---- */
+.cctitle{
+  position:absolute; left:0; right:0; bottom:0; padding:13px 14px 30px;
+  font-family:'Archivo',system-ui,sans-serif; font-size:16px; font-weight:600;
+  line-height:1.3; color:#fff; text-align:left;
+  text-shadow:0 1px 4px rgba(0,0,0,.55);
+  display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical;
+  overflow:hidden;
+}
+/* ⭐ Still says out loud that nothing has loaded. Quieter than before —
+   it's a promise, not a warning, and it shouldn't shout over the title. */
+.ccnote{
+  position:absolute; left:14px; bottom:10px;
+  font-family:'Courier Prime',monospace; font-size:9.5px; letter-spacing:.07em;
+  color:rgba(255,255,255,.66);
+}
+
+.ccbelow{
+  margin:12px 14px 0; font-size:15px; font-weight:600; line-height:1.35;
+  color:var(--body); overflow-wrap:anywhere;
+}
+.ccout{
+  display:inline-flex; align-items:center; min-height:44px; padding:0 14px;
+  font-family:'Courier Prime',monospace; font-size:10px; font-weight:700;
+  letter-spacing:.1em; text-transform:uppercase; color:var(--soft);
+  text-decoration:none;
+}
+.ccout:hover{ color:var(--gd,#1B6B4A); }
+.ccout:focus-visible{ outline:3px solid var(--gd,#1B6B4A); outline-offset:2px; }
+
+@media (prefers-reduced-motion:reduce){
+  .ccplay,.ccbtn{ transition:none; }
+  .ccplay:active{ transform:none; }
+}
+
+/* =====================================================================
+   A MEMBER'S RECORD   (.dp*)   — the only loud card on this wall
+
+   Aug 23. Ty: "something very special for musicians… we just need to make
+   their box unique."
+
+   ⭐ EVERY OTHER CARD HERE WAS MADE QUIETER ON PURPOSE. The YouTube cards
+   recede because they're borrowed. A member's own record is the one thing
+   in this app that is MEANT to shout, so it wears the poster brand —
+   toner black, acid, halftone — which until now lived only on /readings
+   and on the printed flyers.
+
+   ⚠️ THESE ARE HARDCODED GRUNGE VALUES, not the green room's variables,
+   and that is the exception rather than an oversight. theme-green.css
+   repaints --x and --acid for the rooms; a gig poster that quietly turned
+   sage green would lose the entire point. This card is deliberately
+   outside the theme.
+   ===================================================================== */
+
+.dp{
+  position:relative; overflow:hidden;
+  background:#0A0A09; color:#F2F0E9;
+  margin:0 0 18px;
+  box-shadow:0 2px 4px rgba(10,10,9,.22), 0 16px 34px -10px rgba(10,10,9,.42);
+  -webkit-tap-highlight-color:transparent;
+}
+
+/* The halftone. ⚠️ 5px grid — bigger reads as a pattern, smaller turns to
+   mud on a phone and costs paint time for nothing. */
+.dp-dots{
+  position:absolute; inset:0; pointer-events:none;
+  background-image:radial-gradient(rgba(214,255,46,.13) 1px, transparent 1.4px);
+  background-size:5px 5px;
+}
+.dp-in{ position:relative; padding:16px 15px 15px; }
+
+.dp-kicker{
+  font-family:'Courier Prime',monospace; font-size:10px; font-weight:700;
+  letter-spacing:.24em; text-transform:uppercase; color:#D6FF2E;
+}
+.dp-title{
+  margin:13px 0 0; font-family:'Anton',Impact,sans-serif;
+  font-size:30px; line-height:.94; letter-spacing:.005em;
+  text-transform:uppercase; color:#F2F0E9; font-weight:400;
+  overflow-wrap:anywhere;
+}
+.dp-title.dp-out{ margin-top:0; font-size:22px; line-height:1.04; }
+.dp-artist{
+  margin-top:9px; font-family:'Courier Prime',monospace; font-size:12px;
+  font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:#9C9788;
+}
+
+/* ---- the countdown ---- */
+.dp-clock{ margin-top:16px; padding-top:13px; border-top:1px solid rgba(242,240,233,.2); }
+.dp-clabel{
+  font-family:'Courier Prime',monospace; font-size:10px; font-weight:700;
+  letter-spacing:.16em; text-transform:uppercase; color:#9C9788;
+}
+.dp-nums{ margin-top:5px; display:flex; gap:15px; align-items:baseline; color:#D6FF2E; }
+.dp-nums b{
+  font-family:'Anton',Impact,sans-serif; font-size:32px; font-weight:400;
+  /* ⚠️ Tabular figures. Without it the whole row shifts sideways every
+     second as digit widths change, which on a countdown reads as the page
+     glitching rather than time passing. */
+  font-variant-numeric:tabular-nums; font-feature-settings:'tnum';
+}
+.dp-nums i{ font-style:normal; font-family:'Courier Prime',monospace;
+  font-size:11px; margin-left:2px; letter-spacing:.08em; }
+.dp-when{ margin-top:9px; font-size:12.5px; color:#9C9788; }
+
+/* ---- out ---- */
+.dp-frame{ position:relative; width:100%; aspect-ratio:1/1; background:#111110; }
+.dp-media{ width:100%; height:100%; object-fit:contain; background:#000; display:block; }
+/* Audio sits on the sleeve rather than replacing it — the artwork IS part
+   of the release and swapping it for a grey bar throws it away. */
+.dp-audio{ position:absolute; left:12px; right:12px; bottom:12px; width:calc(100% - 24px); }
+
+.dp-play{
+  position:absolute; inset:0; width:100%; height:100%; padding:0; border:0;
+  background:none; cursor:pointer; display:block; transition:transform .18s ease;
+}
+.dp-play:active{ transform:scale(.985); }
+.dp-play:disabled{ cursor:default; }
+.dp-play:focus-visible{ outline:3px solid #D6FF2E; outline-offset:-3px; }
+.dp-art{ width:100%; height:100%; object-fit:cover; display:block; }
+.dp-noart{ background:linear-gradient(150deg,#3d2f52,#151020); }
+
+/* ⭐ ACID ON BLACK, the loudest thing in the app, and it earns it: this is
+   the sentence a member has been waiting to be able to say. */
+.dp-only{
+  position:absolute; top:11px; left:12px;
+  font-family:'Courier Prime',monospace; font-size:10px; font-weight:700;
+  letter-spacing:.14em; text-transform:uppercase;
+  color:#0A0A09; background:#D6FF2E; padding:4px 9px;
+}
+
+.dp-btn{
+  position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+  width:64px; height:64px; border-radius:50%; background:#D6FF2E;
+  display:flex; align-items:center; justify-content:center;
+  box-shadow:0 6px 22px rgba(0,0,0,.45); transition:transform .18s ease;
+}
+.dp-play:hover .dp-btn{ transform:translate(-50%,-50%) scale(1.06); }
+/* Drawn, not the ▶ glyph — that character has a different weight and
+   baseline on every platform and at this size it reads as a mistake. */
+.dp-tri{
+  width:0; height:0; margin-left:5px;
+  border-left:19px solid #0A0A09;
+  border-top:12px solid transparent; border-bottom:12px solid transparent;
+}
+
+.dp-link{
+  display:inline-flex; align-items:center; min-height:44px; margin-top:11px;
+  padding-top:12px; border-top:1px solid rgba(242,240,233,.2); width:100%;
+  font-family:'Courier Prime',monospace; font-size:10.5px; font-weight:700;
+  letter-spacing:.12em; text-transform:uppercase; color:#D6FF2E; text-decoration:none;
+}
+.dp-link:hover{ color:#F2F0E9; }
+.dp-link:focus-visible{ outline:3px solid #D6FF2E; outline-offset:2px; }
+
+@media (prefers-reduced-motion:reduce){
+  .dp-play,.dp-btn{ transition:none; }
+  .dp-play:active{ transform:none; }
+}

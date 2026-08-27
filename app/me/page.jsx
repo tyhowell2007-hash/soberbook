@@ -56,7 +56,7 @@ export default async function MePage() {
      column the whole anonymity design exists to withhold. */
   const { data: mine } = await supabase
     .from(assertReadable('feed_posts'))
-    .select('id, body, photo_url, video_url, created_at, is_anonymous, comment_count')
+    .select('id, body, photo_url, photo_urls, video_url, created_at, is_anonymous, comment_count')
     .eq('is_mine', true)
     .order('created_at', { ascending: false })
     .limit(50);
@@ -68,7 +68,10 @@ export default async function MePage() {
      contributes zero, one or two paths and Boolean() drops the nulls. */
   const postPhotoUrls = await signPhotoPaths(
     supabase,
-    (mine || []).flatMap((p) => [p.photo_url, p.video_url]).filter(Boolean));
+    /* ⚠️ Spread photo_urls in (0065). */
+    (mine || []).flatMap((p) => [
+      ...(Array.isArray(p.photo_urls) ? p.photo_urls : []), p.photo_url, p.video_url,
+    ]).filter(Boolean));
 
   /* Who got back to you. ⚠️ Read from the VIEW, never the table — the view
      is what turns an anonymous replier into the word "Someone" and drops
