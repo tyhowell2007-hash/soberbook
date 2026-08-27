@@ -105,7 +105,28 @@ export async function middleware(request) {
      ⚠️ Do NOT widen this to '/api'. Other routes DO lean on the session
      that the middleware guarantees; opening them all would be a real
      hole opened for a one-route problem. */
-  const open = ['/login', '/auth', '/reset', '/privacy', '/api/push/send'];
+  /* 🔴 /api/content/cron — SAME TRAP, SECOND VICTIM. Aug 27.
+
+     The content feed had not refreshed in 64 HOURS. Two 7am runs came and
+     went and wrote nothing. Vercel Cron is a server-to-server GET with no
+     cookies, so `!user` was true, so this file redirected it to /login and
+     the route was never reached. Green cron logs, silent no-op — the exact
+     failure the route's own header warns about.
+
+     ⚠️ THE LESSON, AND IT IS EMBARRASSING: the paragraph directly above
+     describes this mechanism precisely, for pg_net, and the cron was built
+     straight into it anyway. **Anything that calls us without a browser —
+     pg_net, Vercel Cron, a webhook, a health check — has no cookies and
+     dies here.** Check this list FIRST when adding one.
+
+     🔴 THIS OPENS NOTHING NEW. The route carries no secret by design and
+     never did: it is rate-limited by its own data (refuses if any source
+     pulled within 6h), reads public RSS, and writes only rows it would
+     have written anyway. Its protection was never this middleware — the
+     middleware was only ever breaking it. See the route's own header for
+     the full argument, including the line that matters: if it ever gains a
+     side effect that isn't idempotent, it needs real auth that day. */
+  const open = ['/login', '/auth', '/reset', '/privacy', '/api/push/send', '/api/content/cron'];
   const isOpen = open.some((p) => request.nextUrl.pathname.startsWith(p));
 
   /* 🔴 A STRANGER AT THE FRONT DOOR GETS THE PITCH, NOT A PASSWORD BOX.
