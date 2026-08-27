@@ -151,8 +151,41 @@ export default function Landing() {
     e.preventDefault();
     setErr(''); setNote(''); setBusy('up');
     try {
-      const { error } = await supabase.auth.signUp({ email: upEmail, password: upPw });
+      const { data, error } = await supabase.auth.signUp({ email: upEmail, password: upPw });
       if (error) throw error;
+
+      /* 🔴 ASK THE RESPONSE WHAT HAPPENED. DO NOT ASSUME THE DASHBOARD SETTING.
+         ---------------------------------------------------------------------
+         Found Aug 27 in the numbers, not by anyone reporting it. On Aug 26,
+         8 people made accounts and 5 never got a profile. Two of them were
+         signed in with a live session at the moment this screen told them to
+         go and check an email that was never sent — because e-mail
+         confirmation had been switched OFF in Supabase. `conf_email_sent`
+         was false and `email_confirmed_at` landed 0.0s after `created_at`.
+
+         So they left the app, searched an empty inbox, and gave up, while
+         already being one tap from the wall. Nobody files a bug that says
+         "I did what the screen told me."
+
+         ⭐ THE FIX IS NOT "delete the check-your-email screen". That screen
+         is right whenever confirmation IS on, and the setting is one click
+         away from coming back. `signUp()` already TELLS us which world we
+         are in: if confirmation is off, Supabase hands back a session; if it
+         is on, `data.session` is null and the mail is genuinely on its way.
+         Reading that is the difference between a page that works either way
+         and a page that is correct until somebody touches a dashboard.
+
+         ⚠️ We push to '/' rather than straight to '/welcome' — the SAME
+         place signIn() goes. app/page.jsx already decides where a signed-in
+         person belongs (wall if they have a profile, welcome if not).
+         Sending them directly to /welcome would be a second copy of that
+         rule, and the second copy is the one that drifts. That is the
+         0046 → 0049 lesson, applied before it can bite. */
+      if (data?.session) {
+        router.push('/'); router.refresh();
+        return;
+      }
+
       /* ⚠️ `sent` is separate from `note` because it changes the SHAPE of
          the form, not just the text above it. Somebody who has just signed
          up should not be looking at a Sign up button any more — that button
