@@ -120,41 +120,60 @@ export function fairOrder(items = []) {
    turn-taking — it's one thing Ty put there on purpose. If it counted,
    posting a flyer would silently delete one YouTube card from the wall.
 
-   🔴 AT MOST ONE, EVER. Newest pin wins; anything else that is pinned
-   falls back into ordinary rotation rather than vanishing. A stack of
-   pinned org notices at the top of a recovery feed is a noticeboard, and
-   this is not a noticeboard.
+   ⚠️ ALL OF THEM, NEWEST FIRST — changed Aug 26 on Ty's instruction:
+   "all ads start at the begging of the home feed."
+
+   This used to be AT MOST ONE, on the argument that a stack of pinned org
+   notices turns a recovery feed into a noticeboard. That argument is still
+   true and is why nothing pins itself: `pinned_at` is set by hand, by Ty,
+   one row at a time. There is no code path anywhere that pins something
+   automatically, so the stack can only ever be as tall as he made it.
+
+   🔴 The thing to watch is not the rule, it's the number. Two is a lead;
+   six is a wall of adverts a member has to scroll past to reach the person
+   who posted at 3am. If this ever gets long, the fix is unpinning old ones,
+   not re-capping it here — a cap would silently drop whichever ad Ty
+   pinned most recently and he'd have no way to see why.
    ===================================================================== */
+export function pickPins(content = []) {
+  return content
+    .filter((c) => c.pinned_at)
+    .sort((a, b) => new Date(b.pinned_at) - new Date(a.pinned_at));
+}
+
+/* Kept so nothing that imported the old name breaks. ⚠️ It returns the
+   FIRST of the list, which is the newest — same answer the old function
+   gave, rather than a subtly different one. */
 export function pickPin(content = []) {
-  const pinned = content.filter((c) => c.pinned_at);
-  if (!pinned.length) return null;
-  return pinned.reduce((newest, c) =>
-    new Date(c.pinned_at) > new Date(newest.pinned_at) ? c : newest
-  );
+  return pickPins(content)[0] || null;
 }
 
 export function mixFeed(posts = [], content = [], { every = EVERY, lonelyId = null } = {}) {
-  /* Taken out of the pool first so it can't also appear further down. */
-  const pin = pickPin(content);
-  content = pin ? content.filter((c) => c.id !== pin.id) : content;
+  /* Taken out of the pool first so they can't also appear further down. */
+  const pins = pickPins(content);
+  const pinIds = new Set(pins.map((p) => p.id));
+  content = pins.length ? content.filter((c) => !pinIds.has(c.id)) : content;
 
   const queue = fairOrder(content);
   const out = [];
   let sincePost = 0;
 
-  /* 🔴 Rule 1, applied to the pin. If the very first post is the one
-     waiting to be answered, the pin waits one place. Everywhere else it
-     is genuinely first. */
-  const pinGoesFirst = pin && !(posts[0] && posts[0].id === lonelyId);
-  if (pinGoesFirst) out.push({ type: 'content', item: pin, pinned: true });
+  /* 🔴 Rule 1, applied to the pins. If the very first post is the one
+     waiting to be answered, the whole stack waits one place — they move
+     together, because splitting them would put one ad above the promoted
+     post and the rest below it, which reads as a bug. */
+  const pinsGoFirst = pins.length && !(posts[0] && posts[0].id === lonelyId);
+  if (pinsGoFirst) {
+    for (const p of pins) out.push({ type: 'content', item: p, pinned: true });
+  }
 
   for (let i = 0; i < posts.length; i++) {
     out.push({ type: 'post', post: posts[i] });
-    /* The displaced pin, placed after the promoted post rather than on
+    /* The displaced stack, placed after the promoted post rather than on
        top of it. ⚠️ Also guarded so it can't land on a second post if the
        wall is somehow empty above. */
-    if (pin && !pinGoesFirst && i === 0) {
-      out.push({ type: 'content', item: pin, pinned: true });
+    if (pins.length && !pinsGoFirst && i === 0) {
+      for (const p of pins) out.push({ type: 'content', item: p, pinned: true });
     }
     sincePost++;
 
