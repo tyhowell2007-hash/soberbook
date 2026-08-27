@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { browserClient } from '../../lib/supabase-browser';
+import { makeHandles, createProfile } from '../../lib/first-run';
 
 /* =====================================================================
    FIRST RUN.
@@ -54,26 +55,19 @@ import { browserClient } from '../../lib/supabase-browser';
 
    Two words plus two digits: enough combinations that a collision is
    unlikely, and if one does happen the insert fails and says so. */
-const FIRST = ['River','Cedar','Gravel','Harbor','Willow','Copper','Marble',
-  'Quarry','Lantern','Thistle','Autumn','Pine','Slate','Ember','Hollow',
-  'Ridge','Birch','Anchor','Bramble','Iron','Amber','Dusty','North','Wren'];
-const SECOND = ['Road','Creek','Hill','Lane','Field','Porch','Bridge','Gate',
-  'Bend','Mill','Yard','Barn','Path','Row','Ferry','Gap','Fork','Landing'];
+/* ⚠️ THE WORD LIST AND makeHandles() NOW LIVE IN lib/first-run.js.
 
-function makeHandles(n = 3) {
-  const out = new Set();
-  /* A Set and a bail-out counter, not a while(true). If the word lists
-     ever shrink to the point where n unique names aren't possible, an
-     unbounded loop would hang the browser on the one page a nervous
-     person is already halfway out of. */
-  for (let i = 0; out.size < n && i < 60; i++) {
-    const h = FIRST[Math.floor(Math.random() * FIRST.length)]
-            + SECOND[Math.floor(Math.random() * SECOND.length)]
-            + (10 + Math.floor(Math.random() * 90));
-    if (h.length <= 20) out.add(h);
-  }
-  return [...out];
-}
+   They used to be duplicated here. On Aug 27 the handle moved onto the
+   front page so a new member fills ONE screen — which meant two files
+   generating handles. 🔴 The rule those words encode is a SAFETY rule,
+   not a style choice: nothing in the list may mean sober, clean, new or
+   day one, because a handle travels and a generated name must never be
+   the thing that outs somebody. A safety rule kept in two lists is a
+   safety rule that rots the first time only one of them is edited.
+
+   Same reason `createProfile` is shared: 0046 → 0047 → 0049 taught this
+   app that a restatement is a second implementation, and the second one
+   drifts. */
 
 export default function Welcome() {
   const router = useRouter();
