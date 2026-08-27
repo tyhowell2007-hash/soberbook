@@ -194,11 +194,44 @@ export default function ContentCard({ item, thumbBase, canHide = false, pinned =
           )}
           <span className="ccflyertitle">{item.title}</span>
           {item.place && <span className="ccplace">{item.place}</span>}
-          <span className="ccnote">opens {(() => {
-            try { return new URL(item.url).hostname.replace(/^www\./, ''); }
-            catch { return 'a link'; }
-          })()} ↗</span>
         </a>
+
+        {/* =================================================================
+            THE BUTTON, AND IT IS DELIBERATELY OUTSIDE THE LINK ABOVE.
+
+            🔴 An <a> inside an <a> is invalid HTML. Browsers don't error —
+            they silently un-nest it, and you get a button that is somewhere
+            other than where you wrote it, working on desktop and not on a
+            phone. Same rule the reply preview follows on the wall.
+
+            ⭐ Why a real button and not the "opens facebook.com ↗" hint this
+            replaces: the whole card being tappable is invisible. A poster
+            looks like a picture, and nobody taps a picture expecting to
+            leave. Ty, Aug 26: "a button that takes you to their website."
+            Seventh instance this month of everything-built-except-the-way-in.
+
+            ⚠️ The domain is always shown. In a room where treatment centres
+            pay for referrals, an unlabelled outbound link is how somebody
+            gets sold to without knowing it.
+
+            ⚠️ no-referrer, like every outbound link here — elsewhere a
+            referrer is a statistic; here it tells a stranger's server logs
+            that the visitor is in recovery. */}
+        {(() => {
+          let host = null;
+          try { host = new URL(item.url).hostname.replace(/^www\./, ''); } catch {}
+          if (!host) return null;
+          const label = /facebook\.com$/.test(host) ? 'Find them on Facebook'
+                      : /instagram\.com$/.test(host) ? 'Find them on Instagram'
+                      : 'Go to their website';
+          return (
+            <a className="ccbtn" href={item.url} target="_blank"
+               rel="noopener noreferrer" referrerPolicy="no-referrer">
+              <span className="ccbtnlabel">{label} →</span>
+              <span className="ccbtnhost">{host}</span>
+            </a>
+          );
+        })()}
         {canHide && (
           <div className="cchide">
             {menu === 'asking' ? (

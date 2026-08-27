@@ -26,6 +26,10 @@ import '../dropsheet.css';
 /* AFTER theme-green, so photo rules can reshape green-room ones without
    reaching for !important. Same ordering argument as the note above. */
 import '../photos.css';
+/* The ad-card button. Its own small file rather than four more rules in
+   wall.css — that file is 71KB and silently failed to upload three deploys
+   running on Aug 23. Small files land. */
+import '../adcard.css';
 import NavBar from '../components/NavBar';
 
 export default function WallLayout({ children }) {
