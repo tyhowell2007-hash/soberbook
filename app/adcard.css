@@ -1,0 +1,63 @@
+/* =====================================================================
+   THE AD CARD BUTTON.
+
+   ⚠️ ITS OWN FILE ON PURPOSE. These four rules belong in wall.css by
+   subject, and wall.css is 71KB — the single largest file in app/ — and
+   it FAILED TO UPLOAD on three consecutive deploys in a row on Aug 23.
+   GitHub's folder drag appears to give up on the biggest file, silently.
+   The fix that worked then was to stop retrying and split the file, so
+   anything new goes in a small file rather than growing that one again.
+
+   Imported by app/wall/layout.jsx, which is the only route that renders
+   ContentCard. ⚠️ A stylesheet nobody imports is invisible, and the page
+   still renders — it just looks wrong, with nothing in the console.
+   ===================================================================== */
+
+.ccbtn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+
+  /* ⚠️ 48px, not the 32px this would naturally come out at. The post
+     footer shipped at ~20px tap targets in August and had to be redone;
+     this is the control somebody uses to leave the app and go help a
+     charity, so it gets a thumb-sized target the first time. */
+  min-height: 48px;
+  padding: 12px 16px;
+  margin: 10px 0 2px;
+
+  border: 1.5px solid #14332a;
+  border-radius: 12px;
+  background: #14332a;
+  color: #f4fbf7;
+  text-decoration: none;
+  font-size: 15px;
+  font-weight: 650;
+  line-height: 1.2;
+}
+
+.ccbtn:active { background: #0d241c; }
+
+.ccbtnlabel { white-space: nowrap; }
+
+/* The domain, always visible, never the same weight as the label — it is
+   evidence, not a headline. ⚠️ Do not drop this to save a line: an
+   unlabelled outbound link in a recovery app is how somebody gets sold to
+   by a treatment centre without noticing they left. */
+.ccbtnhost {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11.5px;
+  font-weight: 500;
+  letter-spacing: .02em;
+  opacity: .72;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* On a narrow phone the domain drops under the label rather than
+   squeezing the label into two ugly lines. */
+@media (max-width: 380px) {
+  .ccbtn { flex-direction: column; align-items: flex-start; gap: 3px; }
+}

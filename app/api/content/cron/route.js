@@ -94,8 +94,22 @@ export async function GET() {
   const admin = adminClient();
   const { default: sharp } = await import('sharp');
 
+  /* 🔴 kind='org' ROWS ARE NOT FEEDS AND MUST NOT BE FETCHED.
+
+     The poster ads (OCAAR, Operation Lean On Me, BrightView) live in this
+     same table so they can ride the same wall-mixing logic. Their
+     `feed_url` is a website — the thing a member taps — not an Atom feed.
+     Fetching one and handing it to parseFeed produced a `last_error` on
+     every source, every morning, for a card that is working perfectly.
+
+     ⚠️ AND THE OBVIOUS FIX IS A TRAP: do NOT set these rows active=false
+     to spare the cron. `active` carries TWO meanings — the cron pulls
+     active sources, and `feed_content` filters on it too. Switching it off
+     would hide the ad from every member on the wall. The filter belongs
+     here, on `kind`, where it means only what it says. */
   const { data: sources, error: sErr } = await admin
-    .from('content_sources').select('*').eq('active', true).order('added_at');
+    .from('content_sources').select('*')
+    .eq('active', true).neq('kind', 'org').order('added_at');
   if (sErr) return NextResponse.json({ error: sErr.message }, { status: 500 });
 
   /* 🔴 THE RATE LIMIT. See the header — this is what stands in for a

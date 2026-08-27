@@ -176,3 +176,28 @@
 .lp-link{background:none;border:0;padding:0;font:inherit;color:inherit;
   text-decoration:underline;cursor:pointer}
 .lp-link:disabled{opacity:.5;cursor:default}
+
+/* =====================================================================
+   THE HANDLE ROW ON THE SIGN-UP CARD.   Aug 27.
+
+   The handle moved off /welcome and onto the front page so a new member
+   fills one screen instead of two. It arrives pre-filled, so this row is
+   an input plus a quiet "Another" — not a blank box and a demand.
+
+   ⚠️ 44px minimum on BOTH controls. The Aug 18 lesson from the post
+   footer: the two controls people actually use were 20px and nobody had
+   noticed, because on a laptop with a mouse they work fine.
+
+   ⚠️ Class names stay `lp-` prefixed. Four names in the source design
+   (.card .lead .fine .count) already collide with globals/wall/
+   theme-green, which is why everything on this page carries the prefix. */
+.lp-handle{ display:flex; align-items:stretch; gap:10px; }
+.lp-handle input{ flex:1 1 auto; min-width:0; min-height:44px; }
+.lp-handle .lp-link{
+  flex:0 0 auto; min-height:44px; padding:0 14px;
+  border:1px solid #E2D2B4; border-radius:10px;
+  color:#8A6F45; background:#FFFDF7; white-space:nowrap;
+  font-size:14px; font-weight:600; cursor:pointer;
+}
+.lp-handle .lp-link:hover{ background:#F7EFE0; }
+.lp-opt{ font-weight:400; color:#A6906F; }
