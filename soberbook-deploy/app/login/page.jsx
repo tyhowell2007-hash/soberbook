@@ -1,8 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { browserClient } from '../../lib/supabase-browser';
+import { makeHandles, createProfile } from '../../lib/first-run';
 
 /* =====================================================================
    THE FRONT DOOR — Ty's warm landing, with real doors in it.
@@ -67,6 +68,22 @@ export default function Landing() {
   const [note, setNote]       = useState('');
   /* The address we just sent a confirmation to, if any. */
   const [sent, setSent]       = useState('');
+
+  /* ⭐ THE HANDLE IS ASKED HERE NOW, ON THE SAME SCREEN AS THE EMAIL.
+     Aug 27. Ty walked the real journey as a stranger: "the signing in
+     portion is kinda fucking crazy. If I was a user I would probably not
+     go through all that." Two screens, five fields, two of them things
+     you had to invent — before seeing a single post.
+
+     ⚠️ Filled in on MOUNT, never on the server. makeHandles() uses
+     Math.random(); running it during render would produce different
+     markup on the server and the client, and React would replace it —
+     and worse, two people arriving in the same second would be handed
+     the SAME name, so the second one hits a collision on a handle they
+     never chose. Same reasoning /welcome already uses. */
+  const [upHandle, setUpHandle] = useState('');
+  const [mine, setMine]         = useState(false);  // did they type it themselves?
+  useEffect(() => { setUpHandle(makeHandles(1)[0]); }, []);
 
   /* ⚠️ ONE ERROR TRANSLATOR, SHARED. Two copies would drift, and what
      would drift is the rule about never confirming who has an account —
@@ -182,7 +199,22 @@ export default function Landing() {
          rule, and the second copy is the one that drifts. That is the
          0046 → 0049 lesson, applied before it can bite. */
       if (data?.session) {
-        router.push('/'); router.refresh();
+        /* ⭐ ONE SCREEN. The handle was already in the box, so the row can
+           be created right now and this person goes straight to the wall
+           — no second page, nothing invented.
+
+           ⚠️ IT FAILS SOFT, ON PURPOSE. If the insert doesn't take, we do
+           NOT show an error and strand somebody who has a working
+           account: we push to '/', which routes a profile-less member to
+           /welcome, the page that has always done this job. The worst
+           case is the old two-screen journey — which is exactly what we
+           had this morning. 🔴 A hard failure here would be worse than
+           the problem being fixed. */
+        const r = await createProfile(supabase, {
+          handle: upHandle, privacy: 'anonymous', generated: !mine,
+        });
+        router.push(r.ok ? '/wall' : '/');
+        router.refresh();
         return;
       }
 
@@ -242,42 +274,12 @@ export default function Landing() {
 
           <div className="lp-doors" id="join">
 
-            {/* ---------- SIGN IN, first ---------- */}
-            <div className="lp-card">
-              <h2>{reset ? 'Let’s get you back in' : 'Sign in'}</h2>
-              <p className="lp-said">
-                {reset
-                  ? 'Put in your email and we’ll send a link to set a new password.'
-                  : 'Been here before? Pick up wherever you left it.'}
-              </p>
-
-              <form onSubmit={reset ? sendReset : signIn}>
-                <label className="lp-lab" htmlFor="in-em">Email</label>
-                <input id="in-em" type="email" required autoComplete="email"
-                       value={inEmail} onChange={(e) => setInEmail(e.target.value)}
-                       placeholder="you@email.com" />
-
-                {!reset && (
-                  <>
-                    <label className="lp-lab" htmlFor="in-pw">Password</label>
-                    <input id="in-pw" type="password" required autoComplete="current-password"
-                           value={inPw} onChange={(e) => setInPw(e.target.value)} />
-                  </>
-                )}
-
-                <button className="lp-go" type="submit" disabled={!!busy}>
-                  {busy === 'in' || busy === 'reset' ? 'One second…'
-                    : reset ? 'Send me a link' : 'Sign in'}
-                </button>
-              </form>
-
-              <button className="lp-linkbtn" type="button"
-                      onClick={() => { setReset(!reset); setErr(''); setNote(''); setInPw(''); }}>
-                {reset ? 'Back to signing in' : 'I forgot my password'}
-              </button>
-            </div>
-
-            {/* ---------- NEW HERE, directly underneath ---------- */}
+            {/* ---------- NEW HERE, FIRST ----------
+                Email, password, and a handle that is already filled in.
+                That is the whole account. ⭐ /welcome is no longer on the
+                path — it stays for the case where e-mail confirmation is
+                switched back on and there is no session to create a
+                profile with. See lib/first-run.js. ---------- */}
             <div className="lp-card lp-new">
 
               {/* 🔴 AFTER SIGNING UP, THE SIGN-UP BUTTON GOES AWAY.
@@ -341,6 +343,33 @@ export default function Landing() {
                        value={upPw} onChange={(e) => setUpPw(e.target.value)}
                        placeholder="at least 8 characters" />
 
+                {/* ⭐ THE THIRD FIELD, AND IT IS NEVER BLANK.
+                    The handle used to live on a whole second screen and
+                    was the only required box there — a stranger being
+                    asked to invent the name people in recovery will know
+                    them by, before they had seen anything. It arrives
+                    already filled. Changing it is optional; ignoring it
+                    is fine. ⚠️ Nothing here says "sober", "clean" or
+                    "day one" — a handle travels, and a generated name
+                    must never be the thing that outs somebody. */}
+                <label className="lp-lab" htmlFor="up-h">
+                  Your handle <span className="lp-opt">— change it or keep it</span>
+                </label>
+                <div className="lp-handle">
+                  <input id="up-h" type="text" required minLength={3} maxLength={20}
+                         autoComplete="off" autoCapitalize="none" spellCheck={false}
+                         value={upHandle}
+                         onChange={(e) => { setUpHandle(e.target.value); setMine(true); }} />
+                  <button type="button" className="lp-link" disabled={!!busy}
+                          onClick={() => { setUpHandle(makeHandles(1)[0]); setMine(false); }}>
+                    Another
+                  </button>
+                </div>
+                <p className="lp-fineprint">
+                  This is the only name other members see. Not your email, not
+                  your real name — and you can change it later.
+                </p>
+
                 <button className="lp-go" type="submit" disabled={!!busy}>
                   {busy === 'up' ? 'One second…' : 'Create my account'}
                 </button>
@@ -352,6 +381,53 @@ export default function Landing() {
               </p>
               </>
               )}
+            </div>
+
+            {/* ---------- SIGN IN, SECOND NOW ----------
+                🔴 THIS BOX USED TO BE ON TOP, AND THAT WAS THE BUG WEARING
+                A THIRD HAT. Aug 19 sent strangers to a bare password page.
+                Aug 23 put the pitch and both boxes on ONE page — but left
+                sign-in first, so the very first thing a new person read
+                was still a password prompt for an account they did not
+                have. Ty found the last of it himself on Aug 27 by walking
+                the journey as a stranger.
+
+                ⚠️ Returning members KNOW they have an account and will
+                scroll; a stranger does not know they are allowed in. When
+                the two audiences conflict, the one who might leave wins.
+                ---------- */}
+            <div className="lp-card">
+              <h2>{reset ? 'Let’s get you back in' : 'Sign in'}</h2>
+              <p className="lp-said">
+                {reset
+                  ? 'Put in your email and we’ll send a link to set a new password.'
+                  : 'Been here before? Pick up wherever you left it.'}
+              </p>
+
+              <form onSubmit={reset ? sendReset : signIn}>
+                <label className="lp-lab" htmlFor="in-em">Email</label>
+                <input id="in-em" type="email" required autoComplete="email"
+                       value={inEmail} onChange={(e) => setInEmail(e.target.value)}
+                       placeholder="you@email.com" />
+
+                {!reset && (
+                  <>
+                    <label className="lp-lab" htmlFor="in-pw">Password</label>
+                    <input id="in-pw" type="password" required autoComplete="current-password"
+                           value={inPw} onChange={(e) => setInPw(e.target.value)} />
+                  </>
+                )}
+
+                <button className="lp-go" type="submit" disabled={!!busy}>
+                  {busy === 'in' || busy === 'reset' ? 'One second…'
+                    : reset ? 'Send me a link' : 'Sign in'}
+                </button>
+              </form>
+
+              <button className="lp-linkbtn" type="button"
+                      onClick={() => { setReset(!reset); setErr(''); setNote(''); setInPw(''); }}>
+                {reset ? 'Back to signing in' : 'I forgot my password'}
+              </button>
             </div>
 
             {err && <div className="lp-err" role="alert">{err}</div>}
