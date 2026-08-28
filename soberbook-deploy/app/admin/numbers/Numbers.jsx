@@ -90,6 +90,13 @@ export default function Numbers({ initial }) {
   const answered = s.posts - s.unanswered;
   const pct = s.posts ? Math.round((answered / s.posts) * 100) : 0;
 
+  /* The cron runs once a day. 26 hours allows for Vercel's flexible window on
+     the Hobby plan (it schedules within an hour) plus a little slack, so this
+     only lights up when a run was genuinely MISSED rather than merely late.
+     ⚠️ A warning that cries wolf gets ignored, and an ignored warning is the
+     same as not having one. */
+  const feedStale = s.content_stale_hours == null || s.content_stale_hours > 26;
+
   return shell(<>
       <p className="hint nm-top">
         Live &mdash; updates on its own every 20 seconds. Counts only.
@@ -115,7 +122,17 @@ export default function Numbers({ initial }) {
               warn={s.never_posted > 0}
               note="arrived, said nothing" />
         <Cell n={s.no_profile} l="blank profile" />
-        <Cell n={s.follows} l="follows" />
+        {/* ⚠️ Was s.follows. Following was dropped and friendships replaced it;
+            migration 0083 renamed the field in owner_stats() and this line was
+            not changed with it, so the tile rendered EMPTY — no error, no zero,
+            just a blank number under a label for a feature that no longer
+            exists. Found 28 Aug.
+
+            🔴 The lesson is the 0046→0049 one again: when a name changes, the
+            producer and every consumer are ONE change. A field read by a key
+            that no longer exists fails silently in JavaScript, which is the
+            worst possible way for it to fail. */}
+        <Cell n={s.friendships} l="friendships" />
       </div>
 
       {/* ---- the promise, measured -------------------------------------
@@ -143,6 +160,36 @@ export default function Numbers({ initial }) {
         <Cell n={s.threads} l="chats opened" />
         <Cell n={s.messages} l="messages" />
       </div>
+
+      {/* ---- the feed, and whether it is still breathing ----------------
+          🔴 On 28 Aug the content feed had not pulled for 35 hours and there
+          was no way to know. The route was fine, the cron was registered and
+          enabled on the right schedule — it just had not run, and a stale feed
+          looks EXACTLY like a quiet week. The failure and the healthy state
+          were visually identical.
+
+          ⚠️ So this line is not a statistic, it is a smoke alarm. It says the
+          number of hours out loud rather than a tick, because "fine" and
+          "hasn't run since Tuesday" must not render the same way. */}
+      <section className={'nm-promise' + (feedStale ? ' warn' : '')}>
+        <div className="nm-ptop">
+          <span className="nm-plbl">Content feed</span>
+          <span className="nm-ppct">
+            {s.content_stale_hours == null ? '—' : `${s.content_stale_hours}h`}
+          </span>
+        </div>
+        <p className="nm-pnote">
+          {s.content_stale_hours == null
+            ? 'No feed source has ever pulled. That is not a quiet day, that is broken.'
+            : feedStale
+              ? `Last pull was ${s.content_stale_hours} hours ago. It runs daily at 7am — anything past a day means the cron did not fire.`
+              : `Last pull ${s.content_stale_hours}h ago · ${s.content_items} cards live.`}
+          {s.content_feeds_never_pulled > 0 &&
+            ` ${s.content_feeds_never_pulled} source${s.content_feeds_never_pulled === 1 ? ' has' : 's have'} never pulled at all.`}
+          {s.content_feeds_erroring > 0 &&
+            ` ${s.content_feeds_erroring} erroring.`}
+        </p>
+      </section>
 
       <section className="nm-foot">
         <Link href="/admin" className="btn">
