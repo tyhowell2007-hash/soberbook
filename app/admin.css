@@ -179,5 +179,21 @@
               transition:width .5s ease; }
 .nm-pnote{ margin:0; font-size:13px; line-height:1.6; color:var(--body); }
 
+/* ---- a stalled feed ----------------------------------------------------
+   ⚠️ Added 28 Aug. The content feed had gone 35 hours without pulling and
+   nothing said so — a stale feed and a quiet week look identical.
+
+   🔴 This variant exists because the JSX was written with a `warn` class
+   before the class had any style. That would have rendered a warning that
+   looked EXACTLY like the healthy state — the same failure, one level up.
+   A warning with no styling is not a warning.
+
+   Gold, not red, to match .nm-cell.warn: this is "go and look", not
+   "something is broken beyond repair". Red is reserved. */
+.nm-promise.warn{ background:var(--gold-bg); border-color:var(--gold); }
+.nm-promise.warn .nm-plbl,
+.nm-promise.warn .nm-ppct{ color:var(--gold-ink); }
+.nm-promise.warn .nm-pnote{ color:#5A4409; }
+
 .nm-foot{ margin-top:18px; }
 .nm-foot .btn{ width:auto; }

@@ -288,7 +288,54 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
      It isn't finished yet, and an unfinished word is not a mistake. */
   const inFlight = q ? (q.typed || '').toLowerCase() : null;
   const shownUnmatched = unmatched.filter((u) => u.toLowerCase() !== inFlight);
-  const options = q ? suggest(friends, q.typed) : [];
+  /* ---- the menu now offers everybody, not only friends (0082) ----
+
+     ⭐ Ty: "it need to work like facebook tagging." Tagging used to be
+     friends-only, so a friends-only menu was the whole truth. 0082 lets
+     anyone tag anyone — a friend's tag shows at once, a stranger's waits
+     for the tagged person to approve it — so a menu that still only
+     listed friends would be hiding the very people the change was for.
+
+     ⚠️ Friends are held in memory and searched instantly; everyone else
+     is looked up as you type. That split is deliberate: your friends are
+     who you tag ninety-nine times out of a hundred, and they must never
+     wait on a network round trip. A stranger is the rare case and can.
+
+     ⚠️ Debounced, and every in-flight reply is dropped if the query moved
+     on (`alive`). Without that, a slow answer for "@da" can land after a
+     fast answer for "@dan" and repopulate the menu with the wrong people
+     under a caret that has already moved. */
+  const [dir, setDir] = useState([]);
+  useEffect(() => {
+    const t = (q && q.typed || '').trim();
+    if (anon || t.length < 1) { setDir([]); return; }
+    let alive = true;
+    const timer = setTimeout(() => {
+      supabase.from('public_profiles')
+        .select('handle, display_name')
+        .or(`handle.ilike.${t}%,display_name.ilike.${t}%`)
+        .limit(8)
+        .then(({ data }) => { if (alive) setDir(data || []); });
+    }, 180);
+    return () => { alive = false; clearTimeout(timer); };
+  }, [q && q.typed, anon]);
+
+  /* Friends first, then everybody else, deduped by handle.
+
+     ⚠️ The friend copy WINS on a collision — it carries isFriend, and the
+     menu uses that to say whether the tag lands straight away or has to be
+     asked for. Letting the directory row win would silently relabel a
+     friend as a stranger. */
+  const options = (() => {
+    if (!q) return [];
+    const mine = suggest(friends.map((f) => ({ ...f, isFriend: true })), q.typed);
+    const seen = new Set(mine.map((f) => f.handle.toLowerCase()));
+    const rest = suggest(
+      dir.filter((d) => !seen.has(d.handle.toLowerCase()))
+         .map((d) => ({ ...d, isFriend: false })),
+      q.typed);
+    return [...mine, ...rest].slice(0, 6);
+  })();
 
   /* Replace "@part" at the caret with the chosen person's name. */
   function choose(f) {
@@ -961,7 +1008,14 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
                          would be gone before the click ever landed. */
                       onMouseDown={(e) => { e.preventDefault(); choose(f); }}>
                 <b>{f.display_name || f.handle}</b>
-                <span>@{f.handle}</span>
+                {/* ⚠️ Said HERE, before the tag is made, not afterwards.
+                    A stranger's tag waits for them to approve it (0082) —
+                    somebody choosing a name should know that at the moment
+                    they choose, not discover later that their post never
+                    showed the name they put on it. */}
+                <span>{f.isFriend === false
+                  ? 'not a friend — they’ll be asked first'
+                  : '@' + f.handle}</span>
               </button>
             ))}
           </div>
@@ -990,8 +1044,15 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
                        friend" is a thing you can fix by sending a request;
                        "nobody by that name" is a typo. Collapsing them into
                        one message makes both unactionable. */
+                    /* ⚠️ THIS LINE USED TO SAY "you can only tag friends"
+                       AND IT IS NO LONGER TRUE (0082). A real member who
+                       isn't a friend CAN now be tagged — their name simply
+                       waits for them to approve it. Leaving the old wording
+                       would have told people a rule the database stopped
+                       enforcing tonight, which is exactly the kind of stale
+                       claim that cost us "verified, real people". */
                     ? (shownUnmatched.some((u) => strangers[u])
-                        ? 'not on your friends list yet — you can only tag friends'
+                        ? 'they’ll be asked before their name shows'
                         : 'nobody here goes by that — check the spelling')
                     : 'will be tagged'}
             </span>

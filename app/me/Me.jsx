@@ -88,7 +88,13 @@ function Section({ title, open = false, children }) {
 }
 
 export default function Me({ email, profile, posts, initialAvatarUrl,
-                             postPhotoUrls = {}, notes = [] }) {
+                             postPhotoUrls = {}, notes = [], pendingTags = [] }) {
+  /* Tags waiting on this member (0082). Kept in state so approving or
+     declining one takes it off the screen immediately — the person is
+     standing right there watching, and a round trip reads as a dead
+     button. Same call the drops and edit paths already learned. */
+  const [pend, setPend] = useState(pendingTags);
+  const [pendBusy, setPendBusy] = useState('');
   const router = useRouter();
   const supabase = browserClient();
 
@@ -510,6 +516,72 @@ export default function Me({ email, profile, posts, initialAvatarUrl,
                 cruel by a computer that meant nothing by it.
 
                 Silence is allowed to just be silence. */}
+            {/* ---- tags waiting on you (0082) ----
+
+                ⚠️ ABOVE "who got back to you", deliberately. This is the
+                only thing on the page that needs a DECISION; everything
+                else is news. A choice buried under a list is a choice
+                nobody makes.
+
+                ⚠️ Nothing renders when there is nothing pending — same
+                rule as the notifications below. No "you're all caught up",
+                no empty state. Silence is allowed to be silence. */}
+            {pend.length > 0 && (
+              <div className="pendtags">
+                <h2 className="sec">Somebody tagged you</h2>
+                <ul>
+                  {pend.map((t) => (
+                    <li key={t.post_id}>
+                      <p className="pt-who">
+                        <b>{t.tagged_by}</b> put your handle on a post
+                      </p>
+                      {t.preview ? <p className="pt-prev">“{t.preview}”</p> : null}
+                      {/* 🔴 The sentence that makes the whole feature make
+                          sense. Without it a person cannot tell whether
+                          their name is already out there. */}
+                      <p className="pt-note">
+                        Your handle isn’t on it yet. Nobody sees this until you say so.
+                      </p>
+                      <div className="pt-btns">
+                        <button className="pt-yes" type="button" disabled={!!pendBusy}
+                                onClick={async () => {
+                                  setPendBusy(t.post_id);
+                                  const { error } = await supabase.rpc('approve_my_tag', { p_post: t.post_id });
+                                  setPendBusy('');
+                                  /* ⚠️ Only drop it from the list if the
+                                     database agreed. Removing it optimistically
+                                     on failure would tell somebody their name
+                                     is showing when it isn't. */
+                                  if (!error) setPend((l) => l.filter((x) => x.post_id !== t.post_id));
+                                }}>
+                          Let it show
+                        </button>
+                        {/* ⚠️ remove_my_tag is the SAME call used to take your
+                            name off an approved post. Declining and removing
+                            are one act — a separate decline_tag() would be a
+                            second implementation of one rule. */}
+                        <button className="pt-no" type="button" disabled={!!pendBusy}
+                                onClick={async () => {
+                                  setPendBusy(t.post_id);
+                                  const { error } = await supabase.rpc('remove_my_tag', { p_post: t.post_id });
+                                  setPendBusy('');
+                                  if (!error) setPend((l) => l.filter((x) => x.post_id !== t.post_id));
+                                }}>
+                          No thanks
+                        </button>
+                      </div>
+                      {/* 🔴 They are never told. Same as an ignored friend
+                          request: the person declining may be avoiding a
+                          dealer, an ex, or someone from the years they are
+                          leaving behind. If saying no starts a conversation,
+                          people stop saying no. */}
+                      <p className="pt-fine">“No thanks” doesn’t tell them.</p>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
             {notes.length > 0 && (
               <div className="nots">
                 <h2 className="sec">Who got back to you</h2>

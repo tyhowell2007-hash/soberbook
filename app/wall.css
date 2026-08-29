@@ -1561,3 +1561,39 @@ textarea:focus-visible{ outline:4px solid var(--x); outline-offset:3px; }
   .dp-play,.dp-btn{ transition:none; }
   .dp-play:active{ transform:none; }
 }
+
+/* =====================================================================
+   TAGS WAITING ON YOU — /me (0082).
+
+   ⚠️ Prefixed `pt-` for the same reason everything else here is prefixed:
+   this stylesheet is 1,500 lines shared by the wall, threads, /me, the
+   players and the poster cards, and an unprefixed `.note` or `.btns`
+   would quietly restyle three other screens. The .composer collision of
+   Aug 16 was exactly this.
+
+   ⚠️ GOLD, NOT GREEN OR RED. Green would read as "done" on something you
+   have not decided yet; red would read as a warning about a person who has
+   done nothing wrong. Gold is the same colour the milestone chips use for
+   "this needs your attention, kindly".
+
+   ⚠️ 44px on both buttons. The Aug 18 lesson from the post footer: the two
+   controls people actually use were 20px, and nobody noticed because on a
+   laptop with a mouse they work fine. */
+.pendtags{ margin:0 0 18px; }
+.pendtags ul{ list-style:none; margin:0; padding:0; }
+.pendtags li{
+  background:var(--gold-bg); border:1.5px solid var(--gold);
+  border-radius:10px; padding:13px; margin:0 0 10px;
+}
+.pt-who{ font-size:14px; color:var(--body); margin:0 0 4px; line-height:1.45; }
+.pt-prev{ font-size:13px; color:var(--soft); margin:0 0 7px; line-height:1.5; }
+.pt-note{ font-size:12.5px; color:var(--soft); margin:0 0 11px; line-height:1.5; }
+.pt-btns{ display:flex; gap:9px; }
+.pt-btns button{
+  flex:1; min-height:44px; border-radius:7px; font-family:inherit;
+  font-size:13.5px; font-weight:700; cursor:pointer;
+}
+.pt-yes{ background:var(--gd); color:var(--paper); border:none; }
+.pt-no{ background:var(--paper2); color:var(--body); border:1.5px solid var(--line); font-weight:500; }
+.pt-btns button:disabled{ opacity:.55; cursor:default; }
+.pt-fine{ font-size:11.5px; color:var(--soft); margin:9px 0 0; line-height:1.5; }

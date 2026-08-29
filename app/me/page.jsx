@@ -83,6 +83,16 @@ export default async function MePage() {
     .order('created_at', { ascending: false })
     .limit(20);
 
+  /* Tags waiting on you (0082).
+
+     ⚠️ Through the function, never a table read — my_pending_tags() takes
+     no argument, so it can only ever return the caller's own. There is no
+     shape of this call that returns somebody else's pending tags.
+
+     ⭐ It lives on /me rather than a page of its own because this is the
+     one screen that is already about you and nobody else. */
+  const { data: pending } = await supabase.rpc('my_pending_tags');
+
   return (
     <Me
       email={user.email}
@@ -90,6 +100,7 @@ export default async function MePage() {
       posts={mine || []}
       initialAvatarUrl={initialAvatarUrl}
       postPhotoUrls={postPhotoUrls}
+      pendingTags={pending || []}
       notes={notes || []}
     />
   );
