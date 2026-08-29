@@ -201,3 +201,50 @@
 }
 .lp-handle .lp-link:hover{ background:#F7EFE0; }
 .lp-opt{ font-weight:400; color:#A6906F; }
+
+/* =====================================================================
+   THE TOGGLE, AND THE ANONYMOUS SWITCH.  Aug 29.
+
+   🔴 WHY. The page was 3,808px — 5.3 phone screens — and "Sign in" sat
+   at 1,029px, below the fold, under the whole sign-up form. A returning
+   member had to scroll past a form they didn't want to reach the one
+   they did. Ty: "it all needs to be on one page."
+
+   ⚠️ These are the ONLY new rules. Nothing above was touched — the cream,
+   the Fraunces italic, the tangerine and grape pills are Ty's approved
+   design and it is not mine to repaint. Aug 15's lesson: being right
+   about the copy didn't make it my call.
+   ===================================================================== */
+.lp-seg{
+  display:flex; background:var(--lp-paper); border:1px solid var(--lp-line);
+  border-radius:999px; padding:4px; margin:26px auto 14px; max-width:430px;
+}
+.lp-seg button{
+  flex:1; min-height:44px; border:0; border-radius:999px; background:none;
+  cursor:pointer; font-family:inherit; font-size:15px; font-weight:700;
+  color:var(--lp-muted);
+}
+/* ⚠️ 44px min-height on both tabs. These are the two controls the whole
+   page exists to offer; the Aug 18 lesson about 20px tap targets on the
+   post footer applies here with more force. */
+.lp-seg button[aria-selected="true"]{ background:var(--lp-ink); color:var(--lp-cream); }
+.lp-seg button:focus-visible{ outline:3px solid rgba(232,89,12,.45); outline-offset:2px; }
+
+.lp-anon{
+  display:flex; align-items:center; gap:10px; background:#F7F2E6;
+  border:1px solid var(--lp-line); border-radius:8px; padding:11px 12px;
+  margin:2px 0 12px;
+}
+.lp-sw{
+  width:44px; height:26px; border-radius:999px; background:var(--lp-grape);
+  position:relative; flex:0 0 auto; cursor:pointer; border:0; padding:0;
+}
+.lp-sw::after{
+  content:""; position:absolute; top:3px; right:3px; width:20px; height:20px;
+  border-radius:50%; background:#fff; transition:.15s;
+}
+.lp-sw[aria-checked="false"]{ background:#D9CDB6; }
+.lp-sw[aria-checked="false"]::after{ right:21px; }
+.lp-sw:focus-visible{ outline:3px solid rgba(232,89,12,.45); outline-offset:2px; }
+.lp-anon-t{ font-size:13.5px; font-weight:700; }
+.lp-anon-s{ font-size:12px; color:var(--lp-muted); line-height:1.4; }

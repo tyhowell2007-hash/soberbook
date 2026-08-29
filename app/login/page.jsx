@@ -69,6 +69,35 @@ export default function Landing() {
   /* The address we just sent a confirmation to, if any. */
   const [sent, setSent]       = useState('');
 
+  /* ⭐ ONE FORM AT A TIME. Aug 29.
+     ---------------------------------------------------------------------
+     Ty, after a second pair of eyes on it: "the landing page to sign in
+     and sign up if you're new is too much. It all needs to be on one
+     page." It already WAS one page — but the page was 3,808px, 5.3 phone
+     screens, and "Sign in" sat at 1,029px. A returning member had to
+     scroll past the entire sign-up form to find the box they wanted.
+
+     🔴 That is the Aug 23 bug wearing a fourth hat. Aug 19 sent strangers
+     to a bare password page. Aug 23 put the pitch first so they wouldn't
+     meet one. The pendulum went too far: now EVERYONE meets the pitch and
+     the returner does the digging. A toggle serves both without either
+     scrolling, and — unlike the Aug 15 three doors — it never GUESSES
+     which one you are. You say.
+
+     ⚠️ 'new' is the default deliberately. A member knows they have an
+     account and will tap; a stranger does not know they are allowed in.
+     Same tie-break as before: when the two audiences conflict, the one
+     who might leave wins. */
+  const [mode, setMode]       = useState('new');
+
+  /* ⚠️ ON BY DEFAULT, AND THAT MATCHES WHAT THE CODE ALREADY DID.
+     createProfile() has always defaulted privacy_mode to 'anonymous' so
+     somebody who taps straight through ends up PROTECTED rather than
+     exposed. That was invisible — the safest thing about the sign-up was
+     the one thing nobody could see. Now it is a switch you can look at
+     and turn off, and the default is unchanged. */
+  const [anon, setAnon]       = useState(true);
+
   /* ⭐ THE HANDLE IS ASKED HERE NOW, ON THE SAME SCREEN AS THE EMAIL.
      Aug 27. Ty walked the real journey as a stranger: "the signing in
      portion is kinda fucking crazy. If I was a user I would probably not
@@ -210,8 +239,11 @@ export default function Landing() {
            case is the old two-screen journey — which is exactly what we
            had this morning. 🔴 A hard failure here would be worse than
            the problem being fixed. */
+        /* ⚠️ `anon` comes from the switch on the form, and its default is
+           true — the same value this call was hard-coded to before. The
+           behaviour has not changed; it is just visible and choosable now. */
         const r = await createProfile(supabase, {
-          handle: upHandle, privacy: 'anonymous', generated: !mine,
+          handle: upHandle, privacy: anon ? 'anonymous' : 'open', generated: !mine,
         });
         router.push(r.ok ? '/wall' : '/');
         router.refresh();
@@ -272,6 +304,26 @@ export default function Landing() {
             <span className="lp-pill lp-p3">🌱 Free, and the doors are open</span>
           </div>
 
+          {/* ⚠️ Hidden while the "check your email" panel is up. That panel
+              only appears when confirmation is ON and there is genuinely
+              mail on the way; offering a Sign in tab at that moment invites
+              somebody to try signing in to an account they have not
+              confirmed yet, and fail. */}
+          {!sent && (
+            <div className="lp-seg" role="tablist" aria-label="Sign up or sign in">
+              <button type="button" role="tab" id="tab-new"
+                      aria-selected={mode === 'new'} aria-controls="pane-new"
+                      onClick={() => { setMode('new'); setErr(''); setNote(''); }}>
+                I&rsquo;m new
+              </button>
+              <button type="button" role="tab" id="tab-in"
+                      aria-selected={mode === 'in'} aria-controls="pane-in"
+                      onClick={() => { setMode('in'); setErr(''); setNote(''); }}>
+                Sign in
+              </button>
+            </div>
+          )}
+
           <div className="lp-doors" id="join">
 
             {/* ---------- NEW HERE, FIRST ----------
@@ -280,7 +332,13 @@ export default function Landing() {
                 path — it stays for the case where e-mail confirmation is
                 switched back on and there is no session to create a
                 profile with. See lib/first-run.js. ---------- */}
-            <div className="lp-card lp-new">
+            {/* ⚠️ The "check your email" panel lives inside this card, so
+                the card must stay mounted when `sent` is set even if the
+                tab has moved. Hence `|| sent` — without it, confirming by
+                email would blank the screen the moment mode changed. */}
+            <div className="lp-card lp-new"
+                 id="pane-new" role="tabpanel" aria-labelledby="tab-new"
+                 hidden={mode !== 'new' && !sent}>
 
               {/* 🔴 AFTER SIGNING UP, THE SIGN-UP BUTTON GOES AWAY.
 
@@ -375,6 +433,27 @@ export default function Landing() {
                 </button>
               </form>
 
+              {/* ⭐ THE SAFEST THING ABOUT SIGNING UP, MADE VISIBLE.
+                  The default was already anonymous; until now nothing on
+                  the screen said so. ⚠️ The two sentences describe what
+                  actually happens in the app — anonymity is per-post and
+                  reversible either way, so neither wording promises
+                  something the product doesn't do. */}
+              <div className="lp-anon">
+                <button type="button" className="lp-sw" id="anon"
+                        role="switch" aria-checked={anon}
+                        aria-label="Stay anonymous"
+                        onClick={() => setAnon((v) => !v)} />
+                <div>
+                  <div className="lp-anon-t">Stay anonymous</div>
+                  <div className="lp-anon-s">
+                    {anon
+                      ? 'Only your handle shows. No real name, no face.'
+                      : 'Your display name can show on posts. You can still go anonymous on any single post.'}
+                  </div>
+                </div>
+              </div>
+
               <p className="lp-fineprint">
                 Your email is never shown to another member. Ever. Not a
                 treatment centre, and nobody sells your information.
@@ -396,7 +475,9 @@ export default function Landing() {
                 scroll; a stranger does not know they are allowed in. When
                 the two audiences conflict, the one who might leave wins.
                 ---------- */}
-            <div className="lp-card">
+            <div className="lp-card"
+                 id="pane-in" role="tabpanel" aria-labelledby="tab-in"
+                 hidden={mode !== 'in' || !!sent}>
               <h2>{reset ? 'Let’s get you back in' : 'Sign in'}</h2>
               <p className="lp-said">
                 {reset
