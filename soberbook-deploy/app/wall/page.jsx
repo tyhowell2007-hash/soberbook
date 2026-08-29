@@ -6,6 +6,7 @@ import { signPhotoPaths, collectPaths } from '../../lib/sign-photos';
 import { fetchPreviews } from '../../lib/previews';
 import { fetchTags } from '../../lib/tags';
 import Wall from './Wall';
+import FeedRefresh from '../components/FeedRefresh';
 
 export const dynamic = 'force-dynamic';
 
@@ -157,6 +158,9 @@ export default async function WallPage() {
         </Link>
       </div>
       <div className="bar">No steps to prove · no gaps to explain</div>
+      {/* Renders nothing. Keeps the podcast feed fresh when the Vercel
+          cron doesn't fire — which, as of 29 Aug, is most days. */}
+      <FeedRefresh />
       {error
         ? <div className="pad"><div className="err">Couldn&apos;t load the wall: {error.message}</div></div>
         : <Wall
