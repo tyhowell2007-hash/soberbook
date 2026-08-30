@@ -67,7 +67,7 @@ export default function RowMenu({ handle, name, onMessage }) {
     <>
       <button
         type="button"
-        className="rowdots"
+        className="rmenu-dots"
         aria-label={`More options for ${name}`}
         onClick={() => setOpen(true)}
       >
@@ -75,22 +75,22 @@ export default function RowMenu({ handle, name, onMessage }) {
       </button>
 
       {open && (
-        <div className="sheetwrap" role="dialog" aria-modal="true" onClick={close}>
+        <div className="rmenu-wrap" role="dialog" aria-modal="true" onClick={close}>
           {/* Stop a tap inside the card from closing it. */}
-          <div className="sheet" onClick={(e) => e.stopPropagation()}>
-            <div className="sheetwho">{name}</div>
+          <div className="rmenu-card" onClick={(e) => e.stopPropagation()}>
+            <div className="rmenu-who">{name}</div>
 
             {err && <div className="err">{err}</div>}
 
             {view === 'menu' && (
               <>
-                <button type="button" className="sheetbtn" onClick={() => { close(); onMessage(); }}>
+                <button type="button" className="rmenu-btn" onClick={() => { close(); onMessage(); }}>
                   Message
                 </button>
-                <button type="button" className="sheetbtn" onClick={() => setView('report')}>
+                <button type="button" className="rmenu-btn" onClick={() => setView('report')}>
                   Report
                 </button>
-                <button type="button" className="sheetbtn danger" onClick={() => setView('block')}>
+                <button type="button" className="rmenu-btn danger" onClick={() => setView('block')}>
                   Block
                 </button>
               </>
@@ -98,21 +98,21 @@ export default function RowMenu({ handle, name, onMessage }) {
 
             {view === 'report' && (
               <>
-                <button type="button" className="sheetbtn tall" disabled={busy}
+                <button type="button" className="rmenu-btn tall" disabled={busy}
                         onClick={() => report('rules')}>
-                  <span className="sb1">They’re breaking the rules</span>
-                  <span className="sb2">Selling, harassing, spam</span>
+                  <span className="rmenu-l1">They’re breaking the rules</span>
+                  <span className="rmenu-l2">Selling, harassing, spam</span>
                 </button>
-                <button type="button" className="sheetbtn tall" disabled={busy}
+                <button type="button" className="rmenu-btn tall" disabled={busy}
                         onClick={() => report('concern')}>
-                  <span className="sb1">I’m worried about them</span>
-                  <span className="sb2">They may be in danger</span>
+                  <span className="rmenu-l1">I’m worried about them</span>
+                  <span className="rmenu-l2">They may be in danger</span>
                 </button>
                 {/* 🔴 Shown on the way IN, not after. Somebody reporting a
                     person they are frightened for needs the number now,
                     not once the form is finished. Matches the post
                     reporter, which has said this since August. */}
-                <p className="sheetnote">
+                <p className="rmenu-note">
                   If someone’s life may be at risk, call or text <strong>988</strong> now.
                 </p>
               </>
@@ -120,22 +120,22 @@ export default function RowMenu({ handle, name, onMessage }) {
 
             {view === 'block' && (
               <>
-                <p className="sheetnote">
+                <p className="rmenu-note">
                   {name} won’t be able to message you, and you won’t see each
                   other here or on the wall.
                 </p>
                 {/* ⚠️ Says plainly that it can be undone. A permanent-looking
                     button makes people hesitate to protect themselves. */}
-                <p className="sheetnote">You can undo this from your own page.</p>
-                <button type="button" className="sheetbtn danger" disabled={busy} onClick={block}>
+                <p className="rmenu-note">You can undo this from your own page.</p>
+                <button type="button" className="rmenu-btn danger" disabled={busy} onClick={block}>
                   {busy ? 'Blocking…' : `Block ${name}`}
                 </button>
               </>
             )}
 
-            {view === 'done' && <p className="sheetnote">{done}</p>}
+            {view === 'done' && <p className="rmenu-note">{done}</p>}
 
-            <button type="button" className="sheetcancel" onClick={close}>
+            <button type="button" className="rmenu-cancel" onClick={close}>
               {view === 'done' ? 'Close' : 'Cancel'}
             </button>
           </div>

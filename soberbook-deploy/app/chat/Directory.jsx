@@ -285,7 +285,7 @@ export default function Directory({ members }) {
              outside its post button. The wrapper is positioned and the ⋯
              is placed over the row's right edge, so the row's own flex
              layout (from wall.css) is left completely untouched. */
-          <div key={m.handle} className="drowwrap">
+          <div key={m.handle} className="rmenu-row">
           <button className="crow drow" disabled={busy === m.handle}
                   onClick={() => open(m.handle)}>
             <div className="cav" aria-hidden="true">{m.display_avatar || '🙂'}</div>
