@@ -84,3 +84,44 @@
 .frempty .btn{ width:auto; display:inline-block; }
 
 .frfoot{ margin-top:16px; }
+
+/* =====================================================================
+   ⏳ THE QUIET CHIP — "Quiet 13 days" / "Hasn't posted yet".
+
+   Ty, 29 Aug: "add the days they've been quiet. So we know who isn't
+   talking or not."
+
+   ⚠️ IT LIVES HERE, NOT IN wall.css, AND THAT IS THE WHOLE REASON THIS
+   COMMENT EXISTS. It was written into wall.css first, which was wrong in
+   a way that produces NO error: /friends imports theme-green.css,
+   photos.css and friends.css and never loads wall.css at all, so the rule
+   would have sat in a file this page doesn't read and the chip would have
+   rendered as bare text. Same lesson as the /friends layout shipping
+   without NavBar in August — a stylesheet only exists for the routes
+   whose layout imports it.
+
+   ⚠️ EVERY PROPERTY IS DECLARED HERE, including the shape ones. The
+   .dchip base in theme-green.css sets only the typeface and padding; the
+   display, radius and border live in wall.css, which — see above — this
+   page never loads. Inheriting half a chip from a file that isn't there
+   is exactly how you get something that looks fine in one tab and broken
+   in the other.
+
+   ⚠️ GOLD, DELIBERATELY NOT RED. Red is the colour of a mistake and
+   nobody has made one by going quiet. Somebody who stops posting for two
+   weeks may be busy, may be well, may be having the worst fortnight of
+   their life — the app does not know which, and red would guess, and it
+   would guess accusingly. Gold says "worth a look", which is the only
+   thing this chip actually knows. Copied from the friends page's own
+   "It's been a while", which is gold for the same reason.
+
+   ⚠️ NOT one of the m-* metals. Those are a ladder you climb. This is not
+   an achievement and must never read as the bottom rung of one — the same
+   argument that keeps .dchip.new green instead of copper.
+   ===================================================================== */
+.dchip.m-quiet{
+  display:inline-block; margin-left:6px; padding:2px 9px; border-radius:99px;
+  font-size:10px; font-weight:700; letter-spacing:.03em; vertical-align:1px;
+  white-space:nowrap;
+  background:#F6EEDC; color:#5A4412; border:1px solid #B08D3A;
+}

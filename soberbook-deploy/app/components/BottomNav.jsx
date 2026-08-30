@@ -61,7 +61,7 @@ const TABS = [
      null` line in 0044 does that. Without it, ignoring somebody would
      leave a dot burning with nothing behind it — which would make the
      ignore worse than useless. */
-  { href: '/friends',  icon: '👋', label: 'People', dot: 'friends',
+  { href: '/friends',  icon: '👋', label: 'Community', dot: 'friends',
     said: 'someone asked to be your friend' },
   /* Aug 21. The fourth to earn its way in, and the only tab with NO DOT
      BY DESIGN rather than by omission.

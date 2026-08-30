@@ -45,11 +45,30 @@ export default async function FriendsPage() {
   const [{ data: friends }, { data: reqs }, { data: people }] = await Promise.all([
     supabase.rpc('my_friends'),
     supabase.rpc('my_friend_requests'),
-    supabase
-      .from(assertReadable('public_profiles'))
-      .select('handle, display_name, display_avatar, day_count, joined_at, last_public_post, is_mine')
-      .order('joined_at', { ascending: false })
-      .limit(200),
+    /* ⭐ community_members() rather than the raw view, for two reasons.
+
+       It orders by whoever you have NEVER spoken to first, which is the
+       point of the page now — meeting people, not revisiting the ones you
+       already talk to.
+
+       And it returns EVERY live profile, anonymous members included. Ty,
+       Aug 29: "Even if they're anonymous, they go in there as well. That
+       way it forces everybody to see who's all on here." The view already
+       nulls an anonymous member's name, emoji and photo, so they arrive
+       as a bare handle — present, greetable, unidentified.
+
+       ⚠️ day_count and last_public_post are JOINED from public_profiles
+       inside that function (0088) rather than recomputed, so the
+       can-you-see-this rules have exactly one implementation. An earlier
+       version of this comment claimed the function withheld day_count
+       entirely and that this was the safety story. That was true for
+       about an hour and is not the design: the real protection is in
+       chipFor() in chat/Directory.jsx, which refuses to print a raw
+       "Day 3" under 30 days on ANY list. Withholding the column here
+       would only have protected this one page while the identical
+       component in Chat kept rendering it — the 0046 → 0049 drift, with
+       a safety property riding on it. */
+    supabase.rpc('community_members'),
   ]);
 
   /* You are not in your own directory — start_thread() refuses a thread

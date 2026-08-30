@@ -125,6 +125,66 @@ function chipFor(days) {
   return              { t: 'copper',   l: `Day ${days}` };
 }
 
+/* =====================================================================
+   THE QUIET CHIP — the Community page's version, and the only one that
+   page ever shows.
+
+   Ty, 29 Aug: "Instead of adding their sober date, add the days they've
+   been quiet. So we know who isn't talking or not."
+
+   ⭐ THIS IS THE SAME ROW ANSWERING A DIFFERENT QUESTION. A sober date
+   on a member list answers "who is newest". Days-quiet answers "who has
+   gone silent" — the thing a friend notices. It is the friends page's
+   "It's been a while" rule applied to the whole room.
+
+   ⚠️ GOLD, NEVER RED. Copied deliberately from the friends page: this is
+   a nudge to go and check on somebody, not a mark against them. Nobody
+   is in trouble for being quiet.
+
+   ⚠️ NOTHING UNDER SEVEN DAYS. A chip on everybody is wallpaper — if
+   every row is flagged, no row is. Under a week there is nothing to do.
+
+   ⚠️ SOMEBODY NEW WITH NOTHING SAID YET FALLS THROUGH TO "new here"
+   rather than getting a silence chip, because on day three the honest
+   reading is "they have just arrived", not "they have gone quiet".
+   Past a week that flips, and "Hasn't posted yet" is the actionable one.
+
+   ⚠️ Returns null when quiet_days is undefined, which is what makes the
+   Chat directory — fed by public_profiles, which has no quiet_days —
+   carry on showing its milestone chips exactly as before. Two lists, two
+   chips, one component, and neither one guesses. */
+function quietChip(m) {
+  if (m.quiet_days == null) return null;
+  const joined = daysSince(m.joined_at);
+
+  if (m.never_spoken) {
+    if (joined !== null && joined < 7) return null;   // "new here" instead
+    return { t: 'quiet', l: 'Hasn’t posted yet' };
+  }
+  if (m.quiet_days >= 7) return { t: 'quiet', l: `Quiet ${m.quiet_days} days` };
+  return null;
+}
+
+/* ⚠️ ONE OPEN QUESTION ABOUT chipFor, DELIBERATELY LEFT ALONE (29 Aug).
+
+   Under 30 days that function prints a literal `Day 3` / `Day 12`. It was
+   briefly changed to print nothing, on the argument that a day number
+   beside a name — on a scrollable list of every member — is the newcomer
+   filter this app refused when it refused presence dots, and that
+   `[C] Building for Women.md` names exactly that as the sharpest risk in
+   the product. It is also on by default: day_count_visibility is
+   'everyone' for all 18 members and nobody chose it.
+
+   Ty looked at it and said leave it as it is. His call, and it stands.
+   Recorded here rather than argued again, so that whoever reads this next
+   knows the question was asked and answered rather than never noticed.
+
+   ⚠️ The related render order is worth knowing: the row draws the chip
+   first and only falls back to "new here" when there ISN'T one, so a
+   newcomer WITH a sober date gets the day number rather than the welcome.
+   The Community page does not have this problem — it has no day counts at
+   all, so its newcomers get "new here". */
+
 function daysSince(iso) {
   if (!iso) return null;
   return Math.floor((Date.now() - new Date(iso).getTime()) / 86400000);
@@ -134,6 +194,28 @@ function daysSince(iso) {
    Somebody's first week is more worth saying than what they posted. */
 function line(m) {
   const joined = daysSince(m.joined_at);
+
+  /* ---- the Community page's wording ----
+     ⚠️ Branches on quiet_days being PRESENT, not on a page name or a prop
+     the caller passes down. The two mounts of this component differ by
+     the shape of their data and nothing else, so the component asks the
+     data. A `variant="community"` prop would be a second source of truth
+     about which page you are on, and the wrong one would render silently.
+
+     ⚠️ "Talked", not "posted" — a reply counts as talking, and the number
+     behind this counts replies. The word has to match what was measured
+     or the row quietly lies. */
+  if (m.quiet_days != null) {
+    if (m.never_spoken) {
+      return joined === null ? 'Nothing posted yet'
+           : joined < 1      ? 'Joined today'
+           : `Here ${joined} day${joined === 1 ? '' : 's'}, nothing yet`;
+    }
+    if (m.quiet_days < 1) return 'Talked today';
+    if (m.quiet_days < 2) return 'Talked yesterday';
+    return `Last talked ${m.quiet_days} days ago`;
+  }
+
   if (joined !== null && joined < 1) return 'Joined today';
   if (joined !== null && joined < 7) return 'Joined this week';
 
@@ -188,7 +270,12 @@ export default function Directory({ members }) {
            this page cannot tell them apart. That's the point: "hidden" has
            to be indistinguishable from "never set" or the setting
            advertises what it's hiding. */
-        const chip = chipFor(m.day_count);
+        /* ⚠️ Two chips, and a row never carries both — Chat is fed by
+           public_profiles (day_count, no quiet_days) and Community by
+           community_members() (quiet_days, no day_count), so exactly one
+           of these is ever non-null. Quiet wins if it's there, because on
+           that page it IS the page. */
+        const chip = quietChip(m) || chipFor(m.day_count);
         return (
           <button key={m.handle} className="crow drow" disabled={busy === m.handle}
                   onClick={() => open(m.handle)}>

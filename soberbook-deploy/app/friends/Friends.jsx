@@ -105,10 +105,14 @@ export default function Friends({ initialFriends, initialRequests, everyone = []
   return (
     <div className="frwrap">
 
-      {/* ---- requests first: somebody is waiting on you ---- */}
+      {/* ---- LEFT-OVER REQUESTS ONLY. 0087 removed the request gate, so
+           nothing new lands here — but 7 rows from before tonight are
+           still pending and Ty chose to leave them rather than connect
+           people retroactively. This renders them so they are not
+           stranded, and goes away on its own once they are answered. ---- */}
       {reqs.length > 0 && (
         <>
-          <h2 className="frsec">Asked to be your friend</h2>
+          <h2 className="frsec">Asked to be your friend — before requests went away</h2>
           <ul className="frlist">
             {reqs.map((p) => (
               <li key={p.handle} className="frrowitem warm">
@@ -146,7 +150,7 @@ export default function Friends({ initialFriends, initialRequests, everyone = []
       {friends.length === 0 && (
         <p className="hint frnone">
           No friends yet — that&apos;s fine. Everybody on Sober Book is
-          below; say hi to anyone.
+          up there; say hi to anyone.
         </p>
       )}
 
@@ -159,6 +163,36 @@ export default function Friends({ initialFriends, initialRequests, everyone = []
           </ul>
         </>
       )}
+
+      {/* ---- EVERYBODY, NEAR THE TOP NOW. Ty, 29 Aug ----
+          "make it community... it's such a little community right now. We
+          all need to get along and know who each other is."
+
+          🔴 THIS BLOCK USED TO BE LAST, AND THE OLD COMMENT ARGUED FOR IT:
+          your people and the person you haven't heard from in a fortnight
+          come first, and the room "doesn't get to outrank" them. That was
+          a real decision and Ty has overturned it — with 18 members and
+          most of them holding no friendships at all, "your people" was an
+          empty heading and the room was buried under it.
+
+          ⚠️ "It's been a while" STILL COMES FIRST, and that is my call
+          rather than his instruction. It only appears when somebody has
+          been silent a fortnight, so it is rare — and on the day it does
+          appear, a person who has gone quiet matters more than a
+          directory. Say so if you disagree; it is one block to move.
+
+          ⚠️ No presence dots here either. The Aug 16 refusal travels with
+          the component: a green dot says not just who is vulnerable but
+          when they are awake and alone. Every signal on these rows —
+          "new here", "Posted today", the chip — comes from something the
+          person chose to do in public. */}
+      {everyone.length > 0 && (
+        <>
+          <h2 className="frsec">Everybody here</h2>
+          <Directory members={everyone} />
+        </>
+      )}
+
 
       {soon.length > 0 && (
         <>
@@ -200,24 +234,6 @@ export default function Friends({ initialFriends, initialRequests, everyone = []
         <p className="hint frfoot">
           Sorted by who you haven’t talked to longest. Only you see this order.
         </p>
-      )}
-
-      {/* ---- EVERYBODY ----
-          Last, deliberately. Your people and the person you haven't heard
-          from in a fortnight come first — that ordering is the whole spin
-          of this page and everybody-in-the-room doesn't get to outrank it.
-
-          ⚠️ No presence dots here either. The Aug 16 refusal was about the
-          chat directory and it travels with the component: a green dot
-          says not just who is vulnerable but when they are awake and
-          alone. Every signal on these rows — "new here", "Posted today",
-          the chip — comes from something the person chose to do in
-          public. */}
-      {everyone.length > 0 && (
-        <>
-          <h2 className="frsec">Everybody on Sober Book</h2>
-          <Directory members={everyone} />
-        </>
       )}
 
     </div>
