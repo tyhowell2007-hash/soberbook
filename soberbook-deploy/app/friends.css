@@ -250,6 +250,17 @@
   position:fixed; inset:0; z-index:60;
   background:rgba(12,26,20,.55);
   display:flex; align-items:flex-end; justify-content:center;
+  /* 🔴 THE SHEET MUST CLEAR THE TAB BAR. Measured on the live page: the
+     bar (.tabbar) starts at 869px in a 931px viewport — 62px tall — and
+     without this the Cancel button sat 39px UNDERNEATH it. On a sheet
+     whose other option is "Block", the way OUT being the unreachable part
+     is the worst possible thing to get wrong: somebody who opened this by
+     accident is trapped in it.
+     ⚠️ Caught by measuring rectangles, not by looking — the sheet appears
+     complete in a screenshot because the bar is drawn over the end of it.
+     ⚠️ env() as well, because on an iPhone the home indicator adds more
+     below the bar and 62px alone would be short there. */
+  padding-bottom: calc(74px + env(safe-area-inset-bottom, 0px));
 }
 .sheet{
   width:100%; max-width:460px; margin:0 10px 10px;
