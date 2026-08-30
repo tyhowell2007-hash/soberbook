@@ -202,7 +202,61 @@
    message makes a calm room feel like it is struggling. */
 .rmsg.pending .rbub{ opacity:.55; }
 
-.rbar{ display:flex; gap:8px; align-items:center; }
+/* =====================================================================
+   🙂 THE EMOJI PICKER, in the room.
+
+   ⚠️ All six class names checked against every stylesheet before being
+   written — .emp / .emp-tabs / .emp-tab / .emp-grid / .emp-one / .remo
+   were all free. That check exists because `.composer` collided in
+   August, `.sheetwrap` collided last night, and `.rmwrap` collided while
+   I was fixing the collision.
+
+   ⚠️ Its own dark palette, like the rest of the room. --gm as text on
+   this panel measures 3.84 and is banned here; every colour below is one
+   already measured for this surface.
+   ===================================================================== */
+.emp{
+  border:1px solid #2A4A38; border-radius:12px; background:#152B21;
+  margin:0 0 9px; overflow:hidden;
+}
+.emp-tabs{
+  display:flex; gap:2px; padding:6px; overflow-x:auto;
+  border-bottom:1px solid #23402F;
+  /* the tab strip scrolls sideways on a phone rather than wrapping into
+     two rows and stealing height from the conversation */
+  -webkit-overflow-scrolling:touch;
+}
+.emp-tab{
+  flex:none; border:0; background:none; cursor:pointer;
+  font-size:16px; line-height:1; padding:7px 9px; border-radius:8px;
+}
+.emp-tab.on{ background:#2E6B4C; }
+
+/* ⚠️ Capped height, and it scrolls. Ten categories of emoji would
+   otherwise push the composer off the bottom of a phone — the control
+   you opened this to use. */
+.emp-grid{
+  display:grid; grid-template-columns:repeat(8, 1fr); gap:1px;
+  max-height:168px; overflow-y:auto; padding:6px;
+  -webkit-overflow-scrolling:touch;
+}
+.emp-one{
+  border:0; background:none; cursor:pointer;
+  font-size:20px; line-height:1; padding:6px 0; border-radius:6px;
+}
+.emp-one:hover{ background:#1F3A2C; }
+.emp-one:focus-visible{ outline:2px solid #4FA97A; outline-offset:-2px; }
+
+/* The 🙂 beside the box. 44px, same as Send — it sits in the same row and
+   a smaller sibling reads as less tappable than it is. */
+.remo{
+  flex:none; width:44px; height:44px; padding:0;
+  border:1px solid #2A4A38; background:none; border-radius:50%;
+  font-size:17px; line-height:1; cursor:pointer;
+}
+.remo:hover{ background:#1A3227; }
+
+.rbar{ display:flex; gap:7px; align-items:center; }
 .rin{
   flex:1; min-width:0; padding:11px 14px; border-radius:22px;
   border:1px solid #2A4A38; background:#1A3227; color:#EAF6EF;

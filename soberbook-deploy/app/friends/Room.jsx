@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { browserClient, assertReadable } from '../../lib/supabase-browser';
+import EmojiPicker from './EmojiPicker';
 
 /* =====================================================================
    🛋️ THE FRONT ROOM — everybody, talking, in one place.
@@ -42,8 +43,31 @@ export default function Room({ room, initial, meHandle, members }) {
   const [body, setBody]   = useState('');
   const [busy, setBusy]   = useState(false);
   const [err, setErr]     = useState('');
+  const [emoji, setEmoji] = useState(false);
   const boxRef            = useRef(null);
   const stickRef          = useRef(true);
+  const inputRef          = useRef(null);
+
+  /* ⚠️ INSERTS AT THE CURSOR, not at the end.
+     Somebody typing "one year today and I feel" should be able to drop an
+     emoji mid-sentence. Appending is one line shorter and quietly wrong.
+
+     ⚠️ The caret is put back explicitly afterwards. Setting .value on an
+     input moves the caret to the end as a side effect, so without this
+     every pick would fling you to the end of your own sentence. */
+  function insertEmoji(e) {
+    const el = inputRef.current;
+    if (!el) { setBody((b) => b + e); return; }
+    const s = el.selectionStart ?? body.length;
+    const t = el.selectionEnd ?? s;
+    const next = body.slice(0, s) + e + body.slice(t);
+    setBody(next);
+    requestAnimationFrame(() => {
+      el.focus();
+      const p = s + e.length;
+      try { el.setSelectionRange(p, p); } catch { /* older browsers */ }
+    });
+  }
 
   /* Was the reader already at the bottom before new messages arrived?
      ⚠️ Checked BEFORE the list re-renders, because after it there is no
@@ -113,6 +137,7 @@ export default function Room({ room, initial, meHandle, members }) {
     stickRef.current = true;              // you always follow your own message
     setMsgs((m) => [...m, mine]);
     setBody('');
+    setEmoji(false);   // sending is finishing; leaving it open hides the room
 
     const { error } = await supabase
       .from('room_messages')
@@ -156,8 +181,20 @@ export default function Room({ room, initial, meHandle, members }) {
 
       {err && <div className="err">{err}</div>}
 
+      {/* Above the bar, so picking one never covers the conversation. */}
+      <EmojiPicker open={emoji} onClose={() => setEmoji(false)} onPick={insertEmoji} />
+
       <form className="rbar" onSubmit={send}>
+        {/* ⚠️ type="button" — inside a <form>, a button with no type is a
+            SUBMIT button, so opening the picker would have sent the
+            message instead. */}
+        <button type="button" className="remo"
+                aria-expanded={emoji} aria-label="Open emoji"
+                onClick={() => setEmoji((v) => !v)}>
+          🙂
+        </button>
         <input
+          ref={inputRef}
           className="rin"
           value={body}
           onChange={(e) => setBody(e.target.value)}
