@@ -956,8 +956,18 @@ body{
 /* The sheet. ⚠️ position:fixed with a high z-index — the row it belongs to
    sits inside a scrolling page, and an absolutely-positioned menu would
    be clipped by the first ancestor with overflow set. */
+/* ⚠️ z-index 70, not 60, and the number is chosen against the two things
+   that were measured on the live page — .cbar (the message box) at 55
+   and .tabbar at 60. At 60 the sheet TIED with the tab bar and won only
+   by being later in the DOM, which is luck rather than a decision.
+
+   🔴 This raise alone would NOT have fixed anything. The sheet is
+   portalled to <body> in RowMenu.jsx; until it was, it lived inside
+   .mast's stacking context (position:sticky, z-index:40) and every
+   number written here was capped at 40. The portal is the fix; this is
+   the ranking once the fix lets it compete. */
 .rmenu-wrap{
-  position:fixed; inset:0; z-index:60;
+  position:fixed; inset:0; z-index:70;
   background:rgba(12,26,20,.55);
   display:flex; align-items:flex-end; justify-content:center;
   /* 🔴 THE SHEET MUST CLEAR THE TAB BAR. Measured on the live page: the

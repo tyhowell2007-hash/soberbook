@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import Link from 'next/link';
 import { browserClient } from '../../lib/supabase-browser';
 
@@ -69,6 +70,38 @@ export default function RowMenu({
   const [done, setDone]   = useState('');
   const [didBlock, setDidBlock] = useState(false);
 
+  /* 🔴 THE SHEET IS PORTALLED TO <body>, AND IT HAS TO BE.
+
+     z-index only ranks you against your SIBLINGS inside the nearest
+     stacking context — it is not a global layer number, however much it
+     looks like one.
+
+     .rmenu-wrap asks for z-index:60. On the Community list that works,
+     because its row makes no stacking context, so the sheet floats to
+     the top of the page and 60 means 60. In a conversation the ⋯ lives
+     in .mast, which is `position:sticky; z-index:40` — and that MAKES a
+     stacking context. Everything inside it, sheet included, gets painted
+     at level 40 no matter what number it writes on itself. So the sheet
+     rendered UNDERNEATH .cbar (z-index 55, the message box).
+
+     Measured on the live page before this fix — elementsFromPoint at the
+     centre of the Cancel button returned, in order:
+        FORM.cbar  →  BUTTON.rmenu-cancel  →  .rmenu-card  →  .rmenu-wrap
+     The message box was on top of Cancel. A finger there types a
+     message; it does not close the sheet. On a sheet whose other option
+     is Block, the way OUT being dead is the 29 Aug bug exactly — and
+     that one was ALSO invisible in a screenshot, because the covering
+     element is drawn transparently over the sheet's own dimmed backdrop.
+
+     ⚠️ You cannot escape a stacking context with a bigger z-index. The
+     only fix is to not be inside it. Rendering into <body> puts the
+     sheet at the top level for BOTH callers, permanently.
+
+     ⚠️ Mounted-guard because document doesn't exist during the server
+     render — createPortal on the server throws. */
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
+
   /* ⚠️ afterBlock fires on CLOSE, not on success, and the order matters.
      Blocking somebody from inside their conversation removes the thread
      from chat_threads — so the page you are standing on stops existing
@@ -113,7 +146,7 @@ export default function RowMenu({
         ⋯
       </button>
 
-      {open && (
+      {open && mounted && createPortal(
         <div className="rmenu-wrap" role="dialog" aria-modal="true" onClick={close}>
           {/* Stop a tap inside the card from closing it. */}
           <div className="rmenu-card" onClick={(e) => e.stopPropagation()}>
@@ -184,7 +217,8 @@ export default function RowMenu({
               {view === 'done' ? 'Close' : 'Cancel'}
             </button>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </>
   );
