@@ -71,7 +71,17 @@ export default function MsgMenu({ id, mine, name, onGone, onEdit }) {
 
   async function block() {
     setBusy(true); setErr('');
-    const { error } = await browserClient().rpc('block_member', { target_handle: name });
+    /* 🔴 BY MESSAGE ID, NOT BY HANDLE (0097). In The Front Porch there IS
+       no handle — room_wall returns null for it and shows an alias — so
+       block_member(handle) would have failed silently in the one room
+       where blocking matters most.
+
+       ⭐ One call for both rooms rather than a branch. The function
+       resolves the author inside itself, so this works identically
+       whether names are showing or not, and the caller never learns who
+       they blocked. A branch here would be a second place the rule lives. */
+    const { error } = await browserClient()
+      .rpc('block_author_of_room_message', { msg_id: id });
     setBusy(false);
     if (error) { setErr('Couldn’t do that.'); return; }
     setDone(`You won’t see ${name} again, and they won’t see you.`);

@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation';
 import { serverClient, assertReadable } from '../../lib/supabase-server';
 import { signPhotoPaths, collectPaths } from '../../lib/sign-photos';
 import Friends from './Friends';
-import Room from './Room';
+import RoomSwitch from './RoomSwitch';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Your people — Sober Book' };
@@ -53,7 +53,7 @@ export default async function FriendsPage() {
      across several rooms means several EMPTY rooms, and an empty room
      says "this place is dead" louder than no room at all. The agreed
      trigger for a second one is 20+ messages a day from 6+ people. */
-  const [{ data: friends }, { data: reqs }, { data: people }, { data: room }] = await Promise.all([
+  const [{ data: friends }, { data: reqs }, { data: people }, { data: roomList }] = await Promise.all([
     supabase.rpc('my_friends'),
     supabase.rpc('my_friend_requests'),
     /* ⭐ community_members() rather than the raw view, for two reasons.
@@ -80,8 +80,16 @@ export default async function FriendsPage() {
        component in Chat kept rendering it — the 0046 → 0049 drift, with
        a safety property riding on it. */
     supabase.rpc('community_members'),
-    supabase.from('rooms').select('id, slug, emoji, name, blurb')
-            .eq('slug', 'front-room').maybeSingle(),
+    /* ⭐ EVERY open room now, not one by slug (0097 opened The Front
+       Porch). `sort` decides the order of the tabs, so opening a third
+       room stays what 0092 promised: an INSERT, with no code change here.
+
+       ⚠️ `anonymous` comes along because the composer and the ⋯ menu both
+       behave differently in a room that hides handles — and the component
+       must be told, never left to infer it from whether a handle happens
+       to be null on the messages it can see. */
+    supabase.from('rooms').select('id, slug, emoji, name, blurb, anonymous')
+            .eq('active', true).order('sort').order('created_at'),
   ]);
 
   /* The last 60, oldest at the bottom the way a conversation reads.
@@ -89,6 +97,14 @@ export default async function FriendsPage() {
      members and the view is where a block is applied in both directions.
      ⚠️ maybeSingle above and this whole block guarded: if the room row is
      ever missing the page must still render the people, not 500. */
+  /* ⭐ ONLY THE FIRST ROOM IS PRELOADED. The others fetch when you open
+     them — a second room is a tab most people will never tap, and paying
+     for its messages on every single page load would make the Community
+     page slower for everybody to serve a minority. Room.jsx knows to go
+     and get them when it is handed nothing. */
+  const rooms = roomList || [];
+  const room  = rooms[0] || null;
+
   let firstMessages = [];
   let roomPhotos = {};
   if (room) {
@@ -155,7 +171,8 @@ export default async function FriendsPage() {
       <div className="bar">Everybody here · say anything</div>
       <div className="pad">
         {room && (
-          <Room room={room} initial={firstMessages} meHandle={mine?.handle || 'you'}
+          <RoomSwitch rooms={rooms} first={room} firstMessages={firstMessages}
+                      meHandle={mine?.handle || 'you'}
                 /* community_members() returns every live profile INCLUDING
                    you, so this is the size of the room, not the number of
                    other people. ⚠️ Counted from the same list the page

@@ -43,7 +43,13 @@ const POLL_MS = 12000;
 const COLS = 'id, body, photo_urls, edited_at, created_at, is_mine, handle, display_name, display_avatar';
 
 export default function Room({ room, initial, meHandle, members, signed, spokenHere = true }) {
-  const [msgs, setMsgs]   = useState(initial || []);
+  /* ⚠️ `initial === null` means nobody has fetched this room yet (see
+     RoomSwitch), which is a different thing from "this room is empty".
+     Conflating them would render a permanent empty state on any room the
+     server didn't preload. */
+  const preloaded = Array.isArray(initial);
+  const [msgs, setMsgs]   = useState(preloaded ? initial : []);
+  const [loaded, setLoaded] = useState(preloaded);
   const [body, setBody]   = useState('');
   const [busy, setBusy]   = useState(false);
   const [err, setErr]     = useState('');
@@ -63,7 +69,11 @@ export default function Room({ room, initial, meHandle, members, signed, spokenH
      send. Waiting for the next poll to hide it would leave a line saying
      "you don't have to write anything clever" sitting directly under the
      thing they just wrote. */
-  const [showNudge, setShowNudge] = useState(!spokenHere);
+  /* ⚠️ `spokenHere === null` means the server didn't check for this room.
+     Start with the nudge OFF and let refresh() decide — showing it and
+     then snatching it away a second later would be worse than a beat's
+     delay. */
+  const [showNudge, setShowNudge] = useState(spokenHere === false);
   /* Which message is open for editing, and the words as they stand. */
   const [editId, setEditId] = useState(null);
   const [draft, setDraft]   = useState('');
@@ -173,12 +183,27 @@ export default function Room({ room, initial, meHandle, members, signed, spokenH
       noteStick();
       const rows = data.slice().reverse();
       setMsgs(rows);
+      setLoaded(true);
+      /* Work out the nudge from the answer when the server didn't check
+         this room for us — `is_mine` is on every row, so the question
+         "have I ever spoken here" is already answered by what came back.
+         ⚠️ Only on the FIRST load: after that the local setShowNudge(false)
+         on send is the truth, and re-deriving it would make the line
+         flicker back for one poll after somebody speaks. */
+      if (spokenHere === null && !loaded) {
+        setShowNudge(!rows.some((m) => m.is_mine));
+      }
       const fresh = await signMissing(rows);
       if (fresh) addUrls(fresh);
     }
   }
 
   useEffect(() => {
+    /* A room the server didn't preload has nothing on screen, so it is
+       fetched immediately rather than after the first twelve-second tick.
+       ⚠️ Twelve seconds of a blank room is how somebody decides the place
+       is dead and closes the tab. */
+    if (!preloaded) refresh();
     const t = setInterval(refresh, POLL_MS);
     /* ⚠️ Refresh when the tab comes back to the front. A phone that has
        been in a pocket for an hour would otherwise show an hour-old room
@@ -328,7 +353,11 @@ export default function Room({ room, initial, meHandle, members, signed, spokenH
   }
 
   return (
-    <section className="room">
+    /* ⚠️ Keyed off the SLUG, not off room.anonymous. The porch photograph
+       belongs to one specific room; anonymity is a separate property that
+       a future room might also have without wanting this background. Two
+       different facts, two different switches. */
+    <section className={'room' + (room.slug === 'front-porch' ? ' rporch' : '')}>
       <div className="roomhead">
         <span className="roomemoji" aria-hidden="true">{room.emoji}</span>
         <span className="roomname">{room.name}</span>
@@ -341,8 +370,27 @@ export default function Room({ room, initial, meHandle, members, signed, spokenH
         )}
       </div>
 
+      {/* 🔴 THE BLURB IS NOT DECORATION IN AN ANONYMOUS ROOM. Somebody
+          arriving from the Front Room will assume their handle is showing,
+          because it always has been everywhere else in this app. Being
+          wrong about that — saying something about your husband under
+          your own name because you didn't know the rules had changed — is
+          the exact harm the room was built to prevent. It is shown ALWAYS
+          for a room that hides names, never collapsed, never dismissible. */}
+      {room.blurb && (
+        <p className={'roomblurb' + (room.anonymous ? ' hush' : '')}>
+          {room.anonymous && <span aria-hidden="true">🕶️ </span>}
+          {room.blurb}
+        </p>
+      )}
+
       <div className="roombox" ref={boxRef} onScroll={noteStick}>
-        {msgs.length === 0 ? (
+        {!loaded ? (
+          /* ⚠️ Says it's fetching rather than showing the empty state.
+             "Nobody's said anything yet" while we simply haven't looked is
+             a lie, and in this room specifically it is a discouraging one. */
+          <p className="roomempty">Opening the room…</p>
+        ) : msgs.length === 0 ? (
           /* ⚠️ Names the first thing to say rather than saying "no
              messages yet". An empty room that instructs is an invitation;
              one that reports emptiness is a verdict on the place. */
