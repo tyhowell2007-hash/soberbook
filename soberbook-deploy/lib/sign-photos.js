@@ -118,6 +118,7 @@ export async function signPhotoPaths(supabase, wanted) {
   const avatarPaths = asked.filter((p) => p.startsWith('avatars/'));
   const videoPaths  = asked.filter((p) => p.startsWith('videos/'));
   const dropPaths   = asked.filter((p) => p.startsWith('drops/'));
+  const roomPaths   = asked.filter((p) => p.startsWith('rooms/'));
 
   const allowed = new Set();
 
@@ -192,6 +193,25 @@ export async function signPhotoPaths(supabase, wanted) {
     (art || []).forEach((r) => r.art_path && allowed.add(r.art_path));
   }
 
+  /* 🛋️ A PICTURE IN THE FRONT ROOM (0093).
+     Same shape as a post's photos, asked of `room_wall` instead — and
+     that view already drops a message whose author has blocked you or
+     been blocked by you, has been suspended, has deleted their account,
+     or whose room has been closed. So a blocked person's photo stops
+     being signable the instant the block lands, without one line here
+     knowing what a block is.
+
+     ⚠️ And the intersection matters for the same reason as posts:
+     `.overlaps()` returns the message's WHOLE array, so without
+     askedSet we would sign pictures nobody asked about. */
+  if (roomPaths.length) {
+    const askedSet = new Set(roomPaths);
+    const { data } = await supabase
+      .from('room_wall').select('photo_urls').overlaps('photo_urls', roomPaths);
+    (data || []).forEach((r) =>
+      (r.photo_urls || []).forEach((p) => { if (askedSet.has(p)) allowed.add(p); }));
+  }
+
   if (avatarPaths.length) {
     const { data } = await supabase
       .from('public_profiles')
@@ -206,7 +226,8 @@ export async function signPhotoPaths(supabase, wanted) {
   for (const [bucket, prefix] of [['post-photos', 'posts/'],
                                   ['avatars',     'avatars/'],
                                   ['post-videos', 'videos/'],
-                                  ['drops',       'drops/']]) {
+                                  ['drops',       'drops/'],
+                                  ['room-photos', 'rooms/']]) {
     const paths = [...allowed].filter((p) => p.startsWith(prefix));
     if (!paths.length) continue;
 
