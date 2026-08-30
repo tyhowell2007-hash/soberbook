@@ -925,8 +925,26 @@ body{
    ⚠️ The name has to be allowed to shrink or a long handle pushes the
    dots off the right edge. .mast .lg is flex-shrink:0 by default, which
    is right for the wordmark and wrong for somebody's handle. */
+/* 🔴 transform:none IS LOAD-BEARING AND I SHIPPED WITHOUT IT ONCE.
+
+   The base rule is `position:absolute; top:50%; transform:translateY(-50%)`
+   — the standard vertical-centring trio. I overrode `position` to static
+   and assumed the rest fell away with it. It does not. `top` is ignored
+   on a static box, but **transform is independent of position** and kept
+   applying, so the dots rendered 22px above where they belonged.
+
+   Measured on the live page: mast centre y=35, name centre y=35, dots
+   centre y=13 — and the button's TOP EDGE at y=-9, i.e. nine pixels
+   above the masthead, off the top of the screen. A third of a 44px tap
+   target unreachable, on the control somebody uses to get away from
+   another member.
+
+   ⚠️ It looked "a bit high" in a screenshot and I would have talked
+   myself out of it. getBoundingClientRect said -9. Measure the rectangle;
+   don't squint at the picture. */
 .mast .rmenu-dots{
-  position:static; margin-left:auto; flex-shrink:0;
+  position:static; top:auto; transform:none;
+  margin-left:auto; flex-shrink:0;
   color:#fff;
 }
 .mast .rmenu-dots:hover{ background:rgba(255,255,255,.14); }
