@@ -119,6 +119,74 @@
    an achievement and must never read as the bottom rung of one — the same
    argument that keeps .dchip.new green instead of copper.
    ===================================================================== */
+/* =====================================================================
+   🛋️ THE FRONT ROOM.
+
+   ⚠️ Every class prefixed r-/room-, and checked against globals, wall.css,
+   theme-green.css and photos.css before writing — `.composer` collided
+   once (Aug 16) and chat had to be given `.cbar` instead. Cheap to check,
+   expensive to find.
+
+   ⚠️ The message list has its OWN scroll with a fixed max height, rather
+   than growing the page. The member list lives underneath it, and a room
+   that grows without limit would push "Everybody here" permanently below
+   the fold — which would quietly undo the thing Ty asked for two hours
+   earlier.
+   ===================================================================== */
+.room{ margin:0 0 20px; }
+
+.roomhead{ display:flex; align-items:center; gap:7px; margin:0 0 9px; }
+.roomemoji{ font-size:17px; line-height:1; }
+.roomname{ font-family:'Archivo',system-ui,sans-serif; font-size:14px;
+  font-weight:700; color:var(--body); letter-spacing:0; }
+
+.roombox{
+  max-height:46vh; overflow-y:auto; -webkit-overflow-scrolling:touch;
+  background:var(--paper2); border:1px solid var(--line); border-radius:14px;
+  padding:12px 12px 4px; margin:0 0 9px;
+}
+
+.roomempty{ margin:6px 2px 10px; font-size:13px; line-height:1.6; color:var(--soft); }
+
+.rmsg{ margin:0 0 10px; }
+.rwho{ font-size:11px; color:var(--gm-t); margin:0 0 3px; font-weight:600; }
+.rbub{
+  display:inline-block; max-width:88%; padding:8px 11px; border-radius:12px;
+  background:var(--gl); color:var(--gt); font-size:14px; line-height:1.5;
+  /* ⚠️ Long links and unbroken strings must not stretch the bubble off
+     the screen — a phone has nowhere to put the overflow. */
+  overflow-wrap:anywhere;
+}
+.rmsg.mine{ text-align:right; }
+/* ⚠️ --gt, NOT --gm. White on the mid-green measures 4.22:1, under the
+   4.5 floor for body text — and theme-green.css says in as many words
+   that --gm is "DECORATION ONLY: borders, edges, fills". Your own
+   messages would have been the least readable text on the page. --gt is
+   12.20:1. Measured, not eyeballed; a fill-against-fill mistake is the
+   one the Aug 17 contrast audit missed. */
+.rmsg.mine .rbub{ background:var(--gt); color:#fff; text-align:left; }
+/* Yours, still in flight. Faded rather than spinning: a spinner on every
+   message you send makes a calm room feel like it's struggling. */
+.rmsg.pending .rbub{ opacity:.55; }
+
+.rbar{ display:flex; gap:8px; align-items:center; }
+.rin{
+  flex:1; min-width:0; padding:11px 14px; border-radius:22px;
+  border:1px solid var(--line); background:var(--paper2); color:var(--body);
+  font-size:16px;   /* ⚠️ 16px or iOS zooms the whole page on focus */
+  font-family:inherit;
+}
+.rin::placeholder{ color:var(--soft); }
+.rgo{
+  flex:none; padding:10px 16px; border-radius:22px; border:0;
+  /* ⚠️ --gt for the same reason as the bubble above: 13px bold is not
+     "large text", so it needs the full 4.5 and --gm only gives 4.22. */
+  background:var(--gt); color:#fff; font-family:'Archivo',system-ui,sans-serif;
+  font-size:13px; font-weight:700; cursor:pointer;
+  min-height:44px;  /* ⚠️ 44px tap target — the Aug 18 post-footer lesson */
+}
+.rgo:disabled{ opacity:.45; cursor:default; }
+
 .dchip.m-quiet{
   display:inline-block; margin-left:6px; padding:2px 9px; border-radius:99px;
   font-size:10px; font-weight:700; letter-spacing:.03em; vertical-align:1px;

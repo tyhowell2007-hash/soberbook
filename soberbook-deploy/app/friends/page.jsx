@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { serverClient, assertReadable } from '../../lib/supabase-server';
 import Friends from './Friends';
+import Room from './Room';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Your people — Sober Book' };
@@ -42,7 +43,16 @@ export default async function FriendsPage() {
      anybody either of you has blocked, and nulls identity for members in
      anonymous mode. "Everybody" is therefore a different list for every
      member, which is correct. */
-  const [{ data: friends }, { data: reqs }, { data: people }] = await Promise.all([
+  /* 🛋️ The room, fetched here so the page arrives with the conversation
+     already in it rather than popping in a beat later. Same reasoning as
+     signing the Wall's photos server-side.
+
+     ⚠️ ONE room, by slug, on purpose. The schema holds many (0092) and
+     opening "🌙 Late night" later is an INSERT — but 18 members split
+     across several rooms means several EMPTY rooms, and an empty room
+     says "this place is dead" louder than no room at all. The agreed
+     trigger for a second one is 20+ messages a day from 6+ people. */
+  const [{ data: friends }, { data: reqs }, { data: people }, { data: room }] = await Promise.all([
     supabase.rpc('my_friends'),
     supabase.rpc('my_friend_requests'),
     /* ⭐ community_members() rather than the raw view, for two reasons.
@@ -69,7 +79,31 @@ export default async function FriendsPage() {
        component in Chat kept rendering it — the 0046 → 0049 drift, with
        a safety property riding on it. */
     supabase.rpc('community_members'),
+    supabase.from('rooms').select('id, slug, emoji, name, blurb')
+            .eq('slug', 'front-room').maybeSingle(),
   ]);
+
+  /* The last 60, oldest at the bottom the way a conversation reads.
+     ⚠️ room_wall, never room_messages — the base table is revoked from
+     members and the view is where a block is applied in both directions.
+     ⚠️ maybeSingle above and this whole block guarded: if the room row is
+     ever missing the page must still render the people, not 500. */
+  let firstMessages = [];
+  if (room) {
+    const { data: rows } = await supabase
+      .from(assertReadable('room_wall'))
+      .select('id, body, created_at, is_mine, handle, display_name, display_avatar')
+      .eq('room_slug', room.slug)
+      .order('created_at', { ascending: false })
+      .limit(60);
+    firstMessages = (rows || []).slice().reverse();
+  }
+
+  /* Your own handle, so a message you just sent can be labelled without
+     another round trip. ⚠️ public_profiles, not profiles. */
+  const { data: mine } = await supabase
+    .from(assertReadable('public_profiles'))
+    .select('handle').eq('is_mine', true).maybeSingle();
 
   /* You are not in your own directory — start_thread() refuses a thread
      with yourself, so your row would do nothing when tapped. And people
@@ -83,8 +117,11 @@ export default async function FriendsPage() {
         <span className="lg">🌱 SOBER BOOK</span>
         <Link href="/find" className="rt melink">find someone ›</Link>
       </div>
-      <div className="bar">Everybody here · say hi to anyone</div>
+      <div className="bar">Everybody here · say anything</div>
       <div className="pad">
+        {room && (
+          <Room room={room} initial={firstMessages} meHandle={mine?.handle || 'you'} />
+        )}
         <Friends initialFriends={friends || []} initialRequests={reqs || []}
                  everyone={everyone} />
       </div>
