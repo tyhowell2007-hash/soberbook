@@ -895,6 +895,46 @@ body{
 }
 .rmenu-dots:hover{ background:var(--gl); }
 
+/* =====================================================================
+   THE SAME ⋯, BUT IN THE CONVERSATION MASTHEAD. Aug 30.
+
+   RowMenu was written for a member's row on a pale card, and two things
+   about it are wrong in a dark green masthead. Both would have shipped
+   silently, because neither throws:
+
+   1. 🔴 `position:absolute; right:8px` positions against the nearest
+      POSITIONED ancestor. .mast is sticky — which counts — so the dots
+      would have landed in roughly the right place by luck, and moved the
+      first time anything above it changed. In a flex row the honest
+      answer is static + margin-left:auto, the same trick .rt already
+      uses two rules up.
+
+   2. 🔴 `color:var(--soft)` is #63716A. On the masthead's --gd (#1B6B4A)
+      that MEASURES 1.26:1 — a grey smudge on dark green, effectively
+      invisible, on the only control that gets somebody away from a
+      person they want away from. #fff measures 6.46:1. Same trap as
+      17 Aug: the component was fine and the BACKGROUND under it was
+      what changed.
+
+      ⚠️ Both of those figures are computed, not remembered. My first
+      draft of this comment said 1.41 and 6.07 — numbers I did in my
+      head, and both were wrong. The conclusion survived; the evidence
+      didn't. A wrong number in a comment outlives the person who wrote
+      it, so measure before you write it down.
+
+   ⚠️ The name has to be allowed to shrink or a long handle pushes the
+   dots off the right edge. .mast .lg is flex-shrink:0 by default, which
+   is right for the wordmark and wrong for somebody's handle. */
+.mast .rmenu-dots{
+  position:static; margin-left:auto; flex-shrink:0;
+  color:#fff;
+}
+.mast .rmenu-dots:hover{ background:rgba(255,255,255,.14); }
+.mast .lg.cvname{
+  min-width:0; flex-shrink:1;
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+}
+
 /* The sheet. ⚠️ position:fixed with a high z-index — the row it belongs to
    sits inside a scrolling page, and an absolutely-positioned menu would
    be clipped by the first ancestor with overflow set. */

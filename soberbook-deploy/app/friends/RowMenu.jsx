@@ -1,10 +1,30 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { browserClient } from '../../lib/supabase-browser';
 
 /* =====================================================================
    ⋯ — MESSAGE, REPORT, BLOCK, from a member's row.
+
+   ⭐ 30 AUG: THIS IS NOW USED FROM TWO PLACES, AND THAT IS THE WHOLE
+   POINT. It lives under app/friends/ because that is where it was born,
+   but app/chat/[id]/Convo.jsx imports it too.
+
+   🔴 It was very tempting to write a second, smaller version for the
+   conversation header — it only needs two of the three actions. That is
+   exactly the mistake 0046 → 0047 → 0049 made three times in one week:
+   a rule written down twice becomes a rule enforced two different ways,
+   and the copy nobody is looking at is the one that drifts. Block being
+   non-optimistic, report never promising an outcome, the 988 line
+   appearing on the way IN rather than after — all of that has to exist
+   ONCE. So the only thing that varies between the two callers is the
+   label on the first button.
+
+   ⚠️ The .rmenu-* styles live in theme-green.css, NOT friends.css. That
+   is what makes this safe to import from /chat — checked before writing
+   it, because a component whose stylesheet isn't on the route renders as
+   naked HTML and nothing errors.
 
    🔴 WHY THIS HAD TO EXIST TONIGHT. Until 0090 the only way to block
    anybody was block_author_of_post(post_id) — it needed a POST. Eleven of
@@ -31,15 +51,33 @@ import { browserClient } from '../../lib/supabase-browser';
    still reach them.
    ===================================================================== */
 
-export default function RowMenu({ handle, name, onMessage }) {
+/* primaryLabel / primaryHref describe ONLY the first button.
+   - Community row: "Message", which calls onMessage().
+   - Conversation:  "Their page", which is a link — you are already in the
+     conversation, so offering to start one is nonsense.
+   Defaults keep the Community caller byte-identical in behaviour. */
+export default function RowMenu({
+  handle, name, onMessage,
+  primaryLabel = 'Message',
+  primaryHref = null,
+  afterBlock = null,
+}) {
   const [open, setOpen]   = useState(false);
   const [view, setView]   = useState('menu');   // menu | report | block | done
   const [busy, setBusy]   = useState(false);
   const [err, setErr]     = useState('');
   const [done, setDone]   = useState('');
+  const [didBlock, setDidBlock] = useState(false);
 
+  /* ⚠️ afterBlock fires on CLOSE, not on success, and the order matters.
+     Blocking somebody from inside their conversation removes the thread
+     from chat_threads — so the page you are standing on stops existing
+     the moment the block lands. Navigating away immediately would rip
+     the confirmation off the screen before it could be read; leaving
+     them there means the next tap is a 404. So: confirm, then leave. */
   function close() {
     setOpen(false); setView('menu'); setErr(''); setDone(''); setBusy(false);
+    if (didBlock && afterBlock) { setDidBlock(false); afterBlock(); }
   }
 
   async function block() {
@@ -47,6 +85,7 @@ export default function RowMenu({ handle, name, onMessage }) {
     const { error } = await browserClient().rpc('block_member', { target_handle: handle });
     setBusy(false);
     if (error) { setErr('Couldn’t do that.'); return; }
+    setDidBlock(true);
     setDone(`You won’t see ${name} again, and they won’t see you.`);
     setView('done');
   }
@@ -84,9 +123,15 @@ export default function RowMenu({ handle, name, onMessage }) {
 
             {view === 'menu' && (
               <>
-                <button type="button" className="rmenu-btn" onClick={() => { close(); onMessage(); }}>
-                  Message
-                </button>
+                {primaryHref ? (
+                  <Link href={primaryHref} className="rmenu-btn" onClick={close}>
+                    {primaryLabel}
+                  </Link>
+                ) : (
+                  <button type="button" className="rmenu-btn" onClick={() => { close(); onMessage(); }}>
+                    {primaryLabel}
+                  </button>
+                )}
                 <button type="button" className="rmenu-btn" onClick={() => setView('report')}>
                   Report
                 </button>

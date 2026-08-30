@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { browserClient } from '../../../lib/supabase-browser';
+import RowMenu from '../../friends/RowMenu';
 
 /* =====================================================================
    ONE CONVERSATION.
@@ -91,15 +92,56 @@ export default function Convo({ thread, initial }) {
 
   return (
     <>
+      {/* 🔴 30 AUG — THE ⋯ IS THE BUG FIX, AND IT IS A SAFETY CONTROL.
+
+          Until today there was no way to block or report anybody from
+          inside a conversation. The only route was: leave, open
+          Community, scroll a list of ninety-eight people, find them,
+          open their row menu. At eighteen members that was survivable.
+          Migration 0087 removed the cap that stopped a stranger sending
+          more than one message, and 0087's own comment said block and
+          report had to become reachable from the row AND from in here or
+          the migration should be reverted. Only half of it shipped.
+
+          ⚠️ Eleventh "everything built except the way in" this month —
+          delete-your-post, "Say hi", sign out, the content hide button —
+          and the first one where the missing door is how you get away
+          from somebody.
+
+          ⭐ "their page ›" moved INTO the sheet rather than sitting
+          beside the dots. Four things in a phone-width bar is how the
+          ⋯ gets pushed off the edge by a long handle, and the sheet is
+          where this app already puts per-person actions, so nobody has
+          to learn a second gesture to protect themselves. */}
       <div className="mast">
         <Link href="/chat" className="back" aria-label="Back to chat">‹</Link>
-        <span className="lg">{thread.other_name}</span>
-        <Link href={`/u/${thread.other_handle}`} className="rt melink">their page ›</Link>
+        <span className="lg cvname">{thread.other_name}</span>
+        <RowMenu
+          handle={thread.other_handle}
+          name={thread.other_name}
+          primaryLabel="Their page"
+          primaryHref={`/u/${thread.other_handle}`}
+          afterBlock={() => { window.location.href = '/chat'; }}
+        />
       </div>
 
       <div className="convo">
+        {/* ⚠️ THIS SENTENCE USED TO BE A LIE AND NOBODY NOTICED FOR A DAY.
+
+            It read "Say hello. They'll see it as a request first." —
+            true until 0087 removed the request gate on 29 Aug, false
+            from that moment, and shown on every empty conversation in
+            the app. Same category as "verified, real people" on the
+            landing page and the drop card that said "Sober Book first"
+            over an already-released song: the app describing itself
+            inaccurately to the person using it.
+
+            🔴 The lesson is about the migration, not the copy. When a
+            rule is removed from the database, the screens that EXPLAIN
+            that rule are part of the change. 0087 shipped the behaviour
+            and left its own description behind. */}
         {msgs.length === 0 && (
-          <p className="cnote">Say hello. They&apos;ll see it as a request first.</p>
+          <p className="cnote">Say hello.</p>
         )}
         {msgs.map((m) => (
           <div key={m.id} className={'bub' + (m.is_mine ? ' mine' : '')}>
