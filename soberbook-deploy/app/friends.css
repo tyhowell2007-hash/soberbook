@@ -210,6 +210,30 @@
   font-family:inherit;
 }
 .rin::placeholder{ color:#7FBFA0; }
+
+/* 🔴 YOU COULD NOT SEE WHAT YOU WERE TYPING, AND THIS IS WHY.
+
+   globals.css has `input:focus{ background:#fff }` — written for the
+   cream app, where a white field on focus is right. It is a type selector
+   plus a pseudo-class (0,1,1), which BEATS a plain class (0,1,0). So the
+   instant somebody tapped this box to type, the background flipped to
+   white while the text stayed near-white from .rin above.
+
+   White on white. Invisible EXACTLY while you are typing, and only then.
+
+   ⭐ THE PROCESS LESSON, and it is the sharpest one this week: I measured
+   this input earlier and got 12.38:1 and called it proven. I had measured
+   the UNFOCUSED state. A control that only misbehaves while focused is
+   invisible to a check that never focuses it. **Measure the state the
+   person is actually in.** Ty found it by typing; I found it by finally
+   looking at pixels instead of getComputedStyle.
+
+   ⚠️ (0,2,0) beats (0,1,1), so this wins without !important. The caret is
+   set too — a light caret on white is its own small invisibility. */
+.rin:focus{
+  background:#1A3227; color:#EAF6EF; caret-color:#EAF6EF;
+  outline:2px solid #4FA97A; outline-offset:1px;
+}
 .rgo{
   flex:none; padding:10px 16px; border-radius:22px; border:0;
   background:#4FA97A; color:#08160F;
