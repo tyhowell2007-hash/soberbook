@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { serverClient, assertReadable } from '../../lib/supabase-server';
+import { signPhotoPaths, collectPaths } from '../../lib/sign-photos';
 import Friends from './Friends';
 import Room from './Room';
 
@@ -89,14 +90,27 @@ export default async function FriendsPage() {
      ⚠️ maybeSingle above and this whole block guarded: if the room row is
      ever missing the page must still render the people, not 500. */
   let firstMessages = [];
+  let roomPhotos = {};
   if (room) {
     const { data: rows } = await supabase
       .from(assertReadable('room_wall'))
-      .select('id, body, created_at, is_mine, handle, display_name, display_avatar')
+      .select('id, body, photo_urls, created_at, is_mine, handle, display_name, display_avatar')
       .eq('room_slug', room.slug)
       .order('created_at', { ascending: false })
       .limit(60);
     firstMessages = (rows || []).slice().reverse();
+
+    /* ⚠️ Signed HERE rather than by the browser after it mounts. Two
+       reasons, and only the first is speed: the pictures arrive with the
+       page instead of popping in a beat later, and — the one that
+       matters — signPhotoPaths() needs the service role key, which lives
+       on the server and must never reach a browser.
+
+       ⭐ It queries room_wall AS THIS MEMBER, so a photo from somebody
+       they have blocked is simply absent from the answer. No rule about
+       blocks is written here or in sign-photos.js; the view already
+       knows, and we ask instead of deciding. */
+    roomPhotos = await signPhotoPaths(supabase, collectPaths(firstMessages));
   }
 
   /* Your own handle, so a message you just sent can be labelled without
@@ -127,7 +141,7 @@ export default async function FriendsPage() {
                    already has — a second query for a number that is
                    already in hand is how two parts of a screen start
                    disagreeing. */
-                members={(people || []).length} />
+                members={(people || []).length} signed={roomPhotos} />
         )}
         <Friends initialFriends={friends || []} initialRequests={reqs || []}
                  everyone={everyone} />

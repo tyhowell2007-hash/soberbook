@@ -61,9 +61,23 @@ export default async function AdminPage() {
     const paths = [...new Set((rows || []).flatMap((r) => [
       ...(Array.isArray(r.photo_urls) ? r.photo_urls : []), r.photo_url,
     ]).filter(Boolean))];
-    if (paths.length) {
+    /* 🔴 THE BUCKET COMES FROM THE PATH, NOT FROM A CONSTANT. This line
+       used to say `from('post-photos')` full stop, which was right while
+       every reportable photo lived on a post. A picture in The Front Room
+       (0093/0095) is in `room-photos`, so it would have come back with no
+       signed URL — and a missing URL renders as a broken image, not as an
+       error. The moderator would have been asked to judge a photo they
+       could not see, with nothing anywhere saying why.
+
+       ⚠️ Same rule as lib/sign-photos.js: the stored value is
+       self-describing and the prefix IS the routing. Nothing here names a
+       bucket that the path didn't already choose. */
+    for (const [bucket, prefix] of [['post-photos', 'posts/'],
+                                    ['room-photos', 'rooms/']]) {
+      const mine = paths.filter((p) => p.startsWith(prefix));
+      if (!mine.length) continue;
       const { data } = await adminClient()
-        .storage.from('post-photos').createSignedUrls(paths, 3600);
+        .storage.from(bucket).createSignedUrls(mine, 3600);
       (data || []).forEach((r) => { if (r.signedUrl) urls[r.path] = r.signedUrl; });
     }
   }

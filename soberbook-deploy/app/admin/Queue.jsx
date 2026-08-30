@@ -158,17 +158,27 @@ export default function Queue({ rows, urls }) {
                       onClick={() => act(r.report_id, 'mod_dismiss')}>
                 Nothing wrong here
               </button>
-              {!r.content_gone && (
+              {/* 🔴 NOT SHOWN ON A MEMBER REPORT. A report filed against a
+                  person has no content attached, so there is nothing to
+                  take down — and until 0094 this button quietly marked
+                  the report "actioned" having done absolutely nothing.
+                  The function refuses now; the button leaving is what
+                  stops a moderator meeting that refusal. */}
+              {!r.content_gone && r.target_type !== 'profile' && (
                 <button className="btn ghost" disabled={busy === r.report_id}
                         onClick={() => act(r.report_id, 'mod_remove',
-                          'Delete this post? The photo goes with it and this cannot be undone.')}>
-                  Take the post down
+                          r.target_type === 'room_message'
+                            ? 'Take this message out of the room? Any pictures on it are deleted for good.'
+                            : 'Delete this post? The photo goes with it and this cannot be undone.')}>
+                  {r.target_type === 'room_message' ? 'Take the message down' : 'Take the post down'}
                 </button>
               )}
               <button className="btn ghost mq-danger" disabled={busy === r.report_id}
                       onClick={() => act(r.report_id, 'mod_suspend',
-                        'Suspend whoever wrote this? Every post and comment they have made disappears from the app immediately.')}>
-                Suspend whoever wrote it
+                        r.target_type === 'profile'
+                          ? 'Suspend this member? Every post and comment they have made disappears from the app immediately.'
+                          : 'Suspend whoever wrote this? Every post and comment they have made disappears from the app immediately.')}>
+                {r.target_type === 'profile' ? 'Suspend them' : 'Suspend whoever wrote it'}
               </button>
             </div>
           </article>

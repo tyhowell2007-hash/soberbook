@@ -55,6 +55,14 @@ const KINDS = {
      looked AT rather than glanced at, smaller than a post photo because
      it renders in a square that is never full-bleed. */
   dropart:{ bucket: 'drops',       prefix: 'drops',   max: 1000, quality: 82 },
+  /* ⭐ THE ROOM GETS ITS OWN BUCKET, and that is not tidiness.
+     Permission to see a photo is decided by asking whichever view owns
+     it (see lib/sign-photos.js), and the prefix in the stored path is
+     what picks the view. Put a room photo in post-photos and its path
+     starts `posts/`, so the signer would ask `feed_posts` — a view that
+     has never heard of it — and the picture would simply never appear.
+     One bucket per audience keeps that routing honest. */
+  room:   { bucket: 'room-photos', prefix: 'rooms',   max: 1600, quality: 80 },
 };
 
 /* ⚠️ `drop` is deliberately NOT in KINDS above. That map is the
@@ -318,11 +326,20 @@ export async function POST(req) {
 
   if (video) {
     /* An avatar is a face, not a film. Nothing in the UI offers this;
-       the check exists because the UI is not where rules live. */
+       the check exists because the UI is not where rules live.
+
+       ⚠️ The message used to say "A profile picture has to be a photo"
+       for EVERY kind that isn't a post — so somebody dropping a video
+       into The Front Room would be told, wrongly, that they were editing
+       their profile picture. A refusal that describes the wrong screen
+       is a refusal people can't act on. */
     if (body?.kind !== 'post') {
       await admin.storage.from('quarantine').remove([raw]);
-      return NextResponse.json(
-        { error: 'A profile picture has to be a photo.' }, { status: 415 });
+      return NextResponse.json({
+        error: body?.kind === 'room'
+          ? 'The room takes photos, not video. Put a video on the wall instead.'
+          : 'A profile picture has to be a photo.',
+      }, { status: 415 });
     }
 
     /* Rename the location boxes to `free` and zero them, without moving

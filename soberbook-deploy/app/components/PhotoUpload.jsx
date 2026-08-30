@@ -28,6 +28,12 @@ export default function PhotoUpload({
   disabled = false,
   onBusy,               // (bool) => void — lets the parent lock its Post button
   accept = 'image/*',   // photos only unless the caller says otherwise
+  /* ⚠️ For callers whose button is a fixed-size icon. The default shows
+     the live stage — "Uploading…" — which is genuinely useful on a slow
+     phone and completely wrong inside a 44px circle, where it overflows
+     and shoves the message box off the row. The Front Room passes "…"
+     here and prints the progress line somewhere it fits. */
+  busyLabel,
 }) {
   const input = useRef(null);
   const [busy, setBusy] = useState(false);
@@ -105,7 +111,7 @@ export default function PhotoUpload({
     <>
       <button type="button" className={className} disabled={disabled || busy}
               onClick={() => input.current?.click()}>
-        {busy ? (stage || 'Working…') : label}
+        {busy ? (busyLabel || stage || 'Working…') : label}
       </button>
 
       {/* accept is a hint to the picker, never a check — the real one is

@@ -303,3 +303,119 @@
   white-space:nowrap;
   background:#F6EEDC; color:#5A4412; border:1px solid #B08D3A;
 }
+
+/* =====================================================================
+   📷 PICTURES IN THE FRONT ROOM.
+
+   Ty, 30 Aug: "In community in the green room, I want you to be able to
+   post pictures as well as type. And I want you to be able to send as
+   many pictures as you would like."
+
+   ⚠️ Every class name below was checked against every stylesheet in the
+   app before being written — .rline .rtext .rpics .rpic .rtray .rtray-one
+   .rtray-x .rbig .rbig-x .rpick .rmsgdots were all free. That check
+   exists because `.composer` collided in August, `.sheetwrap` collided
+   on the 29th, and `.rmwrap` collided while I was fixing that collision.
+
+   ⚠️ The room's own dark palette. --gm (#2E8B5F) as TEXT on this surface
+   measures 3.84 and is banned here; every colour below is one already
+   measured against #152B21 / #1A3227.
+   ===================================================================== */
+
+/* The bubble and its ⋯ sit side by side. ⚠️ The menu is a SIBLING of the
+   bubble, never a child — a <button> inside a <button> is invalid HTML
+   and browsers recover from it in different ways. */
+.rline{ display:flex; align-items:flex-start; gap:4px; }
+.rmsg.mine .rline{ justify-content:flex-end; flex-direction:row-reverse; }
+.rtext{ display:block; }
+
+/* ⚠️ 32px wide but a FULL 44px tall. The Aug 18 lesson was 44px tap
+   targets; a 44×44 circle beside every single message would shout louder
+   than the messages. Height is where the finger actually misses on a
+   scrolling list, so that is the axis kept honest. */
+.rmsgdots{
+  flex:none; min-width:32px; min-height:44px; padding:0 4px;
+  border:0; background:none; color:#7FBFA0;
+  font-size:17px; line-height:1; cursor:pointer; border-radius:8px;
+}
+.rmsgdots:hover{ background:#1A3227; }
+.rmsgdots:focus-visible{ outline:2px solid #4FA97A; outline-offset:1px; }
+
+.rpics{ display:grid; gap:3px; width:min(264px, 100%); margin:0 0 6px; }
+.rpics.one { grid-template-columns:1fr; }
+.rpics.two { grid-template-columns:repeat(2, 1fr); }
+.rpics.many{ grid-template-columns:repeat(3, 1fr); }
+
+.rpic{
+  padding:0; border:0; background:#0F241B; cursor:pointer;
+  border-radius:9px; overflow:hidden; aspect-ratio:1; display:block;
+}
+.rpic img{ width:100%; height:100%; object-fit:cover; display:block; }
+.rpic:focus-visible{ outline:2px solid #4FA97A; outline-offset:2px; }
+
+/* 🔴 A SINGLE PICTURE IS NEVER CROPPED, and that is not a nicety. Aug 18
+   settled this for video — object-fit:cover hides somebody's head and you
+   cannot tell it happened. One photo, one subject, and it is very often a
+   face or a chip: it gets its real shape and whatever letterboxing that
+   costs. Two or more become a grid, where square thumbs are read as a
+   contact sheet and tapping one opens it whole. */
+.rpics.one .rpic{ aspect-ratio:auto; background:none; }
+.rpics.one img{
+  width:auto; max-width:100%; height:auto; max-height:300px; object-fit:contain;
+}
+
+/* Chosen, not sent yet. ⚠️ Sits between the conversation and the bar so
+   it never covers the message somebody is replying to. */
+.rtray{ display:flex; flex-wrap:wrap; gap:9px; margin:0 0 9px; padding:2px; }
+.rtray-one{ position:relative; width:72px; height:72px; }
+.rtray-one img{
+  width:72px; height:72px; object-fit:cover; border-radius:9px; display:block;
+  border:1px solid #2A4A38;
+}
+/* ⚠️ 30px, not 44. A 44px × on a 72px thumbnail covers the picture it is
+   asking you to identify. Nothing else in the tray is tappable, so a
+   near miss does nothing at all rather than the wrong thing — which is
+   the trade that makes a smaller target acceptable here and would not
+   make it acceptable next to Send. */
+.rtray-x{
+  position:absolute; top:-7px; right:-7px; width:30px; height:30px;
+  border-radius:50%; border:1px solid #2A4A38; background:#08160F;
+  color:#EAF6EF; font-size:16px; line-height:1; cursor:pointer; padding:0;
+}
+
+/* The 🖼️ beside the box. Matches .remo exactly — two round 44px buttons
+   in a row, one of which looked different, would read as one being less
+   real than the other. */
+.rpick{
+  flex:none; width:44px; height:44px; padding:0;
+  border:1px solid #2A4A38; background:none; border-radius:50%;
+  font-size:17px; line-height:1; cursor:pointer; color:#EAF6EF;
+  font-family:inherit;
+}
+.rpick:hover{ background:#1A3227; }
+.rpick:disabled{ opacity:.5; cursor:default; }
+
+/* 🔴 PhotoUpload's error line is styled in photos.css as #8A2B2B — a dark
+   red written for the cream app. On this panel it measures 2.15:1 and is
+   effectively invisible, so an upload that failed would say nothing a
+   person could read. Scoped override, and .rbar has to wrap for it to
+   have anywhere to go. */
+.rbar{ flex-wrap:wrap; }
+.rbar .phserr{ flex-basis:100%; margin:7px 2px 0; color:#FFB4B4; }
+
+/* Full size. ⚠️ An overlay, not a new tab — a signed URL in the address
+   bar is a link that can be copied out and keeps working for an hour in
+   anybody's browser. */
+.rbig{
+  position:fixed; inset:0; z-index:80; background:rgba(6,18,12,.95);
+  display:flex; align-items:center; justify-content:center;
+  padding:20px; cursor:zoom-out;
+}
+.rbig img{ max-width:100%; max-height:82vh; object-fit:contain; border-radius:10px; }
+.rbig-x{
+  position:absolute; left:50%; transform:translateX(-50%); bottom:22px;
+  min-height:44px; padding:11px 26px; border-radius:22px; border:0;
+  background:#4FA97A; color:#08160F;
+  font-family:'Archivo',system-ui,sans-serif; font-size:13px; font-weight:700;
+  cursor:pointer;
+}

@@ -56,6 +56,10 @@ const KINDS = {
      decides what it really is by reading the bytes. */
   drop:   { ext: 'bin' },
   dropart:{ ext: 'bin' },
+  /* A picture dropped into The Front Room (0093/0095). Same quarantine
+     road, same stripper, its own bucket — see the note in finalize about
+     why it doesn't just reuse post-photos. */
+  room:   { ext: 'bin' },
 };
 
 /* What the browser is allowed to say it's sending. ⚠️ This is a HINT, not
