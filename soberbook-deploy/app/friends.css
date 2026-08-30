@@ -91,21 +91,25 @@
    Ty, 29 Aug: "add the days they've been quiet. So we know who isn't
    talking or not."
 
-   ⚠️ IT LIVES HERE, NOT IN wall.css, AND THAT IS THE WHOLE REASON THIS
-   COMMENT EXISTS. It was written into wall.css first, which was wrong in
-   a way that produces NO error: /friends imports theme-green.css,
-   photos.css and friends.css and never loads wall.css at all, so the rule
-   would have sat in a file this page doesn't read and the chip would have
-   rendered as bare text. Same lesson as the /friends layout shipping
-   without NavBar in August — a stylesheet only exists for the routes
-   whose layout imports it.
+   ⚠️ IT LIVES HERE RATHER THAN IN wall.css, and the honest reason is
+   smaller than the one first written in this comment. I claimed /friends
+   never loads wall.css. That was WRONG — the ROOT layout imports it
+   (app/layout.jsx), so it is on every page in the app, and the rule would
+   have worked perfectly well there.
 
-   ⚠️ EVERY PROPERTY IS DECLARED HERE, including the shape ones. The
-   .dchip base in theme-green.css sets only the typeface and padding; the
-   display, radius and border live in wall.css, which — see above — this
-   page never loads. Inheriting half a chip from a file that isn't there
-   is exactly how you get something that looks fine in one tab and broken
-   in the other.
+   The real reasons it stays here: this chip belongs to one page, and
+   wall.css is a 1,500-line file that failed to upload three times on Aug
+   23 at 71KB. Keeping it out of the deploy is worth something. Neither of
+   those is "it wouldn't have worked".
+
+   ⭐ The lesson that IS real, kept because it cost time: checking a
+   route's own layout imports does not tell you which stylesheets that
+   route has. Layouts NEST — the root's imports apply everywhere beneath
+   them. Read app/layout.jsx too.
+
+   ⚠️ Every property is still declared here rather than half-inherited
+   from the .dchip base, which is cheap insurance and makes this rule
+   readable on its own.
 
    ⚠️ GOLD, DELIBERATELY NOT RED. Red is the colour of a mistake and
    nobody has made one by going quiet. Somebody who stops posting for two
@@ -152,6 +156,10 @@
    Reaching for --body or --soft in here would silently produce grey text
    on a dark green panel. This block owns its own palette because it is
    the only inverted surface in the app.
+
+   ⚠️ AND IT MUST OUT-SPECIFY wall.css, which the root layout loads on
+   every page. Anything in here that shares a class name with that file is
+   competing with it, so the room uses names that appear nowhere else.
    ===================================================================== */
 .room{
   margin:0 0 20px;
@@ -210,6 +218,72 @@
   min-height:44px;  /* ⚠️ 44px tap target — the Aug 18 post-footer lesson */
 }
 .rgo:disabled{ opacity:.45; cursor:default; }
+
+/* =====================================================================
+   ⋯ THE ROW MENU — message, report, block.
+
+   ⚠️ THE ⋯ IS ABSOLUTELY POSITIONED OVER THE ROW rather than added to its
+   flex line. The row's layout comes from wall.css, which is loaded
+   globally by the root layout and is shared with the Chat directory —
+   changing its flex children would move something on a page I am not
+   looking at. Overlaying costs one padding-right and touches nothing.
+
+   ⚠️ 44px, because this is a control somebody reaches for when they want
+   a person to go away. The Aug 18 audit found 20px targets on the two
+   buttons that mattered most; this is one of those.
+   ===================================================================== */
+.drowwrap{ position:relative; }
+.drowwrap .crow{ padding-right:48px; }
+
+.rowdots{
+  position:absolute; right:8px; top:50%; transform:translateY(-50%);
+  width:40px; min-height:44px; padding:0; border:0; background:none;
+  color:var(--soft); font-size:19px; line-height:1; cursor:pointer;
+  display:flex; align-items:center; justify-content:center; border-radius:10px;
+}
+.rowdots:hover{ background:var(--gl); }
+
+/* The sheet. ⚠️ position:fixed with a high z-index — the row it belongs to
+   sits inside a scrolling page, and an absolutely-positioned menu would
+   be clipped by the first ancestor with overflow set. */
+.sheetwrap{
+  position:fixed; inset:0; z-index:60;
+  background:rgba(12,26,20,.55);
+  display:flex; align-items:flex-end; justify-content:center;
+}
+.sheet{
+  width:100%; max-width:460px; margin:0 10px 10px;
+  background:var(--paper2); border:1px solid var(--line); border-radius:16px;
+  padding:14px 13px 12px;
+}
+.sheetwho{
+  font-family:'Courier Prime',monospace; font-size:11.5px; letter-spacing:.08em;
+  text-transform:uppercase; color:var(--soft); margin:0 2px 10px;
+}
+.sheetbtn{
+  display:block; width:100%; text-align:left; margin:0 0 8px;
+  padding:12px 14px; min-height:48px;
+  background:var(--paper); border:1px solid var(--line); border-radius:12px;
+  font-family:inherit; font-size:15px; color:var(--body); cursor:pointer;
+}
+.sheetbtn:hover{ background:var(--gl); }
+.sheetbtn:disabled{ opacity:.5; cursor:default; }
+/* ⚠️ A colour, not a shout. Blocking somebody is a reasonable thing to do
+   and the button should not look like a warning about the person doing
+   it. Measured 6.44:1 on --paper. */
+.sheetbtn.danger{ color:#A3352C; }
+.sheetbtn.tall{ display:flex; flex-direction:column; gap:3px; }
+.sheetbtn .sb1{ font-size:15px; }
+.sheetbtn .sb2{ font-size:12.5px; color:var(--soft); }
+
+.sheetnote{
+  margin:0 2px 10px; font-size:13.5px; line-height:1.6; color:var(--soft);
+}
+.sheetcancel{
+  display:block; width:100%; margin:2px 0 0; padding:12px; min-height:48px;
+  background:none; border:0; font-family:inherit; font-size:14px;
+  color:var(--gm-t); cursor:pointer;
+}
 
 .dchip.m-quiet{
   display:inline-block; margin-left:6px; padding:2px 9px; border-radius:99px;

@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { browserClient } from '../../lib/supabase-browser';
+import RowMenu from '../friends/RowMenu';
 
 /* =====================================================================
    EVERYBODY — the member directory inside Chat.
@@ -277,7 +278,15 @@ export default function Directory({ members }) {
            that page it IS the page. */
         const chip = quietChip(m) || chipFor(m.day_count);
         return (
-          <button key={m.handle} className="crow drow" disabled={busy === m.handle}
+          /* ⚠️ The ⋯ is a SIBLING of the row button, never a child of it.
+             A <button> inside a <button> is invalid HTML and browsers
+             recover from it differently — the inner one stops being
+             reliably tappable. Same reason the Wall's reply preview sits
+             outside its post button. The wrapper is positioned and the ⋯
+             is placed over the row's right edge, so the row's own flex
+             layout (from wall.css) is left completely untouched. */
+          <div key={m.handle} className="drowwrap">
+          <button className="crow drow" disabled={busy === m.handle}
                   onClick={() => open(m.handle)}>
             <div className="cav" aria-hidden="true">{m.display_avatar || '🙂'}</div>
             <div className="cwho">
@@ -292,6 +301,14 @@ export default function Directory({ members }) {
                 chip — it turns a list into an instruction. */}
             <span className="dgo">{busy === m.handle ? '…' : isNew ? 'Say hi' : 'Message'}</span>
           </button>
+          {/* ⚠️ Not rendered on your own row — there is no version of
+              blocking or reporting yourself that means anything, and an
+              option that can only fail is worse than no option. */}
+          {!m.is_mine && (
+            <RowMenu handle={m.handle} name={m.display_name}
+                     onMessage={() => open(m.handle)} />
+          )}
+          </div>
         );
       })}
     </>
