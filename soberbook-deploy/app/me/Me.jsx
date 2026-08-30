@@ -11,6 +11,7 @@ import DatePick from '../components/DatePick';
 import { dayCount, startsInDays } from '../../lib/milestones';
 import PhotoUpload from '../components/PhotoUpload';
 import DeleteAccount from './DeleteAccount';
+import Blocked from './Blocked';
 import PushSwitch from '../components/PushSwitch';
 
 /* The faces you can pick from.
@@ -1547,6 +1548,12 @@ export default function Me({ email, profile, posts, initialAvatarUrl,
               never mind
             </button>
           )}
+
+          {/* ⚠️ Above delete, below sign-out. It renders NOTHING when you
+              haven't blocked anybody, so for most members this section
+              doesn't exist — a permanent "People you've blocked (0)"
+              invites somebody to wonder who they ought to be blocking. */}
+          <Blocked />
 
           {/* ⚠️ Below sign-out, not above it, and not behind another menu.
               Apple asks for account deletion to be easy to find, and hiding

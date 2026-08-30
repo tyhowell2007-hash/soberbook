@@ -788,3 +788,39 @@ body{
   font:inherit; font-size:16px; color:var(--gt); background:#fff;
 }
 .mdy select:disabled{ opacity:.6; }
+
+/* =====================================================================
+   PEOPLE YOU'VE BLOCKED — /me → Account.
+
+   ⚠️ Lives in theme-green.css because that is what /me's layout imports.
+   Class names checked against globals, wall, photos and friends before
+   being written: .blist / .brow / .bname / .bundo were all free.
+
+   ⚠️ NO RED ON THE UNBLOCK BUTTON. Undoing a block is not a dangerous
+   act and should not be dressed as one — the same argument that keeps
+   the quiet chip gold instead of red. The dangerous direction was the
+   block itself, and that lives on the other screen.
+   ===================================================================== */
+.blist{ list-style:none; margin:8px 0 0; padding:0; }
+
+.brow{
+  display:flex; align-items:center; gap:10px;
+  padding:8px 0; border-bottom:1px solid var(--line);
+}
+.brow:last-child{ border-bottom:0; }
+
+.bname{
+  flex:1 1 auto; min-width:0; font-size:14px; color:var(--body);
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+}
+
+/* 44px, like every other control that matters here. */
+.bundo{
+  flex:0 0 auto; min-height:44px; padding:0 14px;
+  background:#fff; border:1px solid var(--gm); border-radius:999px;
+  font-family:inherit; font-size:13.5px; color:var(--gm-t); cursor:pointer;
+}
+.bundo:disabled{ opacity:.5; cursor:default; }
+
+/* The line under the list explaining what unblocking does NOT undo. */
+.hint.small{ font-size:11px; line-height:1.55; margin-top:8px; }
