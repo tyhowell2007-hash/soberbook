@@ -7,6 +7,7 @@ import { browserClient } from '../../lib/supabase-browser';
 import SongPicker from './SongPicker';
 import SongPlayer from '../components/SongPlayer';
 import Milestones from '../components/Milestones';
+import DatePick from '../components/DatePick';
 import { dayCount, startsInDays } from '../../lib/milestones';
 import PhotoUpload from '../components/PhotoUpload';
 import DeleteAccount from './DeleteAccount';
@@ -100,6 +101,21 @@ export default function Me({ email, profile, posts, initialAvatarUrl,
 
   const [privacy, setPrivacy] = useState(profile.privacy_mode);
   const [since, setSince] = useState(profile.sober_since || '');
+
+  /* ⭐ THE INVITATION, AND THE WAY OUT OF IT. Aug 29.
+     ---------------------------------------------------------------------
+     Ty: "It should be a very easy procedure to put your sober date in.
+     And if you don't have a sober date, you shouldn't have to put one in
+     at all."
+
+     8 of 18 members have no date, and the reason turned out to be the
+     usual one: the editor exists, it is good, and it is THREE TAPS behind
+     the pencil. The line that says you don't have to set one is already
+     written — buried where only somebody already editing would read it.
+
+     'shut' = the member said no, this session or in the database.
+     'open' = the little picker is showing. */
+  const [dateAsk, setDateAsk] = useState(profile.date_prompt_off ? 'shut' : 'closed');
   /* The whole song, as one object. It used to be two loose strings the
      member had to fill in by hand; now the search hands back all four
      fields at once and this just holds them until Save. */
@@ -351,6 +367,70 @@ export default function Me({ email, profile, posts, initialAvatarUrl,
 
   const totalNow = lifetime + (d || 0);
 
+  /* =====================================================================
+     THE STARTED-OVER QUESTION — BUILT ONCE, RENDERED TWICE.
+
+     A date can now be moved forward from two places: the full editor
+     behind the pencil, and the edit link under the number. Both must ask
+     the same question, because the answer decides whether a run gets
+     added to the lifetime total — and a lifetime total is the one number
+     in this app that is supposed to survive everything.
+
+     🔴 I nearly shipped this as a dead button. The first version set
+     reset='ask' from the counter, but the question only rendered inside
+     `{editing && …}` — so saving a forward date from the counter would
+     have set a flag and shown nothing at all. That is the sixth instance
+     this month of everything-built-except-the-way-in, and this time I
+     wrote it myself. Building it as one variable and dropping it in both
+     places is what makes that impossible rather than merely fixed.
+     ===================================================================== */
+  const resetFlow = reset === 'ask' ? (
+    <div className="ask">
+      <p className="askq">You moved your date forward. Which is it?</p>
+      <button className="btn" type="button" disabled={busy}
+              onClick={() => setReset('run')}>
+        I started over
+      </button>
+      <button className="btn ghost" type="button" disabled={busy}
+              onClick={() => { setReset('no');
+                save({ sober_since: since || null }, 'Date fixed.'); }}>
+        I&apos;m just fixing the date
+      </button>
+      <p className="hint">
+        Nothing you&apos;ve already done gets erased either way. This only
+        decides whether those days get added to your total.
+      </p>
+    </div>
+  ) : reset === 'run' ? (
+    <div className="ask">
+      <p className="askq">How long was that run?</p>
+      <label htmlFor="rl">Days</label>
+      <input id="rl" type="number" inputMode="numeric" min="0" max="40000"
+             value={runLen} disabled={busy}
+             onChange={(e) => setRunLen(e.target.value)} />
+      <p className="hint">
+        We guessed from your old date. Change it if we got it wrong &mdash;
+        you know where the line was and we don&apos;t.
+      </p>
+      <button className="btn" type="button" disabled={busy}
+              onClick={() => {
+                const add = Math.max(0, Math.min(40000, parseInt(runLen, 10) || 0));
+                const next = Math.min(40000, lifetime + add);
+                setLifetime(next);
+                setReset('no');
+                save({ sober_since: since || null, lifetime_days: next },
+                     'Saved. Those ' + add.toLocaleString()
+                     + ' days are yours for good.');
+              }}>
+        {busy ? 'Saving…' : 'Add it and save'}
+      </button>
+      <button className="nvm" type="button" disabled={busy}
+              onClick={() => setReset('ask')}>
+        back
+      </button>
+    </div>
+  ) : null;
+
   /* One save function for every setting on this page. `patch` is just an
      object of columns → new values.
 
@@ -487,15 +567,86 @@ export default function Me({ email, profile, posts, initialAvatarUrl,
             marker as an example and the closing star-slash ended THIS
             comment four lines early. A JSX comment cannot contain the
             characters that end one. Do not write them here. */}
-        {soon !== null ? (
+        {/* 🔴 NO DATE MEANS NO CARD. Ty, twice: "if they do not wanna put
+            their sober date up, they do not have to."
+
+            Milestones renders "—" and "no date set yet" when days is
+            null. On your own page that placeholder is the app raising the
+            subject every single time you open it — which is exactly what
+            somebody who tapped "I'd rather not" refused. So when there is
+            no date, this renders nothing at all and the invitation card
+            below takes over; once that is dismissed, the space is simply
+            empty. Absence has to actually be absent.
+
+            ⚠️ Milestones itself is UNCHANGED — /u/[handle] renders it too
+            and that page is not mine to alter tonight. The placeholder
+            still exists there, which is its own question. */}
+        {!since ? null : soon !== null ? (
           <p style={{ margin: '1.2rem 0 1.6rem', fontSize: '15px', lineHeight: 1.6, opacity: 0.85 }}>
             Your date is set for {new Date(since + 'T00:00:00').toLocaleDateString(
               undefined, { month: 'long', day: 'numeric', year: 'numeric' })}.
             {' '}The count starts then.
           </p>
         ) : (
-          <Milestones since={since || null} days={d}
-                      sub={(d === 1 ? 'day' : 'days') + ' · @' + profile.handle} />
+          <>
+            <Milestones since={since || null} days={d}
+                        sub={(d === 1 ? 'day' : 'days') + ' · @' + profile.handle} />
+
+            {/* ⭐ THE EDIT LINK, NEXT TO THE THING IT EDITS.
+                Ty: "we're gonna need a hyperlink for an edit button
+                somewhere underneath the number."
+
+                ⚠️ It lives HERE, in Me.jsx, and not inside Milestones —
+                /u/[handle] renders that same component, and an edit link
+                on somebody else's profile would be absurd at best.
+
+                The date is spelled out beside it so it is obvious what
+                you are about to change. */}
+            <p className="sincerow">
+              since {new Date(since + 'T00:00:00').toLocaleDateString(
+                undefined, { day: 'numeric', month: 'short', year: 'numeric' })}
+              {' · '}
+              <button type="button" className="sincelink" disabled={busy}
+                      onClick={() => { setDateAsk(dateAsk === 'open' ? 'closed' : 'open'); }}>
+                edit
+              </button>
+            </p>
+
+            {/* The same picker the invitation card uses — one control,
+                two ways in. ⚠️ Save routes through the SAME movedForward
+                check the full editor uses, so editing from here can never
+                skip the "started over or fixing it?" question. Skipping
+                it would quietly drop somebody's lifetime days. */}
+            {dateAsk === 'open' && (
+              <div className="datecard">
+                <DatePick value={since || today} disabled={busy}
+                          idPrefix="edit" onChange={setSince} />
+                <div className="dc-row">
+                  <button className="btn" type="button"
+                          disabled={busy || since === savedSince}
+                          onClick={() => {
+                            /* ⚠️ The picker STAYS OPEN when the date moved
+                               forward — resetFlow renders directly below
+                               it. Closing here is what made the first
+                               version a dead button. */
+                            if (movedForward) { setRunLen(String(guess)); setReset('ask'); return; }
+                            save({ sober_since: since || null }, 'Date saved.');
+                            setDateAsk('closed');
+                          }}>
+                    {busy ? 'Saving…' : 'Save'}
+                  </button>
+                  <button className="btn ghost" type="button" disabled={busy}
+                          onClick={() => { setSince(savedSince); setDateAsk('closed'); }}>
+                    Cancel
+                  </button>
+                </div>
+                <p className="dc-s">
+                  Only used to count days. Nobody else sees the date itself.
+                </p>
+                {resetFlow}
+              </div>
+            )}
+          </>
         )}
 
         {/* =================================================================
@@ -506,6 +657,75 @@ export default function Me({ email, profile, posts, initialAvatarUrl,
             ================================================================= */}
         {!editing && (
           <>
+            {/* =============================================================
+                "COUNTING DAYS?" — THE ONE PLACE IT IS EASY TO SAY YES.
+
+                🔴 Shown ONLY when there is no date and the member has not
+                already said no. Never shown to somebody who has a date —
+                their number is right above this and it would be absurd.
+
+                ⚠️ THE REFUSAL IS THE SAME SIZE AS THE OFFER, ON PURPOSE.
+                Every other recovery app makes the day count the point and
+                the opt-out a settings-screen afterthought. Here the person
+                who is not counting — four days from a relapse, or simply
+                measuring it some other way — gets a one-tap answer that
+                sticks forever. `date_prompt_off` (0085) is what makes
+                "forever" true; without it this card comes back every time
+                they open their own page, and an app that asks a person in
+                recovery about their day count daily is doing harm with a
+                cheerful face.
+
+                ⚠️ It does NOT lock the field. Somebody who says no today
+                can still set a date from the pencil whenever they like.
+                This silences the ASKING, not the ability.
+                ============================================================= */}
+            {!since && dateAsk !== 'shut' && (
+              <div className="datecard">
+                {dateAsk === 'closed' ? (
+                  <>
+                    <p className="dc-h">Counting days?</p>
+                    <p className="dc-s">Put your date in and it counts for you.</p>
+                    <button className="btn" type="button"
+                            onClick={() => setDateAsk('open')}>
+                      Set my date
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <p className="dc-h">When did you start?</p>
+                    <DatePick value={since || today} disabled={busy}
+                              idPrefix="ask" onChange={setSince} />
+                    <button className="btn" type="button" disabled={busy || !since}
+                            onClick={() => save({ sober_since: since }, 'Date saved.')}>
+                      {busy ? 'Saving…' : 'Save'}
+                    </button>
+                    <p className="dc-s">
+                      Only used to count days. Nobody else sees the date itself.
+                    </p>
+                  </>
+                )}
+
+                {/* 🔴 One tap, and it is remembered. The card closes FIRST,
+                    before the write — the member said no, and making them
+                    watch a spinner to be told their refusal was accepted
+                    is the small rudeness this whole card exists to avoid.
+
+                    ⚠️ No .catch() here on purpose: save() handles its own
+                    errors and never rejects. Writing one anyway would
+                    imply a promise contract that doesn't exist, and this
+                    app has been bitten repeatedly by a second statement of
+                    a rule drifting from the first. If save() ever starts
+                    throwing, this needs revisiting — not decorating. */}
+                <button className="dc-no" type="button" disabled={busy}
+                        onClick={() => {
+                          setDateAsk('shut');
+                          save({ date_prompt_off: true }, '');
+                        }}>
+                  I&rsquo;d rather not count days
+                </button>
+              </div>
+            )}
+
             {/* ---- WHO GOT BACK TO YOU ----
 
                 ⚠️ Nothing renders when there's nothing. No "You're all
@@ -1013,9 +1233,9 @@ export default function Me({ email, profile, posts, initialAvatarUrl,
           {/* ---- sober date ---- */}
         </Section>
         <Section title="🌱 Your date">
-          <label htmlFor="sd">Sober since</label>
-          <input id="sd" type="date" value={since} max={today} disabled={busy}
-                 onChange={(e) => { setSince(e.target.value); setReset('no'); }} />
+          <label htmlFor="sd-m">Sober since</label>
+          <DatePick value={since || today} disabled={busy} idPrefix="sd"
+                    onChange={(v) => { setSince(v); setReset('no'); }} />
           <p className="hint">
             Only used to count days. Leave it empty if you&apos;d rather not have a number.
           </p>
@@ -1032,55 +1252,16 @@ export default function Me({ email, profile, posts, initialAvatarUrl,
           )}
 
           {/* Two questions, never more, and neither of them asks what
-              happened. The app does not need to know. */}
-          {reset === 'ask' && (
-            <div className="ask">
-              <p className="askq">You moved your date forward. Which is it?</p>
-              <button className="btn" type="button" disabled={busy}
-                      onClick={() => setReset('run')}>
-                I started over
-              </button>
-              <button className="btn ghost" type="button" disabled={busy}
-                      onClick={() => { setReset('no');
-                        save({ sober_since: since || null }, 'Date fixed.'); }}>
-                I&apos;m just fixing the date
-              </button>
-              <p className="hint">
-                Nothing you&apos;ve already done gets erased either way. This only
-                decides whether those days get added to your total.
-              </p>
-            </div>
-          )}
+              happened. The app does not need to know.
 
-          {reset === 'run' && (
-            <div className="ask">
-              <p className="askq">How long was that run?</p>
-              <label htmlFor="rl">Days</label>
-              <input id="rl" type="number" inputMode="numeric" min="0" max="40000"
-                     value={runLen} disabled={busy}
-                     onChange={(e) => setRunLen(e.target.value)} />
-              <p className="hint">
-                We guessed from your old date. Change it if we got it wrong &mdash;
-                you know where the line was and we don&apos;t.
-              </p>
-              <button className="btn" type="button" disabled={busy}
-                      onClick={() => {
-                        const add = Math.max(0, Math.min(40000, parseInt(runLen, 10) || 0));
-                        const next = Math.min(40000, lifetime + add);
-                        setLifetime(next);
-                        setReset('no');
-                        save({ sober_since: since || null, lifetime_days: next },
-                             'Saved. Those ' + add.toLocaleString()
-                             + ' days are yours for good.');
-                      }}>
-                {busy ? 'Saving…' : 'Add it and save'}
-              </button>
-              <button className="nvm" type="button" disabled={busy}
-                      onClick={() => setReset('ask')}>
-                back
-              </button>
-            </div>
-          )}
+              ⚠️ RENDERED FROM ONE PLACE, TWO TIMES. `resetFlow` is built
+              once above and dropped in here and in the counter's inline
+              picker. The counter's edit link can move a date forward just
+              like this editor can, and the question that decides whether
+              a run gets added to the lifetime total must be identical in
+              both — a second copy of THIS, of all things, would be the
+              one that drifts and quietly loses somebody's days. */}
+          {resetFlow}
 
           {/* ---- the total ---- */}
           {lifetime > 0 && (

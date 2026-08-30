@@ -706,3 +706,85 @@ body{
    own 4px bottom padding was set when the last row was usually the only
    row. */
 .pad .deets{ padding-bottom:8px; }
+
+/* =====================================================================
+   "COUNTING DAYS?" — the invitation on /me when there is no date.
+
+   ⚠️ All four class names checked against every stylesheet before being
+   written. `.composer` collided once (Aug 16) and cost an evening; the
+   check is thirty seconds.
+
+   🔴 THE REFUSAL IS NOT SMALLER THAN THE OFFER. It is quieter — no
+   button chrome — but it is full width, 44px tall and directly under the
+   thing it refuses. A person who is not counting days should not have to
+   hunt for permission not to.
+   ===================================================================== */
+.datecard{
+  background:rgba(255,255,255,.10); border:1px solid rgba(255,255,255,.16);
+  border-radius:12px; padding:16px; margin:1.2rem 0 1.4rem; text-align:center;
+}
+.dc-h{ margin:0 0 4px; font-size:16px; font-weight:600; }
+.dc-s{ margin:4px 0 12px; font-size:13px; line-height:1.45; opacity:.8; }
+.datecard input[type="date"]{
+  width:100%; margin:0 0 10px; min-height:44px;
+}
+.datecard .btn{ width:100%; }
+.dc-no{
+  display:block; width:100%; min-height:44px; margin-top:10px;
+  background:none; border:0; padding:0; cursor:pointer; font-family:inherit;
+  font-size:13px; color:inherit; opacity:.7; text-decoration:underline;
+}
+.dc-no:hover{ opacity:1; }
+.dc-no:disabled{ opacity:.4; cursor:default; }
+
+/* =====================================================================
+   THE COUNTER — earned chips, the edit link, and the date dropdowns.
+   Aug 29.
+
+   🔴 THE GOLD RULE THAT WAS NEVER WRITTEN. Milestones.jsx has always
+   tagged earned chips `.chip.on` and the next one `.chip.next` — and no
+   stylesheet ever defined `.on`. So an earned chip and a chip you have
+   never seen rendered IDENTICALLY, in the same pale green. Ty: "it's
+   just sitting there looking like a sore eye." He was looking at a
+   ladder with no rungs lit.
+
+   ⭐ The comment above the milestone block says gold "appears nowhere
+   else, so a chip post is recognisable from the far end of a scroll" —
+   and then nothing rendered gold. Seventh instance this month of
+   everything-built-except-the-way-in. The component was right; the
+   stylesheet was one rule short.
+   ===================================================================== */
+.chips .chip.on{
+  background:var(--gold-lt); color:var(--gold-ink); font-weight:700;
+}
+/* Dashed, not solid — an outline reads as an empty slot, a dash reads as
+   something on its way. */
+.chips .chip.next{
+  background:transparent; color:#DCEFE5;
+  border:1.5px dashed rgba(255,255,255,.45);
+}
+
+/* ---- since / edit, under the number ---- */
+.sincerow{
+  margin:9px 0 0; font-size:12.5px; color:#CFEADD; text-align:center;
+}
+.sincelink{
+  background:none; border:0; padding:6px 4px; min-height:36px;
+  font:inherit; font-size:12.5px; color:#fff; text-decoration:underline;
+  cursor:pointer;
+}
+.sincelink:disabled{ opacity:.5; cursor:default; }
+
+.dc-row{ display:flex; gap:8px; margin-top:10px; }
+.dc-row .btn{ flex:1; }
+
+/* ---- the three dropdowns ----
+   ⚠️ Year column is widest: it carries four digits and it is the one
+   people actually reach for. Month gets the most room after it because
+   its options are words, not numbers. */
+.mdy{ display:grid; grid-template-columns:1.25fr .8fr 1fr; gap:7px; }
+.mdy select{
+  width:100%; min-height:44px; border-radius:7px; border:0; padding:10px 8px;
+  font:inherit; font-size:16px; color:var(--gt); background:#fff;
+}
+.mdy select:disabled{ opacity:.6; }

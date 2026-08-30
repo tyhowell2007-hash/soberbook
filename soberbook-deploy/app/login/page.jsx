@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { browserClient } from '../../lib/supabase-browser';
 import { makeHandles, createProfile } from '../../lib/first-run';
+import DatePick from '../components/DatePick';
 
 /* =====================================================================
    THE FRONT DOOR — Ty's warm landing, with real doors in it.
@@ -89,6 +90,24 @@ export default function Landing() {
      Same tie-break as before: when the two audiences conflict, the one
      who might leave wins. */
   const [mode, setMode]       = useState('new');
+
+  /* ⚠️ OPTIONAL, AND IT HAS TO STAY OPTIONAL. Ty asked for the date here
+     as well as on /me, over my objection that it puts a fourth field back
+     on a screen we had just got down to three. His call, and he is right
+     that asking once at the start catches people who will never open the
+     editor — 8 of 18 members have no date because nothing ever asked.
+
+     🔴 Blank is a real answer, not an unfinished form. Nothing validates
+     it, nothing marks it required, and somebody who is not counting days
+     — or who does not have a date yet — passes straight through. That is
+     the whole reason the label says "if you have one". */
+  const [upSince, setUpSince] = useState('');
+
+  /* Caps the date picker at today — you cannot have got sober tomorrow.
+     ⚠️ Same one-liner Me.jsx uses (line ~339) rather than a shared helper:
+     it is one expression, and a `lib/today.js` would be a module whose
+     entire job is hiding a Date constructor. */
+  const today = new Date().toISOString().slice(0, 10);
 
   /* ⚠️ ON BY DEFAULT, AND THAT MATCHES WHAT THE CODE ALREADY DID.
      createProfile() has always defaulted privacy_mode to 'anonymous' so
@@ -242,8 +261,12 @@ export default function Landing() {
         /* ⚠️ `anon` comes from the switch on the form, and its default is
            true — the same value this call was hard-coded to before. The
            behaviour has not changed; it is just visible and choosable now. */
+        /* ⚠️ `since` was already a parameter of createProfile — it has
+           been there since /welcome was the only caller, and the one-page
+           sign-up simply never passed it. Nothing new in first-run.js. */
         const r = await createProfile(supabase, {
-          handle: upHandle, privacy: anon ? 'anonymous' : 'open', generated: !mine,
+          handle: upHandle, privacy: anon ? 'anonymous' : 'open',
+          since: upSince, generated: !mine,
         });
         router.push(r.ok ? '/wall' : '/');
         router.refresh();
@@ -432,6 +455,18 @@ export default function Landing() {
                   {busy === 'up' ? 'One second…' : 'Create my account'}
                 </button>
               </form>
+
+              {/* ⚠️ LAST, AND OPTIONAL. It sits below the handle so the
+                  three fields that make an account come first — somebody
+                  who taps straight through has still finished. The label
+                  carries the permission, not a hint underneath it: "if you
+                  have one" is doing the work of a whole sentence. */}
+              <label className="lp-lab" htmlFor="up-m">
+                Sober since <span className="lp-opt">— if you have one</span>
+              </label>
+              {/* Same three dropdowns as /me. One control, three callers. */}
+              <DatePick value={upSince} disabled={!!busy}
+                        idPrefix="up" onChange={setUpSince} />
 
               {/* ⭐ THE SAFEST THING ABOUT SIGNING UP, MADE VISIBLE.
                   The default was already anonymous; until now nothing on
