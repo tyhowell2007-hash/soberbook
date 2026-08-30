@@ -419,3 +419,59 @@
   font-family:'Archivo',system-ui,sans-serif; font-size:13px; font-weight:700;
   cursor:pointer;
 }
+
+/* =====================================================================
+   ✏️ EDITING YOUR OWN WORDS IN THE ROOM (0096).
+
+   ⚠️ All six names checked against every stylesheet before writing —
+   .redit .rta .rerow .rcnt .redited .lnk. That check exists because
+   `.composer` collided in August and `.rmwrap` collided while I was
+   fixing an earlier collision.
+   ===================================================================== */
+
+/* The block sits where the bubble was, on the right like your other
+   messages, and slightly wider — a field you are typing into needs more
+   room than a bubble you are reading. */
+.redit{ width:86%; margin-left:auto; }
+
+.rta{
+  display:block; width:100%; box-sizing:border-box;
+  border:2px solid #4FA97A; border-radius:12px;
+  background:#1A3227; color:#EAF6EF; caret-color:#EAF6EF;
+  font-size:16px;   /* ⚠️ 16px or iOS zooms the whole page on focus */
+  line-height:1.5; padding:9px 11px; font-family:inherit; resize:none;
+}
+/* 🔴 globals.css has `input:focus{background:#fff}` at (0,1,1). It does
+   not match a <textarea>, but the ONE-CLASS version of this rule would
+   still lose to any future `textarea:focus`. Two classes = (0,2,0), which
+   wins outright. Same lesson as .rin:focus above — the bug that made the
+   message box invisible exactly while somebody was typing in it. */
+.rta:focus, .redit .rta:focus{
+  background:#1A3227; color:#EAF6EF; caret-color:#EAF6EF;
+  outline:2px solid #4FA97A; outline-offset:1px;
+}
+
+.rerow{ display:flex; align-items:center; gap:8px; margin-top:7px; }
+
+/* ⚠️ Takes the space on the left so Cancel and Save stay together on the
+   right, where the Send button already trained the thumb to look. */
+.rcnt{ margin-right:auto; font-size:11px; color:#7FBFA0; line-height:1.4; }
+
+.lnk{
+  background:none; border:0; color:#7FBFA0; cursor:pointer;
+  font-family:inherit; font-size:12px; padding:8px 6px;
+  min-height:44px;   /* the Aug 18 tap-target lesson */
+}
+.lnk:hover{ color:#EAF6EF; }
+
+/* 🔴 THE MARKER. #C7E5D6 measures 4.70:1 on your own green bubble
+   (#2E6B4C) and 10.20:1 on somebody else's (#1A3227) — quiet, but never
+   the invisible grey that "subtle" usually means. It has to be READABLE:
+   it is the whole reason editing is safe to offer, and a marker nobody
+   can see is the same as no marker.
+
+   ⚠️ I first wrote 6.1 here from memory and the measurement said 4.70.
+   Both numbers pass, so nothing was broken — but a guessed figure in a
+   comment is how a later change "safely" darkens this to 4.2 and nobody
+   notices. Measured, both surfaces, or don't write a number at all. */
+.redited{ color:#C7E5D6; font-size:11px; white-space:nowrap; }

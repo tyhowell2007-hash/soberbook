@@ -30,7 +30,7 @@ import { browserClient } from '../../lib/supabase-browser';
    in front of eighteen people.
    ===================================================================== */
 
-export default function MsgMenu({ id, mine, name, onGone }) {
+export default function MsgMenu({ id, mine, name, onGone, onEdit }) {
   const [open, setOpen] = useState(false);
   const [view, setView] = useState('menu');   // menu | report | del | done
   const [busy, setBusy] = useState(false);
@@ -94,9 +94,18 @@ export default function MsgMenu({ id, mine, name, onGone }) {
             {err && <div className="err">{err}</div>}
 
             {view === 'menu' && (mine ? (
-              <button type="button" className="rmenu-btn danger" onClick={() => setView('del')}>
-                Delete
-              </button>
+              <>
+                {/* ⚠️ Edit sits ABOVE Delete, and that order is deliberate.
+                    The safe, common action goes where the thumb lands
+                    first; the irreversible one is further away. */}
+                <button type="button" className="rmenu-btn"
+                        onClick={() => { close(); onEdit?.(id); }}>
+                  Edit
+                </button>
+                <button type="button" className="rmenu-btn danger" onClick={() => setView('del')}>
+                  Delete
+                </button>
+              </>
             ) : (
               <>
                 <button type="button" className="rmenu-btn" onClick={() => setView('report')}>

@@ -94,7 +94,7 @@ export default async function FriendsPage() {
   if (room) {
     const { data: rows } = await supabase
       .from(assertReadable('room_wall'))
-      .select('id, body, photo_urls, created_at, is_mine, handle, display_name, display_avatar')
+      .select('id, body, photo_urls, edited_at, created_at, is_mine, handle, display_name, display_avatar')
       .eq('room_slug', room.slug)
       .order('created_at', { ascending: false })
       .limit(60);

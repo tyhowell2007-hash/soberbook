@@ -40,7 +40,7 @@ import MsgMenu from './MsgMenu';
    conversation; it is not a presence signal. */
 const POLL_MS = 12000;
 
-const COLS = 'id, body, photo_urls, created_at, is_mine, handle, display_name, display_avatar';
+const COLS = 'id, body, photo_urls, edited_at, created_at, is_mine, handle, display_name, display_avatar';
 
 export default function Room({ room, initial, meHandle, members, signed }) {
   const [msgs, setMsgs]   = useState(initial || []);
@@ -59,6 +59,11 @@ export default function Room({ room, initial, meHandle, members, signed }) {
      messages arrive. */
   const [urls, setUrls]   = useState(signed || {});
   const [big, setBig]     = useState(null);
+  /* Which message is open for editing, and the words as they stand. */
+  const [editId, setEditId] = useState(null);
+  const [draft, setDraft]   = useState('');
+  const [savingEdit, setSavingEdit] = useState(false);
+  const taRef             = useRef(null);
   const boxRef            = useRef(null);
   const stickRef          = useRef(true);
   const inputRef          = useRef(null);
@@ -193,6 +198,62 @@ export default function Room({ room, initial, meHandle, members, signed }) {
     });
   }
 
+  /* ---------------------------------------------------------------
+     EDITING YOUR OWN WORDS (0096)
+
+     🔴 NOT OPTIMISTIC, and this is the opposite call to the one made for
+     sending. A message that appears and then fails is a visible retry —
+     you can see it didn't land. An EDIT that appears to have saved and
+     hasn't leaves you believing the room is reading words it never got,
+     which is closer to the block case than the message case. It's one
+     round trip on a deliberate action, with the field right there.
+     --------------------------------------------------------------- */
+  function startEdit(id) {
+    const m = msgs.find((x) => x.id === id);
+    if (!m) return;
+    setErr('');
+    setEditId(id);
+    setDraft(m.body || '');
+    /* ⚠️ Caret at the END, not the start. Setting a textarea's value puts
+       it at position 0, which drops you in front of your own sentence. */
+    setTimeout(() => {
+      const el = taRef.current;
+      if (!el) return;
+      el.focus();
+      try { el.setSelectionRange(el.value.length, el.value.length); } catch { /* older */ }
+    }, 0);
+  }
+
+  function cancelEdit() { setEditId(null); setDraft(''); setSavingEdit(false); }
+
+  async function saveEdit() {
+    const m = msgs.find((x) => x.id === editId);
+    if (!m || savingEdit) return;
+    const next = draft.trim();
+    const hasPics = (m.photo_urls || []).length > 0;
+    /* Guarded here AND in the database. This copy exists to explain; the
+       one in edit_my_room_message() is the one that enforces. */
+    if (next === (m.body || '')) return;
+    if (!next && !hasPics) return;
+
+    setSavingEdit(true); setErr('');
+    const { data, error } = await browserClient()
+      .rpc('edit_my_room_message', { msg_id: editId, new_body: next });
+    setSavingEdit(false);
+
+    /* ⚠️ The function returns FALSE rather than erroring when the message
+       isn't yours or is already gone. That is not an error to forward —
+       it means there is nothing here to change. */
+    if (error || data === false) {
+      setErr(error ? 'That didn’t save. Try again.' : 'That message is gone.');
+      return;
+    }
+    setMsgs((all) => all.map((x) => (
+      x.id === editId ? { ...x, body: next || null, edited_at: new Date().toISOString() } : x
+    )));
+    cancelEdit();
+  }
+
   async function send(e) {
     e?.preventDefault();
     const text = body.trim();
@@ -282,6 +343,67 @@ export default function Room({ room, initial, meHandle, members, signed }) {
           <p className="roomempty">Nobody’s said anything yet today. “Morning” counts.</p>
         ) : msgs.map((m) => {
           const pics = (m.photo_urls || []).filter(Boolean);
+
+          /* ⭐ THE BUBBLE BECOMES THE FIELD, in place. Ty picked this over
+             editing inside the ⋯ sheet, and the reason is that the room
+             is a conversation: while you are fixing a sentence you need
+             to see what came before and after it. The sheet would cover
+             exactly that. */
+          if (editId === m.id) {
+            const next    = draft.trim();
+            const unchanged = next === (m.body || '');
+            const empty     = !next && pics.length === 0;
+            return (
+              <div key={m.id} className="rmsg mine">
+                <div className="redit">
+                  {/* The pictures stay put and are not editable — swapping
+                      the image under a message people have already seen
+                      is a different problem from fixing a typo. */}
+                  {pics.length > 0 && (
+                    <div className={'rpics' + (pics.length === 1 ? ' one'
+                                            : pics.length === 2 ? ' two' : ' many')}>
+                      {pics.map((p) => (
+                        <span key={p} className="rpic">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img src={urls[p] || ''} alt="" />
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                  <textarea
+                    ref={taRef}
+                    className="rta"
+                    rows={3}
+                    value={draft}
+                    maxLength={2000}
+                    aria-label="Edit your message"
+                    onChange={(e) => setDraft(e.target.value)}
+                    onKeyDown={(e) => {
+                      /* Escape gets you out. A field you can only leave by
+                         finding the right button is a trap — same rule as
+                         the emoji picker and the Thread modal. */
+                      if (e.key === 'Escape') { e.preventDefault(); cancelEdit(); }
+                    }}
+                  />
+                  <div className="rerow">
+                    {/* ⚠️ Says WHY the button is dead. A control that is
+                        greyed out with no explanation is the /welcome
+                        submit button all over again. */}
+                    <span className="rcnt">
+                      {empty ? 'A message needs words or a picture'
+                             : unchanged ? 'No changes yet' : ''}
+                    </span>
+                    <button type="button" className="lnk" onClick={cancelEdit}>Cancel</button>
+                    <button type="button" className="rgo" disabled={savingEdit || unchanged || empty}
+                            onClick={saveEdit}>
+                      {savingEdit ? 'Saving…' : 'Save'}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            );
+          }
+
           return (
           <div key={m.id} className={'rmsg' + (m.is_mine ? ' mine' : '') + (m.pending ? ' pending' : '')}>
             {!m.is_mine && <div className="rwho">{m.display_name}</div>}
@@ -305,6 +427,12 @@ export default function Room({ room, initial, meHandle, members, signed }) {
                   </div>
                 )}
                 {m.body && <span className="rtext">{m.body}</span>}
+                {/* 🔴 SHOWN TO EVERYONE, not just the author. Without it,
+                    editing is a way to change what you appear to have
+                    said after somebody has already answered you. Four
+                    grey characters, and they are the whole reason edit is
+                    safe to offer at all. */}
+                {m.edited_at && <span className="redited"> · edited</span>}
               </div>
               {/* ⚠️ OUTSIDE the bubble, never inside it — a <button>
                   nested in a <button> is invalid HTML and browsers
@@ -313,6 +441,7 @@ export default function Room({ room, initial, meHandle, members, signed }) {
                   the server yet to delete or report. */}
               {!m.pending && (
                 <MsgMenu id={m.id} mine={m.is_mine} name={m.display_name}
+                         onEdit={startEdit}
                          onGone={(gid) => setMsgs((all) => all.filter((x) => x.id !== gid))} />
               )}
             </div>
