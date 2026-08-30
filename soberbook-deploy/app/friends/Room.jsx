@@ -37,7 +37,7 @@ import { browserClient, assertReadable } from '../../lib/supabase-browser';
    conversation; it is not a presence signal. */
 const POLL_MS = 12000;
 
-export default function Room({ room, initial, meHandle }) {
+export default function Room({ room, initial, meHandle, members }) {
   const [msgs, setMsgs]   = useState(initial || []);
   const [body, setBody]   = useState('');
   const [busy, setBusy]   = useState(false);
@@ -131,6 +131,13 @@ export default function Room({ room, initial, meHandle }) {
       <div className="roomhead">
         <span className="roomemoji" aria-hidden="true">{room.emoji}</span>
         <span className="roomname">{room.name}</span>
+        {/* ⚠️ A COUNT, never a list, and never who is currently here. How
+            many people are in the room is a fact about the room; who is in
+            it at 11pm is a fact about them — that is the presence-dot
+            argument, and it hasn't changed. */}
+        {members > 0 && (
+          <span className="roomcount">{members} member{members === 1 ? '' : 's'}</span>
+        )}
       </div>
 
       <div className="roombox" ref={boxRef} onScroll={noteStick}>

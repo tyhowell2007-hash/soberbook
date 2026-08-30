@@ -120,7 +120,14 @@ export default async function FriendsPage() {
       <div className="bar">Everybody here · say anything</div>
       <div className="pad">
         {room && (
-          <Room room={room} initial={firstMessages} meHandle={mine?.handle || 'you'} />
+          <Room room={room} initial={firstMessages} meHandle={mine?.handle || 'you'}
+                /* community_members() returns every live profile INCLUDING
+                   you, so this is the size of the room, not the number of
+                   other people. ⚠️ Counted from the same list the page
+                   already has — a second query for a number that is
+                   already in hand is how two parts of a screen start
+                   disagreeing. */
+                members={(people || []).length} />
         )}
         <Friends initialFriends={friends || []} initialRequests={reqs || []}
                  everyone={everyone} />

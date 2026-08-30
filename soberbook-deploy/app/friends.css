@@ -120,69 +120,93 @@
    argument that keeps .dchip.new green instead of copper.
    ===================================================================== */
 /* =====================================================================
-   🛋️ THE FRONT ROOM.
+   🛋️ THE FRONT ROOM — the one dark surface in the app, on purpose.
 
-   ⚠️ Every class prefixed r-/room-, and checked against globals, wall.css,
-   theme-green.css and photos.css before writing — `.composer` collided
-   once (Aug 16) and chat had to be given `.cbar` instead. Cheap to check,
-   expensive to find.
+   Ty picked this after seeing his own screen next to the mockup: "it
+   doesn't look like this picture." He was right, and the mockup was the
+   thing that was wrong — I had drawn it in a dark palette that exists
+   nowhere else in Sober Book. Given the choice between fixing the picture
+   and building the picture, he chose the picture.
 
-   ⚠️ The message list has its OWN scroll with a fixed max height, rather
-   than growing the page. The member list lives underneath it, and a room
-   that grows without limit would push "Everybody here" permanently below
-   the fold — which would quietly undo the thing Ty asked for two hours
-   earlier.
+   ⭐ AND IT EARNS ITS KEEP: a conversation is not a card. Everything else
+   on this page is a cream tile you READ. This is a place you are IN, and
+   giving it its own surface says so before a word is read. It is the same
+   argument the flyer-styled readings page makes — a page that looks
+   different is a choice; NAVIGATION that looks different is a bug, which
+   is why the bar underneath stays exactly as it is.
+
+   ⚠️ EVERY COLOUR HERE WAS MEASURED, NOT PICKED. On a dark surface the
+   failure mode is a mid-green that looks fine on a bright monitor and
+   disappears on a phone at 2am. Ratios against their real backgrounds:
+     body text on a bubble ......... 12.38
+     body text on YOUR bubble ....... 5.69
+     the name above a message ...... 10.89
+     the empty line and the count ... 7.62
+     the room title ................ 14.62
+   Floor is 4.5. ⚠️ --gm (#2E8B5F) as TEXT on this panel measures 3.84 and
+   is therefore banned here, the same way it is banned as a text colour on
+   paper — theme-green.css says it is "DECORATION ONLY".
+
+   ⚠️ Hard-coded hex rather than the theme variables, and that is
+   deliberate: every var in theme-green.css is tuned for dark-on-light.
+   Reaching for --body or --soft in here would silently produce grey text
+   on a dark green panel. This block owns its own palette because it is
+   the only inverted surface in the app.
    ===================================================================== */
-.room{ margin:0 0 20px; }
-
-.roomhead{ display:flex; align-items:center; gap:7px; margin:0 0 9px; }
-.roomemoji{ font-size:17px; line-height:1; }
-.roomname{ font-family:'Archivo',system-ui,sans-serif; font-size:14px;
-  font-weight:700; color:var(--body); letter-spacing:0; }
-
-.roombox{
-  max-height:46vh; overflow-y:auto; -webkit-overflow-scrolling:touch;
-  background:var(--paper2); border:1px solid var(--line); border-radius:14px;
-  padding:12px 12px 4px; margin:0 0 9px;
+.room{
+  margin:0 0 20px;
+  background:#12241C; border-radius:16px; padding:13px 12px 12px;
 }
 
-.roomempty{ margin:6px 2px 10px; font-size:13px; line-height:1.6; color:var(--soft); }
+.roomhead{ display:flex; align-items:center; gap:7px; margin:0 0 10px; }
+.roomemoji{ font-size:17px; line-height:1; }
+.roomname{
+  font-family:'Archivo',system-ui,sans-serif; font-size:14px;
+  font-weight:700; color:#EAF6EF; letter-spacing:0;
+}
+/* Pushed right, and quiet. It says the room is populated without being a
+   scoreboard — and it is a COUNT, never a list of who is here. Publishing
+   who is in a room at 11pm publishes who is struggling and when, which is
+   the presence-dot argument from August. */
+.roomcount{ margin-left:auto; font-size:11px; color:#7FBFA0; }
+
+/* ⚠️ Its own scroll with a capped height so the member list underneath
+   never gets pushed off the page. A room that grows forever would quietly
+   undo the quiet-chips feature sitting below it. */
+.roombox{
+  max-height:44vh; overflow-y:auto; -webkit-overflow-scrolling:touch;
+  padding:0 1px 2px; margin:0 0 10px;
+}
+
+.roomempty{ margin:4px 2px 8px; font-size:13px; line-height:1.6; color:#7FBFA0; }
 
 .rmsg{ margin:0 0 10px; }
-.rwho{ font-size:11px; color:var(--gm-t); margin:0 0 3px; font-weight:600; }
+.rwho{ font-size:11px; color:#9FE1CB; margin:0 0 3px; font-weight:600; }
 .rbub{
   display:inline-block; max-width:88%; padding:8px 11px; border-radius:12px;
-  background:var(--gl); color:var(--gt); font-size:14px; line-height:1.5;
-  /* ⚠️ Long links and unbroken strings must not stretch the bubble off
-     the screen — a phone has nowhere to put the overflow. */
+  background:#1A3227; color:#EAF6EF; font-size:14px; line-height:1.5;
+  /* A pasted link must not stretch the bubble off a phone screen. */
   overflow-wrap:anywhere;
 }
 .rmsg.mine{ text-align:right; }
-/* ⚠️ --gt, NOT --gm. White on the mid-green measures 4.22:1, under the
-   4.5 floor for body text — and theme-green.css says in as many words
-   that --gm is "DECORATION ONLY: borders, edges, fills". Your own
-   messages would have been the least readable text on the page. --gt is
-   12.20:1. Measured, not eyeballed; a fill-against-fill mistake is the
-   one the Aug 17 contrast audit missed. */
-.rmsg.mine .rbub{ background:var(--gt); color:#fff; text-align:left; }
-/* Yours, still in flight. Faded rather than spinning: a spinner on every
-   message you send makes a calm room feel like it's struggling. */
+.rmsg.mine .rbub{ background:#2E6B4C; color:#EAF6EF; text-align:left; }
+/* Yours, still in flight. Faded, not a spinner — a spinner on every
+   message makes a calm room feel like it is struggling. */
 .rmsg.pending .rbub{ opacity:.55; }
 
 .rbar{ display:flex; gap:8px; align-items:center; }
 .rin{
   flex:1; min-width:0; padding:11px 14px; border-radius:22px;
-  border:1px solid var(--line); background:var(--paper2); color:var(--body);
+  border:1px solid #2A4A38; background:#1A3227; color:#EAF6EF;
   font-size:16px;   /* ⚠️ 16px or iOS zooms the whole page on focus */
   font-family:inherit;
 }
-.rin::placeholder{ color:var(--soft); }
+.rin::placeholder{ color:#7FBFA0; }
 .rgo{
   flex:none; padding:10px 16px; border-radius:22px; border:0;
-  /* ⚠️ --gt for the same reason as the bubble above: 13px bold is not
-     "large text", so it needs the full 4.5 and --gm only gives 4.22. */
-  background:var(--gt); color:#fff; font-family:'Archivo',system-ui,sans-serif;
-  font-size:13px; font-weight:700; cursor:pointer;
+  background:#4FA97A; color:#08160F;
+  font-family:'Archivo',system-ui,sans-serif; font-size:13px; font-weight:700;
+  cursor:pointer;
   min-height:44px;  /* ⚠️ 44px tap target — the Aug 18 post-footer lesson */
 }
 .rgo:disabled{ opacity:.45; cursor:default; }
