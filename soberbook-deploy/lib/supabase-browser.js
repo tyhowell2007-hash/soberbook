@@ -66,6 +66,14 @@ export const READABLE_VIEWS = [
      without signing it. The view nulls the id, swaps in an alias, and
      drops the day count. See 0055. */
   'what_gets_you_through',
+  /* room_wall — The Front Room (0092). Safe for the same reason as the
+     rest: it never exposes a base table. `room_messages` is revoked from
+     members entirely, and reading it directly would hand back author_id
+     for every message including those from somebody who has BLOCKED you —
+     which is the one rule a room everybody is in absolutely depends on.
+     The view applies the block in both directions before anything reaches
+     a browser. See 0092. */
+  'room_wall',
 ];
 
 export function assertReadable(name) {
