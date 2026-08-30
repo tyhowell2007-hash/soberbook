@@ -759,18 +759,52 @@ body{
 }
 /* Dashed, not solid — an outline reads as an empty slot, a dash reads as
    something on its way. */
+/* 🔴 THE ONE YOU HAVEN'T REACHED YET — and it was invisible too, 1.14:1,
+   found in the same sweep as the edit link below. Written in pale mint
+   with a white dashed border, which is right on a dark panel and vanishes
+   on the cream page these chips actually render on (/me and /u/[handle]
+   are both cream).
+
+   ⚠️ Worth more than the earned chips, not less: this is the next thing
+   somebody is working toward. The gold "on" chips measure 7.06 and were
+   never the problem — which is exactly why eyeballing the row missed it.
+   Six chips looked fine and the seventh wasn't there. */
 .chips .chip.next{
-  background:transparent; color:#DCEFE5;
-  border:1.5px dashed rgba(255,255,255,.45);
+  background:transparent; color:var(--soft);
+  border:1.5px dashed var(--gm);
 }
 
-/* ---- since / edit, under the number ---- */
+/* ---- since / edit, under the number ----
+
+   🔴 THESE WERE INVISIBLE FOR A DAY, AND A REAL MEMBER HIT IT.
+   IronPost23 joined at 00:58 on 30 Aug and asked in the Front Room two
+   minutes later: "Ok some techy help me get my sober date right." The
+   edit link was already built and shipped — and painted WHITE ON CREAM.
+
+   Measured on the live page, not guessed:
+     the "since …" line  #CFEADD on #F7FAF8  →  1.21
+     the "edit" link     #FFFFFF on #F7FAF8  →  1.05
+   The floor is 4.5. 1.05 is not "hard to read", it is not there.
+
+   ⭐ THE CAUSE, and it is worth naming because it will happen again: I
+   wrote these colours for the DARK GREEN counter panel directly above
+   them, and this row renders BELOW that panel, on the cream page. Two
+   surfaces, one rule, and the one I pictured while writing it was the
+   wrong one.
+
+   ⚠️ It is the Aug 17 audit's blind spot in a new costume — that pass
+   checked type against its own card and missed a pale tag on a pale
+   card. Same shape: the colour was fine somewhere, just not here.
+
+   ⚠️ 44px, not 36. The old target was 28×36 — under the minimum, on a
+   control somebody was actively hunting for. */
 .sincerow{
-  margin:9px 0 0; font-size:12.5px; color:#CFEADD; text-align:center;
+  margin:9px 0 0; font-size:13px; color:var(--soft); text-align:center;
 }
 .sincelink{
-  background:none; border:0; padding:6px 4px; min-height:36px;
-  font:inherit; font-size:12.5px; color:#fff; text-decoration:underline;
+  background:none; border:0; padding:8px 6px; min-height:44px;
+  font:inherit; font-size:13px; font-weight:600;
+  color:var(--gm-t); text-decoration:underline;
   cursor:pointer;
 }
 .sincelink:disabled{ opacity:.5; cursor:default; }
@@ -914,3 +948,20 @@ body{
   color:var(--gm-t); cursor:pointer;
 }
 
+
+
+/* =====================================================================
+   ⚠️ .sout OVERRIDE — the "Apple Music ↗" link out, on a drop card.
+
+   Measured 3.13:1 at 9px in the 30 Aug contrast sweep. It is the link to
+   where a member's music actually lives, and it was decoration pretending
+   to be a link.
+
+   🔴 IT LIVES HERE RATHER THAN IN wall.css DELIBERATELY, and not for
+   tidiness: wall.css is 72KB and silently failed to upload three times on
+   23 Aug — commit green, file unchanged, no error to chase. Keeping it
+   byte-identical means it never has to go through that. theme-green.css
+   is imported by every room layout AFTER the root layout loads wall.css,
+   so this wins on order at equal specificity. Same trick as dropsheet.css.
+   ===================================================================== */
+.sout{ font-size:11px; color:var(--gm-t); }
