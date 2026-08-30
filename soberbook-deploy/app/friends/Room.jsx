@@ -42,7 +42,7 @@ const POLL_MS = 12000;
 
 const COLS = 'id, body, photo_urls, edited_at, created_at, is_mine, handle, display_name, display_avatar';
 
-export default function Room({ room, initial, meHandle, members, signed }) {
+export default function Room({ room, initial, meHandle, members, signed, spokenHere = true }) {
   const [msgs, setMsgs]   = useState(initial || []);
   const [body, setBody]   = useState('');
   const [busy, setBusy]   = useState(false);
@@ -59,6 +59,11 @@ export default function Room({ room, initial, meHandle, members, signed }) {
      messages arrive. */
   const [urls, setUrls]   = useState(signed || {});
   const [big, setBig]     = useState(null);
+  /* ⚠️ Seeded from the server, then turned off locally the moment they
+     send. Waiting for the next poll to hide it would leave a line saying
+     "you don't have to write anything clever" sitting directly under the
+     thing they just wrote. */
+  const [showNudge, setShowNudge] = useState(!spokenHere);
   /* Which message is open for editing, and the words as they stand. */
   const [editId, setEditId] = useState(null);
   const [draft, setDraft]   = useState('');
@@ -295,6 +300,7 @@ export default function Room({ room, initial, meHandle, members, signed }) {
     setMsgs((m) => [...m, mine]);
     setBody('');
     setTray([]);
+    setShowNudge(false);   // they've spoken; the invitation has done its job
     setEmoji(false);   // sending is finishing; leaving it open hides the room
 
     const { error } = await supabase
@@ -482,6 +488,32 @@ export default function Room({ room, initial, meHandle, members, signed }) {
           <img src={big} alt="" />
           <button type="button" className="rbig-x" aria-label="Close">Close</button>
         </div>
+      )}
+
+      {/* ⭐ THE INVITATION, and it is the only thing on this page aimed at
+          somebody who has not spoken yet.
+
+          30 Aug: 60 of 80 members had never said one word anywhere in the
+          app. Signup now lands here instead of the Wall — but arriving in
+          a conversation you have never joined is still a moment where
+          most people read and leave. This names the smallest acceptable
+          thing to say, so nobody has to work out for themselves whether
+          "morning" is allowed.
+
+          ⚠️ It never appears for somebody who has spoken here before, and
+          it goes the instant they send. A permanent version would be a
+          nag, and worse, it would read as the room telling a quiet member
+          they are doing it wrong.
+
+          ⚠️ Deliberately NOT a prefilled message. Putting words in
+          somebody's mouth is a different thing from telling them a short
+          one is fine — and in a room where the whole promise is that
+          nobody has to perform, a draft written by the app is the wrong
+          kind of help. */}
+      {showNudge && msgs.length > 0 && (
+        <p className="rnudge">
+          You don’t have to write anything clever. “Morning” counts.
+        </p>
       )}
 
       {/* Above the bar, so picking one never covers the conversation. */}

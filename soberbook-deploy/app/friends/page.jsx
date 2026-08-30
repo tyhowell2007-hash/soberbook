@@ -113,6 +113,27 @@ export default async function FriendsPage() {
     roomPhotos = await signPhotoPaths(supabase, collectPaths(firstMessages));
   }
 
+  /* Have they ever said anything in here?
+     ⭐ Asked of room_wall with `is_mine`, NOT derived from the 60 messages
+     above — somebody who spoke last week and has scrolled off would
+     otherwise be told they had never spoken and shown a welcome nudge
+     for the second time.
+
+     ⚠️ And NOT taken from community_members().never_spoken, which is the
+     answer to a different question: that one measures posts and replies
+     on the Wall (0089) and knows nothing about the room. Two similar
+     sounding fields, two different meanings — using the wrong one here
+     would hide the nudge from exactly the people it exists for.
+
+     `limit(1)` because we want to know IF, never how many. */
+  let spokenHere = true;
+  if (room) {
+    const { data: mine } = await supabase
+      .from(assertReadable('room_wall'))
+      .select('id').eq('room_slug', room.slug).eq('is_mine', true).limit(1);
+    spokenHere = (mine || []).length > 0;
+  }
+
   /* Your own handle, so a message you just sent can be labelled without
      another round trip. ⚠️ public_profiles, not profiles. */
   const { data: mine } = await supabase
@@ -141,7 +162,8 @@ export default async function FriendsPage() {
                    already has — a second query for a number that is
                    already in hand is how two parts of a screen start
                    disagreeing. */
-                members={(people || []).length} signed={roomPhotos} />
+                members={(people || []).length} signed={roomPhotos}
+                spokenHere={spokenHere} />
         )}
         <Friends initialFriends={friends || []} initialRequests={reqs || []}
                  everyone={everyone} />

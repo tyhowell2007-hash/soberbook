@@ -148,7 +148,28 @@ export default function Welcome() {
         sober_since: since || null,
       });
       if (error) throw error;
-      router.push('/wall');
+
+      /* ⭐ THE ROOM, NOT THE WALL, AND THE DATA IS WHY.
+         30 Aug: 80 members, and 60 of them had never said one word —
+         not a post, not a reply, not a sentence anywhere. 61% silent at
+         18 members, 75% at 80: the cliff got STEEPER as more people
+         arrived, which is the opposite of what a healthy room does.
+
+         🔴 The cause is not that the Wall is unwelcoming — "Welcome home,
+         pull up a chair" is the right greeting. It is what sits directly
+         underneath it: before a brand-new member can say anything, the
+         composer asks them to decide whether to post as themselves or
+         anonymously, whether everyone or only friends can see it, and
+         whether they are putting out a record. Three decisions about
+         identity and audience, from somebody who joined four minutes ago
+         and knows nobody.
+
+         The room asks for a sentence. Of the six people who have spoken
+         in it, four had never posted on the Wall at all.
+
+         ⚠️ The Wall is unchanged and is still Home in the nav — this only
+         decides where the FIRST screen lands. One tap gets you there. */
+      router.push('/friends');
       router.refresh();
     } catch (e2) {
       const m = String(e2.message || '');

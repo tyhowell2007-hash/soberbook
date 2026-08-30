@@ -475,3 +475,33 @@
    comment is how a later change "safely" darkens this to 4.2 and nobody
    notices. Measured, both surfaces, or don't write a number at all. */
 .redited{ color:#C7E5D6; font-size:11px; white-space:nowrap; }
+
+/* =====================================================================
+   🌱 THE INVITATION — shown only to somebody who has never spoken here.
+
+   ⚠️ Dashed, not solid, and not a card. A solid bordered box reads as a
+   system notice, something the app is telling you. A dashed line reads as
+   a gap waiting to be filled, which is what it actually is.
+
+   🔴 THE BORDER IS STRUCTURAL HERE, NOT DECORATION, AND THE MEASUREMENT
+   IS WHY. The fill (#1A3227) against the room panel it sits on (#12241C)
+   is 1.18:1 — all but invisible as a shape. So the dashed edge is the
+   only thing drawing the box, and a dashed edge nobody can see is a
+   paragraph floating in the middle of a conversation.
+
+   ⚠️ My first pick, #3A6B52, measured 2.23 against the fill — under the
+   3:1 floor for non-text. Exactly the Aug 17 blind spot: a text-only
+   contrast pass reports everything fine while the thing that defines the
+   element is invisible. **Audit fills and borders, not just type.**
+
+   Measured, all three real:
+     text  #9FE1CB on #1A3227 ....... 9.22   (floor 4.5)
+     edge  #57987A on #1A3227 ....... 4.04   (floor 3.0, non-text)
+     fill  #1A3227 on #12241C ....... 1.18   (intentional — see above)
+   ===================================================================== */
+.rnudge{
+  margin:0 0 9px; padding:8px 11px;
+  border:1px dashed #57987A; border-radius:9px;
+  background:#1A3227; color:#9FE1CB;
+  font-size:12.5px; line-height:1.55;
+}
