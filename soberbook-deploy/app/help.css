@@ -1,0 +1,93 @@
+/* =====================================================================
+   PLACES THAT AREN'T US — the help page.
+
+   All classes prefixed hp-, checked against every stylesheet in the app
+   before being written. That check exists because `.composer` collided in
+   August, `.sheetwrap` collided on the 29th, and `.rmwrap` collided while
+   I was fixing that collision.
+
+   ⚠️ THIS PAGE WEARS THE ORDINARY CREAM, not the dark room. Deliberate:
+   the readings page earned its own look because it is a place you settle
+   into. This is a page you arrive at frightened, take one thing from, and
+   leave. It should look like the rest of the app so nothing about it
+   needs working out.
+   ===================================================================== */
+
+.hpwrap{ padding-bottom:14px; }
+
+.hplede{
+  font-size:14px; line-height:1.7; color:var(--body);
+  margin:0 0 6px; max-width:52ch;
+}
+
+.hpsec{
+  font-family:'Courier Prime',monospace;
+  font-size:11.5px; letter-spacing:.09em; text-transform:uppercase;
+  color:var(--gm-t); margin:24px 0 10px; font-weight:400;
+}
+
+/* 🔴 A REAL BORDER, NOT --line, AND THE MEASUREMENT IS WHY.
+
+   My first version used `1px solid var(--line)` because that is what a
+   quiet card looks like. Measured: **1.21** against the page and 1.27
+   against its own fill — under the 3.0 floor for non-text, and the white
+   fill on the near-white page is only 1.04, so the border is the ONLY
+   thing drawing the card. A card nobody can see is a list of floating
+   sentences.
+
+   ⚠️ This is the 17 Aug blind spot for the third time this week: the
+   text-only contrast pass reports everything fine while the element's own
+   edges are invisible. Audit fills and borders, not just type.
+
+   ⭐ And the app already knew better — .frrowitem on the same page uses a
+   2px --gm border for exactly this reason. --gm measures 4.02 against the
+   page. Following the house pattern rather than inventing a paler one. */
+.hpcard{
+  background:var(--paper2); border:1px solid var(--gm);
+  border-radius:14px; padding:14px 15px; margin:0 0 10px;
+}
+
+.hpname{ font-size:16px; margin:0 0 5px; color:var(--x); font-weight:500; }
+.hpwhat{ font-size:13.5px; line-height:1.65; color:var(--soft); margin:0 0 12px; }
+
+/* =====================================================================
+   🔴 THE NUMBER IS THE BUTTON.
+
+   The 20 Aug meetings work found 29 published dial-in numbers and not one
+   of them was tappable — plain text you had to copy by hand, at the exact
+   moment you are least able to do anything fiddly. The fix there was a
+   tel: link, and it was the single most useful thing in that whole night.
+
+   So here the digits themselves are the control: big, full width, one
+   thumb, no aiming. Not a small link that says "call".
+
+   ⚠️ 52px, not 44. The floor everywhere else in the app is 44px, and this
+   is the one control somebody might be reaching for while shaking.
+   ===================================================================== */
+.hptel{
+  display:block; text-align:center; text-decoration:none;
+  min-height:52px; line-height:52px; padding:0 14px;
+  border-radius:12px; background:var(--gd); color:#F4FBF7;
+  font-family:'Courier Prime',monospace;
+  font-size:19px; letter-spacing:.06em;
+}
+.hptel:active{ background:var(--gt); }
+
+/* ⚠️ The domain is always visible, never hidden behind a friendly label.
+   In a field where treatment centres pay for referrals, an unlabelled
+   link is how somebody gets sold something without noticing. Same rule as
+   the Wall's link previews (23 Aug). */
+.hpsite{
+  display:inline-block; margin-top:10px;
+  font-family:'Courier Prime',monospace; font-size:12.5px;
+  color:var(--gm-t); text-decoration:none;
+  border-bottom:1px solid var(--line); padding-bottom:2px;
+  overflow-wrap:anywhere;
+}
+.hpsite:hover{ color:var(--gt); border-bottom-color:var(--gm-t); }
+
+.hpfoot{
+  font-size:12.5px; line-height:1.7; color:var(--soft);
+  margin:22px 0 0; padding-top:16px; border-top:1px solid var(--line);
+  max-width:52ch;
+}

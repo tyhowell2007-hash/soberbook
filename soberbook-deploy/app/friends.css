@@ -588,3 +588,27 @@
   background:#2E6B4C; color:#EAF6EF; border-color:#4FA97A;
 }
 .rtab:focus-visible{ outline:2px solid #4FA97A; outline-offset:1px; }
+
+/* 🔴 THE LINE THAT LEADS TO THE PHONE NUMBERS.
+   Ten things this month were fully built with no way to reach them. A
+   help page nobody can find would be the eleventh — and this is the one
+   where "hard to find" and "didn't call anybody" are the same outcome.
+   ⚠️ In the room, above the conversation. Not in a menu.
+   ⚠️ Measured, both surfaces: #9FE1CB is 10.89 on the room panel and its
+   worst pixel over the porch photograph at the light scrim is 6.91.
+
+   ⚠️ I first wrote "10.15" here from memory and the real figure is 10.89
+   — the second time today I have typed a contrast number instead of
+   measuring one. Both pass, so nothing broke; the habit is the problem.
+
+   🔴 AND THE UNDERLINE WAS ACTUALLY WRONG. #3A6B52 measures 2.63 on this
+   panel, under the 3.0 floor for non-text — and I picked that same colour
+   for the nudge border earlier today and had to fix it there too. It is
+   the one thing drawing the link as a link. Now #57987A at 4.77. */
+.roomhelp{ margin:0 0 10px; }
+.roomhelp a{
+  display:inline-block; min-height:34px; line-height:34px;
+  font-size:12px; color:#9FE1CB; text-decoration:none;
+  border-bottom:1px solid #57987A;
+}
+.roomhelp a:hover{ color:#EAF6EF; border-bottom-color:#9FE1CB; }

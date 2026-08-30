@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 import { browserClient, assertReadable } from '../../lib/supabase-browser';
 import EmojiPicker from './EmojiPicker';
@@ -383,6 +384,23 @@ export default function Room({ room, initial, meHandle, members, signed, spokenH
           {room.blurb}
         </p>
       )}
+
+      {/* 🔴 THE WAY IN TO THE PHONE NUMBERS, AND IT IS THE POINT OF THIS
+          LINE EXISTING AT ALL. Ten times this month something has been
+          fully built with no way to reach it — delete-your-own-post, the
+          sign-out, the hide button, reports.target_type='profile'. A help
+          page nobody can find is the eleventh.
+
+          ⚠️ It sits in the ROOM, above the conversation, not buried in a
+          menu. Somebody who needs a crisis line is not going to go
+          looking for it, and the moment they need it is the moment they
+          have least patience for hunting.
+
+          ⚠️ Shown on every room, not just the Porch. 988 is not a
+          family-only number. */}
+      <p className="roomhelp">
+        <Link href="/help">If you need somebody right now ›</Link>
+      </p>
 
       <div className="roombox" ref={boxRef} onScroll={noteStick}>
         {!loaded ? (
