@@ -87,23 +87,29 @@ export default async function NotificationsPage() {
         )}
 
         {list.map((n) => {
-          /* 🔴 ONLY MESSAGES ARE LINKS, AND THE REASON IS THE AUG 20 RULE.
+          /* ⭐ EVERY ROW IS A LINK NOW — 31 Aug, and this is the change
+             Ty asked for: tapping a notification takes you to the thing,
+             the way Facebook does it.
 
-             A message has an exact destination: /chat/<thread>. A reply
-             does not — there is no /p/<post> route, posts live on the
-             wall, and the wall carries no anchors. Linking a reply row to
-             /wall would drop somebody at the top of a sixty-six-post feed
-             with no idea which one was theirs.
+             This comment used to explain why a reply row COULDN'T be a
+             link: there was no /p/<post> route, posts lived on the wall,
+             and the wall carries no anchors, so linking to /wall would
+             drop somebody at the top of a sixty-six-post feed with no
+             idea which post was theirs. That was the 20 Aug rule — "a
+             link that loads the right page but does the wrong thing is
+             worse than a broken one."
 
-             ⚠️ "A link that loads the right page but does the wrong thing
-             is worse than a broken one; nothing errors, so nobody reports
-             it." That was the /friends "Say hi" bug on 20 Aug. So the
-             reply row is not a link — it shows an excerpt of YOUR OWN
-             post instead, which is enough to recognise it.
+             🔴 The rule never said don't link. It said don't fake it. So
+             the fix was to build the destination, not to soften the link:
+             /p/[id] renders the post with its whole conversation and the
+             reply box already open.
 
-             🔴 The real fix is a per-post page or an anchored wall. Worth
-             doing; not worth faking tonight. */
-          const href = n.kind === 'message' && n.thread_id ? `/chat/${n.thread_id}` : null;
+             ⚠️ A message still goes to /chat/<thread>, not /p — its
+             destination was always real. */
+          const href =
+            n.kind === 'message' && n.thread_id ? `/chat/${n.thread_id}` :
+            (n.kind === 'reply' || n.kind === 'mention') && n.post_id ? `/p/${n.post_id}` :
+            null;
 
           const icon = n.kind === 'message' ? '✉️' : n.kind === 'mention' ? '@' : '💬';
 
