@@ -50,6 +50,37 @@ export const SECOND = ['Road','Creek','Hill','Lane','Field','Porch','Bridge','Ga
   'Ferry','Mill','Bend','Cove','Yard','Barn','Trail','Row','Grove','Landing',
   'Wharf','Bank','Fork','Rise','Way','Post'];
 
+/* =====================================================================
+   🔴 CLEAN A HANDLE AS IT IS TYPED — 30 AUG, AND IT COST US ELEVEN PEOPLE.
+
+   `handle_shape` is `^[A-Za-z0-9_]{3,20}$`. No spaces, no dots, no
+   hyphens, no apostrophes. The sign-up box accepted all of them, the
+   account got created, and the profile insert was then refused by the
+   database — leaving a person with a login and no account inside the app.
+
+   Measured tonight: **11 auth users with no profile row.** Four of them
+   existed for under a tenth of a second between sign-up and their last
+   sight of us. That is not somebody losing their nerve; that is the very
+   next step failing instantly.
+
+   And the trigger is the most natural thing a person can type: their own
+   name. "Mary Jane" fails. "mary.jane" fails. "O'Brien" fails.
+
+   ⭐ THE FIX IS NOT A BETTER ERROR MESSAGE. There already was one, and it
+   was decent. The fix is that the field can no longer hold something the
+   database will refuse — the mistake is not available. A rule you have
+   to remember is worse than a situation where the mistake cannot be made.
+
+   ⚠️ A space becomes an underscore rather than vanishing, because
+   somebody typing "Mary Jane" means two words and "MaryJane" quietly
+   loses that. Everything else illegal is dropped. */
+export function cleanHandle(raw) {
+  return String(raw || '')
+    .replace(/\s+/g, '_')
+    .replace(/[^A-Za-z0-9_]/g, '')
+    .slice(0, 20);
+}
+
 export function makeHandles(n = 1) {
   const out = new Set();
   /* ⚠️ Bounded loop, not `while (out.size < n)`. With 24×24×90 names a
@@ -97,8 +128,15 @@ export async function createProfile(supabase, {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { ok: false, noSession: true };
 
-  let h = String(handle || '').trim();
-  if (h.length < 3) return { ok: false, message: 'A handle needs three characters or more.' };
+  /* ⚠️ Cleaned HERE as well as in the box, and that is not belt-and-
+     braces for its own sake: /welcome and /login both call this, and a
+     third caller will exist eventually. The box stops a person seeing a
+     refusal; this stops a caller that forgets to clean from creating
+     another account with no profile. The last line of defence is the
+     CHECK constraint, and by the time it speaks somebody is already
+     locked out. */
+  let h = cleanHandle(handle);
+  if (h.length < 3) return { ok: false, message: 'A handle needs three characters or more — letters, numbers or underscores.' };
 
   for (let attempt = 0; attempt < 4; attempt++) {
     const { error } = await supabase.from('profiles').insert({

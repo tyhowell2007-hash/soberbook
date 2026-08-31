@@ -54,9 +54,20 @@ import { browserClient } from '../../lib/supabase-browser';
 
 /* primaryLabel / primaryHref describe ONLY the first button.
    - Community row: "Message", which calls onMessage().
-   - Conversation:  "Their page", which is a link — you are already in the
+   - Conversation:  "Their page", a link — you are already in the
      conversation, so offering to start one is nonsense.
-   Defaults keep the Community caller byte-identical in behaviour. */
+   - A member's own page: NOTHING. Pass primaryLabel={null}.
+
+   🔴 THAT THIRD CASE IS A LESSON, NOT A CONVENIENCE. My first version
+   gave the profile page a "Message them" button pointing at
+   `/chat?to=<handle>` — which is precisely the bug fixed on 20 Aug,
+   where /friends' "Say hi" linked there and **nothing read the
+   parameter**. It loads the right page and does the wrong thing;
+   nothing errors, so nobody reports it.
+
+   The profile page already has a working MessageButton that calls
+   start_thread properly. The menu's job there is Report and Block, and
+   a second Message that silently fails would be worse than none. */
 export default function RowMenu({
   handle, name, onMessage,
   primaryLabel = 'Message',
@@ -156,7 +167,7 @@ export default function RowMenu({
 
             {view === 'menu' && (
               <>
-                {primaryHref ? (
+                {primaryLabel && (primaryHref ? (
                   <Link href={primaryHref} className="rmenu-btn" onClick={close}>
                     {primaryLabel}
                   </Link>
@@ -164,7 +175,7 @@ export default function RowMenu({
                   <button type="button" className="rmenu-btn" onClick={() => { close(); onMessage(); }}>
                     {primaryLabel}
                   </button>
-                )}
+                ))}
                 <button type="button" className="rmenu-btn" onClick={() => setView('report')}>
                   Report
                 </button>

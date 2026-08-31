@@ -4,6 +4,7 @@ import { serverClient, assertReadable } from '../../../lib/supabase-server';
 import SongPlayer from '../../components/SongPlayer';
 import Milestones from '../../components/Milestones';
 import MessageButton from './MessageButton';
+import RowMenu from '../../friends/RowMenu';
 import FriendButton from './FriendButton';
 import { sinceFromCount } from '../../../lib/milestones';
 import { signPhotoPaths } from '../../../lib/sign-photos';
@@ -119,8 +120,34 @@ export default async function ProfilePage({ params }) {
     <>
       <div className="mast">
         <Link href="/wall" className="back" aria-label="Back to the wall">←</Link>
-        <span className="lg">🌱 SOBER BOOK</span>
-        <span className="rt">@{p.handle}</span>
+        <span className="lg cvname">@{p.handle}</span>
+        {/* 🔴 30 AUG — YOU COULD NOT REPORT OR BLOCK SOMEBODY FROM THEIR
+            OWN PAGE. This is the surface where you decide what you think
+            of a person: you tapped their name, or found them in search,
+            and you are reading everything they have chosen to say about
+            themselves. If that is where somebody realises they want out,
+            it is where the way out has to be.
+
+            Until tonight the answer was: leave, open Community, scroll a
+            hundred-odd people, find them again. Same shape as the
+            conversation ⋯ fixed earlier this evening. Twelfth "everything
+            built except the way in" — `reports.target_type` has allowed
+            'profile' since the table was written and the moderation queue
+            already renders it.
+
+            ⚠️ Not on your own page. Reporting yourself is nonsense, and
+            RowMenu's Block would be a loaded gun pointed at your own
+            account. */}
+        {/* ⚠️ primaryLabel={null} — no Message here. This page already
+            has a working MessageButton further down that calls
+            start_thread properly. My first draft pointed the menu at
+            `/chat?to=<handle>`, which is the 20 Aug bug exactly: nothing
+            reads that parameter, so it loads the right page and does
+            nothing. Report and Block are the whole job here. */}
+        {!p.is_mine && (
+          <RowMenu handle={p.handle} name={p.display_name || p.handle}
+                   primaryLabel={null} />
+        )}
       </div>
       <div className="bar">{p.is_mine ? 'This is how others see you' : 'Somebody’s page'}</div>
 

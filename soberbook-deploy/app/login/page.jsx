@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { browserClient } from '../../lib/supabase-browser';
-import { makeHandles, createProfile } from '../../lib/first-run';
+import { makeHandles, createProfile, cleanHandle } from '../../lib/first-run';
 import DatePick from '../components/DatePick';
 
 /* =====================================================================
@@ -440,7 +440,15 @@ export default function Landing() {
                   <input id="up-h" type="text" required minLength={3} maxLength={20}
                          autoComplete="off" autoCapitalize="none" spellCheck={false}
                          value={upHandle}
-                         onChange={(e) => { setUpHandle(e.target.value); setMine(true); }} />
+                         /* 🔴 CLEANED ON EVERY KEYSTROKE. The box used to
+                            take anything, and the database then refused
+                            it — eleven people ended up with a login and
+                            no account, four of them inside a tenth of a
+                            second. Typing your own name is what breaks
+                            it: "Mary Jane", "mary.jane", "O'Brien".
+                            A space becomes an underscore so two words
+                            stay two words; other punctuation is dropped. */
+                         onChange={(e) => { setUpHandle(cleanHandle(e.target.value)); setMine(true); }} />
                   <button type="button" className="lp-link" disabled={!!busy}
                           onClick={() => { setUpHandle(makeHandles(1)[0]); setMine(false); }}>
                     Another

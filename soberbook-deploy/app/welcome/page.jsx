@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { browserClient } from '../../lib/supabase-browser';
-import { makeHandles, createProfile } from '../../lib/first-run';
+import { makeHandles, createProfile, cleanHandle } from '../../lib/first-run';
 
 /* =====================================================================
    FIRST RUN.
@@ -245,7 +245,11 @@ export default function Welcome() {
           <label htmlFor="h">Your handle</label>
           <input id="h" type="text" value={handle} minLength={3} maxLength={20}
                  pattern="[A-Za-z0-9_]{3,20}" autoComplete="off"
-                 onChange={(e) => setHandle(e.target.value)} />
+                 /* Cleaned on every keystroke, same as the sign-up box —
+                    see cleanHandle() in lib/first-run.js. Both callers,
+                    one cleaner: a second copy of this rule would drift,
+                    and the drift would land as somebody locked out. */
+                 onChange={(e) => setHandle(cleanHandle(e.target.value))} />
           <p className="hint">
             We picked this one for you — keep it or change it, whatever you
             like. Letters, numbers and underscores.
