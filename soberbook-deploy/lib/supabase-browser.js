@@ -74,6 +74,15 @@ export const READABLE_VIEWS = [
      The view applies the block in both directions before anything reaches
      a browser. See 0092. */
   'room_wall',
+  /* my_notifications — the bell (0025, page built 30 Aug). Safe for the
+     same reason as the rest: it never exposes a base table. `notifications`
+     was revoked from members outright on 27 Aug (0080) because the table
+     carries `actor_id` even when the notification came from an ANONYMOUS
+     reply or mention — reading it directly would hand back, row by row,
+     the identity behind every unsigned thing anybody ever said to you.
+     The view resolves that to the literal string 'Someone', returns a NULL
+     handle, and filters suspended accounts. See 0080. */
+  'my_notifications',
 ];
 
 export function assertReadable(name) {

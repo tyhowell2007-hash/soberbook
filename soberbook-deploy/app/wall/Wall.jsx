@@ -16,6 +16,7 @@ import { mixFeed } from '../../lib/mix';
 import ContentCard from '../components/ContentCard';
 import DropCard from '../components/DropCard';
 import DropSheet from './DropSheet';
+import PushAsk from '../components/PushAsk';
 
 function ago(iso) {
   const mins = Math.floor((Date.now() - new Date(iso).getTime()) / 60000);
@@ -486,22 +487,39 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
      Second pass finds nothing and stops. */
   useEffect(() => { signMissing(posts); /* eslint-disable-line */ }, [posts]);
 
-  /* ---- the Home dot clears here, because this is where the reply is ----
+  /* 🔴🔴 THIS USED TO MARK EVERY REPLY READ ON MOUNT, AND IT IS THE
+     MECHANISM BEHIND THE QUIETEST DAY THIS APP HAS HAD.
 
-     ⚠️ ONLY 'reply'. Passing no kind would clear the Chat dot too, and
-     somebody would lose a message they never saw because they glanced at
-     the wall. Each tab puts out its own light.
+     The removed code ran `notifications_mark_read('reply')` in an effect
+     here, under the note "the Home dot clears here, because this is
+     where the reply is." That was true in the sense that the reply
+     exists somewhere on this page. It was false in the sense that
+     matters: the wall is sixty-six posts sorted by recency, you land at
+     the top, and the post somebody answered is wherever it happens to
+     be. So **opening the app destroyed the evidence that anybody had
+     answered you, before you had any chance to see it.**
 
-     Runs once per mount. It's a no-op write when nothing is unread — the
-     UPDATE's own `read_at is null` makes it free — so there's no need to
-     ask first. */
-  useEffect(() => {
-    supabase.rpc('notifications_mark_read', { p_kind: 'reply' })
-      .then(() => router.refresh())
-      .catch(() => {});   // a dot that stays lit is not worth an error
-    /* eslint-disable-next-line */
-  }, []);
+     Measured 30 Aug: 114 members, 20 notifications fired in 24 hours to
+     14 people, eleven of whom had a real reply waiting. Almost none of
+     them knew. Ty: "in one night everybody was so excited... and today
+     it was pretty much crickets." The room was never quiet. The signal
+     was being deleted on arrival.
+
+     ⭐ The bell (/notifications) now owns clearing a reply, because the
+     bell is the first surface that actually SHOWS you one — who
+     answered, and an excerpt of the post they answered. A surface may
+     mark read exactly what it displayed the contents of. This one
+     displayed a feed.
+
+     ⚠️ So the Home dot now stays lit until the bell is opened. That is
+     the dot telling the truth for the first time. */
+
   const [busy, setBusy] = useState(false);
+  /* The notification card, shown once, right after a first post. Set by
+     post(); PushAsk clears it via onDone once the person has answered
+     either way. Kept in state rather than derived so it survives the
+     re-read of the feed that happens in the same breath. */
+  const [askPush, setAskPush] = useState(false);
   const [open, setOpen] = useState(null);     // the post whose thread is open
   const [menu, setMenu] = useState(null);     // the post whose ⋯ menu is open
   // post ids with a like request in the air. Without this, an impatient
@@ -766,6 +784,27 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
           photo_url: d.media_path, video_url: d.art_path })));
       }
       router.refresh();
+
+      /* ⭐ ONE MOMENT, ONCE: was that their first post?
+
+         The database answers, not this component — `authenticated` has no
+         SELECT on `posts`, so counting them here is not merely unwise, it
+         is refused. push_ask_due() is SECURITY DEFINER and returns a
+         boolean, never a count (0098).
+
+         ⚠️ Asked AFTER the post is up, never before and never on arrival.
+         The browser permission is a single non-renewable resource — a
+         "no" is remembered forever and iOS gives no second chance — and
+         on arrival the honest answer is "notify me about what?" Ten
+         seconds after putting something into a room full of strangers,
+         the question answers itself.
+
+         ⚠️ Fails silently. If this RPC errors the card simply doesn't
+         appear; it must never be able to take down a successful post. */
+      try {
+        const { data: due } = await supabase.rpc('push_ask_due');
+        if (due === true) setAskPush(true);
+      } catch { /* no card, and the post still went up */ }
     } catch (e2) {
       /* ⚠️ Was alert(). On a phone an alert covers the screen and tells you
          nothing you can act on. Worse, the failure that actually happened
@@ -1141,6 +1180,15 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
           </p>
         )}
       </form>
+
+      {/* ⚠️ OUTSIDE the <form>, immediately under it. Inside, its buttons
+          would be submit buttons by default and "Not now" would re-post.
+          Under it rather than over it because the eye is already there —
+          it is the reply to the thing they just did, and it reads as one.
+
+          Only ever rendered when push_ask_due() came back true, which is
+          once, on a first post. */}
+      {askPush && <PushAsk onDone={() => setAskPush(false)} />}
 
       <div className="wall">
         {posts.length === 0 && (

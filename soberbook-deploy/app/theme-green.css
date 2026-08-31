@@ -953,6 +953,80 @@ body{
   overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
 }
 
+/* =====================================================================
+   THE BELL, AND THE CARD THAT ASKS FOR IT.  Aug 30.
+
+   ⚠️ THESE LIVE HERE, NOT IN notifications.css, AND I ALMOST GOT IT
+   WRONG. notifications.css is imported by app/notifications/layout.jsx
+   and nowhere else — but the bell sits in the WALL's masthead and the
+   card renders in the WALL's composer. Written there, both would have
+   shipped as naked HTML with nothing erroring. theme-green.css is on
+   /wall and /notifications alike.
+
+   ⭐ THE BELL IS NOT A SEVENTH TAB. Six is the ceiling for a bar of
+   words (see wall.css, 22 Aug) and a seventh cannot be solved by
+   shrinking type again. It is also the right shape: the bell is
+   somewhere you glance, not a room you live in.
+
+   ⚠️ #fff on --gd measures 6.46:1. --soft would be 1.26 — the exact
+   mistake made and measured earlier tonight on the conversation ⋯. */
+.bell{
+  margin-left:auto; flex-shrink:0; position:relative;
+  min-width:40px; min-height:44px; display:flex;
+  align-items:center; justify-content:center;
+  color:#fff; font-size:18px; line-height:1; text-decoration:none;
+  border-radius:10px;
+}
+.bell:active{ background:rgba(255,255,255,.14); }
+
+/* 🔴 A DOT, NEVER A COUNT. That is the 18 Aug rule and it is a safety
+   decision, not a style one: my_nav_dots asks exists(), so there is no
+   number anywhere in the system to accidentally render. A count is also
+   a small pressure gauge on how much you are being talked to, which is
+   the mechanic this app refuses everywhere else.
+
+   ⚠️ Gold, not red — same reason the friends list uses gold for "it's
+   been a while". A nudge, not a fault. */
+.bell .dot{
+  position:absolute; top:7px; right:5px;
+  width:9px; height:9px; border-radius:50%;
+  background:#E8A317; border:1.5px solid var(--gd);
+}
+
+.pask{
+  background:var(--paper2); border:2px solid var(--gm);
+  border-radius:14px; padding:14px 15px; margin:0 0 12px;
+}
+.paskh{
+  font-family:'Courier Prime',monospace; font-size:11.5px;
+  letter-spacing:.09em; text-transform:uppercase;
+  color:var(--gm-t); margin:0 0 8px; font-weight:400;
+}
+.paskq{ font-size:15.5px; line-height:1.45; color:var(--x); margin:0 0 6px; font-weight:500; }
+.paskp{ font-size:13.5px; line-height:1.6; color:var(--soft); margin:0 0 12px; }
+.paskwhy{ font-size:12.5px; line-height:1.6; color:var(--soft); margin:8px 0 0; }
+
+/* 🔴 THE TWO BUTTONS ARE THE SAME SIZE, and this is the whole ethic of
+   the card rather than a layout preference. A tall green Yes above a
+   small grey "no thanks" is the standard growth pattern, and it works by
+   making the refusal feel like a mistake. Nobody in this room needs
+   another thing leaning on them.
+
+   Same min-height, same width, same font-size. Only the fill differs. */
+.paskbtn{
+  display:block; width:100%; min-height:46px;
+  border-radius:12px; font-size:14.5px; cursor:pointer;
+  font-family:inherit; margin-bottom:8px;
+}
+.paskbtn:last-child{ margin-bottom:0; }
+.paskbtn.go{ background:var(--gd); color:#F4FBF7; border:0; }
+.paskbtn.go:active{ background:var(--gt); }
+.paskbtn.go:disabled{ opacity:.7; }
+/* --gm at 2px, not --line: a 1px --line border measures 1.21 against a
+   white card — the invisible-edge trap from 17 Aug. --gm is 4.02. */
+.paskbtn.ghost{ background:#fff; color:var(--gm-t); border:2px solid var(--gm); }
+.paskbtn.ghost:active{ background:var(--acid); }
+
 /* The sheet. ⚠️ position:fixed with a high z-index — the row it belongs to
    sits inside a scrolling page, and an absolutely-positioned menu would
    be clipped by the first ancestor with overflow set. */

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { browserClient } from '../../lib/supabase-browser';
+import { pushSupport, currentPushState, enablePush, disablePush } from '../../lib/push';
 
 /* =====================================================================
    TURN THE BUZZ ON  (0073).
@@ -31,15 +32,15 @@ import { browserClient } from '../../lib/supabase-browser';
    is read defensively.
    ===================================================================== */
 
-function urlB64ToUint8Array(base64) {
-  /* The VAPID public key travels as url-safe base64 and the Push API
-     wants raw bytes. ⚠️ Getting the padding wrong here fails with an
-     opaque DOMException that says nothing about padding. */
-  const padding = '='.repeat((4 - (base64.length % 4)) % 4);
-  const b64 = (base64 + padding).replace(/-/g, '+').replace(/_/g, '/');
-  const raw = atob(b64);
-  return Uint8Array.from([...raw].map((c) => c.charCodeAt(0)));
-}
+/* ⚠️ 30 AUG — THE MECHANICS MOVED TO lib/push.js AND WERE NOT COPIED.
+
+   A second caller appeared tonight (PushAsk, the card after somebody's
+   first post) and the tempting move was to duplicate the subscribe code.
+   That is the 0046 → 0047 → 0049 mistake: a restatement is a second
+   implementation and the second one drifts. Everything hard-won —
+   userVisibleOnly, the base64 padding, the deliberate absence of
+   `failures` from the upsert — now exists once. This file draws a
+   switch; it does not know how a subscription is made. */
 
 export default function PushSwitch() {
   const [state, setState] = useState('checking');   // checking|off|on|busy|unsupported|blocked
@@ -48,93 +49,20 @@ export default function PushSwitch() {
   useEffect(() => {
     (async () => {
       if (typeof window === 'undefined') return;
-      const supported = 'serviceWorker' in navigator && 'PushManager' in window
-                        && 'Notification' in window;
-      if (!supported) {
-        /* ⚠️ Say WHICH thing is missing rather than "not supported". On an
-           iPhone in Safari the answer is almost always "you haven't added
-           it to your home screen", and that is fixable in ten seconds. */
-        const iOSish = /iPad|iPhone|iPod/.test(navigator.userAgent);
-        setWhy(iOSish
-          ? 'On iPhone, notifications only work once Sober Book is on your home screen. Tap Share, then Add to Home Screen, and open it from there.'
-          : 'This browser can’t do notifications.');
-        setState('unsupported'); return;
-      }
-      if (Notification.permission === 'denied') { setState('blocked'); return; }
-
-      /* 🔴 "ON" MEANS THE SERVER HAS THIS DEVICE — NOT THAT THE BROWSER
-         SUBSCRIBED.
-
-         The first version asked only the browser. On Aug 26 that produced
-         a switch reading "Turn it off" while push_subscriptions was
-         completely empty: the browser had a subscription from a failed
-         attempt, the row had never saved, and the control cheerfully
-         insisted notifications were working. A subscription the server
-         has never seen receives nothing, forever.
-
-         ⚠️ Both have to agree. A browser subscription the database
-         doesn't know about is treated as OFF, so tapping the button
-         re-registers it instead of doing nothing. */
-      const reg = await navigator.serviceWorker.getRegistration();
-      const sub = reg ? await reg.pushManager.getSubscription() : null;
-      if (!sub) { setState('off'); return; }
-
-      const supabase = browserClient();
-      const { data: rows } = await supabase
-        .from('push_subscriptions').select('id').eq('endpoint', sub.endpoint).limit(1);
-      setState(rows && rows.length ? 'on' : 'off');
+      const { supported, why: w } = pushSupport();
+      if (!supported) { setWhy(w); setState('unsupported'); return; }
+      /* 🔴 currentPushState asks BOTH the browser and the server, and
+         only says "on" when they agree — see the note in lib/push.js
+         about the Aug 26 switch that read "Turn it off" while
+         push_subscriptions was completely empty. */
+      setState(await currentPushState(browserClient()));
     })();
   }, []);
 
   async function turnOn() {
     setState('busy'); setWhy('');
-    try {
-      const perm = await Notification.requestPermission();
-      if (perm !== 'granted') { setState(perm === 'denied' ? 'blocked' : 'off'); return; }
-
-      const reg = await navigator.serviceWorker.ready;
-      const key = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
-      if (!key) { setWhy('Notifications aren’t switched on yet.'); setState('off'); return; }
-
-      const sub = await reg.pushManager.subscribe({
-        /* ⚠️ REQUIRED to be true, and it is not a formality: Chrome
-           refuses a subscription that reserves the right to wake the
-           device without showing anything. A silent push is spyware and
-           the browser treats it that way. */
-        userVisibleOnly: true,
-        applicationServerKey: urlB64ToUint8Array(key),
-      });
-
-      const j = sub.toJSON();
-      const supabase = browserClient();
-      const { data: { user } } = await supabase.auth.getUser();
-      /* ⭐ Straight into the table, no API route. RLS already says a row
-         must carry your own id, so the database is the check — a route
-         would just be a second place to get that wrong. */
-      /* ⚠️ `failures` is NOT sent, and its absence is the point.
-
-         It used to be here as `failures: 0` and it cost an hour: the
-         column grant covers the four credential columns, and a
-         column-level grant refuses the WHOLE statement if one column
-         isn't in it. The error is the same unhelpful "permission denied
-         for table push_subscriptions" whether one column is missing or
-         every column is — so each fix looked like it had failed.
-
-         It defaults to 0 on insert, and the send route resets it after a
-         successful delivery. The browser has no business writing the
-         server's own bookkeeping. */
-      const { error } = await supabase.from('push_subscriptions').upsert({
-        user_id: user.id,
-        endpoint: j.endpoint,
-        p256dh: j.keys.p256dh,
-        auth: j.keys.auth,
-      }, { onConflict: 'endpoint' });
-      if (error) throw error;
-      setState('on');
-    } catch (e) {
-      setWhy(e?.message || 'That didn’t work.');
-      setState('off');
-    }
+    const { state: s, why: w } = await enablePush(browserClient());
+    setWhy(w); setState(s);
   }
 
   async function turnOff() {
@@ -144,20 +72,7 @@ export default function PushSwitch() {
        twice tonight. */
     setWhy('');
     setState('busy');
-    try {
-      const reg = await navigator.serviceWorker.getRegistration();
-      const sub = reg ? await reg.pushManager.getSubscription() : null;
-      if (sub) {
-        const supabase = browserClient();
-        /* ⚠️ Delete the row FIRST. If unsubscribe() succeeds and the row
-           survives, the server keeps pushing at a dead endpoint until the
-           failure counter retires it — the person asked for quiet and
-           would get buzzed anyway. */
-        await supabase.from('push_subscriptions').delete().eq('endpoint', sub.endpoint);
-        await sub.unsubscribe();
-      }
-      setState('off');
-    } catch { setState('off'); }
+    setState(await disablePush(browserClient()));
   }
 
   if (state === 'checking') return null;

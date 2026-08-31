@@ -125,6 +125,22 @@ export default async function WallPage() {
      the feature. milestoneToday() either finds a mark or returns null;
      there is no third case and there must never be one. */
   let mark = null;
+  /* Does the bell need a dot? Read through my_notifications, never the
+     `notifications` table — 0080 revoked that from members because the
+     table carries actor_id even for an ANONYMOUS reply, and the view is
+     what resolves that to 'Someone'.
+
+     ⚠️ Only 'reply' and 'mention', which is exactly what the bell page
+     marks read. Including 'message' would light a dot the bell can never
+     put out, because a message is Chat's to clear, in the thread, where
+     the words actually are.
+
+     ⚠️ limit(1) and a boolean. There is no count here on purpose. */
+  const { data: bellRows } = await supabase
+    .from(assertReadable('my_notifications'))
+    .select('id').eq('unread', true).in('kind', ['reply', 'mention']).limit(1);
+  const bell = !!(bellRows && bellRows.length);
+
   if (profile.sober_since) {
     const mk = milestoneToday(profile.sober_since);
     const answered = profile.milestones_answered || [];
@@ -150,6 +166,23 @@ export default async function WallPage() {
               them again. It sits in the masthead with the other small links. */}
           <Link href="/find" className="songlink findlink"
                 aria-label="Find someone">🔍</Link>
+        {/* 🔴 THE BELL — the way in to what you missed, built 30 Aug.
+
+            ⚠️ NOT a seventh tab. Six is the ceiling for a bar of words
+            and a seventh cannot be solved by shrinking type again. It is
+            also the right shape: this is somewhere you glance, not a room
+            you live in.
+
+            The dot means "somebody answered you" and nothing else. It is
+            a dot and never a number — my_nav_dots asks exists(), so there
+            is no count anywhere in the system to accidentally render, and
+            a count would be a small pressure gauge on how much you are
+            being talked to. */}
+        <Link href="/notifications" className="bell"
+              aria-label={bell ? 'What you missed — something new' : 'What you missed'}>
+          🔔
+          {bell && <span className="dot" aria-hidden="true" />}
+        </Link>
         {/* The day count was already here doing nothing. Making it the way
             into your own page means no new chrome on the masthead — the
             thing you look at anyway becomes the thing you tap. */}
