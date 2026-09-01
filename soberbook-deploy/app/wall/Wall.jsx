@@ -1124,8 +1124,26 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
 
         {/* Who this post will actually tag. ⚠️ Only shown once there is
             something to say — no empty chrome sitting under the box. */}
-        {(mentions.length > 0 || ambiguous.length > 0 || shownUnmatched.length > 0) && (
+        {(mentions.length > 0 || ambiguous.length > 0 || shownUnmatched.length > 0
+          || wantsHighlight) && (
           <div className="ctags">
+            {/* 🔴 THE CHIP THAT WAS MISSING, AND TY PAID FOR IT WITHIN THE
+                HOUR. @highlight worked from the moment it shipped — but
+                nothing on screen said so, so he posted it, saw no
+                confirmation, assumed it had failed, and posted again.
+                **128 people got the same announcement twice.**
+
+                ⭐ The feature was fine; the feedback was absent. That is
+                the twelfth "everything built except the way in" in this
+                log, wearing its opposite face: not a thing you cannot
+                reach, a thing you cannot tell you have reached.
+
+                ⚠️ First in the row, and visually louder than a name chip,
+                because it is the one that reaches 126 people rather than
+                one. */}
+            {wantsHighlight && (
+              <span className="taghi">@highlight · everybody</span>
+            )}
             {mentions.map((m) => (
               <span className="tagok" key={m.handle}>@{m.label}</span>
             ))}
