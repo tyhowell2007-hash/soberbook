@@ -197,3 +197,20 @@
 
 .nm-foot{ margin-top:18px; }
 .nm-foot .btn{ width:auto; }
+
+/* The walkthrough send page (0109). ⚠️ .pad and .hint already exist in
+   admin.css and are reused on purpose — this page should look like the
+   rest of the back room, not like a new product. Only the counters are
+   new, and they are prefixed. */
+.sndrow { display: flex; gap: 10px; margin: 16px 0 18px; flex-wrap: wrap; }
+.sndbox {
+  flex: 1 1 90px;
+  background: #fff;
+  border: 1px solid var(--line, #e4ebe7);
+  border-radius: 12px;
+  padding: 12px 10px;
+  text-align: center;
+}
+.sndbox b { display: block; font-size: 26px; color: var(--gd, #1d3b2a); }
+.sndbox span { display: block; margin-top: 2px; font-size: 12px; color: var(--soft, #5f7a6a); }
+.sndbox.bad b { color: #a3452d; }
