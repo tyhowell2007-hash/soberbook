@@ -8,9 +8,22 @@
 
    1. It must not NUDGE. 130 members were emailed a promise of "no
       reminders, no streaks, no nudges to come back". So there is no
-      call to action beyond a link, no "don't miss out", no count of
-      what they have missed, and it ends on "watch it or don't" — which
-      is meant literally.
+      call to action beyond a link, no "don't miss out", and no count of
+      what they have missed.
+
+      🔴 IT ALSO MUST NOT SOUND FLIPPANT, AND MY FIRST DRAFT DID. It
+      closed on "That's it. No homework, nothing to do. Watch it or
+      don't." Ty cut it: *"We don't wanna sound like dickheads to
+      people. We don't know."* He is right, and the reason is worth
+      keeping: that line reads as easy-going from someone whose voice
+      you already know, and as dismissive from a stranger. 146 people
+      are about to read this and most of them have never heard Ty
+      speak — 106 have never posted a word. **Written warmth cannot
+      rely on tone the reader has no way to hear.**
+
+      ⚠️ Deleted, not replaced. The instinct is to write something
+      softer in its place; the letter is better without a closing
+      flourish at all.
 
    2. It must not say what the app's own EMAIL SWITCH says it says.
       That switch tells members they will be emailed "when somebody
@@ -55,8 +68,6 @@ export function tourEmail({ optoutUrl }) {
     '  · The bell tells you when somebody answered you. Easy to walk past.',
     '  · You can post without your name on it.',
     '',
-    "That's it. No homework, nothing to do. Watch it or don't.",
-    '',
     '— Ty',
     'soberbook.app',
     '',
@@ -83,7 +94,6 @@ export function tourEmail({ optoutUrl }) {
     <li style="margin-bottom:6px;">The bell tells you when somebody answered you. Easy to walk straight past.</li>
     <li>You can post without your name on it.</li>
   </ul>
-  <p style="margin:0 0 16px;">That&rsquo;s it. No homework, nothing to do. Watch it or don&rsquo;t.</p>
   <p style="margin:0 0 4px;">&mdash; Ty</p>
   <p style="margin:0 0 24px;color:#5f7a6a;">soberbook.app</p>
   <hr style="border:0;border-top:1px solid #e4ebe7;margin:0 0 14px;">
