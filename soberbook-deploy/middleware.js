@@ -139,8 +139,18 @@ export async function middleware(request) {
          at, and making them log in to leave would be its own small
          cruelty. Protected by an unguessable token that can only ever
          turn things OFF. */
+  /* 🔴 '/api/unsub' HAS TO BE ITS OWN ENTRY, and forgetting it broke the
+     thing immediately. `startsWith('/unsub')` does NOT match
+     '/api/unsub/<token>' — the prefix is the wrong end of the path. The
+     PAGE answered 200 and looked perfect while the POST endpoint behind
+     Gmail's own one-click unsubscribe button got a 307 to /login,
+     forever, with nothing in any log. Somebody pressing "Unsubscribe" in
+     Gmail would have been silently ignored and then, reasonably, pressed
+     "report spam" instead — which damages deliverability for all 125
+     members. Found by curling both, which is the only reason it isn't
+     still true. */
   const open = ['/login', '/auth', '/reset', '/privacy', '/api/push/send', '/api/content/cron',
-                '/api/email/notify', '/unsub'];
+                '/api/email/notify', '/api/unsub', '/unsub'];
   const isOpen = open.some((p) => request.nextUrl.pathname.startsWith(p));
 
   /* 🔴 A STRANGER AT THE FRONT DOOR GETS THE PITCH, NOT A PASSWORD BOX.
