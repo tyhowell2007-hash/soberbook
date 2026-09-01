@@ -146,11 +146,26 @@ export async function POST(req) {
    scheduler at GET and assume it is working — /api/content/cron exists
    as a separate route precisely because a cron aimed at a dry run logs
    green every time and does nothing. */
-export async function GET() {
+export async function GET(req) {
   if (!adminConfigured()) {
     return NextResponse.json({ ok: false, error: 'admin not configured' }, { status: 500 });
   }
   const admin = adminClient();
+
+  /* 🔴 THE SECRET IS REQUIRED HERE TOO, and leaving it off was a hole I
+     opened an hour ago. This route sits in middleware's `open` list, so
+     "it's only a dry run" meant anybody on the internet could read how
+     many notification emails were pending and how many people were owed
+     one. No names — but counts ARE the security model on /admin/numbers
+     for exactly this reason: at 125 members, "3 people are owed an
+     email right now" is a live activity readout of a recovery community
+     to anyone who asks. */
+  const { data: cfg } = await admin
+    .from('email_config').select('secret').eq('id', 1).maybeSingle();
+  if (!cfg?.secret || (req.headers.get('x-email-secret') || '') !== cfg.secret) {
+    return NextResponse.json({ ok: false }, { status: 404 });
+  }
+
   const { data, error } = await admin.rpc('email_pending');
   if (error) return NextResponse.json({ ok: false, error: error.message }, { status: 500 });
   return NextResponse.json({
