@@ -497,6 +497,27 @@
   background: rgba(37, 99, 235, .09);
   border-radius: 999px; padding: 3px 9px;
 }
+/* 🔴 @highlight — SOLID, NOT TINTED, AND THAT DIFFERENCE IS THE POINT.
+
+   Same blue as .tagok, because it is the same sentence: this landed. But
+   filled rather than washed, because it is not the same size of action —
+   one chip means one person will be told, this one means 126 will.
+
+   ⚠️ It exists because it DIDN'T, and that cost something real within an
+   hour of shipping: @highlight worked perfectly and showed nothing, so Ty
+   assumed it had failed and sent it twice. 128 people got the same
+   announcement two times. The feature was never broken; the confirmation
+   was missing.
+
+   ⚠️ White on #2563eb measures 5.17:1 — above the 4.5 floor. Checked, not
+   assumed; the app has a standing scar from a tag that measured 1.00. */
+.taghi {
+  color: #fff; font-weight: 700;
+  background: #2563eb;
+  border-radius: 999px; padding: 3px 10px;
+  letter-spacing: .01em;
+}
+
 /* ⚠️ Typed but not a friend. Shown, not silently dropped — a handle that
    looks fine and quietly does nothing is the failure this whole design
    exists to prevent. Not red: it is not an error, it just won't tag. */
