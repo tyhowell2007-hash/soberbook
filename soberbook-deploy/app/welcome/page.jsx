@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { browserClient } from '../../lib/supabase-browser';
-import { makeHandles, createProfile, cleanHandle } from '../../lib/first-run';
+import { makeHandles, createProfile, cleanHandle, explainProfileError } from '../../lib/first-run';
 
 /* =====================================================================
    FIRST RUN.
@@ -95,6 +95,12 @@ export default function Welcome() {
      the second one would hit a duplicate-handle error on a name they
      never chose. */
   const [handle, setHandle] = useState('');
+  /* 🔴 Did WE choose this handle, or did they? createProfile() retries a
+     collision by picking a new name, and that is only acceptable when the
+     name was ours to begin with. Silently swapping a name somebody typed
+     for themselves — the name strangers in recovery will know them by —
+     would be worse than the error. */
+  const [mine, setMine] = useState(false);
 
   /* ⚠️ Empty on the first render and filled immediately after, because
      makeHandles() uses Math.random() — doing it in useState's initialiser
@@ -121,9 +127,19 @@ export default function Welcome() {
     e.preventDefault();
     setErr('');
 
-    /* Validate here rather than by grbeying out the button. The person
-       gets a sentence instead of a dead control. */
-    const h = handle.trim();
+    /* 🔴 cleanHandle, NOT trim() — 31 Aug, and this was a live bug on the
+       one page that exists to rescue people from the previous one.
+
+       The input's onChange cleans as you type, so typing was safe. But
+       `save()` took `handle.trim()`, which means any value that arrives
+       WITHOUT a React change event — browser autofill is the obvious one
+       — went straight to the insert with its spaces and dots intact and
+       was refused by `handle_shape`. That is exactly the failure that
+       left eleven people with a login and no account, still alive on
+       their recovery path.
+
+       ⚠️ The cleaner has to be on the VALUE, not only on the keystroke. */
+    const h = cleanHandle(handle);
     if (h.length < 3) {
       setErr('A handle needs three characters or more. Tap “Show me other options” if you’d rather we picked.');
       return;
@@ -138,16 +154,23 @@ export default function Welcome() {
          wearing the green room's clothes. */
       if (!user) { window.location.assign('/login'); return; }
 
-      const { error } = await supabase.from('profiles').insert({
-        id: user.id,
-        handle: h,
-        /* ⚠️ Trimmed, and NULL rather than '' when empty — an empty string
-           would count as "has a name" everywhere that checks. */
-        display_name: name.trim() || null,
-        privacy_mode: privacy,
-        sober_since: since || null,
+      /* 🔴 ONE IMPLEMENTATION, AND THIS FILE ALREADY SAID SO.
+         Line 68 of this very file cites 0046 → 0047 → 0049 — "a
+         restatement is a second implementation, and the second one
+         drifts" — and then the save handler went ahead and hand-rolled
+         its own insert anyway. It had already drifted three ways:
+         no cleanHandle, no collision retry, and a raw database string
+         shown to the member on any unrecognised error.
+         createProfile() is the one place these rules live. */
+      const r = await createProfile(supabase, {
+        handle: h, name, since, privacy, generated: !mine,
       });
-      if (error) throw error;
+      if (!r.ok) {
+        if (r.noSession) { window.location.assign('/login'); return; }
+        setErr(r.message);
+        setBusy(false);
+        return;
+      }
 
       /* ⭐ THE ROOM, NOT THE WALL, AND THE DATA IS WHY.
          30 Aug: 80 members, and 60 of them had never said one word —
@@ -172,16 +195,12 @@ export default function Welcome() {
       router.push('/friends');
       router.refresh();
     } catch (e2) {
-      const m = String(e2.message || '');
-      /* ⚠️ "Taken" and "reserved" say the same thing to the person on the
-         other end: not available, pick another. They're separate branches
-         only so the wording can stay natural — never so the difference
-         leaks. Knowing which of the two it is tells a stranger whether an
-         account exists. */
-      if (m.includes('profiles_handle_lower_idx')) setErr('That handle is taken. Try another.');
-      else if (m.includes('reserved')) setErr('That handle isn’t available. Pick a different one.');
-      else if (m.includes('handle_shape')) setErr('Handles are 3–20 characters: letters, numbers, underscore.');
-      else setErr(m);
+      /* 🔴 NEVER `setErr(m)` WITH A DATABASE STRING. The old fallback
+         branch here did exactly that, and the Aug 6 lesson is that an
+         error message is an output channel — a constraint violation once
+         quoted an author_id back to a caller with no account.
+         explainProfileError() returns a sentence, always. */
+      setErr(explainProfileError(e2));
     } finally {
       setBusy(false);
     }
@@ -249,7 +268,7 @@ export default function Welcome() {
                     see cleanHandle() in lib/first-run.js. Both callers,
                     one cleaner: a second copy of this rule would drift,
                     and the drift would land as somebody locked out. */
-                 onChange={(e) => setHandle(cleanHandle(e.target.value))} />
+                 onChange={(e) => { setHandle(cleanHandle(e.target.value)); setMine(true); }} />
           <p className="hint">
             We picked this one for you — keep it or change it, whatever you
             like. Letters, numbers and underscores.
@@ -265,7 +284,7 @@ export default function Welcome() {
             <div className="ideas">
               {ideas.map((i) => (
                 <button key={i} type="button" className="idea"
-                        onClick={() => { setHandle(i); setErr(''); }}>
+                        onClick={() => { setHandle(i); setMine(false); setErr(''); }}>
                   {i}
                 </button>
               ))}
