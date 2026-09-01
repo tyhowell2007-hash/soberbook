@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { browserClient } from '../../lib/supabase-browser';
 import { Body, Player } from '../components/Linked';
+import ReplyMenu from './ReplyMenu';
 
 /* A post, opened.
    ==========================================================================
@@ -33,6 +34,11 @@ export default function Thread({ post, onClose, onCountChange }) {
   const [anon, setAnon] = useState(false);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState('');
+  /* Which reply's ⋯ is open. Holds the ROW, not just an id, because the
+     menu needs is_mine to decide whether it offers delete or report — and
+     is_mine is the only ownership signal that exists here. author_id is
+     deliberately NULL on an anonymous reply. */
+  const [menuFor, setMenuFor] = useState(null);
 
   async function load() {
     const { data, error } = await supabase
@@ -117,6 +123,20 @@ export default function Thread({ post, onClose, onCountChange }) {
                       anonymous reply marked without being exposed to anyone */}
                   {c.is_mine ? ' · yours' : ''}
                 </span>
+                {/* 🔴 THE WAY IN, ADDED 1 SEPT. Until tonight this row said
+                    the word "yours" with nothing to tap — the identical
+                    shape as the 19 Aug bug on posts that a member had to
+                    report to Ty. The database has allowed a member to
+                    delete their own reply since the table was written.
+                    ⚠️ Present on EVERY reply including anonymous ones: you
+                    report the words, and the queue returns no author, so
+                    an anonymous writer can be moderated without ever being
+                    unmasked. Proven — a reported anonymous reply comes back
+                    with author_handle NULL. */}
+                <button type="button" className="rdots"
+                        aria-label="More"
+                        aria-haspopup="dialog"
+                        onClick={() => setMenuFor(c)}>⋯</button>
               </div>
               <p className="rbody"><Body text={c.body} /></p>
               {/* 🔴 THE ACTUAL LINK TY ASKED ABOUT WAS IN A COMMENT, not a
@@ -128,6 +148,25 @@ export default function Thread({ post, onClose, onCountChange }) {
 
           {err && <div className="rerr">{err}</div>}
         </div>
+
+        {/* ⚠️ Rendered here but PORTALLED to <body> from inside the
+            component — see ReplyMenu.jsx. `.thread` is positioned, which
+            makes it a stacking context, and a child cannot climb out of
+            one with a bigger z-index. That is what left the Cancel button
+            dead on the member sheet on 30 Aug.
+
+            onGone re-reads the thread AND asks the wall to refresh, so a
+            deleted reply disappears from the reply-count and the preview
+            under the post at the same moment it leaves this list. Two
+            surfaces, one refresh — otherwise the wall keeps showing words
+            that no longer exist. */}
+        {menuFor && (
+          <ReplyMenu
+            reply={menuFor}
+            onClose={() => setMenuFor(null)}
+            onGone={async () => { await load(); onCountChange && onCountChange(post.id); }}
+          />
+        )}
 
         <div className="replybar">
           <button type="button" className={'ranon' + (anon ? ' on' : '')}

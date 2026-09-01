@@ -34,6 +34,9 @@ import '../adcard.css';
    app/me/layout.jsx, which renders the record above your song. ⚠️ Its own
    small file rather than a block in wall.css: see the note at its head. */
 import '../pledge.css';
+/* The ⋯ on a reply. Only the wall opens a thread, so only this layout
+   needs it. ⚠️ Its own file rather than wall.css — see the note at its head. */
+import '../replymenu.css';
 import NavBar from '../components/NavBar';
 
 export default function WallLayout({ children }) {

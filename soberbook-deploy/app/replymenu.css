@@ -1,0 +1,86 @@
+/* =====================================================================
+   THE ⋯ ON A REPLY.  1 Sept.
+
+   Imported by app/wall/layout.jsx only. Its own small file rather than a
+   block in wall.css, for the reason recorded on 23 Aug: wall.css is 73KB
+   and silently failed to upload three deploys running — GitHub's folder
+   drag gives up on the largest file in a directory. Moving new rules OUT
+   into a small file is what fixed it then (app/dropsheet.css) and it is
+   what avoids the problem now.
+
+   ---------------------------------------------------------------------
+   ⚠️ THIS DOES NOT TOUCH `.rwho`, AND THAT IS DELIBERATE. `.rwho` is
+   shared: Thread.jsx uses it for a reply byline and friends/Room.jsx uses
+   it for a Front Room message byline, with completely different rules in
+   two different stylesheets. Making it a flexbox to push the ⋯ right
+   would have reached across into the room. So the button is positioned
+   against `.reply` instead and the byline is left exactly as it was.
+
+   ⭐ THE LAYOUT IS COPIED FROM `.rmenu-row` / `.rmenu-dots` in
+   theme-green.css — the Front Room's ⋯, built 29 Aug and working. An
+   absolutely-positioned button plus padding on the row so the text can
+   never run underneath it. Two ⋯ menus in the same app should not be two
+   different pieces of geometry.
+
+   ⚠️ Names checked against all 13 stylesheets before writing: `.rdots`
+   and `.rplmenu` are free. `.rmenu` was NOT — it is the room's, and
+   using it would have collided. The `.composer` collision on 16 Aug and
+   `.sheetwrap` after it both came from skipping this check.
+   ===================================================================== */
+
+/* The reply becomes the positioning context for its own button. */
+.reply { position: relative; }
+
+/* ⚠️ Room for the button, so a long reply's text never runs under it.
+   The Front Room reserves 48px on `.crow` for exactly this. */
+.reply .rbody,
+.reply .rwho { padding-right: 44px; }
+
+.rdots {
+  position: absolute;
+  right: 4px;
+  top: 6px;
+  /* 🔴 44px MINIMUM. On 18 Aug the two controls people actually use on a
+     post were found at ~20px. This one sits beside body text somebody is
+     reading, so a small target means mis-taps on a menu whose other
+     option is Block. */
+  width: 40px;
+  min-height: 44px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--soft);
+  font-size: 19px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+}
+.rdots:hover { background: var(--gl); }
+/* ⚠️ A real focus ring. This is reachable by keyboard and it is the only
+   way to delete your own words — an invisible focus state on that is a
+   control some people cannot find at all. */
+.rdots:focus-visible {
+  outline: 2px solid var(--gd);
+  outline-offset: 2px;
+  background: var(--gl);
+}
+
+/* ---------------------------------------------------------------------
+   The sheet itself.
+
+   ⚠️ It reuses `.sheetwrap` / `.thread.menu` / `.mrow` from wall.css so it
+   looks and behaves identically to the ⋯ on a post — same rows, same
+   confirm steps, same wording. Two different-looking report flows for the
+   same complaint is how people learn to distrust both.
+
+   🔴 `.rplmenu` exists only to raise it ABOVE the open thread. The menu is
+   portalled to <body> (see ReplyMenu.jsx) because `.thread` is positioned
+   and therefore a stacking context — a child cannot climb out of one with
+   a bigger z-index, which is what left the Cancel button dead on the
+   member sheet on 30 Aug. The portal is the fix; this number only settles
+   the order once both are siblings on <body>.
+   --------------------------------------------------------------------- */
+.sheetwrap.rplmenu { z-index: 80; }
