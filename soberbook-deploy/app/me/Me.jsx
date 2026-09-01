@@ -14,6 +14,7 @@ import DeleteAccount from './DeleteAccount';
 import Blocked from './Blocked';
 import PushSwitch from '../components/PushSwitch';
 import EmailSwitch from '../components/EmailSwitch';
+import PledgeRecord from './PledgeRecord';
 
 /* The faces you can pick from.
 
@@ -952,6 +953,11 @@ export default function Me({ email, profile, posts, initialAvatarUrl,
                 </p>
               )}
             </div>
+
+            {/* ---- one more day ----
+                Ty's placement: "right above their song." It renders
+                nothing at all if you've never pledged — see the file. */}
+            <PledgeRecord />
 
             {/* ---- the anthem ---- */}
             {song?.anthem_url ? (
