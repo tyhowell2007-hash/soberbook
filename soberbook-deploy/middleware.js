@@ -149,8 +149,19 @@ export async function middleware(request) {
      "report spam" instead — which damages deliverability for all 125
      members. Found by curling both, which is the only reason it isn't
      still true. */
-  const open = ['/login', '/auth', '/reset', '/privacy', '/api/push/send', '/api/content/cron',
-                '/api/email/notify', '/api/unsub', '/unsub'];
+  /* 🔴 '/tour' — THE WALKTHROUGH, AND IT HAS TO OPEN FOR A STRANGER.
+     It is the link in an email to 146 members, who will tap it on a
+     phone, later, quite possibly signed out. Behind the login they meet
+     a password box instead of the film — which is the bug that made
+     people try Sober Book in August and leave saying "it's the old
+     version". Aug 19 fixed that at soberbook.app/; Aug 23 found the same
+     wall had moved back one screen. This is the third time.
+     ⚠️ Opening the PAGE is only half of it — see the matcher at the
+     bottom of this file, which also has to let the .mp4 through. Do one
+     without the other and the page renders perfectly with a black
+     rectangle where the film should be, and nothing errors anywhere. */
+  const open = ['/login', '/auth', '/reset', '/privacy', '/tour', '/api/push/send',
+                '/api/content/cron', '/api/email/notify', '/api/unsub', '/unsub'];
   const isOpen = open.some((p) => request.nextUrl.pathname.startsWith(p));
 
   /* 🔴 A STRANGER AT THE FRONT DOOR GETS THE PITCH, NOT A PASSWORD BOX.
@@ -247,5 +258,17 @@ export async function middleware(request) {
    a silent no-op that reports success. When a change appears to have no
    effect, check whether it was READ before assuming it was wrong. */
 export const config = {
-  matcher: ['/((?!_next/static|_next/image|favicon.ico|manifest\\.webmanifest|sw\\.js|offline\\.html|home\\.html|.*\\.(?:svg|png|jpg|jpeg|gif|webp|webmanifest|ico)$).*)'],
+  /* 🔴 `mp4` ADDED — the walkthrough film at /tour.mp4.
+     Without it the middleware intercepts the video request itself and
+     307s it to /login. The PAGE would still render, because /tour is in
+     the open list above: correct masthead, correct chapter list, and a
+     black rectangle where the film should be. No console error, no
+     network failure a person would recognise — the browser just treats
+     an HTML redirect as an unplayable source and gives up quietly.
+     ⚠️ This makes the FILE public, which is intended and costs nothing:
+     every screen in it is invented handles and invented posts, and no
+     real member appears anywhere. It also means the browser can make
+     range requests straight to the CDN, so seeking works and none of it
+     burns an edge invocation per chunk. */
+  matcher: ['/((?!_next/static|_next/image|favicon.ico|manifest\\.webmanifest|sw\\.js|offline\\.html|home\\.html|.*\\.(?:svg|png|jpg|jpeg|gif|webp|mp4|webmanifest|ico)$).*)'],
 };

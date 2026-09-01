@@ -1,0 +1,122 @@
+/* =====================================================================
+   THE WALKTHROUGH PAGE — soberbook.app/tour
+
+   ⚠️ EVERY CLASS IS PREFIXED `t`, and four names were changed before a
+   line of this was written because they already existed elsewhere:
+   .tt, .tl, .on and .lg. `.tl` in particular is the lifetime-total
+   label on /me — a stylesheet about a video would have silently
+   restyled a number on somebody's own page. Checked first, which is
+   the only order that catches it (wall.css / photos.css, Aug 16 + 23).
+
+   ⚠️ Imported by app/tour/layout.jsx together with theme-green.css,
+   which must come FIRST — every colour below reads a variable out of it.
+   ===================================================================== */
+
+.tourpage {
+  min-height: 100vh;
+  background: var(--paper, #f7faf8);
+  color: var(--body, #17281e);
+}
+
+.tmast {
+  background: var(--gd, #1d3b2a);
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+}
+.tlg {
+  color: #fff;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  font-size: 15px;
+}
+
+.tpad { max-width: 720px; margin: 0 auto; padding: 22px 18px 60px; }
+
+.th {
+  font-family: Fraunces, Georgia, serif;
+  font-style: italic;
+  font-weight: 500;
+  font-size: 27px;
+  line-height: 1.25;
+  margin: 6px 0 0;
+  color: var(--gd, #1d3b2a);
+}
+.tsub { margin: 8px 0 0; font-size: 15px; color: var(--soft, #5f7a6a); }
+
+/* The player. ⚠️ `display:block` — a video is inline by default, which
+   leaves a few pixels of stray line-height under it that read as a
+   misaligned box against the dark background. */
+.tvid {
+  display: block;
+  width: 100%;
+  margin: 16px 0 0;
+  border-radius: 12px;
+  background: #0d1a12;
+  aspect-ratio: 16 / 9;
+}
+
+.tsec {
+  margin: 26px 0 8px;
+  font-size: 12px;
+  letter-spacing: 1.4px;
+  text-transform: uppercase;
+  color: var(--soft, #5f7a6a);
+}
+
+.tchaps { list-style: none; margin: 0; padding: 0; }
+
+/* ⚠️ 46px minimum height. The Aug 18 lesson: the post footer shipped
+   with ~20px tap targets on the only two controls anybody used. These
+   are seventeen small targets in a column on a phone — the easiest
+   place in the app to mis-tap. */
+.tchap {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  width: 100%;
+  min-height: 46px;
+  padding: 10px 12px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  text-align: left;
+  font: inherit;
+  color: var(--body, #17281e);
+  cursor: pointer;
+}
+.tchap:hover { background: #eef4f0; }
+.tchap.tsel { background: var(--gl, #e4f0e8); }
+.tchap.tsel .tcl { font-weight: 600; }
+
+.tct {
+  flex: none;
+  font-variant-numeric: tabular-nums;
+  font-size: 13px;
+  color: var(--soft, #5f7a6a);
+}
+.tcl { font-size: 15px; line-height: 1.4; }
+
+.tgo { margin: 28px 0 0; text-align: center; }
+.tbtn {
+  display: block;
+  background: var(--gd, #1d3b2a);
+  color: #fff;
+  text-decoration: none;
+  padding: 15px;
+  border-radius: 12px;
+  font-size: 17px;
+}
+.tfine { margin: 12px 0 0; font-size: 14px; color: var(--soft, #5f7a6a); }
+.tfine a { color: var(--gt, #2b5c3f); }
+
+.tfoot {
+  margin: 30px 0 0;
+  text-align: center;
+  font-size: 13px;
+  color: var(--soft, #5f7a6a);
+}
+
+/* ⚠️ The page has NO NavBar, deliberately. It is public — a signed-out
+   stranger tapping "Chat" would meet the login wall this page exists to
+   avoid. The way in is the button, and there is only one. */
