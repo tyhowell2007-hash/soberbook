@@ -55,9 +55,9 @@ export function tourEmail({ optoutUrl }) {
     "A few people have told me they signed up and weren't sure what half of it",
     'does. Fair enough. There’s more in there than it looks like.',
     '',
-    'So I made a walkthrough. Fourteen minutes, the whole thing — signing up,',
-    'your day count, the wall, replies, chat, the Front Room, meetings, Quiet,',
-    "your own page, and the bits nobody finds on their own.",
+    'So I made a walkthrough. Three and a half minutes — how you get in, how',
+    'people talk to each other in here, the meetings, and the bits nobody',
+    "finds on their own.",
     '',
     'https://soberbook.app/tour',
     '',
@@ -84,7 +84,7 @@ export function tourEmail({ optoutUrl }) {
 <div style="max-width:560px;margin:0 auto;padding:28px 22px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;font-size:16px;line-height:1.65;color:#17281e;">
   <p style="margin:0 0 16px;">Hi &mdash; it&rsquo;s Ty.</p>
   <p style="margin:0 0 16px;">A few people have told me they signed up and weren&rsquo;t sure what half of it does. Fair enough. There&rsquo;s more in there than it looks like.</p>
-  <p style="margin:0 0 20px;">So I made a walkthrough. Fourteen minutes, the whole thing &mdash; signing up, your day count, the wall, replies, chat, the Front Room, meetings, Quiet, your own page, and the bits nobody finds on their own.</p>
+  <p style="margin:0 0 20px;">So I made a walkthrough. Three and a half minutes &mdash; how you get in, how people talk to each other in here, the meetings, and the bits nobody finds on their own.</p>
   <p style="margin:0 0 22px;">
     <a href="https://soberbook.app/tour" style="display:inline-block;background:#2b5c3f;color:#ffffff;text-decoration:none;padding:13px 22px;border-radius:10px;font-size:16px;">Watch the walkthrough</a>
   </p>
