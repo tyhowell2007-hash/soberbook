@@ -121,7 +121,7 @@ export async function POST(req) {
          only signal that a person answered them. The 3-day window in
          email_pending() stops a permanently bad address retrying
          forever. */
-      failed.push({ error: res.error });
+      failed.push(res.error || 'unknown');
     }
   }
 
@@ -132,12 +132,29 @@ export async function POST(req) {
   /* ⚠️ No addresses and no ids in the response. This is a log line that
      lands in Vercel's output, and an address there is a member's identity
      sitting in a third party's log store. Counts only — the same rule
-     /admin/numbers lives by. */
+     /admin/numbers lives by.
+
+     🔴 BUT THE REASON IS NOT AN ADDRESS, AND LEAVING IT OUT COST US.
+     31 Aug, first live run: 3 of 15 sends failed and came back as
+     `failed: 3` with nothing else. They succeeded on the retry, so
+     nobody was harmed — but I could not say WHY, and the honest answer
+     to Ty was a guess about rate limits. A failure that reports a number
+     and no cause is the same shape as the content cron logging green for
+     64 hours: it tells you something happened without telling you what,
+     which is barely better than silence.
+
+     ⚠️ DISTINCT reasons only, and never the recipient. "no
+     RESEND_API_KEY" or "HTTP 429" identifies a fault; it identifies no
+     member. Deduped so one broken address in a batch of fifty doesn't
+     print the same line fifty times. */
+  const reasons = [...new Set(failed)];
+
   return NextResponse.json({
     ok: true,
     sent: ok,
     folded: marked.length - ok,
     failed: failed.length,
+    ...(reasons.length ? { why: reasons } : {}),
   });
 }
 
