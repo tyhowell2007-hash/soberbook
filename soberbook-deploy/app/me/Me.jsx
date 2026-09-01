@@ -454,6 +454,94 @@ export default function Me({ email, profile, posts, initialAvatarUrl,
     </div>
   ) : null;
 
+  /* ==================================================================
+     THE SECOND NUMBER, BUILT ONCE.
+
+     🔴 I SHIPPED THIS IN THE WRONG ROOM AND TY CAUGHT IT INSIDE AN HOUR.
+     He asked to be able to change "the top one and the bottom months".
+     I made the total editable — and left it inside the settings editor,
+     three taps behind the pencil, while the top number's edit link sits
+     right under the number it edits. So the fix answered half of what he
+     asked and the half it answered was invisible. FOURTEENTH time in this
+     project that something was fully built with no way in, and the second
+     time this week that the missing way in was one I wrote myself.
+
+     ⚠️ IT IS A VARIABLE, NOT A COPY. The same discipline as `resetFlow`
+     directly above: the moment this exists in two places, the copy nobody
+     re-reads is the one that drifts — and what drifts here is somebody's
+     lifetime total, the one number in the app that is meant to survive
+     everything. One definition, rendered where the number lives.
+
+     ⚠️ It renders whether or not there is a sober date. 8 of 18 members
+     have no date; a person with four years behind them who isn't counting
+     days is exactly who this card is for.
+     ================================================================== */
+  const lifeBlock = (
+    <>
+      <div className="total">
+        <span className="tn">{totalNow.toLocaleString()}</span>
+        <span className="tl">days total, all of it</span>
+      </div>
+      <p className="sincerow">
+        <button type="button" className="sincelink" disabled={busy}
+                onClick={() => setLifeAsk(lifeAsk === 'open' ? 'closed' : 'open')}>
+          {lifetime > 0 ? 'edit this number' : 'were you sober before you got here?'}
+        </button>
+      </p>
+
+      {lifeAsk === 'open' && (
+        <div className="datecard">
+          <p className="dc-h">Time you&apos;d already put together</p>
+          <p className="dc-s">
+            Before Sober Book. However you count it &mdash; nobody is
+            checking, and nobody else sees it unless you switch it on.
+          </p>
+          <div className="liferow">
+            {[['Years', lyY, setLyY], ['Months', lyM, setLyM], ['Days', lyD, setLyD]]
+              .map(([lab, val, set]) => (
+              <label key={lab} className="lifefld">
+                <span>{lab}</span>
+                {/* ⚠️ inputMode numeric, not type=number — a spinner on a
+                    phone is a fiddly target and type=number lets people
+                    paste "e" and "-". */}
+                <input inputMode="numeric" value={val} disabled={busy}
+                       aria-label={lab + ' you were already sober'}
+                       onChange={(e) => set(e.target.value.replace(/[^0-9]/g, '').slice(0, 4))} />
+              </label>
+            ))}
+          </div>
+          <div className="dc-row">
+            <button className="btn" type="button"
+                    disabled={busy || lifeEntered === lifetime}
+                    onClick={() => {
+                      setLifetime(lifeEntered);
+                      save({ lifetime_days: lifeEntered },
+                           lifeEntered > 0
+                             ? 'Saved. ' + (lifeEntered + (d || 0)).toLocaleString() + ' days altogether.'
+                             : 'Cleared.');
+                      setLifeAsk('closed');
+                    }}>
+              {busy ? 'Saving…' : lifeEntered > 0
+                ? 'Save — ' + lifeEntered.toLocaleString() + ' days'
+                : 'Save'}
+            </button>
+            <button className="btn ghost" type="button" disabled={busy}
+                    onClick={() => setLifeAsk('closed')}>Cancel</button>
+          </div>
+          {/* ⚠️ Says the resulting number BEFORE they commit. The whole
+              point of this card is that it is theirs; being surprised
+              by what it becomes would undo that. */}
+          {lifeEntered > 0 && (
+            <p className="dc-s">
+              Your total becomes <b>{(lifeEntered + (d || 0)).toLocaleString()}</b> &mdash;
+              that&apos;s this, plus the {(d || 0).toLocaleString()} you have here.
+            </p>
+          )}
+        </div>
+      )}
+    </>
+  );
+
   /* One save function for every setting on this page. `patch` is just an
      object of columns → new values.
 
@@ -671,6 +759,14 @@ export default function Me({ email, profile, posts, initialAvatarUrl,
             )}
           </>
         )}
+
+        {/* ⭐ THE SECOND NUMBER, WHERE THE FIRST ONE IS.
+            Built once as `lifeBlock` further up. It sits OUTSIDE the
+            `{!since ? …}` ternary directly above on purpose — a member with
+            no sober date still has a life before this app, and gating the
+            total on a date they declined to set would hide it from exactly
+            the people most likely to have one. */}
+        {lifeBlock}
 
         {/* =================================================================
             THE READ VIEW — your page as a page, not a form.
@@ -1296,77 +1392,18 @@ export default function Me({ email, profile, posts, initialAvatarUrl,
           {resetFlow}
 
           {/* ---- the total ----
-              ⚠️ NO LONGER GATED ON `lifetime > 0`. That gate meant the only
-              people who could see this card were people who had relapsed on
-              Sober Book — so the person with eight clean years before they
-              arrived had nowhere to put them. Everyone sees it now. */}
+              🔴 THE NUMBER AND ITS EDITOR ARE NOT HERE ANY MORE. They live
+              under the day count on the page itself, where Ty asked for
+              them — see `lifeBlock`. What stays in settings is the one
+              thing that genuinely IS a setting: whether anybody else can
+              see the total. Changing your own number is not a preference;
+              publishing it to strangers is. */}
           {(
             <>
-              <div className="total">
-                <span className="tn">{totalNow.toLocaleString()}</span>
-                <span className="tl">days total, all of it</span>
-              </div>
-              <p className="sincerow">
-                <button type="button" className="sincelink" disabled={busy}
-                        onClick={() => setLifeAsk(lifeAsk === 'open' ? 'closed' : 'open')}>
-                  {lifetime > 0 ? 'edit this number' : 'were you sober before you got here?'}
-                </button>
-              </p>
-
-              {lifeAsk === 'open' && (
-                <div className="datecard">
-                  <p className="dc-h">Time you&apos;d already put together</p>
-                  <p className="dc-s">
-                    Before Sober Book. However you count it &mdash; nobody is
-                    checking, and nobody else sees it unless you switch it on.
-                  </p>
-                  <div className="liferow">
-                    {[['Years', lyY, setLyY, 99], ['Months', lyM, setLyM, 11], ['Days', lyD, setLyD, 364]]
-                      .map(([lab, val, set, max]) => (
-                      <label key={lab} className="lifefld">
-                        <span>{lab}</span>
-                        {/* ⚠️ inputMode numeric, not type=number — a spinner on a
-                            phone is a fiddly target and type=number lets people
-                            paste "e" and "-". */}
-                        <input inputMode="numeric" value={val} disabled={busy}
-                               aria-label={lab + ' you were already sober'}
-                               onChange={(e) => set(e.target.value.replace(/[^0-9]/g, '').slice(0, 4))} />
-                      </label>
-                    ))}
-                  </div>
-                  <div className="dc-row">
-                    <button className="btn" type="button"
-                            disabled={busy || lifeEntered === lifetime}
-                            onClick={() => {
-                              setLifetime(lifeEntered);
-                              save({ lifetime_days: lifeEntered },
-                                   lifeEntered > 0
-                                     ? 'Saved. ' + (lifeEntered + (d || 0)).toLocaleString() + ' days altogether.'
-                                     : 'Cleared.');
-                              setLifeAsk('closed');
-                            }}>
-                      {busy ? 'Saving…' : lifeEntered > 0
-                        ? 'Save — ' + lifeEntered.toLocaleString() + ' days'
-                        : 'Save'}
-                    </button>
-                    <button className="btn ghost" type="button" disabled={busy}
-                            onClick={() => setLifeAsk('closed')}>Cancel</button>
-                  </div>
-                  {/* ⚠️ Says the resulting number BEFORE they commit. The whole
-                      point of this card is that it is theirs; being surprised
-                      by what it becomes would undo that. */}
-                  {lifeEntered > 0 && (
-                    <p className="dc-s">
-                      Your total becomes <b>{(lifeEntered + (d || 0)).toLocaleString()}</b> &mdash;
-                      that&apos;s this, plus the {(d || 0).toLocaleString()} you have here.
-                    </p>
-                  )}
-                </div>
-              )}
-
               <p className="hint">
-                This number only ever goes up on its own. Starting over resets the
-                count at the top of this page; it has never once reset this one.
+                Your total sits under your day count on this page. It only ever
+                goes up on its own &mdash; starting over resets the count at the
+                top; it has never once reset the total.
               </p>
               {/* ⚠️ The publish switch stays gated on there BEING a total.
                   Offering to put a number on your page when the number is
