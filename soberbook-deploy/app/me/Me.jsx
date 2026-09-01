@@ -138,6 +138,26 @@ export default function Me({ email, profile, posts, initialAvatarUrl,
   /* ---- the lifetime total ---- */
   const [lifetime, setLifetime] = useState(profile.lifetime_days || 0);
   const [showLife, setShowLife] = useState(!!profile.show_lifetime);
+  /* 🔴 EDITING THE SECOND NUMBER — 1 Sept. Ty: "You should be able to change
+     the sober clock both ways, the top one and the bottom months. Otherwise
+     it just doesn't make sense."
+     He was right, and it was worse than not-editable: `lifetime_days` was
+     written in exactly ONE place — inside the started-over flow — and the
+     whole card was gated behind `lifetime > 0`, so somebody who arrived with
+     eight years already behind them and never relapsed here could not see it,
+     let alone set it. The database has granted UPDATE on this column the
+     whole time. Thirteenth time in this project that something was fully
+     built with no way in. */
+  const [lifeAsk, setLifeAsk] = useState('closed');
+  const [lyY, setLyY] = useState('');
+  const [lyM, setLyM] = useState('');
+  const [lyD, setLyD] = useState('');
+  /* ⚠️ Years/months/days, not a raw day count. Nobody knows their total in
+     days; everybody knows it in years. Months are 30 and years 365 — an
+     approximation, and deliberately so: this is somebody's own account of
+     their own life, not a figure the app is entitled to be precise about. */
+  const lifeEntered = Math.max(0, Math.min(40000,
+    (parseInt(lyY, 10) || 0) * 365 + (parseInt(lyM, 10) || 0) * 30 + (parseInt(lyD, 10) || 0)));
   /* 'no'  — nothing to ask
      'ask' — moved the date forward, we don't know why yet
      'run' — they said they started over; now naming the run's length */
@@ -1275,17 +1295,85 @@ export default function Me({ email, profile, posts, initialAvatarUrl,
               one that drifts and quietly loses somebody's days. */}
           {resetFlow}
 
-          {/* ---- the total ---- */}
-          {lifetime > 0 && (
+          {/* ---- the total ----
+              ⚠️ NO LONGER GATED ON `lifetime > 0`. That gate meant the only
+              people who could see this card were people who had relapsed on
+              Sober Book — so the person with eight clean years before they
+              arrived had nowhere to put them. Everyone sees it now. */}
+          {(
             <>
               <div className="total">
                 <span className="tn">{totalNow.toLocaleString()}</span>
                 <span className="tl">days total, all of it</span>
               </div>
-              <p className="hint">
-                This number only ever goes up. Starting over resets the count
-                at the top of this page; it has never once reset this one.
+              <p className="sincerow">
+                <button type="button" className="sincelink" disabled={busy}
+                        onClick={() => setLifeAsk(lifeAsk === 'open' ? 'closed' : 'open')}>
+                  {lifetime > 0 ? 'edit this number' : 'were you sober before you got here?'}
+                </button>
               </p>
+
+              {lifeAsk === 'open' && (
+                <div className="datecard">
+                  <p className="dc-h">Time you&apos;d already put together</p>
+                  <p className="dc-s">
+                    Before Sober Book. However you count it &mdash; nobody is
+                    checking, and nobody else sees it unless you switch it on.
+                  </p>
+                  <div className="liferow">
+                    {[['Years', lyY, setLyY, 99], ['Months', lyM, setLyM, 11], ['Days', lyD, setLyD, 364]]
+                      .map(([lab, val, set, max]) => (
+                      <label key={lab} className="lifefld">
+                        <span>{lab}</span>
+                        {/* ⚠️ inputMode numeric, not type=number — a spinner on a
+                            phone is a fiddly target and type=number lets people
+                            paste "e" and "-". */}
+                        <input inputMode="numeric" value={val} disabled={busy}
+                               aria-label={lab + ' you were already sober'}
+                               onChange={(e) => set(e.target.value.replace(/[^0-9]/g, '').slice(0, 4))} />
+                      </label>
+                    ))}
+                  </div>
+                  <div className="dc-row">
+                    <button className="btn" type="button"
+                            disabled={busy || lifeEntered === lifetime}
+                            onClick={() => {
+                              setLifetime(lifeEntered);
+                              save({ lifetime_days: lifeEntered },
+                                   lifeEntered > 0
+                                     ? 'Saved. ' + (lifeEntered + (d || 0)).toLocaleString() + ' days altogether.'
+                                     : 'Cleared.');
+                              setLifeAsk('closed');
+                            }}>
+                      {busy ? 'Saving…' : lifeEntered > 0
+                        ? 'Save — ' + lifeEntered.toLocaleString() + ' days'
+                        : 'Save'}
+                    </button>
+                    <button className="btn ghost" type="button" disabled={busy}
+                            onClick={() => setLifeAsk('closed')}>Cancel</button>
+                  </div>
+                  {/* ⚠️ Says the resulting number BEFORE they commit. The whole
+                      point of this card is that it is theirs; being surprised
+                      by what it becomes would undo that. */}
+                  {lifeEntered > 0 && (
+                    <p className="dc-s">
+                      Your total becomes <b>{(lifeEntered + (d || 0)).toLocaleString()}</b> &mdash;
+                      that&apos;s this, plus the {(d || 0).toLocaleString()} you have here.
+                    </p>
+                  )}
+                </div>
+              )}
+
+              <p className="hint">
+                This number only ever goes up on its own. Starting over resets the
+                count at the top of this page; it has never once reset this one.
+              </p>
+              {/* ⚠️ The publish switch stays gated on there BEING a total.
+                  Offering to put a number on your page when the number is
+                  zero is an empty control, and the hint underneath it talks
+                  about what the subtraction reveals — which reveals nothing
+                  at all when there is nothing to subtract. */}
+              {lifetime > 0 && (<>
               <button type="button"
                       className={'choice' + (showLife ? ' sel' : '')}
                       aria-pressed={showLife} disabled={busy}
@@ -1306,6 +1394,7 @@ export default function Me({ email, profile, posts, initialAvatarUrl,
                 started over once. That&apos;s yours to share, not ours &mdash; which
                 is why it&apos;s off until you say so.
               </p>
+              </>)}
             </>
           )}
 
