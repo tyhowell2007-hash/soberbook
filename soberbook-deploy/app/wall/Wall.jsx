@@ -223,11 +223,30 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
     await supabase.rpc('remove_my_tag', { p_post: postId });
   }
 
-  /* Loaded once, on mount. my_friends() is the identical call the friends
-     page makes — no new query was added for this. */
+  /* 🔴 THIS ONE LINE WAS THE WHOLE TAGGING BUG, 31 Aug.
+
+     It used to call my_friends(). That was right when friendship was how
+     this app worked — and then 0087 removed friend requests and made the
+     Front Room "everybody talks to each other", and this kept its own
+     private copy of who counts as reachable.
+
+     Measured before the fix: **86 of 126 members had zero friends, so @
+     opened an empty menu and tagged nobody.** Zero mentions had ever been
+     recorded in the app's entire life. Nothing was broken — the write
+     path (tag_friend → mentions_guard) never checked friendship at all,
+     and the database has had an explicit "friends land approved,
+     everyone else lands pending" branch since 0081. Only the list the
+     menu reads was stale.
+
+     ⭐ Same shape as 0046 → 0047 → 0049 and the 28 Aug renamed field: a
+     rule expressed in two places, and the second one drifted when the
+     first one changed. The variable is still called `friends` because
+     buildIndex and the menu don't care what the people are to you —
+     ⚠️ but each row now carries is_friend, which is what puts your
+     actual friends at the top and marks them. */
   useEffect(() => {
     let alive = true;
-    supabase.rpc('my_friends').then(({ data }) => { if (alive) setFriends(data || []); });
+    supabase.rpc('taggable_members').then(({ data }) => { if (alive) setFriends(data || []); });
     return () => { alive = false; };
   }, []);
 
@@ -276,6 +295,23 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
   }, [unmatched.join('|')]);
   const tagged = mentions.map((m) => m.handle);
 
+  /* ⭐ @highlight — one post, everybody hears it. Ty's call, 31 Aug, made
+     after being shown the argument for gating it to the owner: every
+     member gets this, three a day each.
+
+     ⚠️ IT IS A RESERVED WORD, NOT A MEMBER. There is no profile with the
+     handle "highlight", so findMentions correctly fails to match it and
+     it would otherwise land in `unmatched` and be reported as a typo —
+     "nobody here goes by that" — while actually working. Two true
+     sentences that together are a lie, which is the exact shape of the
+     mid-word bug already fixed below. So it is recognised here and
+     filtered out of the warning.
+
+     ⚠️ \b after the word, so "@highlighted" and "@highlightreel" are not
+     it. And no anonymous broadcast — the database refuses one too, but
+     asking is worse than not asking. */
+  const wantsHighlight = !anon && /(^|\s)@highlight\b/i.test(text);
+
   /* The Facebook menu — null most of the time, which is the point. */
   const q = anon ? null : activeQuery(text, caret);
 
@@ -288,7 +324,12 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
      So the @word being typed RIGHT NOW is excluded from the complaints.
      It isn't finished yet, and an unfinished word is not a mistake. */
   const inFlight = q ? (q.typed || '').toLowerCase() : null;
-  const shownUnmatched = unmatched.filter((u) => u.toLowerCase() !== inFlight);
+  /* ⚠️ 'highlight' filtered out as well as the word being typed. It is a
+     reserved word, not a member, so it can never match — and reporting
+     "nobody here goes by that" about the one thing that reaches everybody
+     is the worst possible wrong answer. */
+  const shownUnmatched = unmatched.filter(
+    (u) => u.toLowerCase() !== inFlight && u.toLowerCase() !== 'highlight');
   /* ---- the menu now offers everybody, not only friends (0082) ----
 
      ⭐ Ty: "it need to work like facebook tagging." Tagging used to be
@@ -762,6 +803,27 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
         const { refused } = await attachTags(supabase, postId, tagged);
         if (refused.length) {
           setPostErr(`Posted, but couldn’t tag ${refused.map((h) => '@' + h).join(', ')}.`);
+        }
+      }
+
+      /* ⭐ @highlight LAST, AND IT CANNOT LOSE THE POST EITHER.
+         Same reasoning as the tags above: by the time this runs the post
+         is saved. If the three-a-day cap refuses, the post stays and the
+         person is told why — losing what somebody wrote because they used
+         one word too many times today would be indefensible.
+
+         ⚠️ The refusal message comes from the DATABASE, not from a copy of
+         the rule here. highlight_post() raises with the number and the
+         window in it ("that's 3 in 24 hours"), so there is exactly one
+         place that knows what the limit is. A second copy in this file is
+         how it ends up saying 3 while the database enforces 5. */
+      if (wantsHighlight) {
+        const { data: reached, error: hErr } = await supabase
+          .rpc('highlight_post', { p_post_id: postId });
+        if (hErr) {
+          setPostErr(`Posted. ${hErr.message}`);
+        } else if (reached > 0) {
+          setPostErr(`Posted, and everybody was told — ${reached} members.`);
         }
       }
       setText('');
