@@ -138,3 +138,43 @@
    earlier tonight: find out which sheets the route actually loads
    BEFORE writing the rule, not after. And remember layouts nest — the
    root layout's imports count too (29 Aug). */
+
+/* =====================================================================
+   TAG REVIEW — "somebody tagged you, do you want that?"  31 Aug.
+
+   ⚠️ GOLD, NOT GREEN. Every other card on this page is a record of
+   something that happened; this one is a question waiting on you. The
+   gold is the same one the milestone chips use — the app's only
+   non-green colour, reserved for "this is about you specifically".
+   ⚠️ It is NOT red. Being tagged is not a warning.
+   ===================================================================== */
+.tagrev{
+  background:var(--gold-bg); border:1px solid var(--gold);
+  border-radius:12px; padding:15px 16px; margin:0 0 12px;
+}
+.tagrevh{
+  margin:0 0 5px; font-size:14.5px; font-weight:600; color:var(--gold-ink);
+}
+/* The post they tagged you in. ⚠️ One line, clipped — same rule as the
+   notification excerpt. You are deciding, not reading. */
+.tagrevq{
+  margin:0 0 10px; font-size:13px; line-height:1.55; color:var(--soft);
+  font-style:italic;
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+}
+.tagrevp{ margin:0 0 13px; font-size:13px; line-height:1.6; color:var(--x); }
+
+/* ⚠️ Equal widths, and that is a rule not a look — see TagReview.jsx.
+   A wide Allow beside a narrow decline is a nudge, and this is somebody's
+   name. */
+.tagrevbtns{ display:flex; gap:8px; }
+.tagrevbtn{
+  flex:1 1 0; min-height:44px; border-radius:9px;
+  font-size:13.5px; font-weight:600; cursor:pointer; padding:11px 0;
+}
+.tagrevbtn.go{ background:var(--gd); color:#fff; border:0; }
+.tagrevbtn.ghost{
+  background:transparent; color:var(--gm-t); border:1px solid var(--gm);
+  font-weight:500;
+}
+.tagrevbtn:disabled{ opacity:.6; cursor:default; }
