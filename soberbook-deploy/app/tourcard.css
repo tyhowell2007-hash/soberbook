@@ -1,0 +1,42 @@
+/* =====================================================================
+   THE WALKTHROUGH CARD — its own file, and that is the whole point.
+
+   🔴 These rules were appended to wall.css first, which took it to
+   72.7 KB. On 23 Aug wall.css failed THREE CONSECUTIVE UPLOADS at
+   71 KB — GitHub's folder-drag appears to give up on the largest file
+   in a batch, silently: the commit lands, the build goes green, and
+   the one file you needed is simply the old version. That was fixed by
+   moving styles OUT (dropsheet.css). Adding to it again would have been
+   walking into a documented trap on purpose.
+
+   ⚠️ Imported by app/wall/layout.jsx. A stylesheet nothing imports is
+   the silent-failure shape this app has hit twice.
+   ===================================================================== */
+.tourcard {
+  margin: 0 0 14px;
+  padding: 15px 17px;
+  background: #fff;
+  border: 2px solid var(--gt, #2b5c3f);
+  border-radius: 14px;
+}
+.tcH { margin: 0; font-size: 16px; font-weight: 600; color: var(--gd, #1d3b2a); }
+.tcP { margin: 6px 0 0; font-size: 14px; line-height: 1.55; color: var(--soft, #5f7a6a); }
+
+/* ⚠️ Both buttons the SAME width and the same height. The 0098 rule:
+   when one option is a bigger target than the other, the layout has
+   made the choice for the person. "Not now" is a real answer here. */
+.tcRow { display: flex; gap: 10px; margin: 13px 0 0; }
+.tcGo, .tcNo {
+  flex: 1 1 0;
+  min-height: 46px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  font: inherit;
+  font-size: 15px;
+  text-decoration: none;
+  cursor: pointer;
+}
+.tcGo { background: var(--gt, #2b5c3f); color: #fff; border: 2px solid var(--gt, #2b5c3f); }
+.tcNo { background: #fff; color: var(--soft, #5f7a6a); border: 2px solid #cfdcd4; }

@@ -1127,6 +1127,21 @@ export default function Me({ email, profile, posts, initialAvatarUrl,
                 good option first. */}
             <EmailSwitch />
 
+            {/* ⭐ THE WALKTHROUGH, PERMANENTLY. The card on the wall is
+                shown once and then gone forever — which is right for a
+                card and wrong as the only way to reach a fourteen-minute
+                explanation of the app. Somebody who tapped "Not now" in
+                April and is stuck in June needs it to still be findable.
+
+                ⚠️ Here, at the bottom, above sign-out: this is where a
+                person goes when they are looking for the thing they
+                can't find. It is not in the nav, because six tabs is the
+                ceiling for that bar and it is written down in wall.css. */}
+            <Link href="/tour" className="mtour">
+              <span className="mtT">📺 How all this works</span>
+              <span className="mtD">A 14-minute walkthrough of the whole app.</span>
+            </Link>
+
             <div className="meout">
               <button className={'btn out' + (confirmOut ? ' arm' : '')} type="button"
                       disabled={busy} onClick={signOut}>

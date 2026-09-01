@@ -17,6 +17,7 @@ import ContentCard from '../components/ContentCard';
 import DropCard from '../components/DropCard';
 import DropSheet from './DropSheet';
 import PushAsk from '../components/PushAsk';
+import TourCard from '../components/TourCard';
 import Pledge from '../components/Pledge';
 
 function ago(iso) {
@@ -1284,6 +1285,18 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
           Only ever rendered when push_ask_due() came back true, which is
           once, on a first post. */}
       {askPush && <PushAsk onDone={() => setAskPush(false)} />}
+
+      {/* ⭐ THE WALKTHROUGH CARD. Above the wall, below the composer.
+          It decides for itself whether to render — it asks the server
+          on mount and returns null unless the answer is a definite yes,
+          so there is no state here to keep in step with it and no way
+          for this file to show it to somebody who already said no.
+
+          ⚠️ It sits ABOVE the posts on purpose. 106 of 146 members have
+          never posted or replied; they are here for about four seconds
+          and never scroll. Below the fold is the same as not existing
+          for exactly the people this is for. */}
+      <TourCard />
 
       <div className="wall">
         {posts.length === 0 && (

@@ -37,6 +37,11 @@ import '../pledge.css';
 /* The ⋯ on a reply. Only the wall opens a thread, so only this layout
    needs it. ⚠️ Its own file rather than wall.css — see the note at its head. */
 import '../replymenu.css';
+/* The walkthrough card at the top of Home. ⚠️ Its own small file for the
+   same reason as the four above — appending it to wall.css took that file
+   to 72.7KB, past the size where it has already failed three uploads in a
+   row. See the note at its head. */
+import '../tourcard.css';
 import NavBar from '../components/NavBar';
 
 export default function WallLayout({ children }) {

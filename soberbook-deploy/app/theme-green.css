@@ -1135,3 +1135,16 @@ body{
 .lifefld input:focus{
   outline:none; border-color:var(--gd); box-shadow:0 0 0 3px var(--gl);
 }
+
+/* The walkthrough link at the bottom of /me (0108). Quiet on purpose —
+   it sits between the notification switches and sign-out, and it is a
+   signpost, not an offer. */
+.mtour {
+  display: block;
+  margin: 18px 0 0;
+  padding: 14px 0 0;
+  border-top: 1px solid var(--line, #e4ebe7);
+  text-decoration: none;
+}
+.mtT { display: block; font-size: 15px; color: var(--gt, #2b5c3f); text-decoration: underline; }
+.mtD { display: block; margin-top: 4px; font-size: 13px; color: var(--soft, #8fa99a); }
