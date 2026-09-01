@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation';
 import { serverClient, assertReadable } from '../../lib/supabase-server';
 import MarkSeen from './MarkSeen';
 import Rows from './Rows';
+import TagReview from './TagReview';
 
 export const dynamic = 'force-dynamic';
 
@@ -77,6 +78,18 @@ export default async function NotificationsPage() {
     askPush = due === true;
   } catch { /* no card is the safe failure — never a broken one */ }
 
+  /* ⭐ TAGS AWAITING YOUR YES. Fetched here rather than folded into
+     my_notifications, and that is deliberate: a pending tag is not a
+     notification, it is a QUESTION. It has no read_at, MarkSeen must
+     never clear it, and it should stay on the screen until answered.
+     Putting it in the notifications table would mean four separate rules
+     saying "except this kind". */
+  let pendingTags = [];
+  try {
+    const { data } = await supabase.rpc('my_pending_tags');
+    pendingTags = data || [];
+  } catch { /* the rest of the page is still worth showing */ }
+
   return (
     <>
       <div className="mast">
@@ -92,6 +105,10 @@ export default async function NotificationsPage() {
       <MarkSeen />
 
       <div className="pad ntfwrap">
+        {/* ⚠️ ABOVE the list. A question you have to answer outranks a
+            record of things that already happened — and unlike the rows
+            below, this one doesn't go away by being looked at. */}
+        <TagReview initial={pendingTags} />
         <Rows initial={rows || []} askPush={askPush} />
       </div>
     </>
