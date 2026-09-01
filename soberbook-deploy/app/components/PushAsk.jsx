@@ -77,6 +77,28 @@ export default function PushAsk({ onDone, intro = 'That’s up there now.' }) {
     setState('no');
   }
 
+  /* 🔴 DISMISS WITHOUT SPENDING — and this fixes a bug I shipped an hour
+     ago, 31 Aug.
+
+     On an iPhone that isn't on the home screen yet, this card can't ask
+     for anything: Apple only delivers web push to an installed PWA. So
+     it shows the instructions instead — Share, then Add to Home Screen.
+
+     ⚠️ Its button used to call notNow(), which calls push_ask_done().
+     So the message telling somebody "you have to install it first" was
+     ALSO the message that burned their one ask, permanently. They do the
+     ten-second fix, come back inside the installed app where push finally
+     works — and are never asked again, because as far as the database is
+     concerned they already answered.
+
+     ⭐ Exactly backwards. Being told a prerequisite is not answering the
+     question. This dismisses the card for THIS view only; nothing is
+     written, so the ask survives until it can actually be made. */
+  function dismissWithoutSpending() {
+    setState('no');
+    if (onDone) onDone();
+  }
+
   /* ⚠️ Checked at render, not on mount. If the device can't do push at
      all there is nothing to ask for, and a card offering something
      impossible is worse than no card — it's the app promising a thing it
@@ -89,7 +111,9 @@ export default function PushAsk({ onDone, intro = 'That’s up there now.' }) {
       <div className="pask">
         <p className="paskh">{intro}</p>
         <p className="paskp">{unsupportedWhy}</p>
-        <button type="button" className="paskbtn ghost" onClick={notNow}>Got it</button>
+        {/* ⚠️ dismissWithoutSpending, NEVER notNow. See above — this
+            branch is a prerequisite, not a question. */}
+        <button type="button" className="paskbtn ghost" onClick={dismissWithoutSpending}>Got it</button>
       </div>
     );
   }
