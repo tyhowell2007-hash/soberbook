@@ -79,6 +79,27 @@ const BUCKETS = [
      being complete, and an incomplete answer doesn't look like an error —
      it looks like a long list of files to clean up. */
   { bucket: 'drops',       prefix: 'drops',   grace: GRACE_HOURS },
+  /* 🔴 THE ROOM'S PICTURES (0093/0095), AND THIS LINE WAS MISSING FOR A
+     DAY. Photos shipped into The Front Room with the bucket absent from
+     this list, so nothing ever cleaned up after them.
+
+     ⚠️ The failure was the SAFE direction — an unlisted bucket is never
+     touched, so no member's picture was ever at risk — but it leaked
+     permanently. Two things orphan a room photo: a delete whose file
+     removal failed, and a picture added to the composer tray and then
+     taken off before sending. Both were designed on the assumption that
+     the sweeper would tidy up.
+
+     ⭐ Worse than the leak: the comment in Room.jsx's unstage() SAID the
+     sweeper would handle it. A comment asserting a safety net that does
+     not exist is more dangerous than no comment, because the next person
+     reads it and stops checking.
+
+     ⚠️ Safe to add because referenced_media() has known about
+     room_messages.photo_urls since 0093 — which is the ordering the note
+     above demands, and it was done in that order. Verified: both paths of
+     a two-photo message come back from referenced_media(). */
+  { bucket: 'room-photos', prefix: 'rooms',   grace: GRACE_HOURS },
 ];
 
 /* Supabase's list() is paginated and folder-scoped. It also returns a
