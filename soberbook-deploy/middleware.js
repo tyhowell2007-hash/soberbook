@@ -126,7 +126,21 @@ export async function middleware(request) {
      middleware was only ever breaking it. See the route's own header for
      the full argument, including the line that matters: if it ever gains a
      side effect that isn't idempotent, it needs real auth that day. */
-  const open = ['/login', '/auth', '/reset', '/privacy', '/api/push/send', '/api/content/cron'];
+  /* ⚠️ TWO ADDED 31 AUG, BOTH FOR THE REASON THE PARAGRAPH ABOVE SPELLS OUT.
+       /api/email/notify — poked by pg_cron through pg_net every five
+         minutes. No browser, no cookies. Without this line it would
+         redirect to /login forever and no email would ever be sent, with
+         nothing in any log saying so. It carries its own shared secret
+         (x-email-secret) and refuses without it, so this opens nothing.
+       /unsub — the one-tap off switch in every notification email. 🔴 It
+         MUST work for somebody who is not signed in; that is its entire
+         purpose. The person most likely to want out is the person who
+         does not want to open this app on the machine they are sitting
+         at, and making them log in to leave would be its own small
+         cruelty. Protected by an unguessable token that can only ever
+         turn things OFF. */
+  const open = ['/login', '/auth', '/reset', '/privacy', '/api/push/send', '/api/content/cron',
+                '/api/email/notify', '/unsub'];
   const isOpen = open.some((p) => request.nextUrl.pathname.startsWith(p));
 
   /* 🔴 A STRANGER AT THE FRONT DOOR GETS THE PITCH, NOT A PASSWORD BOX.
