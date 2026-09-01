@@ -13,6 +13,7 @@ import PhotoUpload from '../components/PhotoUpload';
 import DeleteAccount from './DeleteAccount';
 import Blocked from './Blocked';
 import PushSwitch from '../components/PushSwitch';
+import EmailSwitch from '../components/EmailSwitch';
 
 /* The faces you can pick from.
 
@@ -999,6 +1000,10 @@ export default function Me({ email, profile, posts, initialAvatarUrl,
                 last — this is a thing you decide about your phone, not
                 about your account. */}
             <PushSwitch />
+            {/* ⚠️ UNDER push, not above it. Push is the better experience when
+                it works; email is the one that works for everybody. Meet the
+                good option first. */}
+            <EmailSwitch />
 
             <div className="meout">
               <button className={'btn out' + (confirmOut ? ' arm' : '')} type="button"
