@@ -1,0 +1,274 @@
+/* =====================================================================
+   ONE MORE DAY — the daily pledge.  1 Sept.
+
+   Imported by app/wall/layout.jsx (the Home card) and app/me/layout.jsx
+   (the record above your song). Nothing else renders it.
+
+   ⚠️ ITS OWN FILE, NOT A BLOCK BOLTED ONTO wall.css. That file is 71KB
+   and on 23 Aug it silently failed to upload three deploys running —
+   GitHub's folder drag appears to give up on the largest file in a
+   directory. The fix that finally worked was moving the new rules OUT
+   into a small file (app/dropsheet.css) rather than retrying. Same shape
+   here: 3KB lands first time, every time.
+
+   ⚠️ EVERY CLASS IS PREFIXED (.pl- and .plr-) AND THAT WAS CHECKED, NOT
+   ASSUMED — all 26 names were grepped against all 12 stylesheets before
+   a line of this was written, with a control (.composer, which hits 11
+   files) to prove the check could fire. The `.composer` collision on
+   16 Aug and the `.sheetwrap` one after it both came from skipping
+   exactly this.
+
+   ⚠️ COLOURS ARE FROM theme-green.css AND ARE NOT INVENTED HERE. In
+   particular --gm is a DECORATION variable: 4.22:1 on white, a contrast
+   fail, so it appears below only as a border or a fill and never as
+   text. Text on green uses --gm-t or --gt.
+   ===================================================================== */
+
+/* ---------------------------------------------------------------------
+   THE ASK — what you see before you've said it.
+   --------------------------------------------------------------------- */
+.pl {
+  background: var(--paper2);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 1.1rem 1.15rem 1.2rem;
+  margin: 0 0 0.9rem;
+}
+
+/* ⭐ The one strong mark on the card: a green edge down the left, the
+   same device the reply previews use. It says "this is yours" without
+   needing a heading that shouts. */
+.pl-ask { border-left: 4px solid var(--gd); }
+
+.pl-day {
+  margin: 0 0 0.15rem;
+  font-family: 'Courier Prime', ui-monospace, monospace;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--soft);
+}
+
+.pl-head {
+  margin: 0 0 0.35rem;
+  font-family: 'Anton', system-ui, sans-serif;
+  /* ⚠️ clamp, not a fixed size. This is the biggest type on the Home
+     screen and a 375px phone is the narrowest thing it has to fit on;
+     a hardcoded size is the layout bug that has bitten this project
+     four days running. */
+  font-size: clamp(26px, 8vw, 34px);
+  line-height: 1.05;
+  letter-spacing: 0.01em;
+  color: var(--gt);
+  text-transform: uppercase;
+}
+
+.pl-sub {
+  margin: 0 0 0.7rem;
+  font-size: 14px;
+  line-height: 1.45;
+  color: var(--soft);
+}
+
+.pl-in {
+  width: 100%;
+  box-sizing: border-box;
+  /* ⚠️ 16px MINIMUM. iOS Safari zooms the whole page in when you focus
+     an input under 16px, and it does not zoom back out — the member is
+     left on a page that no longer fits their screen. */
+  font-size: 16px;
+  font-family: inherit;
+  color: var(--body);
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 0.75rem 0.85rem;
+  margin: 0 0 0.7rem;
+}
+.pl-in:focus {
+  outline: none;
+  border-color: var(--gd);
+  box-shadow: 0 0 0 3px var(--gl);
+}
+.pl-in::placeholder { color: var(--soft); opacity: 0.75; }
+
+.pl-go {
+  width: 100%;
+  /* 🔴 44px FLOOR. This is the whole action of the feature and on
+     18 Aug the two controls people actually use were found at ~20px.
+     A tap target you have to aim at is a tap target that gets skipped. */
+  min-height: 46px;
+  font-size: 16px;
+  font-weight: 700;
+  font-family: inherit;
+  color: #fff;
+  background: var(--gd);
+  border: 0;
+  border-radius: 10px;
+  cursor: pointer;
+}
+.pl-go:disabled { opacity: 0.55; cursor: default; }
+
+.pl-priv {
+  margin: 0.6rem 0 0;
+  font-size: 12.5px;
+  line-height: 1.4;
+  color: var(--soft);
+  text-align: center;
+}
+
+/* ---------------------------------------------------------------------
+   THE RECORD — what replaces it for the rest of the day.
+   --------------------------------------------------------------------- */
+.pl-done {
+  border-left: 4px solid var(--gm);
+  background: var(--gl);
+  border-color: var(--gm);
+  text-align: center;
+}
+.pl-done .pl-day { color: var(--gm-t); }
+
+.pl-streak {
+  margin: 0.1rem 0 0;
+  font-family: 'Anton', system-ui, sans-serif;
+  font-size: clamp(34px, 12vw, 52px);
+  line-height: 1;
+  color: var(--gt);
+}
+
+/* 🔴 DAY 1 AFTER A GAP GETS A SENTENCE, NOT A SMALLER NUMBER. It is set
+   in the same green as everything else and is not apologetic type. */
+.pl-again {
+  margin: 0.3rem 0 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--gm-t);
+}
+
+.pl-life {
+  margin: 0.25rem 0 0;
+  font-size: 13.5px;
+  color: var(--gm-t);
+}
+
+.pl-why {
+  margin: 0.85rem 0 0;
+  font-size: 15px;
+  line-height: 1.5;
+  font-style: italic;
+  color: var(--gt);
+  /* ⚠️ break-word: people paste a whole paragraph in here and a long
+     unbroken string would otherwise widen the card off the screen. */
+  overflow-wrap: anywhere;
+}
+
+.pl-rev {
+  margin: 0.9rem 0 0;
+  min-height: 44px;
+  padding: 0 1rem;
+  font-size: 14.5px;
+  font-family: inherit;
+  font-weight: 600;
+  color: var(--gm-t);
+  background: transparent;
+  border: 1px solid var(--gm);
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.pl-revbox { margin: 0.9rem 0 0; }
+.pl-revbox .pl-in { background: var(--paper2); text-align: left; }
+
+.pl-felts {
+  display: flex;
+  gap: 0.5rem;
+}
+/* ⚠️ THE THREE ANSWERS ARE THE SAME SIZE AND THE SAME COLOUR. "Hard" is
+   not smaller, greyer or last-resort styled. The moment one of them
+   looks like the wrong answer, the honest one stops getting tapped —
+   the same reasoning that made both buttons on the push card equal. */
+.pl-felt {
+  flex: 1;
+  min-height: 44px;
+  font-size: 15px;
+  font-family: inherit;
+  font-weight: 600;
+  color: var(--gt);
+  background: var(--paper2);
+  border: 1px solid var(--gm);
+  border-radius: 10px;
+  cursor: pointer;
+}
+.pl-felt:disabled { opacity: 0.55; cursor: default; }
+
+.pl-done-rev {
+  margin: 0.8rem 0 0;
+  font-size: 13px;
+  color: var(--gm-t);
+}
+
+/* ⭐ The only social surface the feature has, and it is one integer. */
+.pl-count {
+  margin: 0.9rem 0 0;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--gm);
+  font-size: 13.5px;
+  color: var(--gm-t);
+}
+
+/* ---------------------------------------------------------------------
+   THE RECORD ON /me — above your song. Quieter than the Home card: this
+   one is a fact about you, not a thing to do.
+   --------------------------------------------------------------------- */
+.plr {
+  margin: 1.4rem 0;
+  padding: 1rem 1.1rem 1.1rem;
+  background: var(--gl);
+  border: 1px solid var(--gm);
+  border-radius: 14px;
+  text-align: center;
+}
+
+.plr-lbl {
+  margin: 0;
+  font-family: 'Courier Prime', ui-monospace, monospace;
+  font-size: 11.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--gm-t);
+}
+
+.plr-n {
+  margin: 0.25rem 0 0;
+  font-family: 'Anton', system-ui, sans-serif;
+  font-size: clamp(38px, 13vw, 56px);
+  line-height: 1;
+  color: var(--gt);
+}
+
+.plr-sub {
+  margin: 0.1rem 0 0;
+  font-size: 13.5px;
+  color: var(--gm-t);
+}
+
+.plr-life {
+  margin: 0.5rem 0 0;
+  font-size: 13.5px;
+  color: var(--gm-t);
+}
+
+.plr-why {
+  margin: 0.8rem 0 0;
+  font-size: 14.5px;
+  line-height: 1.5;
+  font-style: italic;
+  color: var(--gt);
+  overflow-wrap: anywhere;
+}
+
+.plr-priv {
+  margin: 0.7rem 0 0;
+  font-size: 12px;
+  color: var(--gm-t);
+}

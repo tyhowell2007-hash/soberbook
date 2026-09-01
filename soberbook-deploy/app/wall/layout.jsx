@@ -30,6 +30,10 @@ import '../photos.css';
    wall.css — that file is 71KB and silently failed to upload three deploys
    running on Aug 23. Small files land. */
 import '../adcard.css';
+/* One more day — the pledge card at the top of Home. Also imported by
+   app/me/layout.jsx, which renders the record above your song. ⚠️ Its own
+   small file rather than a block in wall.css: see the note at its head. */
+import '../pledge.css';
 import NavBar from '../components/NavBar';
 
 export default function WallLayout({ children }) {

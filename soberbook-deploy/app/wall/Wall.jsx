@@ -17,6 +17,7 @@ import ContentCard from '../components/ContentCard';
 import DropCard from '../components/DropCard';
 import DropSheet from './DropSheet';
 import PushAsk from '../components/PushAsk';
+import Pledge from '../components/Pledge';
 
 function ago(iso) {
   const mins = Math.floor((Date.now() - new Date(iso).getTime()) / 60000);
@@ -933,6 +934,20 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
           </div>
         </div>
       )}
+
+      {/* ---- ONE MORE DAY ----
+          ⚠️ ABOVE THE COMPOSER, AND THE ORDER IS THE POINT. The pledge is
+          the cheapest thing anybody can do here: one tap, one line, and
+          nobody reads it. 11 of 18 members had never posted when this was
+          designed — a Wall post is a small performance and a pledge is
+          not. So the easiest thing on the screen sits above the hardest
+          one, and somebody who only ever does the easy thing still opened
+          the app and still counted.
+
+          ⚠️ It renders nothing at all once you've answered tomorrow's
+          version of it — see Pledge.jsx. A card that stays after it's
+          done is just furniture between you and the room. */}
+      <Pledge />
 
       {/* ---- THE COMPOSER, MOVED TO THE TOP ----
           It used to sit under the wall. Two reasons it belongs here:
