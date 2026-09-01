@@ -40,7 +40,15 @@ import { enablePush, pushSupport } from '../../lib/push';
    sentence somebody said yes to.
    ===================================================================== */
 
-export default function PushAsk({ onDone }) {
+/* ⚠️ `intro` IS A PROP AND NOT A SECOND COMPONENT.
+   31 Aug: this card now renders in two places — after a first post on
+   the wall, and on the bell when somebody has actually been answered.
+   Only the opening line differs ("That's up there now." is nonsense on
+   the bell). Forking the file would give us two copies of the soft-ask
+   rules, and this codebase has three separate scars from a rule being
+   restated somewhere else and drifting (0046 → 0047 → 0049). One
+   component, one sentence swapped. */
+export default function PushAsk({ onDone, intro = 'That’s up there now.' }) {
   const [state, setState] = useState('ask');   // ask | busy | on | blocked | unsupported | no
   const [why, setWhy] = useState('');
 
@@ -79,7 +87,7 @@ export default function PushAsk({ onDone }) {
   if (state === 'ask' && !supported) {
     return (
       <div className="pask">
-        <p className="paskh">That’s up there now.</p>
+        <p className="paskh">{intro}</p>
         <p className="paskp">{unsupportedWhy}</p>
         <button type="button" className="paskbtn ghost" onClick={notNow}>Got it</button>
       </div>
