@@ -76,8 +76,17 @@ export const SECOND = ['Road','Creek','Hill','Lane','Field','Porch','Bridge','Ga
    loses that. Everything else illegal is dropped. */
 export function cleanHandle(raw) {
   return String(raw || '')
+    /* ⚠️ TRIM FIRST. Without this, a value arriving with surrounding
+       whitespace — which is exactly what browser autofill hands you —
+       turns "  Kenny  " into "_Kenny_". Legal, so nothing errors, and
+       the person is simply stuck with underscores round their name
+       forever. Interior spaces still become underscores on purpose:
+       somebody typing "Mary Jane" means two words. */
+    .trim()
     .replace(/\s+/g, '_')
     .replace(/[^A-Za-z0-9_]/g, '')
+    /* and never leave a leading/trailing underscore behind */
+    .replace(/^_+|_+$/g, '')
     .slice(0, 20);
 }
 
