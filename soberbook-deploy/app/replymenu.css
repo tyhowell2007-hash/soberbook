@@ -82,5 +82,24 @@
    a bigger z-index, which is what left the Cancel button dead on the
    member sheet on 30 Aug. The portal is the fix; this number only settles
    the order once both are siblings on <body>.
-   --------------------------------------------------------------------- */
-.sheetwrap.rplmenu { z-index: 80; }
+
+   🔴🔴 AND I GOT THAT NUMBER WRONG THE FIRST TIME, LIVE. I shipped this
+   at 80 — picked out of the air — while `.sheetwrap` in wall.css is
+   **z-index 200**, the highest value in the whole app. Both sheets are
+   siblings on <body>, so the open thread painted straight over the menu:
+   the Delete row was covered by `.replybar` and the ✕ by `.rdots`. The
+   menu was there, drawn, and completely untappable.
+
+   ⭐ THE LESSON, AND IT IS NOT THE 30 AUG ONE: a portal puts you in the
+   right stacking context, it does NOT tell you what is already standing
+   there. The portal was necessary and not sufficient. **Read the
+   z-index of the thing you have to beat; never guess it.**
+
+   ⚠️ It was invisible in a screenshot — the sheet renders perfectly, it
+   just cannot be clicked. Found only by measuring each row's centre with
+   `document.elementFromPoint()` and asking whether the hit actually
+   lands on the button. That is the same probe that caught the dead
+   Cancel button, and it is the only check that catches this class of bug.
+
+   210, because it must beat 200 and nothing else in the app goes higher. */
+.sheetwrap.rplmenu { z-index: 210; }
