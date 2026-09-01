@@ -83,8 +83,42 @@ export default function RootLayout({ children }) {
              They're declared here with the rest because this is one CSS
              request either way — a browser only downloads the woff2 for a
              family a page actually uses, so the grunge pages don't pay for
-             the serif and the warm door doesn't pay for Anton. */
-          href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo:wght@400;500;600;700&family=Courier+Prime:wght@400;700&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400&family=Permanent+Marker&family=Space+Grotesk:wght@400;500;700&display=swap"
+             the serif and the warm door doesn't pay for Anton.
+
+             ---------------------------------------------------------------
+             ⭐ ARCHIVO IS DELIBERATELY ABSENT — 31 Aug, Ty's call after we
+             looked at what Facebook actually does.
+
+             Facebook uses THREE typefaces, and two of them are proprietary
+             (Facebook Sans for the wordmark, Optimistic for the wider Meta
+             brand — both Dalton Maag, neither available). The third is the
+             one that matters: **the entire feed is set in the reader's own
+             system font.** San Francisco on iPhone, Roboto on Android,
+             Segoe UI on Windows. That is why it reads as an app rather than
+             a website on a phone.
+
+             ⭐ THE FIX EDITED NO CSS AT ALL, AND THAT IS WORTH NOTICING.
+             Archivo is declared in 50+ places across theme-green.css,
+             wall.css and globals.css — and every single one was written as
+             `'Archivo', system-ui, sans-serif`. Because the fallback chain
+             was correct from the day it was typed, deleting the family from
+             THIS URL makes all fifty rules resolve to the device font on
+             their own. **A well-written fallback is a switch you didn't know
+             you'd installed.**
+
+             ⚠️ It is all-or-nothing: Archivo carried buttons and labels as
+             well as body copy, so those move too. That is still what
+             Facebook does, but it is wider than "body text".
+
+             ⚠️ Anton, Courier Prime, Fraunces, Permanent Marker and Space
+             Grotesk all stay. The character of this app lives in the Anton
+             masthead and the Courier Prime timestamps, not in Archivo — and
+             looking like Facebook is the opposite of the thing that makes
+             somebody show it to a friend.
+
+             🔴 REVERTING IS PUTTING THE FAMILY BACK IN THIS ONE LINE.
+             Nothing else has to change. */
+          href="https://fonts.googleapis.com/css2?family=Anton&family=Courier+Prime:wght@400;700&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400&family=Permanent+Marker&family=Space+Grotesk:wght@400;500;700&display=swap"
           rel="stylesheet"
         />
       </head>
