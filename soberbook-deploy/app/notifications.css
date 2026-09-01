@@ -17,15 +17,66 @@
   max-width:44ch; margin:26px 2px;
 }
 
+/* ⚠️ 31 Aug: THE ROW SPLIT IN TWO, AND THE BORDER MOVED UP A LEVEL.
+
+   A row is now a link PLUS a dismiss button. The ✕ cannot live inside
+   the <a> — an anchor wrapping a button is invalid HTML, and a tap near
+   its edge would navigate instead of dismissing, on the one control
+   whose entire job is to make something go away.
+
+   So .ntfitem is the row (border, unread wash, the two children side by
+   side) and .ntfrow is just the tappable part. Everything that used to
+   be on .ntfrow and describes THE ROW — the separator, .fresh — had to
+   move with it, or the wash would only paint under the link and stop
+   dead where the ✕ starts. */
+.ntfitem{
+  display:flex; align-items:stretch; gap:2px;
+  border-bottom:1px solid var(--line);
+}
+.ntfitem:last-of-type{ border-bottom:0; }
+
 .ntfrow{
   display:flex; gap:11px; align-items:flex-start;
-  padding:13px 10px; border-bottom:1px solid var(--line);
+  padding:13px 10px;
   text-decoration:none; color:inherit;
   /* ⚠️ 44px floor. Half these rows are links to a conversation and this
      is a page people open on a phone, one-handed, first thing. */
   min-height:44px;
+  /* min-width:0 or a long line refuses to shrink and shoves the ✕ off
+     the right edge of the phone instead of ellipsing. */
+  flex:1 1 auto; min-width:0;
 }
-.ntfrow:last-of-type{ border-bottom:0; }
+
+/* 🔴 ALWAYS VISIBLE, NOT HIDDEN BEHIND AN EDIT MODE. Facebook buries its
+   per-item control under a ⋯. This app has eleven separate entries in the
+   log where something was built and the way in was buried — log out,
+   delete-your-post, "Say hi", this page itself. A quiet grey ✕ costs a
+   little tidiness and cannot become the twelfth.
+
+   ⚠️ 44×44 and grey, deliberately. --soft is 4.87:1 on paper so it is
+   legible; it is not --gm, which measures 4.22 and fails (see the note
+   in theme-green.css). Quiet is a colour choice, not a contrast one. */
+.ntfx{
+  flex:0 0 44px; width:44px; align-self:center;
+  height:44px; padding:0; margin:0;
+  border:0; background:transparent; cursor:pointer;
+  color:var(--soft); font-size:15px; line-height:1;
+  border-radius:10px;
+}
+.ntfx:hover{ background:rgba(0,0,0,.05); color:var(--x); }
+.ntfx:active{ background:rgba(0,0,0,.09); }
+
+/* The broom. ⚠️ Only drawn when it has work to do — see Rows.jsx. A
+   control that does nothing when tapped is worse than an absent one. */
+.ntfclearwrap{ text-align:center; padding:16px 0 2px; }
+.ntfclear{
+  background:transparent; border:1px solid var(--line);
+  color:var(--soft); border-radius:10px;
+  padding:11px 18px; font-size:13px; cursor:pointer;
+  min-height:44px;
+}
+.ntfclear:hover:not(:disabled){ border-color:var(--gm); color:var(--gm-t); }
+.ntfclear:disabled{ opacity:.55; cursor:default; }
 
 /* 🔴 UNREAD IS A FILL, NOT A DOT ON THE LEFT.
 
@@ -38,7 +89,10 @@
    ⚠️ --acid (#E8F4ED) against --paper (#F7FAF8) is a deliberate 1.06
    difference — it is not trying to be a border, it is trying to be a
    group. The BORDER is what separates rows, and it already measures. */
-.ntfrow.fresh{
+/* ⚠️ .ntfitem, NOT .ntfrow — 31 Aug. If this stayed on the link the wash
+   would paint under the words and stop dead where the ✕ begins, which
+   reads as a rendering fault rather than a group. */
+.ntfitem.fresh{
   background:var(--acid);
   border-radius:10px;
   border-bottom-color:transparent;
@@ -49,7 +103,7 @@
   background:var(--acid); display:flex; align-items:center;
   justify-content:center; font-size:15px;
 }
-.ntfrow.fresh .ntfav{ background:#fff; }
+.ntfitem.fresh .ntfav{ background:#fff; }
 
 .ntfmid{ display:flex; flex-direction:column; gap:2px; min-width:0; }
 .ntfline{ font-size:14px; line-height:1.5; color:var(--x); }

@@ -2,11 +2,12 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { serverClient, assertReadable } from '../../lib/supabase-server';
 import MarkSeen from './MarkSeen';
+import Rows from './Rows';
 
 export const dynamic = 'force-dynamic';
 
 /* =====================================================================
-   WHAT YOU MISSED.  Aug 30.
+   WHAT YOU MISSED.  Aug 30, extended 31 Aug.
 
    ⭐ THE ELEVENTH "EVERYTHING BUILT EXCEPT THE WAY IN", AND THE ONE THAT
    EXPLAINS THE QUIET.
@@ -18,9 +19,6 @@ export const dynamic = 'force-dynamic';
    visible only if you were already in the app, and gone the moment you
    tapped.
 
-   Measured tonight: 20 notifications fired in 24 hours to 14 people;
-   eleven members had a reply to a post. Almost none of them know.
-
    ---------------------------------------------------------------------
    ⚠️ EVERYTHING HERE COMES FROM `my_notifications` AND NOTHING ELSE.
 
@@ -31,21 +29,21 @@ export const dynamic = 'force-dynamic';
    actor was anonymous, NULL handle, the post excerpt for replies, and a
    filter for suspended accounts. There is nothing to re-derive here, and
    re-deriving it is how the two copies drift apart.
-   ===================================================================== */
 
-/* ⚠️ WHOLE DAYS, NEVER CLOCK TIMES. Same rule as the friends list: "2:14
-   AM" published on a page somebody else can see over your shoulder tells
-   a story about your night that a day count doesn't. Also honest — we
-   don't know their timezone. */
-function whenWord(iso) {
-  const then = new Date(iso);
-  const days = Math.floor((Date.now() - then.getTime()) / 86400000);
-  if (days <= 0) return 'today';
-  if (days === 1) return 'yesterday';
-  if (days < 7) return `${days} days ago`;
-  if (days < 14) return 'last week';
-  return `${Math.floor(days / 7)} weeks ago`;
-}
+   ⚠️ THE SAME RULE IS WHY DISMISSING GOES THROUGH A FUNCTION. Members
+   have no DELETE on `notifications` either, and handing one out would
+   mean handing out a WHERE clause — and a WHERE clause is a read.
+   notification_dismiss() and notifications_clear_seen() (0099) scope
+   themselves to current_uid(), so there is no id a caller can pass that
+   touches somebody else's row.
+
+   ---------------------------------------------------------------------
+   ⭐ THE LIST ITSELF NOW LIVES IN Rows.jsx, A CLIENT COMPONENT.
+
+   This page keeps the read, because the read is where the anonymity
+   handling is and that belongs on the server. Rows only holds a local
+   copy so a dismissed notification can leave the screen immediately.
+   ===================================================================== */
 
 export default async function NotificationsPage() {
   const supabase = serverClient();
@@ -58,7 +56,26 @@ export default async function NotificationsPage() {
     .order('created_at', { ascending: false })
     .limit(100);
 
-  const list = rows || [];
+  /* 🔴 ASKED SERVER-SIDE, AND ONLY THE DATABASE DECIDES.
+
+     push_ask_due() is SECURITY DEFINER: it reads `profiles`, `posts`,
+     `notifications` and `push_subscriptions`, none of which this member
+     may read directly, and hands back a single boolean. Nothing about
+     who qualifies is expressed in this file — 0099 widened the rule to
+     include "somebody has answered you" and 0100 added "and you haven't
+     already said yes", and neither change needed a line here. That is
+     the point of it being a function.
+
+     ⚠️ Server-side rather than in an effect, so the card is either in
+     the first paint or absent. The wall asks the same question from the
+     browser; there it's fine, because the card appears in response to an
+     action the person just took. Here it would be a box appearing under
+     their thumb a second after the page settled. */
+  let askPush = false;
+  try {
+    const { data: due } = await supabase.rpc('push_ask_due');
+    askPush = due === true;
+  } catch { /* no card is the safe failure — never a broken one */ }
 
   return (
     <>
@@ -75,78 +92,7 @@ export default async function NotificationsPage() {
       <MarkSeen />
 
       <div className="pad ntfwrap">
-        {list.length === 0 && (
-          /* ⚠️ Says the room is quiet FOR YOU, not that the room is quiet.
-             At 114 members the wall is busy; an empty bell means nobody
-             has answered you yet, and those are very different sentences
-             to read on your first day. */
-          <p className="ntfempty">
-            Nothing yet. When somebody answers you or sends you a message,
-            it turns up here.
-          </p>
-        )}
-
-        {list.map((n) => {
-          /* ⭐ EVERY ROW IS A LINK NOW — 31 Aug, and this is the change
-             Ty asked for: tapping a notification takes you to the thing,
-             the way Facebook does it.
-
-             This comment used to explain why a reply row COULDN'T be a
-             link: there was no /p/<post> route, posts lived on the wall,
-             and the wall carries no anchors, so linking to /wall would
-             drop somebody at the top of a sixty-six-post feed with no
-             idea which post was theirs. That was the 20 Aug rule — "a
-             link that loads the right page but does the wrong thing is
-             worse than a broken one."
-
-             🔴 The rule never said don't link. It said don't fake it. So
-             the fix was to build the destination, not to soften the link:
-             /p/[id] renders the post with its whole conversation and the
-             reply box already open.
-
-             ⚠️ A message still goes to /chat/<thread>, not /p — its
-             destination was always real. */
-          const href =
-            n.kind === 'message' && n.thread_id ? `/chat/${n.thread_id}` :
-            (n.kind === 'reply' || n.kind === 'mention') && n.post_id ? `/p/${n.post_id}` :
-            null;
-
-          const icon = n.kind === 'message' ? '✉️' : n.kind === 'mention' ? '@' : '💬';
-
-          const line = n.kind === 'message' ? `${n.who} sent you a message`
-            : n.kind === 'mention' ? `${n.who} mentioned you`
-            : `${n.who} answered your post`;
-
-          const body = (
-            <>
-              <span className="ntfav" aria-hidden="true">{icon}</span>
-              <span className="ntfmid">
-                <span className="ntfline">{line}</span>
-                {/* ⚠️ The excerpt is of YOUR OWN post — the thing being
-                    answered — not of their reply. Showing their words
-                    here would leak the content of an anonymous reply
-                    into a list that names nobody. */}
-                {n.about && <span className="ntfabout">“{n.about}”</span>}
-                <span className="ntfwhen">{whenWord(n.created_at)}</span>
-              </span>
-            </>
-          );
-
-          return href ? (
-            <Link key={n.id} href={href} className={'ntfrow' + (n.unread ? ' fresh' : '')}>
-              {body}
-            </Link>
-          ) : (
-            <div key={n.id} className={'ntfrow' + (n.unread ? ' fresh' : '')}>{body}</div>
-          );
-        })}
-
-        {list.length > 0 && (
-          <p className="ntffoot">
-            Replies, messages and mentions. Nothing else — there are no
-            likes here, and there never will be.
-          </p>
-        )}
+        <Rows initial={rows || []} askPush={askPush} />
       </div>
     </>
   );
