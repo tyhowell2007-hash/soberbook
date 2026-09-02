@@ -1129,9 +1129,17 @@ export default function Me({ email, profile, posts, initialAvatarUrl,
 
             {/* ⭐ THE WALKTHROUGH, PERMANENTLY. The card on the wall is
                 shown once and then gone forever — which is right for a
-                card and wrong as the only way to reach a fourteen-minute
-                explanation of the app. Somebody who tapped "Not now" in
-                April and is stuck in June needs it to still be findable.
+                card and wrong as the only way to reach an explanation of
+                the whole app. Somebody who tapped "Not now" in April and
+                is stuck in June needs it to still be findable.
+
+                🔴 2 SEPT: this line said "A 14-minute walkthrough" over a
+                film that is 3:29. It was the FIFTH place carrying the old
+                runtime and the last one found — because the other four
+                spelled it "fourteen" and this one used a numeral, so the
+                first sweep missed it. ⚠️ When a fact is wrong in several
+                places, grep for every spelling of it before believing the
+                list is complete.
 
                 ⚠️ Here, at the bottom, above sign-out: this is where a
                 person goes when they are looking for the thing they
@@ -1139,7 +1147,7 @@ export default function Me({ email, profile, posts, initialAvatarUrl,
                 ceiling for that bar and it is written down in wall.css. */}
             <Link href="/tour" className="mtour">
               <span className="mtT">📺 How all this works</span>
-              <span className="mtD">A 14-minute walkthrough of the whole app.</span>
+              <span className="mtD">A 3&frac12;-minute walkthrough of the whole app.</span>
             </Link>
 
             <div className="meout">
