@@ -6,28 +6,59 @@ import { browserClient } from '../../lib/supabase-browser';
 /* =====================================================================
    THE SURVEY FORM. Kenny Kerns' idea, Sept 2026.
 
-   Four questions. 172 members, 34 of whom have ever said anything —
-   nobody has asked the other 138 what they came for.
+   183 members, 34 of whom have ever said anything — nobody has asked the
+   other 149 what they came for.
 
    ⭐ THE VALUES STORED ARE STABLE KEYS, NOT THE LABELS ON SCREEN.
-   'someone_told_me', not "Somebody I know told me about it". The wording
-   will get tweaked; the counts must survive that. Rewording a label
-   after answers exist would otherwise split one answer into two rows in
+   'someone_told_me', not "Someone told me". The wording will get
+   tweaked; the counts must survive that. Rewording a label after answers
+   exist would otherwise split one answer into two rows in
    survey_counts() and nobody would notice, because both rows look
    plausible.
 
-   ⚠️ Q3 SWITCHES on the answer to Q2 — somebody who has posted is asked
-   what made them, somebody who hasn't is asked what would help. Nobody
-   scrolls past a question that isn't about them.
+   ⚠️ Q3 IS SHOWN ONLY TO SOMEBODY WHO HASN'T POSTED. Ty, 2 Sept: "the
+   important question is what would make it easier?" — so a member who
+   says Yes goes straight to Q4 rather than being handed a blank box.
+   🔴 The old Q3b ("what made you, the first time?") is DELETED, not
+   hidden. It gave the 34 people who already talk an essay to write while
+   the 149 silent ones got chips to tap — the easy group getting the hard
+   question. `first_time` still exists as a column and survey_submit
+   still takes the argument; nothing writes to it now. Leaving the
+   parameter alone keeps one function signature rather than two.
    ===================================================================== */
 
+/* Two groups, one question. 🔴 Ty, 2 Sept: "let's add all social medias
+   to this as well" — Facebook was the only network listed while the app
+   is being shared on Instagram and TikTok, so the answer we most needed
+   was one nobody could give.
+
+   ⚠️ THIRTEEN OPTIONS NEEDED A MIGRATION (0112). survey_arrays_sane
+   capped found_us at 12, so a member ticking every box would have been
+   refused by the database and told "That didn't send. Try once more?" —
+   which would have been false, and would have hit precisely the person
+   answering most generously. Adding an option here without checking that
+   ceiling is the bug returning. */
 const FOUND = [
   ['someone_told_me',  'Someone told me'],
-  ['facebook',         'Facebook'],
   ['poster',           'A poster or flyer'],
   ['meetings',         'Looking for meetings'],
   ['people_who_get_it','People who get it'],
   ['curious',          'Just curious'],
+];
+
+/* ⚠️ Split out under its own label rather than dumped into one pile of
+   thirteen chips. A wall of chips gets skimmed and the first one gets
+   tapped — and the first one here is "Someone told me", which is the
+   channel we already know works. Burying it would flatter it. */
+const ONLINE = [
+  ['facebook',     'Facebook'],
+  ['instagram',    'Instagram'],
+  ['tiktok',       'TikTok'],
+  ['youtube',      'YouTube'],
+  ['snapchat',     'Snapchat'],
+  ['x',            'X'],
+  ['reddit',       'Reddit'],
+  ['other_online', 'Somewhere else online'],
 ];
 
 const STOPPED = [
@@ -42,7 +73,6 @@ export default function Form() {
   const [found, setFound]     = useState([]);
   const [posted, setPosted]   = useState(null);   // true | false | null
   const [stopped, setStopped] = useState([]);
-  const [firstTime, setFirst] = useState('');
   const [oneThing, setOne]    = useState('');
   const [other, setOther]     = useState('');
   const [busy, setBusy]       = useState(false);
@@ -55,7 +85,7 @@ export default function Form() {
   /* ⚠️ The button is never dead-without-explanation. The 16 Aug /welcome
      bug was a submit that did nothing and said nothing; here an empty
      form gets a sentence rather than silence. */
-  const empty = found.length === 0 && posted === null && !oneThing.trim();
+  const empty = found.length === 0 && posted === null && !oneThing.trim() && !other.trim();
 
   async function send() {
     if (empty) { setErr('Answer one thing first — anything at all.'); return; }
@@ -68,7 +98,9 @@ export default function Form() {
       /* Only send the branch that was actually shown. */
       p_stopped_by:     posted === false ? stopped : [],
       p_stopped_other:  '',
-      p_first_time:     posted === true ? firstTime : '',
+      /* 🔴 Q3b is gone. The argument stays so the function keeps one
+         signature — see the note at the top. */
+      p_first_time:     '',
       p_one_thing:      oneThing,
     });
     setBusy(false);
@@ -93,7 +125,7 @@ export default function Form() {
     <div className="sv-wrap">
       <h1 className="sv-lede">We&rsquo;re still building this</h1>
       <p className="sv-sub">
-        Four questions. Nothing here is tied to your name, and you can skip anything.
+        Three questions. Nothing here is tied to your name, and you can skip anything.
       </p>
 
       <div className="sv-q">
@@ -106,11 +138,23 @@ export default function Form() {
               onClick={() => toggle(found, setFound, k)}>{label}</button>
           ))}
         </div>
-        {found.includes('curious') || found.length > 0 ? (
-          <textarea className="sv-text sv-short" style={{ marginTop: 10 }}
-            placeholder="Something else? (optional)"
-            maxLength={400} value={other} onChange={e => setOther(e.target.value)} />
-        ) : null}
+
+        <p className="sv-group">Or from</p>
+        <div className="sv-chips">
+          {ONLINE.map(([k, label]) => (
+            <button key={k} type="button" className="sv-chip"
+              aria-pressed={found.includes(k)}
+              onClick={() => toggle(found, setFound, k)}>{label}</button>
+          ))}
+        </div>
+
+        {/* 🔴 ALWAYS SHOWN. This used to be hidden until you had already
+            picked a chip, which locked out the one person whose whole
+            answer is something we never thought of — the only answer here
+            that can teach us anything new. */}
+        <textarea className="sv-text sv-short" style={{ marginTop: 12 }}
+          placeholder="Something else? (optional)"
+          maxLength={400} value={other} onChange={e => setOther(e.target.value)} />
       </div>
 
       <div className="sv-q">
@@ -137,20 +181,13 @@ export default function Form() {
         </div>
       )}
 
-      {posted === true && (
-        <div className="sv-q">
-          <p className="sv-ask">What made you, the first time?</p>
-          <textarea className="sv-text" maxLength={2000}
-            placeholder="However you want to put it."
-            value={firstTime} onChange={e => setFirst(e.target.value)} />
-        </div>
-      )}
-
+      {/* ⚠️ No "Optional." hint under this one, deliberately. It is the
+          question the whole survey was Kenny's idea for; labelling it
+          optional is the app telling people to skip it. */}
       <div className="sv-q">
-        <p className="sv-ask">Anything you&rsquo;d add?</p>
-        <p className="sv-hint">Optional.</p>
+        <p className="sv-ask">What else would you like to see in the app?</p>
         <textarea className="sv-text" maxLength={2000}
-          placeholder="A place for people with kids&hellip;"
+          placeholder="Anything. Big or small."
           value={oneThing} onChange={e => setOne(e.target.value)} />
       </div>
 
