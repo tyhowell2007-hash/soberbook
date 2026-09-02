@@ -317,7 +317,29 @@ body{
 
 /* ---------- controls ---------- */
 .btn, .sgo{ background:var(--gd); color:#fff; border:0; border-radius:11px; }
-.btn:hover, .sgo:hover{ background:var(--gt); }
+
+/* 🔴 `color:#fff` HERE IS LOAD-BEARING, 2 Sept. Without it the label
+   disappears the instant you touch the button — measured contrast 1.00,
+   on EVERY primary button in the green room.
+
+   globals.css says   .btn:hover { background:var(--acid); color:var(--acid-ink) }
+   this line overrode  the background only — and --acid-ink is #0f3d2a,
+   which is exactly what --gt resolves to. Dark green text on dark green.
+
+   ⭐ Overriding one half of a pair (background without colour) leaves the
+   OTHER theme's value standing. The grunge hover colour was still in
+   effect on a green page, and it happened to match. Whenever a rule
+   re-skins a background, it owns the foreground too.
+
+   ⚠️ Worse on a phone than a laptop: a tap leaves :hover stuck until you
+   touch something else, so the button reads as a blank slab exactly
+   while somebody is using it. Found on the Message button on /u/NotHigh,
+   which is the app's whole "reach out to a person" control.
+
+   ⚠️ I first reported this as invisible AT REST. That was wrong — I had
+   measured with the cursor still on the button after clicking. At rest
+   it is white on #1b6b4a, 6.46. Say which STATE a measurement was taken in. */
+.btn:hover, .sgo:hover{ background:var(--gt); color:#fff; }
 .btn.ghost{ background:transparent; color:var(--gd); border:1.5px solid var(--line); }
 .btn.out{ background:transparent; color:var(--soft); border:1.5px solid var(--line); }
 .btn.out.arm{ background:#B3261E; color:#fff; border-color:#B3261E; }

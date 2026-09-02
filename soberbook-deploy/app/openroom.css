@@ -1,0 +1,97 @@
+/* =====================================================================
+   THE OPEN-ROOM CARD — somebody is in a meeting right now, on Home.
+
+   🔴 WHY IT EXISTS. 2 Sept: NotHigh opened "Wildin' on Wednesday" at
+   13:23, Ty walked in at 13:56, Nic at 14:12. Three people wanted the
+   same room on the same afternoon and NONE of them overlapped, because
+   `meeting_rooms` appeared in four files and not one of them was the
+   Wall or Community — the two screens people actually land on.
+
+   ⚠️ Its own file, not a block in wall.css. That file is 71KB and failed
+   three consecutive uploads on 23 Aug — GitHub's folder-drag gives up on
+   the largest file in a batch silently. Same argument as tourcard.css,
+   pledge.css, adcard.css and replymenu.css. Small files land.
+
+   ⚠️ Imported by app/wall/layout.jsx. A stylesheet nothing imports is a
+   silent failure this app has already hit twice.
+   ===================================================================== */
+
+.orcard {
+  display: block;
+  margin: 0 0 14px;
+  padding: 14px 16px;
+  background: var(--gd, #1b6b4a);
+  border-radius: 14px;
+  text-decoration: none;
+  /* ⚠️ min-height, not a fixed height. The title wraps to two lines on a
+     narrow phone and a fixed box would clip somebody's room name. */
+  min-height: 44px;
+}
+
+/* 🔴 The label must survive :hover. globals.css sets .btn:hover colour
+   and theme-green overrode only the background — both landed on #0f3d2a
+   and the text vanished at contrast 1.00 (fixed 2 Sept). Nothing here
+   inherits a hover colour from another theme: this card sets its own on
+   both states, deliberately. */
+.orcard:hover { background: var(--gt, #0f3d2a); }
+.orcard:hover .orTtl,
+.orcard:hover .orGo { color: #fff; }
+
+.orLive {
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+  color: #A8EDC3;      /* 4.79 on --gd, 9.04 on --gt — MEASURED, both pass.
+                        🔴 Was #8FE3B0 with "7.02" written beside it. The real
+                        number is 4.24 — UNDER the floor, on a comment I wrote
+                        without running the check. A contrast figure nobody
+                        measured is worth less than no figure, because it stops
+                        the next person looking. Lightened until it actually
+                        cleared, with headroom. */
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+/* A dot, not a pulsing animation. A thing that throbs on a recovery app's
+   home screen at 2am is an alarm, and this is an invitation. */
+.orDot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: #A8EDC3;
+  flex: none;
+}
+
+.orTtl {
+  margin: 4px 0 0;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.25;
+  color: #F4FBF7;      /* 6.05 on --gd */
+}
+.orWho {
+  margin: 3px 0 0;
+  font-size: 12.5px;
+  color: #C6E4D2;      /* 4.62 on --gd — clears the 4.5 floor */
+}
+.orGo {
+  margin: 11px 0 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: #F4FBF7;
+}
+
+/* ---------- your own room ----------
+   Gold, not green, and it says nothing about who is or isn't in there.
+   Its whole job is telling the host their room IS visible — the thing
+   NotHigh had no way of knowing. */
+.orcard.mine {
+  background: #FDF6E8;
+  border: 1.5px solid #E0C589;
+}
+.orcard.mine:hover { background: #FBF0DA; }
+.orcard.mine .orLive { color: #8A6316; }   /* 5.41 on #FDF6E8 */
+.orcard.mine .orDot  { background: #C08A2E; }
+.orcard.mine .orTtl,
+.orcard.mine:hover .orTtl { color: #1a1a18; }
+.orcard.mine .orWho  { color: #5f6b62; }   /* 5.28 on #FDF6E8 */
