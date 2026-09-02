@@ -901,6 +901,31 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
       <div className="home">
         <span className="blob" aria-hidden="true" />
         <h2>Welcome home{me.name ? ', ' + me.name : ''}.</h2>
+        {/* 🔴 WHICH ACCOUNT AM I IN. Added 2 Sept, and Ty found it the
+            hard way: he opened the survey link on his phone, landed here,
+            and concluded the app had dropped him into a stranger's
+            profile. It hadn't — the phone was signed into his own second
+            account from 27 Aug — but nothing on screen said so.
+
+            The masthead prints the HANDLE (or the day count); this
+            greeting prints the DISPLAY NAME. When they differ, the page
+            shows two names for one person and offers no relationship
+            between them. "CopperFerry88" in the corner over "Welcome
+            home, Randall Oakwood" reads as somebody else's wall.
+
+            ⭐ THE OWNER OF THE APP COULD NOT TELL WHOSE ACCOUNT HE WAS
+            IN. A member with two sign-ups, or a shared phone, has no
+            chance — and in a room where the whole promise is control
+            over what your name is attached to, "am I posting as me?" is
+            not a cosmetic question.
+
+            ⚠️ The masthead is deliberately NOT changed. It shows the day
+            count when there is one, and that was a real decision — the
+            thing you already look at becomes the way into your own page.
+            Overwriting it with a name would delete that. One added line
+            resolves the ambiguity in every case without removing
+            anything: the account is named, under the greeting, always. */}
+        {me.handle && <p className="whoami">Signed in as @{me.handle}</p>}
         <p>You made it. Pull up a chair.</p>
       </div>
 
