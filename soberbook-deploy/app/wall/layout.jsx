@@ -42,6 +42,12 @@ import '../replymenu.css';
    to 72.7KB, past the size where it has already failed three uploads in a
    row. See the note at its head. */
 import '../tourcard.css';
+/* The "somebody is in a room right now" card at the top of Home, 2 Sept.
+   ⚠️ Its own small file for the same reason as the five above — wall.css
+   is 71KB and has already failed three uploads in a row at that size.
+   ⚠️ A stylesheet nothing imports is a silent failure this app has hit
+   twice; this line IS the feature working. */
+import '../openroom.css';
 import NavBar from '../components/NavBar';
 
 export default function WallLayout({ children }) {

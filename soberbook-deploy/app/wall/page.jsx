@@ -7,6 +7,7 @@ import { fetchPreviews } from '../../lib/previews';
 import { fetchTags } from '../../lib/tags';
 import Wall from './Wall';
 import FeedRefresh from '../components/FeedRefresh';
+import OpenRoom, { pickRoom } from './OpenRoom';
 
 export const dynamic = 'force-dynamic';
 
@@ -43,6 +44,22 @@ export default async function WallPage() {
      pictures in afterwards — the layout jumping under somebody's thumb
      while they read. Signed up front, a post arrives whole. */
   const photoUrls = await signPhotoPaths(supabase, collectPaths(posts));
+
+  /* Is anybody holding a room right now? Read here, on the server, so the
+     card is in the first paint rather than dropped in afterwards.
+
+     ⚠️ Failure is deliberately silent — `?.data` and a null fall-through.
+     If this view ever errors, Home loses a card. It must never lose the
+     wall. Same stance as signPhotoPaths degrading to no-photos rather
+     than 500ing the page.
+
+     ⚠️ The view already hides rooms the viewer has blocked either way,
+     and since 0111 it only contains rooms somebody is actually in — so
+     there is no staleness rule to restate here. */
+  const { data: openRooms } = await supabase
+    .from(assertReadable('open_meeting_rooms'))
+    .select('room_key, title, host_name, is_mine, people, created_at');
+  const openRoom = pickRoom(openRooms);
 
   /* The last couple of replies under each post, fetched here rather than
      in the browser — same reason as the photos above. Loading them client
@@ -194,6 +211,12 @@ export default async function WallPage() {
       {/* Renders nothing. Keeps the podcast feed fresh when the Vercel
           cron doesn't fire — which, as of 29 Aug, is most days. */}
       <FeedRefresh />
+      {/* 🔴 Somebody is in a meeting RIGHT NOW. Fetched on the server so
+          it is in the first paint — a card that arrives after the wall
+          has drawn pushes every post down under a thumb that is already
+          reading, which is why the photos and reply previews are fetched
+          up here too. Renders nothing at all when no room is open. */}
+      <div className="pad"><OpenRoom initial={openRoom} /></div>
       {error
         ? <div className="pad"><div className="err">Couldn&apos;t load the wall: {error.message}</div></div>
         : <Wall
