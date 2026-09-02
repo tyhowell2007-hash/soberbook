@@ -104,11 +104,17 @@ function SendFor({ campaign }) {
         </>
       )}
 
+      {/* 🔴 READS just* — NOT sent/failed/skipped. Those keys belong to
+          the CAMPAIGN TOTAL now; the route used to overwrite the
+          per-press counts with them by spreading progress last, so this
+          line reported the running total and called it "Last press".
+          ⚠️ On the first press of a campaign the two numbers are equal,
+          which is why it read as correct for a whole send. */}
       {last && (
         <p className="hint">
-          Last press: <b>{last.sent}</b> sent
-          {last.failed ? <>, <b>{last.failed}</b> bounced</> : null}
-          {last.skipped ? <>, {last.skipped} already had it</> : null}.
+          Last press: <b>{last.justSent}</b> sent
+          {last.justFailed ? <>, <b>{last.justFailed}</b> bounced</> : null}
+          {last.justSkipped ? <>, {last.justSkipped} already had it</> : null}.
         </p>
       )}
       {last?.errors?.length > 0 && (
