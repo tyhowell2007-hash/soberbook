@@ -255,6 +255,25 @@ body{
   letter-spacing:-.01em; line-height:1.15;
 }
 .home p{ font-size:13.5px; color:#CFEADD; margin-top:3px; }
+/* 🔴 "Signed in as @handle" — added 2 Sept. See the note in Wall.jsx.
+   Quieter than the welcome and quieter than the tagline, because it is
+   reference information, not a greeting: you only read it on the day you
+   need to know which account you are in.
+   🔴 #C4E2D4 measures 4.67 on --gd (#1B6B4A). MEASURED, and the first
+   answer was WRONG: I wrote #A8C9B8 with "7.31" beside it and the real
+   number is 3.61 — under the 4.5 floor, in a comment claiming it passed.
+   That is character-for-character the openroom-card mistake from earlier
+   the same day, made again within hours of writing it down. A contrast
+   figure nobody ran is worth less than no figure at all.
+   ⚠️ Deliberately dimmer than the tagline (#CFEADD, 5.07) so it reads as
+   reference rather than greeting — but the floor wins over the styling,
+   so it stops at 4.67 rather than going quieter. */
+.home .whoami{
+  font-size:12px;
+  color:#C4E2D4;
+  margin-top:5px;
+  letter-spacing:.01em;
+}
 .home .blob{
   position:absolute; right:-26px; top:-26px; width:112px; height:112px;
   border-radius:50%; background:rgba(255,255,255,.09);
