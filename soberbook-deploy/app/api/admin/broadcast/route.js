@@ -128,8 +128,30 @@ export async function POST(req) {
      than printing a stale one. */
   const memberCount = await readMemberCount(admin);
 
-  let sent = 0, failed = 0, skipped = 0;
+  let sent = 0, failed = 0, skipped = 0, stoppedByQuota = false;
   const errors = [];
+
+  /* 🔴 A QUOTA REFUSAL IS NOT A BAD ADDRESS, AND THE DIFFERENCE IS THE
+     WHOLE REASON THIS FUNCTION EXISTS.
+
+     On 2 Sept the send was pushed past Resend's 100/day cap. The loop did
+     what it was told: every refusal after the hundredth was recorded via
+     broadcast_failed(), which exists so a dead address is never retried.
+     40 members were marked bounced in seven seconds. Their addresses were
+     fine — the DAY was full — and every one of them would have silently
+     never received the survey. Recovered by hand from the database.
+
+     ⭐ The tell is that they all fail. A real bad address is one row among
+     good ones; a quota wall fails everything after a certain row, in
+     order, with the same message. So the two need opposite handling:
+     mark the address, RELEASE the day.
+
+     ⚠️ The claim is deleted rather than marked, which puts the member back
+     in the pending list for tomorrow. That is safe precisely because of
+     the claim-before-send ordering above: we know no mail went out for
+     this row, because Resend told us it refused. */
+  const isQuota = (msg) =>
+    /quota|rate.?limit|too many requests|429|daily.*limit/i.test(String(msg || ''));
 
   for (const row of pending || []) {
     /* 🔴 CLAIM FIRST, SEND SECOND. If the function crashes, times out,
@@ -160,6 +182,16 @@ export async function POST(req) {
 
     if (res.ok) {
       sent++;
+    } else if (isQuota(res.error)) {
+      /* 🔴 OUT OF DAY, NOT OUT OF ADDRESS. Give the claim back and STOP —
+         carrying on would burn every remaining member against a wall that
+         refuses all of them. Breaking here is what turns a lost campaign
+         into a pause. */
+      await admin.from('broadcast_sends').delete()
+        .eq('broadcast_key', c.key).eq('member_id', row.member_id);
+      stoppedByQuota = true;
+      if (errors.length < 5) errors.push(res.error);
+      break;
     } else {
       failed++;
       /* ⚠️ The row STAYS. A bad address will be bad tomorrow too, and
@@ -196,6 +228,7 @@ export async function POST(req) {
      "what did that button just do" — cannot share a key. Sept.js */
   return NextResponse.json({
     ...p,
-    justSent: sent, justFailed: failed, justSkipped: skipped, errors,
+    justSent: sent, justFailed: failed, justSkipped: skipped,
+    stoppedByQuota, errors,
   });
 }
