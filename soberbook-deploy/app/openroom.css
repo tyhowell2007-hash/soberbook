@@ -69,7 +69,24 @@
   flex: none;
 }
 
+/* 🔴 display:block ON ALL THREE, AND IT IS NOT COSMETIC.
+
+   These are <span>s inside an <a>. A span is display:inline by default, and
+   **margin does nothing on an inline element** — so the title and the
+   sub-line rendered ON THE SAME LINE, overlapping: measured live at top
+   141 and top 144. The card read "Testing the rooms - back in 5Everybody
+   can see this on their home screen".
+
+   ⚠️ This is the 4 AUG BUG, EXACTLY: "margin-top on an inline span did
+   nothing on /welcome." It is written in CLAUDE.md and I wrote it again.
+   Anything that needs vertical spacing has to be a block first.
+
+   ⚠️ They are spans rather than <p>/<div> on purpose — the whole card is
+   an <a>, and block-level elements inside an anchor are legal but a <p>
+   inside <a> reads badly to a screen reader walking the link. Spans that
+   are display:block keep the anchor one clean, announceable target. */
 .orTtl {
+  display: block;
   margin: 4px 0 0;
   font-size: 16px;
   font-weight: 700;
@@ -77,11 +94,13 @@
   color: #F4FBF7;      /* 6.05 on --gd */
 }
 .orWho {
+  display: block;
   margin: 3px 0 0;
   font-size: 12.5px;
   color: #C6E4D2;      /* 4.62 on --gd — clears the 4.5 floor */
 }
 .orGo {
+  display: block;
   margin: 11px 0 0;
   font-size: 13px;
   font-weight: 700;
