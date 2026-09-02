@@ -6,7 +6,7 @@ import Send from './Send';
 export const dynamic = 'force-dynamic';
 
 /* =====================================================================
-   SENDING THE WALKTHROUGH EMAIL.
+   SENDING A BROADCAST.
 
    ⭐ WHY THIS PAGE EXISTS RATHER THAN A SCRIPT I RUN. The Resend key
    lives in Vercel's environment. Sending from outside the app means
@@ -21,7 +21,29 @@ export const dynamic = 'force-dynamic';
    route behind it does its own owner check, and the database functions
    it calls are revoked from `authenticated` entirely. Delete this file
    and nobody can still send anything.
+
+   🔴🔴 2 SEPT — THIS PAGE SPENT A DAY DESCRIBING THE WRONG EMAIL, AND
+   IT IS THE EXACT FAILURE `lib/broadcasts.js` WAS WRITTEN TO PREVENT.
+   `Send.jsx` carried `campaign = 'survey'` as a DEFAULT PARAMETER and
+   this page rendered a bare `<Send />`. So the buttons operated on the
+   survey while every word above them — the heading, the /tour link, and
+   a warning about "the only email like this you'll get" — described the
+   walkthrough. The counters were honest (0 sent, because the survey had
+   sent nobody) and read as alarming under a headline about a campaign
+   that had already gone to 151 people.
+
+   ⭐ THE RULE, and the registry already says it in different words: a
+   DEFAULT is how the label and the behaviour drift apart. The campaign
+   is now NAMED here, on the same screen as the words describing it, so
+   changing one without the other is a visible edit rather than an
+   invisible one. Send.jsx no longer has a default to fall back on.
    ===================================================================== */
+
+/* ⚠️ Named once, used by both the copy and the component. Adding the
+   next broadcast means changing this line and the paragraph under it
+   TOGETHER — which is the point. */
+const CAMPAIGN = 'survey';
+
 export default async function SendPage() {
   const supabase = serverClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -32,19 +54,21 @@ export default async function SendPage() {
 
   return (
     <div className="pad">
-      <h1>The walkthrough email</h1>
+      <h1>The survey email</h1>
       <p className="hint">
         One email, to everybody who has email switched on, linking to{' '}
-        <Link href="/tour">soberbook.app/tour</Link>. Nobody can get it twice.
+        <Link href="/survey">soberbook.app/survey</Link>. Nobody can get it twice.
       </p>
-      <Send />
+      <Send campaign={CAMPAIGN} />
 
       {/* ⚠️ Written on the page, not just in a commit message, because
           this is the thing that will be forgotten in six weeks. */}
       <p className="hint">
-        The email says out loud that it is <b>the only one like it</b> anybody
-        will get. That sentence is a promise. A second announcement down this
-        pipe makes it a lie, and this app does not make claims it can&apos;t keep.
+        The walkthrough email on 1 Sept said out loud it was <b>the only one
+        like it</b> anybody would get. This one acknowledges that once and
+        promises to stop. <b>That makes it the last broadcast down this pipe.</b>{' '}
+        A third makes both sentences a lie, and this app does not make claims
+        it can&apos;t keep.
       </p>
     </div>
   );
