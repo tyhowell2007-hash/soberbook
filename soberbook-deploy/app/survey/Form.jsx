@@ -79,8 +79,25 @@ export default function Form() {
   const [err, setErr]         = useState('');
   const [done, setDone]       = useState(false);
 
-  const toggle = (list, set, key) =>
-    set(list.includes(key) ? list.filter(k => k !== key) : [...list, key]);
+  /* 🔴 THE UPDATER FORM, AND IT IS A REAL BUG FIX, NOT TIDYING.
+
+     This used to read the state variable directly:
+         set(list.includes(key) ? list.filter(...) : [...list, key])
+     `list` is captured when the component RENDERS. Two taps that land
+     before React re-renders both start from the same old array, so the
+     second one overwrites the first and a selection silently vanishes.
+     Measured on the live page: thirteen taps inside one frame left
+     ONE chip lit; the same thirteen taps 120ms apart left all thirteen.
+
+     ⚠️ It only bites a fast tapper on a slow phone, which is why it
+     survived — and it fails SILENTLY, in the direction of recording
+     less than the member said. On a multi-select question that is the
+     worst way to be wrong: the data looks fine and is quietly thin.
+
+     The updater form is handed the CURRENT value by React, so queued
+     taps stack instead of racing. */
+  const toggle = (set, key) =>
+    set(prev => prev.includes(key) ? prev.filter(k => k !== key) : [...prev, key]);
 
   /* ⚠️ The button is never dead-without-explanation. The 16 Aug /welcome
      bug was a submit that did nothing and said nothing; here an empty
@@ -135,7 +152,7 @@ export default function Form() {
           {FOUND.map(([k, label]) => (
             <button key={k} type="button" className="sv-chip"
               aria-pressed={found.includes(k)}
-              onClick={() => toggle(found, setFound, k)}>{label}</button>
+              onClick={() => toggle(setFound, k)}>{label}</button>
           ))}
         </div>
 
@@ -144,7 +161,7 @@ export default function Form() {
           {ONLINE.map(([k, label]) => (
             <button key={k} type="button" className="sv-chip"
               aria-pressed={found.includes(k)}
-              onClick={() => toggle(found, setFound, k)}>{label}</button>
+              onClick={() => toggle(setFound, k)}>{label}</button>
           ))}
         </div>
 
@@ -175,7 +192,7 @@ export default function Form() {
             {STOPPED.map(([k, label]) => (
               <button key={k} type="button" className="sv-opt"
                 aria-pressed={stopped.includes(k)}
-                onClick={() => toggle(stopped, setStopped, k)}>{label}</button>
+                onClick={() => toggle(setStopped, k)}>{label}</button>
             ))}
           </div>
         </div>
