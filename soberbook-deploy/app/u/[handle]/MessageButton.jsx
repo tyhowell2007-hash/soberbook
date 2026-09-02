@@ -32,8 +32,16 @@ export default function MessageButton({ handle }) {
       <button className="btn" onClick={go} disabled={busy}>
         {busy ? 'Opening…' : 'Message'}
       </button>
+      {/* 🔴 THIS USED TO SAY "Your first message arrives as a request. They
+          accept it or they don't." FALSE SINCE 29 AUG — `0087` removed the
+          stranger cap and chat_send_blocked() is `select false`. The message
+          goes straight to their inbox.
+
+          ⚠️ Read from the SENDER's side it sounds like a courtesy. Read from
+          the other side it is a promise to the RECIPIENT that they have a
+          gate, and they don't. See the longer note in chat/Inbox.jsx. */}
       <p className="hint">
-        Your first message arrives as a request. They accept it or they don’t.
+        This goes straight to their inbox.
       </p>
       {err && <div className="err">{err}</div>}
     </>
