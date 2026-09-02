@@ -16,7 +16,22 @@ import { useEffect, useState } from 'react';
    ⚠️ Nothing here can send twice. The database refuses it (0109). This
    page is a trigger, not a safety mechanism.
    ===================================================================== */
-export default function Send({ campaign = 'survey' }) {
+/* 🔴 NO DEFAULT CAMPAIGN, ON PURPOSE — 2 Sept.
+   It used to be `campaign = 'survey'`, and page.jsx rendered `<Send />`
+   with nothing. The buttons sent the survey under a heading and a
+   warning describing the walkthrough email, for a day. A default is
+   precisely how the label and the behaviour drift apart; lib/broadcasts.js
+   refuses one for the same reason and says so in its own comment.
+   ⚠️ Now a page that forgets to name a campaign renders a visible
+   refusal instead of quietly mailing 182 people something. */
+export default function Send({ campaign }) {
+  if (!campaign) {
+    return <p className="err">No campaign named. This page cannot send anything.</p>;
+  }
+  return <SendFor campaign={campaign} />;
+}
+
+function SendFor({ campaign }) {
   const [p, setP] = useState(null);
   const [busy, setBusy] = useState(false);
   const [last, setLast] = useState(null);
