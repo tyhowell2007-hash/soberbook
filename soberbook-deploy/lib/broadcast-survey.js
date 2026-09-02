@@ -55,10 +55,25 @@ export const SURVEY_BROADCAST_KEY = 'survey-sept-2026';
 export function surveyEmail({ optoutUrl, memberCount }) {
   const subject = 'We’re new at this — what would you like to see?';
 
-  /* ⚠️ No number rather than a wrong number. */
-  const howMany = Number.isFinite(memberCount) && memberCount > 0
-    ? `There are ${memberCount} of us in there now, and`
-    : 'Everybody in there';
+  /* 🔴 BOTH BRANCHES ARE WHOLE SENTENCES, AND THAT IS THE FIX.
+
+     This used to build a PREFIX — "There are 182 of us in there now,
+     and" / "Everybody in there" — glued to a fixed tail. The first
+     reads fine. The second produced, in Ty's own inbox on 2 Sept:
+     "Everybody in there you would all know better than we do what is
+     missing." Not a sentence.
+
+     ⭐ The count read was broken (see readMemberCount in the broadcast
+     route) so the fallback fired on the very first send — but the
+     deeper fault is that NOBODY HAD EVER READ THE FALLBACK. A branch
+     that only runs when something else has already gone wrong is the
+     one most likely to ship unread, and the least likely moment to be
+     discovered kindly.
+
+     ⚠️ So: no prefixes. Two complete sentences, both readable aloud. */
+  const knowBetter = Number.isFinite(memberCount) && memberCount > 0
+    ? `There are ${memberCount} of us in there now, and you'd all know better than we do what's missing.`
+    : `You'd all know better than we do what's missing.`;
 
   /* ⚠️ The plain-text part is not politeness. An HTML-only body is a spam
      signal, and some people read mail in clients that never render it. */
@@ -68,7 +83,7 @@ export function surveyEmail({ optoutUrl, memberCount }) {
     'Sober Book is about a month old. It is not a company — it is three of',
     'us building it at night, and a fair amount of it is guesswork.',
     '',
-    `${howMany} you would all know better than we do what is missing.`,
+    knowBetter,
     '',
     'So we are asking. A few quick questions, nothing tied to your name:',
     '',
@@ -94,7 +109,7 @@ export function surveyEmail({ optoutUrl, memberCount }) {
 <div style="font:16px/1.6 -apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;color:#1C2320;max-width:520px;margin:0 auto;padding:8px 4px;">
   <p style="margin:0 0 16px;">Hey &mdash;</p>
   <p style="margin:0 0 16px;">Sober Book is about a month old. It isn&rsquo;t a company &mdash; it&rsquo;s three of us building it at night, and a fair amount of it is guesswork.</p>
-  <p style="margin:0 0 16px;">${howMany} you&rsquo;d all know better than we do what&rsquo;s missing.</p>
+  <p style="margin:0 0 16px;">${knowBetter.replace(/'/g, '&rsquo;')}</p>
   <p style="margin:0 0 20px;">So we&rsquo;re asking. A few quick questions, nothing tied to your name:</p>
   <p style="margin:0 0 22px;">
     <a href="https://soberbook.app/survey" style="display:inline-block;background:#1B6B4A;color:#F7FAF8;text-decoration:none;font-weight:600;padding:14px 26px;border-radius:10px;">Answer the questions</a>
