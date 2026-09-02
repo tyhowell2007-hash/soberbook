@@ -1,5 +1,6 @@
 import { tourEmail,   TOUR_BROADCAST_KEY }   from './broadcast-tour';
 import { surveyEmail, SURVEY_BROADCAST_KEY } from './broadcast-survey';
+import { tour2Email,  TOUR2_BROADCAST_KEY }  from './broadcast-tour2';
 
 /* =====================================================================
    THE CAMPAIGN ALLOWLIST.
@@ -30,6 +31,16 @@ const CAMPAIGNS = {
     key:   SURVEY_BROADCAST_KEY,
     build: surveyEmail,
     label: 'The survey',
+  },
+  /* ⚠️ 'tour2' is a SEPARATE entry, not an edit of 'tour'. Changing the
+     key on the existing entry would rewrite history: broadcast_progress
+     would report the old campaign as never sent, and the 151 rows that
+     stop those people getting a duplicate would stop matching anything.
+     A campaign is append-only here for the same reason a migration is. */
+  tour2: {
+    key:   TOUR2_BROADCAST_KEY,
+    build: tour2Email,
+    label: 'The walkthrough, again (the length was wrong)',
   },
 };
 
