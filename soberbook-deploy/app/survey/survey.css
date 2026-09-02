@@ -20,6 +20,18 @@
 .sv-ask     { font-size: 15.5px; font-weight: 650; color: var(--x); margin: 0 0 4px; }
 .sv-hint    { font-size: 13px; color: var(--soft); margin: 0 0 11px; }
 
+/* A quiet divider INSIDE one question, not a new question. Q1 carries 13
+   options after 2 Sept; one undivided pile of thirteen chips gets skimmed
+   and the first chip gets tapped. --soft (5.4:1 on paper), never --gm,
+   which measures 4.02 and is labelled DECORATION ONLY in theme-green. */
+.sv-group {
+  font-size: 12px;
+  color: var(--soft);
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  margin: 14px 0 8px;
+}
+
 /* --- chips: multi-select, wrapping --- */
 .sv-chips   { display: flex; flex-wrap: wrap; gap: 8px; }
 .sv-chip {
