@@ -66,6 +66,34 @@
 
 .tchaps { list-style: none; margin: 0; padding: 0; }
 
+/* 🔴 THE PLAIN "what's in it" ROW — 2 Sept, replacing .tchap.
+   Not a button, because there is nothing to seek to any more: the
+   seventeen clickable timestamps were generated from the 14-minute cut
+   and twelve of them pointed past the end of the 3:29 film. See the
+   note at the top of Player.jsx.
+   ⚠️ .tchap/.tct/.tcl/.tsel are left in this file ON PURPOSE for now —
+   deleting CSS in the same change as the markup means a mistake in
+   either one looks like a mistake in the other. They render nothing.
+   ⚠️ #4A6357 on the page cream (--paper, #F7FAF8) measures 6.22.
+   MEASURED — and I first typed 6.98 here from nothing, which is the
+   THIRD unmeasured contrast figure written today; the other two were
+   both under the 4.5 floor. This one passes, but a number nobody ran
+   is worthless whether or not it happens to be right. */
+.tcov {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding: 7px 2px;
+  font-size: 15px;
+  line-height: 1.45;
+  color: #4A6357;
+}
+.tcov::before {
+  content: '·';
+  flex: none;
+  color: var(--soft, #5f7a6a);
+}
+
 /* ⚠️ 46px minimum height. The Aug 18 lesson: the post footer shipped
    with ~20px tap targets on the only two controls anybody used. These
    are seventeen small targets in a column on a phone — the easiest
