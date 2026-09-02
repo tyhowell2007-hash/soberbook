@@ -41,6 +41,32 @@ async function requireOwner() {
   return data?.is_admin ? user : null;
 }
 
+/* 🔴 READ THE MEMBER COUNT WITHOUT TRUSTING A RESPONSE HEADER.
+
+   This used to be `.select('id', { count: 'exact', head: true })`, which
+   asks PostgREST for the total in a `content-range` HEADER rather than
+   in the body. On 2 Sept it came back undefined in production and the
+   survey email fell through to its no-number branch — the very first
+   email down this pipe, in Ty's own inbox, read "Everybody in there you
+   would all know better than we do what is missing."
+
+   ⭐ Two separate failures, and the second is the worse one: the count
+   was missing AND the fallback sentence had never been read aloud by
+   anybody. A fallback nobody has read is not a safety net, it is an
+   unexploded bug — it only runs on the day something else breaks, which
+   is the worst day to discover it is ungrammatical.
+
+   ⚠️ So the count now comes back in the BODY, as rows we count
+   ourselves. 183 uuids is nothing, it cannot be silently dropped by a
+   proxy, and it is verifiable — GET returns it, so the number can be
+   read on screen BEFORE it is trusted inside an email. */
+async function readMemberCount(admin) {
+  const { data, error } = await admin
+    .from('profiles').select('id').is('deleted_at', null);
+  if (error || !Array.isArray(data)) return null;
+  return data.length;
+}
+
 /* ---- GET: how far along are we? Sends nothing. ---- */
 export async function GET(req) {
   if (!(await requireOwner())) return NextResponse.json({ error: 'no' }, { status: 404 });
@@ -53,9 +79,15 @@ export async function GET(req) {
     return NextResponse.json(
       { error: 'name a campaign', choices: CAMPAIGN_NAMES }, { status: 400 });
   }
-  const { data } = await adminClient().rpc('broadcast_progress', { p_key: c.key });
+  const admin = adminClient();
+  const { data } = await admin.rpc('broadcast_progress', { p_key: c.key });
   const p = Array.isArray(data) ? data[0] : data;
-  return NextResponse.json({ dryRun: true, key: c.key, label: c.label, ...p });
+  /* ⭐ memberCount is reported by the DRY RUN so the number can be checked
+     on screen before it is trusted inside an email going to 182 people.
+     The 2 Sept failure was invisible precisely because nothing ever
+     showed this value anywhere except inside a sent message. */
+  const memberCount = await readMemberCount(admin);
+  return NextResponse.json({ dryRun: true, key: c.key, label: c.label, memberCount, ...p });
 }
 
 /* ---- POST: actually send, up to `limit` people ---- */
@@ -88,6 +120,14 @@ export async function POST(req) {
   });
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
+  /* ⭐ The member count is read HERE, live, and passed into the email —
+     never written into the template. The first draft hardcoded 172 and it
+     was 176 four hours later; this email takes two days to send, so a
+     baked-in figure is guaranteed to be wrong for most of the people who
+     receive it. If the read fails the builder drops the number rather
+     than printing a stale one. */
+  const memberCount = await readMemberCount(admin);
+
   let sent = 0, failed = 0, skipped = 0;
   const errors = [];
 
@@ -104,7 +144,7 @@ export async function POST(req) {
 
     const pageUrl = `https://soberbook.app/unsub/${row.optout_token}`;
     const postUrl = `https://soberbook.app/api/unsub/${row.optout_token}`;
-    const { subject, html, text } = c.build({ optoutUrl: pageUrl });
+    const { subject, html, text } = c.build({ optoutUrl: pageUrl, memberCount });
 
     const res = await sendMail({
       to: row.email,
