@@ -29,10 +29,32 @@ import Player from './Player';
    redirects, without the second the video file itself redirects and the
    player shows a black rectangle with no error anywhere.
    ===================================================================== */
+/* 🔴 THE RUNTIME IS THREE AND A HALF MINUTES, AND THIS PAGE SAID
+   FOURTEEN FOR DAYS — 2 Sept.
+
+   The film was cut from 14 minutes to 3:29 and the copy around it never
+   moved. The EMAIL was correct ("three and a half minutes"), so the
+   sequence for a member was: read an honest email, tap through, and be
+   told by the app that it was four times longer. Ty read the app,
+   believed the film was still 13–14 minutes, and concluded the length
+   was scaring people off. He was right about the effect and the number
+   was ours.
+
+   ⭐ Two claims about the same fact lived in two places — the file in
+   /public and the prose beside it — and only one of them got updated.
+   Same shape as 0046→0049 in the database: a fact restated is a second
+   implementation, and the second one drifts. There is no way to make
+   prose read a duration, so the mitigation is that this is now stated
+   in as FEW places as possible: here, and in the wall card. The
+   seventeen chapter timestamps that also encoded it are gone entirely.
+
+   ⚠️ "Three and a half" not "four" — 3:29 rounds down. Overstating the
+   length of a thing people are avoiding because it seems long is a
+   strange way to lose. */
 export const metadata = {
   title: 'A walkthrough of Sober Book',
   description:
-    'Fourteen minutes, start to finish — what Sober Book does and how to use it.',
+    'Three and a half minutes, start to finish — what Sober Book does and how to use it.',
 };
 
 export default function TourPage() {
@@ -44,7 +66,7 @@ export default function TourPage() {
 
       <div className="tpad">
         <h1 className="th">Everything you can do in Sober Book</h1>
-        <p className="tsub">Fourteen minutes. Start to finish.</p>
+        <p className="tsub">Three and a half minutes. Start to finish.</p>
 
         <Player />
 
