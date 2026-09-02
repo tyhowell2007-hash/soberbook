@@ -10,9 +10,16 @@ import { browserClient } from '../../lib/supabase-browser';
    🔴 WHY IT EXISTS. 106 of 146 members have never posted or replied.
    They arrive on the wall, meet a room already mid-conversation, and
    have no idea there is a bell, an anonymous switch, a Front Room, or
-   meetings. /tour explains all of it in fourteen minutes and nothing
-   in the app linked to it — so the people it was built for could not
-   find it.
+   meetings. /tour explains all of it in three and a half minutes and
+   nothing in the app linked to it — so the people it was built for
+   could not find it.
+
+   ⚠️ THIS CARD SAID "FOURTEEN MINUTES" UNTIL 2 SEPT, over a film that
+   is 3:29. It is the first thing a new member reads about the
+   walkthrough, so it was the single most expensive place in the app to
+   have that number wrong — the whole job of this card is to make a
+   short film feel worth starting. See app/tour/page.jsx for the full
+   note.
 
    ⚠️ A LINK ON /me WOULD NOT HAVE WORKED. That is where somebody goes
    who already knows their way around. The person this is for never
@@ -54,8 +61,8 @@ export default function TourCard() {
     <div className="tourcard">
       <p className="tcH">New here? There&apos;s a walkthrough.</p>
       <p className="tcP">
-        Fourteen minutes on everything this does &mdash; including the
-        parts most people never find.
+        Three and a half minutes on everything this does &mdash; including
+        the parts most people never find.
       </p>
       <div className="tcRow">
         {/* ⚠️ Watching also dismisses it. Somebody who has seen the film
