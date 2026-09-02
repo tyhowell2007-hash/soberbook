@@ -82,16 +82,34 @@ function SendFor({ campaign }) {
               only way to see the real email before 145 other people do.
               The button for the rest stays available either way; this is
               a recommendation, not a lock, because Ty is the boss. */}
+          {/* 🔴 THE "IT COMES TO YOU" PROMISE IS NOW CONDITIONAL, AND IT HAD
+              TO BE. It is only true while this campaign has sent NOBODY —
+              Ty is the oldest account and broadcast_pending() is ordered by
+              created_at, so the batch of one reaches him only on the very
+              first press. After that the same button sends to a REAL
+              MEMBER.
+
+              ⚠️ It was written as an unconditional sentence and the comment
+              underneath it said "this is only true while your row is
+              unsent" — a warning to the reader of the code, doing nothing
+              for the person pressing the button. On 1 Sept the walkthrough
+              "test" went to a member because of exactly this, and on 2
+              Sept the page was still saying "this campaign has sent nobody
+              yet" with 26 already gone.
+
+              ⭐ A caveat in a comment is not a safeguard. If the condition
+              matters, it belongs in the condition. */}
           <button className="btn" type="button" disabled={busy} onClick={() => go(1)}>
-            {busy ? 'Sending…' : 'Send 1 — it comes to you'}
+            {busy ? 'Sending…' : (p.sent === 0 ? 'Send 1 — it comes to you' : 'Send 1')}
           </button>
           <p className="hint">
-            You are the oldest account and this campaign has sent nobody yet, so
-            the first one lands in your inbox. Look at it before sending the rest.
-            {/* ⚠️ This is only true while YOUR row for this campaign is unsent.
-                On 1 Sept it was repeated after Ty had already been sent to, and
-                the "test" went to a real member instead. It holds here because
-                'survey' is a brand-new broadcast key with zero rows. */}
+            {p.sent === 0 ? (
+              <>You are the oldest account and this campaign has sent nobody yet, so
+              the first one lands in your inbox. Look at it before sending the rest.</>
+            ) : (
+              <>This campaign is already part-sent, so this button goes to the next
+              member in line &mdash; <b>not</b> to you.</>
+            )}
           </p>
           <button className="btn ghost" type="button" disabled={busy} onClick={() => go(25)}>
             Send the next 25
@@ -115,6 +133,16 @@ function SendFor({ campaign }) {
           Last press: <b>{last.justSent}</b> sent
           {last.justFailed ? <>, <b>{last.justFailed}</b> bounced</> : null}
           {last.justSkipped ? <>, {last.justSkipped} already had it</> : null}.
+        </p>
+      )}
+      {/* 🔴 SAY OUT LOUD THAT THE DAY IS FULL, not just that something
+          errored. Without this the screen shows a small number and a
+          Resend string, and the honest reading — "come back tomorrow,
+          nobody was lost" — has to be inferred. */}
+      {last?.stoppedByQuota && (
+        <p className="hint">
+          <b>Stopped &mdash; today&rsquo;s 100 emails are used up.</b> Nobody was
+          skipped or marked bad; the rest are still waiting. Press again tomorrow.
         </p>
       )}
       {last?.errors?.length > 0 && (
