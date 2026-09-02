@@ -149,9 +149,31 @@ export default function Inbox({ inbox, requests, members = [] }) {
       {nothing && (
         <div className="empty">
           <div className="h">No conversations yet</div>
+          {/* 🔴 THIS USED TO SAY "Their first message to you lands as a
+              request — yours to accept or not." THAT BECAME FALSE ON 29 AUG
+              and nobody noticed for four days.
+
+              `0087` removed the stranger cap at Ty's direction, and
+              chat_send_blocked() is now literally `select false`. Anyone
+              here can message anyone, immediately, as often as they like.
+
+              ⚠️ It is not a stale label, it is a SAFETY CLAIM — and this is
+              the empty state, so it is the first thing a brand-new member
+              reads about messages. Somebody told they have a gate will
+              reasonably assume strangers cannot reach them. They can.
+
+              Same category as "Verified, real people" (15 Aug) and "No Zoom
+              account needed — join as a guest" (20 Aug): a promise the app
+              had stopped being able to keep.
+
+              ⭐ The replacement says what protection actually EXISTS rather
+              than going silent — block and report are real, reachable from
+              a row, a profile and a conversation, and a block outranks
+              everything including the owner account. */}
           <p className="p">
-            Tap <b>Everybody</b> above to see who&apos;s here. Their first message
-            to you lands as a request — yours to accept or not.
+            Tap <b>Everybody</b> above to see who&apos;s here. Anyone in here can
+            message you — and you can block or report anyone, any time, from
+            the <b>⋯</b> on their name.
           </p>
         </div>
       )}
