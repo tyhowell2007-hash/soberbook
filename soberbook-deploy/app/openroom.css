@@ -18,7 +18,14 @@
 
 .orcard {
   display: block;
-  margin: 0 0 14px;
+  /* ⚠️ 14px SIDE MARGINS, matching .composer and every other card on Home
+     — measured on the live page, not guessed. The card used to sit inside
+     a `.pad` wrapper in page.jsx, which supplied the gutter but also a
+     90px nav spacer, so with no room open Home carried a 110px empty band
+     at the top. The wrapper is gone; the card brings its own gutter, and
+     when there is no room the page gets NOTHING rather than padding
+     wrapped around nothing. */
+  margin: 0 14px 14px;
   padding: 14px 16px;
   background: var(--gd, #1b6b4a);
   border-radius: 14px;
