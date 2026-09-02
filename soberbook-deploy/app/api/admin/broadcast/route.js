@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { serverClient } from '../../../../lib/supabase-server';
 import { adminClient, adminConfigured } from '../../../../lib/supabase-admin';
 import { sendMail } from '../../../../lib/mail';
-import { tourEmail, TOUR_BROADCAST_KEY } from '../../../../lib/broadcast-tour';
+import { campaign, CAMPAIGN_NAMES } from '../../../../lib/broadcasts';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
@@ -42,14 +42,20 @@ async function requireOwner() {
 }
 
 /* ---- GET: how far along are we? Sends nothing. ---- */
-export async function GET() {
+export async function GET(req) {
   if (!(await requireOwner())) return NextResponse.json({ error: 'no' }, { status: 404 });
   if (!adminConfigured()) {
     return NextResponse.json({ error: 'admin not configured' }, { status: 500 });
   }
-  const { data } = await adminClient().rpc('broadcast_progress', { p_key: TOUR_BROADCAST_KEY });
+  /* 🔴 The campaign is NAMED, never defaulted. See lib/broadcasts.js. */
+  const c = campaign(new URL(req.url).searchParams.get('campaign'));
+  if (!c) {
+    return NextResponse.json(
+      { error: 'name a campaign', choices: CAMPAIGN_NAMES }, { status: 400 });
+  }
+  const { data } = await adminClient().rpc('broadcast_progress', { p_key: c.key });
   const p = Array.isArray(data) ? data[0] : data;
-  return NextResponse.json({ dryRun: true, key: TOUR_BROADCAST_KEY, ...p });
+  return NextResponse.json({ dryRun: true, key: c.key, label: c.label, ...p });
 }
 
 /* ---- POST: actually send, up to `limit` people ---- */
@@ -66,13 +72,19 @@ export async function POST(req) {
   }
 
   const body = await req.json().catch(() => ({}));
+  /* 🔴 Same rule as GET: no campaign named, nothing sent. */
+  const c = campaign(body.campaign);
+  if (!c) {
+    return NextResponse.json(
+      { error: 'name a campaign', choices: CAMPAIGN_NAMES }, { status: 400 });
+  }
   /* ⚠️ Clamped hard. A typo in the browser console cannot turn this
      into "send to everybody, right now, and blow the daily quota". */
   const limit = Math.max(1, Math.min(Number(body.limit) || 25, 100));
 
   const admin = adminClient();
   const { data: pending, error } = await admin.rpc('broadcast_pending', {
-    p_key: TOUR_BROADCAST_KEY, p_limit: limit,
+    p_key: c.key, p_limit: limit,
   });
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
@@ -86,13 +98,13 @@ export async function POST(req) {
        recording after would make the worst case a SECOND email, which
        is the one thing we promised would never happen. */
     const { data: won } = await admin.rpc('broadcast_claim', {
-      p_key: TOUR_BROADCAST_KEY, p_member: row.member_id,
+      p_key: c.key, p_member: row.member_id,
     });
     if (won !== true) { skipped++; continue; }
 
     const pageUrl = `https://soberbook.app/unsub/${row.optout_token}`;
     const postUrl = `https://soberbook.app/api/unsub/${row.optout_token}`;
-    const { subject, html, text } = tourEmail({ optoutUrl: pageUrl });
+    const { subject, html, text } = c.build({ optoutUrl: pageUrl });
 
     const res = await sendMail({
       to: row.email,
@@ -114,13 +126,13 @@ export async function POST(req) {
          retrying it on every press is how a sending reputation dies.
          It is marked instead, so the count is honest. */
       await admin.rpc('broadcast_failed', {
-        p_key: TOUR_BROADCAST_KEY, p_member: row.member_id,
+        p_key: c.key, p_member: row.member_id,
       });
       if (errors.length < 5) errors.push(res.error);
     }
   }
 
-  const { data: prog } = await admin.rpc('broadcast_progress', { p_key: TOUR_BROADCAST_KEY });
+  const { data: prog } = await admin.rpc('broadcast_progress', { p_key: c.key });
   const p = Array.isArray(prog) ? prog[0] : prog;
 
   /* ⚠️ No addresses in the response, ever. This is a count of people in

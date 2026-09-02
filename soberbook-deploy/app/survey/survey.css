@@ -1,0 +1,79 @@
+/* =====================================================================
+   THE SURVEY. Sept 2026.
+
+   ⚠️ EVERY CLASS IS PREFIXED sv-. Checked before a line was written:
+   .pill and .chip are already taken (wall.css, friends.css), and the
+   16 Aug `.composer` collision came from exactly this — reusing a name
+   that another stylesheet already re-declares. `sv-` was verified unused
+   across all 20 stylesheets.
+
+   ⚠️ Reads --gd, --gl, --gt, --gm-t, --paper, --soft, --line, --body out
+   of theme-green.css, so the layout must import that FIRST.
+   ===================================================================== */
+
+.sv-wrap { max-width: 560px; margin: 0 auto; padding: 22px 16px 40px; }
+
+.sv-lede    { font-size: 21px; font-weight: 650; color: var(--x); line-height: 1.3; margin: 0 0 8px; }
+.sv-sub     { font-size: 14.5px; color: var(--soft); line-height: 1.55; margin: 0 0 26px; }
+
+.sv-q       { margin-bottom: 26px; }
+.sv-ask     { font-size: 15.5px; font-weight: 650; color: var(--x); margin: 0 0 4px; }
+.sv-hint    { font-size: 13px; color: var(--soft); margin: 0 0 11px; }
+
+/* --- chips: multi-select, wrapping --- */
+.sv-chips   { display: flex; flex-wrap: wrap; gap: 8px; }
+.sv-chip {
+  font: inherit; font-size: 14px; line-height: 1.2;
+  padding: 11px 15px; border-radius: 999px; cursor: pointer;
+  background: var(--paper2, #fff); color: var(--soft);
+  border: 1px solid var(--line);
+  /* ⚠️ 44px minimum tap target. The 18 Aug post-footer bug was 20px
+     controls on the only two things anybody taps. */
+  min-height: 44px;
+}
+.sv-chip[aria-pressed="true"] {
+  background: var(--gl); color: var(--gt); border-color: var(--gm-t); font-weight: 600;
+}
+
+/* --- stacked options, one per line --- */
+.sv-opts { display: flex; flex-direction: column; gap: 8px; }
+.sv-opt {
+  font: inherit; font-size: 14.5px; text-align: left; line-height: 1.35;
+  padding: 13px 15px; border-radius: 10px; cursor: pointer; min-height: 44px;
+  background: var(--paper2, #fff); color: var(--soft); border: 1px solid var(--line);
+}
+.sv-opt[aria-pressed="true"] {
+  background: var(--gl); color: var(--gt); border-color: var(--gm-t); font-weight: 600;
+}
+
+/* --- two side by side (yes / not yet) --- */
+.sv-two { display: flex; gap: 9px; }
+.sv-two .sv-opt { flex: 1; text-align: center; }
+
+.sv-text {
+  width: 100%; font: inherit; font-size: 14.5px; color: var(--body);
+  padding: 12px 14px; border-radius: 10px; border: 1px solid var(--line);
+  background: var(--paper2, #fff); resize: vertical; min-height: 84px;
+}
+.sv-text:focus { outline: 2px solid var(--gm-t); outline-offset: 1px; }
+.sv-short { min-height: 0; height: 46px; resize: none; }
+
+.sv-send {
+  width: 100%; font: inherit; font-size: 16px; font-weight: 650;
+  padding: 15px; border-radius: 12px; border: 0; cursor: pointer;
+  background: var(--gd); color: #F7FAF8; min-height: 52px;
+}
+.sv-send:disabled { opacity: .55; cursor: default; }
+
+.sv-foot { text-align: center; font-size: 12.5px; color: var(--soft); margin-top: 14px; line-height: 1.5; }
+.sv-err  { font-size: 13.5px; color: #A32D2D; margin-top: 12px; text-align: center; }
+
+/* --- the thank-you --- */
+.sv-done  { text-align: center; padding: 54px 20px 60px; }
+.sv-tick  { width: 56px; height: 56px; border-radius: 50%; background: var(--gl);
+            display: grid; place-items: center; margin: 0 auto 18px;
+            font-size: 27px; color: var(--gd); }
+.sv-dhead { font-size: 20px; font-weight: 650; color: var(--x); margin: 0 0 8px; }
+.sv-dsub  { font-size: 14.5px; color: var(--soft); line-height: 1.6; margin: 0 auto; max-width: 340px; }
+.sv-back  { display: inline-block; margin-top: 26px; font-size: 15px; text-decoration: none;
+            color: var(--gd); border: 1px solid var(--gm-t); border-radius: 10px; padding: 12px 20px; }

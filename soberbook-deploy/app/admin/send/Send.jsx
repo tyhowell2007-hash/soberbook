@@ -16,17 +16,17 @@ import { useEffect, useState } from 'react';
    ⚠️ Nothing here can send twice. The database refuses it (0109). This
    page is a trigger, not a safety mechanism.
    ===================================================================== */
-export default function Send() {
+export default function Send({ campaign = 'survey' }) {
   const [p, setP] = useState(null);
   const [busy, setBusy] = useState(false);
   const [last, setLast] = useState(null);
   const [err, setErr] = useState('');
 
   async function refresh() {
-    const r = await fetch('/api/admin/broadcast', { cache: 'no-store' });
+    const r = await fetch(`/api/admin/broadcast?campaign=${campaign}`, { cache: 'no-store' });
     setP(r.ok ? await r.json() : null);
   }
-  useEffect(() => { refresh(); }, []);
+  useEffect(() => { refresh(); /* eslint-disable-next-line */ }, [campaign]);
 
   async function go(limit) {
     setBusy(true); setErr(''); setLast(null);
@@ -34,7 +34,7 @@ export default function Send() {
       const r = await fetch('/api/admin/broadcast', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ limit }),
+        body: JSON.stringify({ limit, campaign }),
       });
       const j = await r.json();
       if (!r.ok) throw new Error(j.error || `HTTP ${r.status}`);
@@ -71,8 +71,12 @@ export default function Send() {
             {busy ? 'Sending…' : 'Send 1 — it comes to you'}
           </button>
           <p className="hint">
-            You are the oldest account, so the first one lands in your inbox.
-            Look at it before sending the rest.
+            You are the oldest account and this campaign has sent nobody yet, so
+            the first one lands in your inbox. Look at it before sending the rest.
+            {/* ⚠️ This is only true while YOUR row for this campaign is unsent.
+                On 1 Sept it was repeated after Ty had already been sent to, and
+                the "test" went to a real member instead. It holds here because
+                'survey' is a brand-new broadcast key with zero rows. */}
           </p>
           <button className="btn ghost" type="button" disabled={busy} onClick={() => go(25)}>
             Send the next 25
