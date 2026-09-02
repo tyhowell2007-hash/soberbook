@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { serverClient } from '../../../lib/supabase-server';
+import { campaign } from '../../../lib/broadcasts';
 import Send from './Send';
 
 export const dynamic = 'force-dynamic';
@@ -39,10 +40,30 @@ export const dynamic = 'force-dynamic';
    invisible one. Send.jsx no longer has a default to fall back on.
    ===================================================================== */
 
-/* ⚠️ Named once, used by both the copy and the component. Adding the
-   next broadcast means changing this line and the paragraph under it
-   TOGETHER — which is the point. */
-const CAMPAIGN = 'survey';
+/* ⭐ 2 SEPT — THE HEADING NOW COMES OUT OF THE REGISTRY, not out of this
+   file. The bug above was a label and a behaviour drifting apart; naming
+   the campaign here fixed half of it, and this fixes the other half —
+   `label` is read from lib/broadcasts.js, so the words at the top of a
+   section and the email its button sends are the same fact read once.
+
+   ⚠️ ONLY LIVE CAMPAIGNS ARE LISTED. 'tour' (1 Sept) is deliberately
+   absent: 151 people have it, the app has since been corrected, and its
+   counter would now read "33 to go" with a working button underneath —
+   an invitation to send a superseded email to 33 people. A finished
+   campaign staying in the registry is history; putting it on screen with
+   a button is a loaded gun. */
+const LIVE = [
+  {
+    name: 'survey',
+    blurb: <>Links to <Link href="/survey">soberbook.app/survey</Link>. Started 2 Sept.</>,
+  },
+  {
+    name: 'tour2',
+    blurb: <>Links to <Link href="/tour">soberbook.app/tour</Link>. Says the film is
+      three and a half minutes, because <b>our own page said fourteen</b> for days
+      over a 3:29 film.</>,
+  },
+];
 
 export default async function SendPage() {
   const supabase = serverClient();
@@ -54,21 +75,50 @@ export default async function SendPage() {
 
   return (
     <div className="pad">
-      <h1>The survey email</h1>
+      <h1>Broadcasts</h1>
       <p className="hint">
-        One email, to everybody who has email switched on, linking to{' '}
-        <Link href="/survey">soberbook.app/survey</Link>. Nobody can get it twice.
+        Everybody who has email switched on. Nobody can get the same one twice
+        &mdash; the database refuses it.
       </p>
-      <Send campaign={CAMPAIGN} />
 
-      {/* ⚠️ Written on the page, not just in a commit message, because
-          this is the thing that will be forgotten in six weeks. */}
-      <p className="hint">
-        The walkthrough email on 1 Sept said out loud it was <b>the only one
-        like it</b> anybody would get. This one acknowledges that once and
-        promises to stop. <b>That makes it the last broadcast down this pipe.</b>{' '}
-        A third makes both sentences a lie, and this app does not make claims
-        it can&apos;t keep.
+      {LIVE.map(({ name, blurb }) => {
+        const c = campaign(name);
+        /* ⚠️ A name that isn't in the registry renders a refusal instead of
+           a send button. The route would refuse it too; this just means the
+           failure is visible up here rather than after a press. */
+        if (!c) {
+          return (
+            <section key={name}>
+              <h2>{name}</h2>
+              <p className="err">No campaign called &ldquo;{name}&rdquo;. Nothing can be sent.</p>
+            </section>
+          );
+        }
+        return (
+          <section key={name} style={{ margin: '28px 0 0' }}>
+            <h2>{c.label}</h2>
+            <p className="hint">{blurb}</p>
+            <Send campaign={name} />
+          </section>
+        );
+      })}
+
+      {/* 🔴 THIS PARAGRAPH USED TO SAY THE SURVEY WAS "THE LAST BROADCAST
+          DOWN THIS PIPE" and that a third would make two sentences a lie.
+          A third is now on this page, at Ty's direction, so leaving that
+          claim up would have made the admin screen itself dishonest —
+          which is the same failure as the survey heading describing the
+          walkthrough, one level up.
+
+          ⚠️ It is replaced rather than deleted, because the promise it
+          was protecting is real and still owed to 151 people. */}
+      <p className="hint" style={{ marginTop: 32 }}>
+        The 1 Sept walkthrough email said it was <b>the only one like it</b>{' '}
+        anybody would get. The survey broke that once and said so. This one
+        breaks it twice &mdash; so it opens by naming that, gives a concrete
+        reason (we had the runtime wrong on our own page), and promises quiet
+        afterwards. <b>Every further broadcast spends credibility we are
+        running low on.</b> The next one needs a better reason than a good idea.
       </p>
     </div>
   );
