@@ -221,7 +221,18 @@ export default async function WallPage() {
           has drawn pushes every post down under a thumb that is already
           reading, which is why the photos and reply previews are fetched
           up here too. Renders nothing at all when no room is open. */}
-      <div className="pad"><OpenRoom initial={openRoom} /></div>
+      {/* 🔴 NO WRAPPER DIV. It was `<div className="pad">…</div>` and `.pad`
+          is `padding: 20px 16px 90px` — that 90px is the nav spacer — so
+          with no room open the page carried a 110px EMPTY BAND at the top
+          of Home, measured on the live site. OpenRoom returns null most of
+          the time by design, and a wrapper renders its padding around
+          nothing. The card carries its own margins in openroom.css instead.
+
+          ⚠️ Do NOT "fix" this by making the wrapper conditional on
+          `openRoom` — the component polls, so a room opened mid-session
+          could then never appear. The component must always mount and
+          decide for itself. */}
+      <OpenRoom initial={openRoom} />
       {error
         ? <div className="pad"><div className="err">Couldn&apos;t load the wall: {error.message}</div></div>
         : <Wall
