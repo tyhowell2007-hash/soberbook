@@ -177,6 +177,25 @@ export async function POST(req) {
 
   /* ⚠️ No addresses in the response, ever. This is a count of people in
      recovery; the browser gets integers and, at most, five error
-     strings from Resend. */
-  return NextResponse.json({ sent, failed, skipped, errors, ...p });
+     strings from Resend.
+
+     🔴 THE PER-PRESS NUMBERS ARE NAMED `just*`, AND THAT IS A BUG FIX.
+     This used to be `{ sent, failed, skipped, errors, ...p }`. `p` comes
+     from broadcast_progress() and carries its OWN `sent` and `failed` —
+     the CAMPAIGN TOTALS — so the spread landed on top of the local
+     counts and silently replaced them. The screen then said "Last press:
+     26 sent" for a press that had sent 25, because 26 was the running
+     total.
+
+     ⭐ It fails in the most convincing direction possible: the number is
+     real, plausible, and adjacent to the right one. On the first press
+     of a campaign the two are IDENTICAL, so it looks perfect exactly
+     when you are watching hardest. Only the second press can reveal it.
+
+     ⚠️ Two different questions — "how far along is this campaign" and
+     "what did that button just do" — cannot share a key. Sept.js */
+  return NextResponse.json({
+    ...p,
+    justSent: sent, justFailed: failed, justSkipped: skipped, errors,
+  });
 }
