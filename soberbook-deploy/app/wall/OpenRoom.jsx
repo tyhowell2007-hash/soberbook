@@ -46,25 +46,21 @@ import { browserClient } from '../../lib/supabase-browser';
    drops in August, for the same reason.
    ===================================================================== */
 
-/* ⭐ Written once, here, and used for both the server's first paint and
-   every poll after it. The 0046→0047→0049 lesson: a rule restated in a
-   second place is a second implementation, and the second one drifts. */
-export function whosThere(room) {
-  const n = Number(room?.people) || 0;
-  if (n >= 2) return `${n} people in there`;
-  if (n === 1) return `${room.host_name} is in there`;
-  return `${room.host_name} just opened a room`;
-}
+/* 🔴 BOTH HELPERS LIVE IN lib/open-room.js, NOT IN THIS FILE.
 
-/* The fullest room wins; if two are level, the newest. Exported so the
-   server can pick the same one the browser would. */
-export function pickRoom(rows) {
-  if (!rows || !rows.length) return null;
-  return [...rows].sort((a, b) =>
-    (Number(b.people) || 0) - (Number(a.people) || 0) ||
-    String(b.created_at || '').localeCompare(String(a.created_at || ''))
-  )[0];
-}
+   They were here first, and app/wall/page.jsx — a SERVER component —
+   imported pickRoom from here. Next.js turns every export of a
+   'use client' module into a client reference, so the server got a proxy
+   instead of a function, called it, and answered every member with
+   "Application error: a server-side exception". The wall was down.
+
+   ⚠️ The build was green throughout. It is a runtime failure and only
+   loading the live page could ever have found it.
+
+   ⚠️ Do NOT move them back in here to keep the component self-contained.
+   A function two runtimes both need belongs to neither — same reason
+   lib/previews.js and lib/drops.js sit in lib/ and take a client. */
+import { whosThere, pickRoom } from '../../lib/open-room';
 
 export default function OpenRoom({ initial = null }) {
   /* ⚠️ Seeded from the server so the card is present in the FIRST paint.

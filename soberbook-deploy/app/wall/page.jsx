@@ -7,7 +7,12 @@ import { fetchPreviews } from '../../lib/previews';
 import { fetchTags } from '../../lib/tags';
 import Wall from './Wall';
 import FeedRefresh from '../components/FeedRefresh';
-import OpenRoom, { pickRoom } from './OpenRoom';
+import OpenRoom from './OpenRoom';
+/* 🔴 pickRoom comes from lib/, NOT from OpenRoom.jsx. That file is
+   'use client', and a named export of a client module arrives here as a
+   client reference rather than a function — calling it threw a
+   server-side exception on every wall load. See lib/open-room.js. */
+import { pickRoom } from '../../lib/open-room';
 
 export const dynamic = 'force-dynamic';
 
