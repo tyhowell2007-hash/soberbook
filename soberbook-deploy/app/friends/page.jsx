@@ -16,7 +16,7 @@ export const metadata = { title: 'Your people — Sober Book' };
    this page cannot be pointed at somebody else's list — not by editing
    the URL, not by any request a browser could make. The absence of that
    parameter IS the access control. */
-export default async function FriendsPage() {
+export default async function FriendsPage({ searchParams }) {
   const supabase = serverClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');
@@ -103,7 +103,35 @@ export default async function FriendsPage() {
      page slower for everybody to serve a minority. Room.jsx knows to go
      and get them when it is handed nothing. */
   const rooms = roomList || [];
-  const room  = rooms[0] || null;
+
+  /* ⭐ ?room=<slug> — THE ROOM HAS AN ADDRESS NOW, 3 Sept.
+     ---------------------------------------------------------------------
+     Found the night the Kratom 7-OH room was added, and it made that room
+     pointless as built: RoomSwitch holds the active tab in useState, so
+     there was NO URL that opened anything but the first room. The whole
+     reason 7-OH exists is that a creator is going to post a link to it —
+     and a link to it could not be written. Twelfth "everything built
+     except the way in" of the last two weeks.
+
+     ⚠️ RESOLVED ON THE SERVER, NOT IN RoomSwitch, and the difference is
+     not stylistic. page.jsx fetches `firstMessages` for whichever room it
+     calls `first`, so picking the room here means the requested room
+     arrives WITH ITS MESSAGES ALREADY IN IT. Doing it client-side would
+     open the right tab onto an empty panel and then go fetch — the room
+     would flash "nobody's said anything yet" at exactly the person who
+     followed a link because they needed somebody.
+
+     ⚠️ And it avoids useSearchParams entirely: that needs a Suspense
+     boundary, and reading window.location in a useState initializer
+     desynchronises server and client render.
+
+     ⚠️ An unknown, misspelled or switched-off slug falls back to the
+     Front Room rather than erroring. `rooms` only holds active rooms, so
+     a link to a room Ty has turned off degrades to the front door — the
+     right failure for a URL that may be printed on somebody else's post
+     long after we change our minds. */
+  const wanted = typeof searchParams?.room === 'string' ? searchParams.room : null;
+  const room   = (wanted && rooms.find((r) => r.slug === wanted)) || rooms[0] || null;
 
   let firstMessages = [];
   let roomPhotos = {};
