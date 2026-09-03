@@ -69,6 +69,37 @@ export const THEMES = [
 const YNU = [['yes', 'Yes'], ['no', 'No'], ['unsaid', 'Rather not say']];
 
 /* ---------------------------------------------------------------------
+   THE EYE. One control, used on sections and on path groups.
+
+   Ty: "have an eye right beside it, and you can toggle it on or off so
+   people can see it or not see it."
+
+   ⚠️ preventDefault AND stopPropagation, and both are load-bearing. This
+   button renders inside a <summary>, and a click anywhere in a summary
+   is the browser's own gesture for opening and closing the <details>.
+   Without these, hiding your town would also collapse the section you
+   were working in — which reads as the app lurching, not as a setting
+   being saved.
+
+   ⚠️ It says the WORD as well as the icon. 👁 alone is not a state: a
+   lock and an eye are only distinguishable if you already know the
+   convention, and getting this wrong means publishing something you
+   believed was private. The label removes the guess.
+   --------------------------------------------------------------------- */
+export function Eye({ on, onToggle, busy, what }) {
+  return (
+    <button type="button" className={'eye' + (on ? '' : ' off')} disabled={busy}
+            aria-pressed={!on}
+            aria-label={what + ' — ' + (on ? 'shown on your page' : 'hidden from everyone')}
+            onClick={(e) => { e.preventDefault(); e.stopPropagation(); onToggle(); }}>
+      <span aria-hidden="true">{on ? '\u{1F441}' : '\u{1F512}'}</span>
+      <span className="eyeL">{on ? 'Shown' : 'Hidden'}</span>
+    </button>
+  );
+}
+
+
+/* ---------------------------------------------------------------------
    SPONSORING — two questions, not one exclusive pick.
 
    🔴 The old model was ONE value, with a comment arguing that separate
@@ -177,7 +208,13 @@ export function SponsorPair({ hasSp, willSp, spNA, setHasSp, setWillSp, setSpNA,
    is a thing we never thought of, which is the only answer that can
    teach us anything.
    --------------------------------------------------------------------- */
-export function PathPicker({ paths, setPaths, pathOther, setPathOther, savedOther, save, busy }) {
+export function PathPicker({ paths, setPaths, pathOther, setPathOther, savedOther,
+                             privatePaths, setPrivatePaths, save, busy }) {
+  const hidden = new Set(privatePaths || []);
+  /* A group counts as hidden when every item in it is hidden. Membership
+     lives here and ONLY here — the database stores the plain strings, so
+     it never needs its own copy of this list to filter with. */
+  const groupHidden = (g) => g.i.every((k) => hidden.has(k));
   return (
     <>
       <label>Your path</label>
@@ -185,9 +222,29 @@ export function PathPicker({ paths, setPaths, pathOther, setPathOther, savedOthe
         Tick everything that&apos;s part of it. All paths welcome &mdash; Suboxone included.
       </p>
 
-      {PATH_GROUPS.map((g) => (
-        <div key={g.n} className="pgrp">
-          <span className="pgL">{g.e} {g.n}</span>
+      {PATH_GROUPS.map((g) => {
+        const gh = groupHidden(g);
+        const anyPicked = g.i.some((k) => paths.includes(k));
+        return (
+        <div key={g.n} className={'pgrp' + (gh ? ' pgrp-hid' : '')}>
+          <span className="pgL">
+            {g.e} {g.n}
+            {/* ⚠️ The eye only appears once something in this group is
+                ticked. An eye over an empty group is a control that
+                changes nothing, which is the dead-switch this codebase
+                keeps finding. */}
+            {anyPicked && (
+              <Eye on={!gh} busy={busy} what={g.n}
+                   onToggle={() => setPrivatePaths((prev) => {
+                     const set = new Set(prev || []);
+                     if (gh) g.i.forEach((k) => set.delete(k));
+                     else    g.i.forEach((k) => set.add(k));
+                     const next = [...set];
+                     save({ private_paths: next }, gh ? 'Shown.' : 'Hidden.');
+                     return next;
+                   })} />
+            )}
+          </span>
           <div className="pgW">
             {g.i.map((k) => {
               const on = paths.includes(k);
@@ -209,7 +266,21 @@ export function PathPicker({ paths, setPaths, pathOther, setPathOther, savedOthe
                             const next = prev.includes(k)
                               ? prev.filter((x) => x !== k)
                               : [...prev, k];
-                            save({ paths: next }, 'Saved.');
+                            /* 🔴 Tick something into a group you have
+                               already hidden and it joins the hidden set
+                               too. Without this, hiding Medication and
+                               later adding Methadone would publish the
+                               new one — the group would look hidden and
+                               have a live item in it. */
+                            if (gh && !prev.includes(k)) {
+                              setPrivatePaths((pv) => {
+                                const s2 = [...new Set([...(pv || []), k])];
+                                save({ paths: next, private_paths: s2 }, 'Saved.');
+                                return s2;
+                              });
+                            } else {
+                              save({ paths: next }, 'Saved.');
+                            }
                             return next;
                           });
                         }}>
@@ -219,7 +290,8 @@ export function PathPicker({ paths, setPaths, pathOther, setPathOther, savedOthe
             })}
           </div>
         </div>
-      ))}
+        );
+      })}
 
       <label htmlFor="pother">✍️ Something else</label>
       <input id="pother" type="text" maxLength={80} value={pathOther} disabled={busy}
