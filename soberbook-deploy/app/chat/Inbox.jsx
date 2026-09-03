@@ -1,7 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 import Link from 'next/link';
 import { browserClient } from '../../lib/supabase-browser';
 import Directory from './Directory';
@@ -47,23 +46,34 @@ export default function Inbox({ inbox, requests, members = [] }) {
   const [pending, setPending] = useState(requests);
   const [busy, setBusy] = useState(null);
   const [err, setErr] = useState('');
-  const router = useRouter();
 
-  /* ---- the Chat dot clears here ----
+  /* 🔴 THE CHAT DOT NO LONGER CLEARS HERE — 3 Sept, and this is a
+     deletion, not a change.
 
-     ⚠️ ONLY 'message'. Not a blanket mark-read — opening the inbox must
-     not put out the Home dot for a reply you haven't looked at yet.
+     What used to sit here was `notifications_mark_read('message')` in an
+     effect on mount. It was careful about the KIND — only messages, so a
+     reply notification survived — and completely wrong about the SCOPE.
+     It marked every message notification read across EVERY thread the
+     moment you looked at the list of names. `notifications_clear_seen()`
+     then deletes anything read, so they were gone for good.
 
-     ⚠️ And note this clears on the INBOX, not on accepting a request. A
-     request never created a notification in the first place (0025's
-     trigger refuses un-accepted threads), so there is nothing here that
-     could betray the gate. */
-  useEffect(() => {
-    browserClient().rpc('notifications_mark_read', { p_kind: 'message' })
-      .then(() => router.refresh())
-      .catch(() => {});
-    /* eslint-disable-next-line */
-  }, []);
+     ⭐ Ty had 133 threads, 35 messages sent to him, and had never seen a
+     single notification. **The more people talk to you, the more
+     completely it failed** — one glance at Chat wiped the lot. He
+     reported it as "I'm not getting notifications anywhere."
+
+     ⚠️ THIS IS THE 30 AUGUST WALL BUG IN A SECOND PLACE. That one ran
+     `notifications_mark_read('reply')` on mount because "the reply is on
+     this page somewhere". Same reasoning, same damage, and the rule
+     written down then is the rule now: **a surface may mark read exactly
+     what it displayed the CONTENTS of.** This screen displays a list of
+     names. It has never displayed one word of anybody's message.
+
+     ⚠️ The dot is not left stuck: `app/chat/[id]/Convo.jsx` clears that
+     ONE thread via notifications_mark_thread_read() (0120) when you
+     actually open the conversation and read it. That function did not
+     exist until today, which is why the inbox reached for the blanket
+     one — it was the only tool in the drawer, not laziness. */
 
   async function answer(id, yes) {
     setBusy(id); setErr('');
