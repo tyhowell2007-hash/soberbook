@@ -178,15 +178,58 @@ export default function Rows({ initial, askPush: askPushInitial }) {
            rule says a link that loads the right page and does the wrong
            thing is worse than a broken one. The fix was to build the
            destination, not to soften the link. */
+        /* 🔴 'highlight' AND 'drop' WERE MISSING FROM THIS LIST, AND THAT
+           WAS THE WHOLE BUG — 3 Sept.
+
+           A kind with no href renders as a plain <div> a few lines below,
+           with no onClick — so markRead() could never run on it. There is
+           no "mark this read" gesture anywhere else on the page. The row
+           was therefore unread FOREVER, and my_nav_dots counts 'highlight'
+           toward the Home dot.
+
+           Measured before the fix: 381 unread highlights across 127 of
+           190 members, from three @highlight broadcasts on 1 Sept — two
+           of which literally say "Just testing". Every one of those
+           people had a green dot on Home that NOTHING IN THE APP COULD
+           PUT OUT. Ty answered a message, watched the dot stay, and
+           reasonably concluded chat was broken. It wasn't; the dot was
+           never about a message.
+
+           ⭐ Twelfth "everything built except the way in" in this file.
+           The destination (/p/[id]) and the reader (notification_mark_read)
+           both already existed and were already correct. Only the link
+           between them was missing.
+
+           ⚠️ THE RULE, so the next kind added doesn't repeat this: a new
+           notification kind is not finished when the trigger writes the
+           row. It is finished when the row has somewhere to GO. If a kind
+           can't have a destination, it must not be in my_nav_dots — a dot
+           you cannot clear trains people to ignore the dot, which costs
+           far more than the notification was ever worth. */
         const href =
           n.kind === 'message' && n.thread_id ? `/chat/${n.thread_id}` :
-          (n.kind === 'reply' || n.kind === 'mention') && n.post_id ? `/p/${n.post_id}` :
+          (n.kind === 'reply' || n.kind === 'mention' ||
+           n.kind === 'highlight' || n.kind === 'drop') && n.post_id
+            ? `/p/${n.post_id}` :
           null;
 
-        const icon = n.kind === 'message' ? '✉️' : n.kind === 'mention' ? '@' : '💬';
+        const icon = n.kind === 'message' ? '✉️'
+          : n.kind === 'mention' ? '@'
+          : n.kind === 'highlight' ? '📣'
+          : n.kind === 'drop' ? '🎵'
+          : '💬';
 
+        /* ⚠️ A highlight used to fall through to "answered your post",
+           which was simply untrue — nobody answered anything, it is an
+           announcement to everybody. A drop would have said it too, the
+           first time somebody's release fired. Same family as every other
+           claim this app has had to stop making on somebody's behalf: the
+           "verified, real people" pill, and the drop card that said
+           "Sober Book first" over an already-released song. */
         const line = n.kind === 'message' ? `${n.who} sent you a message`
           : n.kind === 'mention' ? `${n.who} mentioned you`
+          : n.kind === 'highlight' ? `${n.who} posted an announcement`
+          : n.kind === 'drop' ? `${n.who}’s record is out`
           : `${n.who} answered your post`;
 
         const body = (
