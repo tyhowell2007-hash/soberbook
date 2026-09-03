@@ -1526,6 +1526,28 @@ textarea:focus-visible{ outline:4px solid var(--x); outline-offset:3px; }
 
 /* ⭐ ACID ON BLACK, the loudest thing in the app, and it earns it: this is
    the sentence a member has been waiting to be able to say. */
+/* ⭐ "NOTIFY ME WHEN IT PLAYS" — 3 Sept, Ty's words for it.
+
+   A LINK, NOT A BUTTON, AND THAT WAS HIS CALL. There were two controls on
+   the prototype — a full-width button and this — and he cut it to one.
+   A record sleeve doesn't have a call-to-action bar across it.
+
+   ⚠️ Sits under a hairline so it reads as a footnote to the countdown
+   rather than a second thing to decide about.
+   🔴 44px tall even though it looks like text. It is the only control on
+   this card before release, and a 13px link with no padding is a miss on
+   a phone. Measured on #0A0A09: link 14.31, once armed 8.63. */
+.dp-remind{
+  display:block; width:100%; min-height:44px;
+  margin:14px 0 0; padding:12px 4px 2px;
+  border:none; border-top:1px solid #2A302C; background:none;
+  font:inherit; font-size:13px; color:#C4E2D4;
+  text-decoration:underline; text-underline-offset:3px;
+  cursor:pointer; text-align:center;
+}
+.dp-remind[data-on="1"]{ color:#9BB0A6; text-decoration:none; cursor:default; }
+.dp-remind:disabled{ opacity:1; }
+
 .dp-only{
   position:absolute; top:11px; left:12px;
   font-family:'Courier Prime',monospace; font-size:10px; font-weight:700;
