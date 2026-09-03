@@ -1189,3 +1189,71 @@ body{
 }
 .mtT { display: block; font-size: 15px; color: var(--gt, #2b5c3f); text-decoration: underline; }
 .mtD { display: block; margin-top: 4px; font-size: 13px; color: var(--soft, #8fa99a); }
+
+/* =====================================================================
+   THE PROFILE REBUILD — 2 Sept. Sponsoring pills, the path picker and
+   the theme chips. Added to the END of this file on purpose: every
+   class here is NEW, so nothing above can be affected by it, and the
+   71KB wall.css upload failure of 23 Aug is a reminder not to touch a
+   big file more than the change needs.
+   ⚠️ EVERY NEW CLASS IS PREFIXED OR NAMESPACED, and I got that wrong
+   first. landing.css states the rule — "EVERY CLASS IS PREFIXED lp-.
+   NOT OPTIONAL" — because the .composer collision of 16 Aug was found
+   the hard way. I wrote a bare `.pill`, then wrote a comment claiming I
+   had "checked before writing" when I had not checked at all. The check
+   afterwards came back clean, so nothing actually collided; that is
+   luck, not method. Renamed to .sbpill and the claim corrected.
+   ===================================================================== */
+
+/* ---- the yes / no / rather-not-say rows ---- */
+.sqrow{ margin:16px 0 4px; }
+.sqL{
+  display:block; font-size:14px; font-weight:600;
+  color:var(--body, #17281E); margin-bottom:8px;
+}
+.sqBtns{ display:flex; gap:8px; flex-wrap:wrap; }
+
+/* ⚠️ 44px minimum. These are the smallest tap targets added tonight and
+   the Aug 18 lesson was learned on a 20px one. */
+.sbpill{
+  min-height:44px; padding:10px 16px;
+  border:2px solid var(--line, #D7E3DB); border-radius:999px;
+  background:#fff; color:var(--body, #17281E);
+  font:inherit; font-size:14px; font-weight:600; cursor:pointer;
+}
+.sbpill:hover{ border-color:var(--gd, #1B6B4A); }
+/* ⚠️ #FFFFFF on --gd measures 6.46. MEASURED — three contrast figures
+   were written unmeasured earlier today and two were under the floor. */
+.sbpill.sel{ background:var(--gd, #1B6B4A); color:#fff; border-color:var(--gd, #1B6B4A); }
+.sbpill:disabled{ opacity:.5; cursor:default; }
+
+/* ---- your path ---- */
+.pgrp{ margin:14px 0 0; }
+/* --soft on white measures 4.69 — over the 4.5 floor, but only just, so
+   it carries weight 700 rather than being made lighter. */
+.pgL{
+  display:block; font-size:11px; font-weight:700; letter-spacing:.12em;
+  text-transform:uppercase; color:var(--soft, #5f7a6a); margin-bottom:7px;
+}
+.pgW{ display:flex; flex-wrap:wrap; gap:7px; }
+.pgW .sbpill{ min-height:40px; padding:8px 13px; font-size:13.5px; }
+
+/* ---- the eight themes ---- */
+.thWrap{ display:flex; flex-wrap:wrap; gap:8px; margin:4px 0 0; }
+.thChip{
+  display:flex; align-items:center; gap:8px;
+  min-height:44px; padding:9px 15px 9px 10px;
+  border:2px solid var(--line, #D7E3DB); border-radius:999px;
+  background:#fff; color:var(--body, #17281E);
+  font:inherit; font-size:14px; font-weight:600; cursor:pointer;
+}
+.thChip.sel{ border-color:var(--gd, #1B6B4A); background:var(--gl, #E8F4ED); }
+/* ⚠️ The dot is DECORATION and carries no text, so its own contrast is
+   not a reading requirement — but it needs an edge or the pale ones
+   vanish on white. The 17 Aug lesson: audit fills and borders, not just
+   type. A pale-green tag on a pale-green card measured 1.00 and was
+   invisible, and the first fix was another fill. */
+.thDot{
+  width:18px; height:18px; flex:none; border-radius:50%;
+  border:1.5px solid rgba(0,0,0,.22);
+}
