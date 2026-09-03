@@ -454,12 +454,32 @@ export default function Landing() {
                     Another
                   </button>
                 </div>
+                {/* 🔴 THE THREE-CHARACTER FLOOR, GUARDED IN THE APP — 3 Sept.
+                    `minLength={3}` above was the ONLY thing standing between a
+                    short handle and a database that refuses it. Measured on the
+                    live page: with the value at "ab", `validity.tooShort` came
+                    back FALSE. Whether that holds for a real keystroke I could
+                    not prove either way — and that is exactly the point. This
+                    rule is enforced by a CHECK constraint in Postgres, and
+                    leaning on a browser attribute to keep people away from it
+                    is the same shape as the bug that left eleven people with a
+                    login and no account.
+
+                    ⭐ And cleanHandle can MAKE a short one out of a long one:
+                    "J.D." loses both dots and comes out "JD", "A.J." → "AJ".
+                    Nobody typed two characters; the cleaner produced them.
+
+                    ⚠️ The sentence swaps rather than stacking, because a
+                    disabled button with no reason next to it is the dead-end
+                    this file already fixed once (16 Aug). */}
                 <p className="lp-fineprint">
-                  This is the only name other members see. Not your email, not
-                  your real name — and you can change it later.
+                  {upHandle.length < 3
+                    ? 'A handle needs three characters or more — add one or two and you’re in.'
+                    : 'This is the only name other members see. Not your email, not your real name — and you can change it later.'}
                 </p>
 
-                <button className="lp-go" type="submit" disabled={!!busy}>
+                <button className="lp-go" type="submit"
+                        disabled={!!busy || upHandle.length < 3}>
                   {busy === 'up' ? 'One second…' : 'Create my account'}
                 </button>
               </form>
