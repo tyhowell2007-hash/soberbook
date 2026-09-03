@@ -9,6 +9,14 @@ import SongPlayer from '../components/SongPlayer';
 import Milestones from '../components/Milestones';
 import DatePick from '../components/DatePick';
 import { dayCount, startsInDays } from '../../lib/milestones';
+/* ⚠️ THE SAME cleanHandle THE SIGN-UP BOX USES. Not a second copy —
+   a restatement is a second implementation and the second one drifts
+   (0046 → 0049). If the handle rules ever change, they change once. */
+import { cleanHandle } from '../../lib/first-run';
+/* The new profile controls. Split out of this file rather than added to
+   it — see the note at the top of ProfileBits.jsx. */
+import { SponsorPair, PathPicker, ThemePicker, DayCountVisibility,
+         HandleEditor } from './ProfileBits';
 import PhotoUpload from '../components/PhotoUpload';
 import DeleteAccount from './DeleteAccount';
 import Blocked from './Blocked';
@@ -76,9 +84,14 @@ function ago(iso) {
    home. Here the fact is "is this open", and the browser already owns
    it — so we don't keep a second copy.
    ===================================================================== */
-function Section({ title, open = false, children }) {
+/* `tint` — 2 Sept, the cream skin (me-cream.css). Each section is a
+   pastel card with a black border and a hard shadow, and the colour is
+   named HERE rather than picked by nth-child in CSS, so reordering the
+   sections (which happened tonight, for the date) can't silently swap
+   every colour. A section with no tint gets cream. */
+function Section({ title, open = false, tint, children }) {
   return (
-    <details className="msec" open={open}>
+    <details className="msec" open={open} data-tint={tint}>
       <summary className="msum">
         <span>{title}</span>
         {/* aria-hidden: <details> already announces its own state, so
@@ -172,6 +185,24 @@ export default function Me({ email, profile, posts, initialAvatarUrl,
   const [programs, setPrograms] = useState(profile.programs || '');
   const [interests, setInterests] = useState(profile.interests || '');
   const [sponsor, setSponsor] = useState(profile.sponsor_status || 'private');
+
+  /* 🔴 SPONSORING IS TWO FACTS NOW, NOT ONE — 2 Sept, 0113.
+     The old model was a single exclusive pick, so the app could not
+     say "has a sponsor AND willing to sponsor" — which is most
+     sponsors, since nearly every sponsor has one. `sponsor` above is
+     kept only so the old code paths still compile during the change;
+     nothing new writes it. */
+  const [hasSp,  setHasSp]  = useState(profile.has_sponsor  || 'unsaid');
+  const [willSp, setWillSp] = useState(profile.will_sponsor || 'unsaid');
+  const [spNA,   setSpNA]   = useState(profile.sponsor_na   === true);
+
+  /* Your path — a multi-select over a fixed list, plus one free-text
+     line for anything the list never thought of. */
+  const [paths, setPaths]         = useState(profile.paths || []);
+  const [pathOther, setPathOther] = useState(profile.path_other || '');
+  const [theme, setTheme]         = useState(profile.theme || 'cream');
+  const [dcv, setDcv]             = useState(profile.day_count_visibility || 'everyone');
+  const [handle, setHandle]       = useState(profile.handle || '');
   const [findable, setFindable] = useState(!!profile.findable_by_name);
 
   /* ---- name and face (0012) ---- */
@@ -990,10 +1021,22 @@ export default function Me({ email, profile, posts, initialAvatarUrl,
                   how you teach somebody the app is broken. `.deet` is the same
                   card the public profile at /u already uses, so the two views
                   of the same information can't drift apart. */}
-              {!anon && sponsor === 'available' && d !== null && d >= 365 && (
+              {/* 0113: two facts, not one status. `sponsor` (the old
+                  single value) is no longer what the editor writes, so a
+                  read view still keyed on it would show a member the
+                  answer they gave LAST WEEK next to the one they gave
+                  today. Same producer/consumer rule as 0083. */}
+              {!anon && willSp === 'yes' && d !== null && d >= 365 && (
                 <div className="deet sponsor">
                   <span className="di" aria-hidden="true">🛟</span>
-                  <span>Available to sponsor</span>
+                  <span>Willing to sponsor</span>
+                </div>
+              )}
+              {!anon && willSp === 'yes' && (d === null || d < 365) && (
+                <div className="deet sponsor">
+                  <span className="di" aria-hidden="true">🛟</span>
+                  <span>Willing to sponsor</span>
+                  <span className="deet-sub">shows on your page once you have a year</span>
                 </div>
               )}
 
@@ -1013,16 +1056,22 @@ export default function Me({ email, profile, posts, initialAvatarUrl,
                   page. Hiding your own setting from yourself would mean a
                   member under a year could never confirm what they'd
                   chosen — a privacy rule turned into a trap. */}
-              {!anon && sponsor === 'has_sponsor' && (
+              {!anon && hasSp === 'yes' && (
                 <div className="deet">
                   <span className="di" aria-hidden="true">🤝</span>
-                  <span>Has a sponsor</span>
+                  <span>I have a sponsor</span>
                 </div>
               )}
-              {!anon && sponsor === 'looking' && (
+              {!anon && spNA && (
+                <div className="deet">
+                  <span className="di" aria-hidden="true">🤫</span>
+                  <span>Not interested in sponsoring</span>
+                </div>
+              )}
+              {!anon && hasSp === 'no' && (
                 <div className="deet sponsor">
                   <span className="di" aria-hidden="true">🔎</span>
-                  <span>Looking for a sponsor</span>
+                  <span>No sponsor yet</span>
                   {/* Say who can see it, right where it's shown. Otherwise
                       "quiet" is indistinguishable from "broken". */}
                   <span className="deet-sub">only members with a year can see this</span>
@@ -1048,12 +1097,8 @@ export default function Me({ email, profile, posts, initialAvatarUrl,
                   <span className="di" aria-hidden="true">🧭</span><span>{programs}</span>
                 </div>
               )}
-              {!anon && showLoc && town && (
-                <div className="deet">
-                  <span className="di" aria-hidden="true">📍</span>
-                  <span>{town}{state ? ', ' + state : ''}</span>
-                </div>
-              )}
+              {/* ⚠️ There used to be a SECOND town row here, gated on
+                  showLoc — so a public town printed twice. Removed 2 Sept. */}
               {!anon && interests && (
                 <div className="deet">
                   <span className="di" aria-hidden="true">🎣</span><span>{interests}</span>
@@ -1072,7 +1117,7 @@ export default function Me({ email, profile, posts, initialAvatarUrl,
 
                   Derived from the same values the rows use, so the two
                   can't drift again. */}
-              {(anon || (!programs && !interests && !town && sponsor === 'private')) && (
+              {(anon || (!programs && !interests && !town && hasSp === 'unsaid' && willSp === 'unsaid' && !spNA)) && (
                 <p className="hint" style={{ margin: 0 }}>
                   {anon
                     ? 'You’re anonymous, so nothing here is shown to anybody. The pencil still opens your settings.'
@@ -1186,8 +1231,101 @@ export default function Me({ email, profile, posts, initialAvatarUrl,
           </button>
         </div>
 
+
+        {/* 🔴 THE DATE COMES FIRST — 2 Sept, Ty asked three times.
+            It used to be the THIRD section, behind name-and-face and
+            "how you show up". The day count is the thing a member opens
+            this page to look at; burying the control for it under two
+            other headings is the same shape as every other bug tonight —
+            the thing that matters sitting below the thing that doesn't. */}
+        <Section title="🌱 Your date" tint="acid" open>
+          <label htmlFor="sd-m">Sober since</label>
+          <DatePick value={since || today} disabled={busy} idPrefix="sd"
+                    onChange={(v) => { setSince(v); setReset('no'); }} />
+          <p className="hint">
+            Only used to count days. Leave it empty if you&apos;d rather not have a number.
+          </p>
+
+          {reset === 'no' && (
+            <button className="btn" type="button" disabled={busy || since === savedSince}
+                    onClick={() => {
+                      if (movedForward) { setRunLen(String(guess)); setReset('ask'); return; }
+                      save({ sober_since: since || null },
+                           since ? 'Date saved.' : 'Date cleared.');
+                    }}>
+              {busy ? 'Saving…' : 'Save date'}
+            </button>
+          )}
+
+          {/* Two questions, never more, and neither of them asks what
+              happened. The app does not need to know.
+
+              ⚠️ RENDERED FROM ONE PLACE, TWO TIMES. `resetFlow` is built
+              once above and dropped in here and in the counter's inline
+              picker. The counter's edit link can move a date forward just
+              like this editor can, and the question that decides whether
+              a run gets added to the lifetime total must be identical in
+              both — a second copy of THIS, of all things, would be the
+              one that drifts and quietly loses somebody's days. */}
+          {resetFlow}
+
+          {/* ---- the total ----
+              🔴 THE NUMBER AND ITS EDITOR ARE NOT HERE ANY MORE. They live
+              under the day count on the page itself, where Ty asked for
+              them — see `lifeBlock`. What stays in settings is the one
+              thing that genuinely IS a setting: whether anybody else can
+              see the total. Changing your own number is not a preference;
+              publishing it to strangers is. */}
+          {(
+            <>
+              <p className="hint">
+                Your total sits under your day count on this page. It only ever
+                goes up on its own &mdash; starting over resets the count at the
+                top; it has never once reset the total.
+              </p>
+              {/* ⚠️ The publish switch stays gated on there BEING a total.
+                  Offering to put a number on your page when the number is
+                  zero is an empty control, and the hint underneath it talks
+                  about what the subtraction reveals — which reveals nothing
+                  at all when there is nothing to subtract. */}
+              {lifetime > 0 && (<>
+              <button type="button"
+                      className={'choice' + (showLife ? ' sel' : '')}
+                      aria-pressed={showLife} disabled={busy}
+                      onClick={() => { const n = !showLife; setShowLife(n);
+                        save({ show_lifetime: n }, n
+                          ? 'Your total is on your page now.'
+                          : 'Hidden. Only you can see it.'); }}>
+                <span className="ct">{showLife ? '👁 On your page' : '🔒 Just for you'}</span>
+                <span className="cd">
+                  {showLife
+                    ? 'Anyone visiting your page sees your total as well as your count.'
+                    : 'Nobody but you sees this number.'}
+                </span>
+              </button>
+              <p className="hint">
+                Worth knowing before you flip it: a total bigger than your
+                current count tells anyone who does the subtraction that you
+                started over once. That&apos;s yours to share, not ours &mdash; which
+                is why it&apos;s off until you say so.
+              </p>
+              </>)}
+            </>
+          )}
+
+          {/* ---- about you ---- */}
+        </Section>
+
+        <Section title="🪪 Your handle" tint="sand">
+          <HandleEditor handle={handle} setHandle={setHandle}
+                        saved={profile.handle} clean={cleanHandle}
+                        save={save} busy={busy} />
+
+          {/* ---- sober date ---- */}
+        </Section>
+
         {/* ---- name and face ---- */}
-        <Section title="🙂 Your name and face" open>
+        <Section title="🙂 Your name and face" tint="pink">
 
           <div className="pcard">
             {/* "This is exactly how your card looks to everybody else" — a
@@ -1369,7 +1507,7 @@ export default function Me({ email, profile, posts, initialAvatarUrl,
 
           {/* ---- privacy ---- */}
         </Section>
-        <Section title="👀 How you show up">
+        <Section title="👀 How you show up" tint="sky">
           <button type="button"
                   className={'choice' + (privacy === 'open' ? ' sel' : '')}
                   aria-pressed={privacy === 'open'} disabled={busy}
@@ -1392,86 +1530,11 @@ export default function Me({ email, profile, posts, initialAvatarUrl,
             marked anonymous at the time stay anonymous either way.
           </p>
 
+          <DayCountVisibility dcv={dcv} setDcv={setDcv} save={save} busy={busy} />
+
           {/* ---- sober date ---- */}
         </Section>
-        <Section title="🌱 Your date">
-          <label htmlFor="sd-m">Sober since</label>
-          <DatePick value={since || today} disabled={busy} idPrefix="sd"
-                    onChange={(v) => { setSince(v); setReset('no'); }} />
-          <p className="hint">
-            Only used to count days. Leave it empty if you&apos;d rather not have a number.
-          </p>
-
-          {reset === 'no' && (
-            <button className="btn" type="button" disabled={busy || since === savedSince}
-                    onClick={() => {
-                      if (movedForward) { setRunLen(String(guess)); setReset('ask'); return; }
-                      save({ sober_since: since || null },
-                           since ? 'Date saved.' : 'Date cleared.');
-                    }}>
-              {busy ? 'Saving…' : 'Save date'}
-            </button>
-          )}
-
-          {/* Two questions, never more, and neither of them asks what
-              happened. The app does not need to know.
-
-              ⚠️ RENDERED FROM ONE PLACE, TWO TIMES. `resetFlow` is built
-              once above and dropped in here and in the counter's inline
-              picker. The counter's edit link can move a date forward just
-              like this editor can, and the question that decides whether
-              a run gets added to the lifetime total must be identical in
-              both — a second copy of THIS, of all things, would be the
-              one that drifts and quietly loses somebody's days. */}
-          {resetFlow}
-
-          {/* ---- the total ----
-              🔴 THE NUMBER AND ITS EDITOR ARE NOT HERE ANY MORE. They live
-              under the day count on the page itself, where Ty asked for
-              them — see `lifeBlock`. What stays in settings is the one
-              thing that genuinely IS a setting: whether anybody else can
-              see the total. Changing your own number is not a preference;
-              publishing it to strangers is. */}
-          {(
-            <>
-              <p className="hint">
-                Your total sits under your day count on this page. It only ever
-                goes up on its own &mdash; starting over resets the count at the
-                top; it has never once reset the total.
-              </p>
-              {/* ⚠️ The publish switch stays gated on there BEING a total.
-                  Offering to put a number on your page when the number is
-                  zero is an empty control, and the hint underneath it talks
-                  about what the subtraction reveals — which reveals nothing
-                  at all when there is nothing to subtract. */}
-              {lifetime > 0 && (<>
-              <button type="button"
-                      className={'choice' + (showLife ? ' sel' : '')}
-                      aria-pressed={showLife} disabled={busy}
-                      onClick={() => { const n = !showLife; setShowLife(n);
-                        save({ show_lifetime: n }, n
-                          ? 'Your total is on your page now.'
-                          : 'Hidden. Only you can see it.'); }}>
-                <span className="ct">{showLife ? '👁 On your page' : '🔒 Just for you'}</span>
-                <span className="cd">
-                  {showLife
-                    ? 'Anyone visiting your page sees your total as well as your count.'
-                    : 'Nobody but you sees this number.'}
-                </span>
-              </button>
-              <p className="hint">
-                Worth knowing before you flip it: a total bigger than your
-                current count tells anyone who does the subtraction that you
-                started over once. That&apos;s yours to share, not ours &mdash; which
-                is why it&apos;s off until you say so.
-              </p>
-              </>)}
-            </>
-          )}
-
-          {/* ---- about you ---- */}
-        </Section>
-        <Section title="📝 About you">
+        <Section title="📝 About you" tint="lilac">
 
           {/* One notice, stated once, rather than the same warning stapled
               to five fields. If none of this shows, say so plainly and
@@ -1492,13 +1555,10 @@ export default function Me({ email, profile, posts, initialAvatarUrl,
                     onChange={(e) => setBio(e.target.value)} />
           <p className="hint">{200 - bio.length} characters left.</p>
 
-          <label htmlFor="prog">Your programs</label>
-          <input id="prog" type="text" maxLength={120} value={programs} disabled={busy}
-                 placeholder="AA · SMART · MAT friendly"
-                 onChange={(e) => setPrograms(e.target.value)} />
-          <p className="hint">
-            However you word it. All paths count here, and nobody has to justify theirs.
-          </p>
+          <PathPicker paths={paths} setPaths={setPaths}
+                      pathOther={pathOther} setPathOther={setPathOther}
+                      savedOther={profile.path_other || ''}
+                      save={save} busy={busy} />
 
           <label htmlFor="int">What you&apos;re into</label>
           <input id="int" type="text" maxLength={120} value={interests} disabled={busy}
@@ -1572,7 +1632,7 @@ export default function Me({ email, profile, posts, initialAvatarUrl,
 
           {/* ---- where you are ---- */}
         </Section>
-        <Section title="📍 Where you are">
+        <Section title="📍 Where you are" tint="mint">
           <div className="tworow">
             <div>
               <label htmlFor="town">Town</label>
@@ -1635,63 +1695,28 @@ export default function Me({ email, profile, posts, initialAvatarUrl,
 
           {/* ---- sponsoring ---- */}
         </Section>
-        <Section title="🤝 Sponsoring">
-          {/* ⚠️ FOUR CHOICES, NOT FOUR TOGGLES. Sponsor status is ONE
-              fact about you, so it's one exclusive pick — the same
-              reason `one_medium_per_post` exists on the wall. Separate
-              on/off switches would let somebody claim they're looking
-              for a sponsor AND available to be one, which is a state
-              the world doesn't have. */}
-          {[
-            { v: 'private',     t: '🤫 Keep this to yourself',
-              d: 'Nothing about sponsoring shows on your page.' },
-            { v: 'has_sponsor', t: '🤝 I have a sponsor',
-              d: 'Shows on your page. Plain fact, nothing asked of anyone.' },
-            { v: 'looking',     t: '🔎 I’m looking for a sponsor',
-              d: 'Only people with a year or more can see this.' },
-            { v: 'available',   t: '🛟 I’m available to sponsor',
-              d: 'Tells people you have room for somebody.' },
-          ].map((o) => (
-            <button key={o.v} type="button"
-                    className={'choice' + (sponsor === o.v ? ' sel' : '')}
-                    aria-pressed={sponsor === o.v} disabled={busy}
-                    onClick={() => { setSponsor(o.v);
-                      save({ sponsor_status: o.v }, 'Saved.'); }}>
-              {/* Plain interpolation. These are JS strings, so a real
-                  apostrophe is fine — the unescaped-entities lint rule
-                  only applies to literal text typed into JSX. */}
-              <span className="ct">{o.t}</span>
-              <span className="cd">{o.d}</span>
-            </button>
-          ))}
-
-          {/* ⚠️ SAY THE GATE OUT LOUD. The rule is enforced in the
-              database and cannot be got round — but a rule you can't
-              see just looks like the feature is broken. Somebody who
-              ticks "looking" and hears from nobody deserves to know
-              it's deliberate, not a bug. */}
-          {sponsor === 'looking' && (
-            <p className="hint">
-              This one is deliberately quiet. Only members with a year or more
-              can see it &mdash; so it reaches people who&apos;ve been where you
-              are, and not a public list of who&apos;s new and on their own.
-              Nobody under a year can tell you ticked it.
-            </p>
-          )}
-
-          {sponsor === 'available' && d !== null && d < 365 && (
-            <p className="hint">
-              Saved &mdash; but it won&apos;t show on your page until you&apos;ve got a
-              year, which is {(365 - d).toLocaleString()} days away. That&apos;s the
-              same line the rooms draw, and it&apos;s here for the person on the
-              other end of it: the people most likely to say yes to an offer
-              like this are the ones with the least time.
-            </p>
-          )}
+        <Section title="🤝 Sponsoring" tint="butter">
+          <SponsorPair hasSp={hasSp} willSp={willSp} spNA={spNA}
+                       setHasSp={setHasSp} setWillSp={setWillSp} setSpNA={setSpNA}
+                       save={save} busy={busy} days={d} />
 
           {/* ---- your song ---- */}
         </Section>
-        <Section title="🎵 Your song">
+        {/* 🔴 THE THEME PICKER IS BUILT AND DELIBERATELY NOT RENDERED — 2 Sept.
+            ThemePicker is imported and the column exists (0113), but the
+            public page does not read `theme` yet. A member who picked
+            Blackout tonight would see nothing change anywhere — a control
+            that does nothing is the "stale promise" this codebase keeps
+            finding. Remove the `false &&` the same commit that makes
+            /u/[handle] render the theme. */}
+        {false && (
+        <Section title="🎨 How your page looks" tint="cream">
+          <ThemePicker theme={theme} setTheme={setTheme} save={save} busy={busy} />
+
+          {/* ---- your song ---- */}
+        </Section>
+        )}
+        <Section title="🎵 Your song" tint="peach">
           <p className="hint" style={{ marginTop: 0 }}>
             The one that got you through. It plays on your page —{' '}
             <Link href={`/u/${profile.handle}`}>see how it looks</Link>.
@@ -1732,7 +1757,7 @@ export default function Me({ email, profile, posts, initialAvatarUrl,
 
           {/* ---- autoplay ---- */}
         </Section>
-        <Section title="🚪 When you visit someone">
+        <Section title="🚪 When you visit someone" tint="stone">
           <button type="button"
                   className={'choice' + (auto ? ' sel' : '')}
                   aria-pressed={auto} disabled={busy}
@@ -1759,7 +1784,7 @@ export default function Me({ email, profile, posts, initialAvatarUrl,
               on. It is the one control here you can't undo by tapping again,
               and it does not belong next to your own face. */}
         </Section>
-        <Section title="🔑 Account">
+        <Section title="🔑 Account" tint="cream">
           <p className="hint">Signed in as {email}</p>
           <button className={'btn out' + (confirmOut ? ' arm' : '')} type="button"
                   disabled={busy} onClick={signOut}>
