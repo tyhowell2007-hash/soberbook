@@ -104,6 +104,34 @@ export default function DropCard({ drop, artUrl, mediaUrl }) {
     const p = parts(left);
     return (
       <article className="dp dp-soon">
+        {/* ⭐ THE COVER ART, WHILE YOU WAIT — 3 Sept. Ty: "we wanna allow
+            the artist to upload their cover art as well, so that would be
+            the teaser."
+
+            He was right, and it was worse than missing. The sheet has
+            collected artwork since the day drops shipped (PhotoUpload
+            kind="dropart" → art_path) and this card rendered NO image at
+            all until the record was out. So an artist uploaded a cover
+            and it did nothing during the exact window it exists for.
+            This is YouTube's trailer slot, sitting empty with the asset
+            already in the building.
+
+            ⚠️ NO DATABASE CHANGE WAS NEEDED, and that is worth recording:
+            feed_drops returns `art_path` UNCONDITIONALLY — only
+            media_path and external_url are withheld before release — and
+            lib/drops.js already signs it alongside the audio. The data
+            was always here. Only the markup was missing.
+
+            🔴 The frame is rendered ONLY when there is art. An artist who
+            skipped the picture would otherwise get a full-width black
+            square of nothing above their countdown, which is worse than
+            the compact card they have today. Absence stays absent. */}
+        {artUrl && (
+          <div className="dp-frame">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img className="dp-art" src={artUrl} alt="" />
+          </div>
+        )}
         <span className="dp-dots" aria-hidden="true" />
         <div className="dp-in">
           {/* 🔴 "SOBER BOOK FIRST" IS A CLAIM, AND IT IS ONLY TRUE WHEN AN
