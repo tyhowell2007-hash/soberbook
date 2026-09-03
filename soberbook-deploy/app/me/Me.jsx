@@ -392,8 +392,10 @@ export default function Me({ email, profile, posts, initialAvatarUrl,
      whatever stale value it happened to be holding. */
   const aboutDirty =
     bio !== (profile.bio || '') ||
-    programs !== (profile.programs || '') ||
     interests !== (profile.interests || '');
+  /* ⚠️ `programs` is deliberately absent. It is derived from `paths`, so it
+     is never dirty from this section — and if it were listed here the Save
+     button would light up for a change this button no longer makes. */
 
   const whereDirty =
     town !== (profile.town || '') || state !== (profile.state || '');
@@ -1624,7 +1626,16 @@ export default function Me({ email, profile, posts, initialAvatarUrl,
           <button className="btn" type="button" disabled={busy || !aboutDirty}
                   onClick={() => save({
                     bio: bio.trim() || null,
-                    programs: programs.trim() || null,
+                    /* 🔴 `programs` IS NOT SENT, AND THAT IS THE FIX — 2 Sept.
+                       It is DERIVED from `paths` by a trigger now. This button
+                       used to send the `programs` state, which is seeded from
+                       profile.programs at page load — so ticking path chips
+                       derived a fresh value, and then saving your bio wrote
+                       the PAGE-LOAD value straight back over it. Silent, and
+                       it landed on the public page, which reads `programs`.
+                       The comment above this button warned about two buttons
+                       writing one column; the second writer here was a
+                       trigger, which is the same bug wearing a lab coat. */
                     interests: interests.trim() || null,
                   }, 'Saved.')}>
             {busy ? 'Saving…' : 'Save'}
