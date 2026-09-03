@@ -58,6 +58,20 @@ export default function Convo({ thread, initial }) {
         .order('created_at', { ascending: true }).limit(200);
       if (alive && data) setMsgs(data);
       await supabase.rpc('mark_thread_read', { t_id: thread.id });
+
+      /* 🔴 AND THE NOTIFICATION FOR THIS THREAD — 3 Sept.
+         `mark_thread_read` above marks the MESSAGES read and has never
+         touched `notifications`. Nothing else did either, so the only way
+         to put the Chat dot out was the blanket
+         `notifications_mark_read('message')` the inbox used to run on
+         mount — which wiped every thread's notification the moment you
+         glanced at the list. Ty had 133 threads and had never seen one.
+
+         ⭐ This is the surface that displayed the CONTENTS, so this is the
+         surface allowed to clear it. One thread, this thread, no others.
+         ⚠️ It sits AFTER the fetch on purpose: clear what you just showed
+         somebody, not what you are about to. */
+      await supabase.rpc('notifications_mark_thread_read', { t_id: thread.id });
     }
 
     pull();
