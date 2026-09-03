@@ -61,14 +61,51 @@ export default function Rows({ initial, askPush: askPushInitial }) {
     } catch { /* it'll be here next time */ }
   }
 
-  /* 🔴 THIS ONE IS NOT OPTIMISTIC, AND THE REASON IS A BUG I NEARLY
-     SHIPPED. My first version filtered the local list by `!unread` to
-     match what the function deletes. That is wrong here, and subtly:
-     MarkSeen has already run on this very page and marked every reply
-     and mention read IN THE DATABASE, while the copy in this component
-     still says unread — it was fetched a moment earlier. So the filter
-     would have kept rows the database had just deleted, and the screen
-     would have quietly disagreed with reality until a reload.
+  /* ⭐ READ ONE, NOT ALL OF THEM — 3 Sept, and this function is the
+     whole of Ty's fix.
+
+     Ty: "if somebody has five notifications and they click one, and that
+     clears all of them, that's not good… That way people can keep tabs
+     on everything."
+
+     What used to happen: MarkSeen.jsx ran notifications_mark_read() on
+     mount for 'reply' and 'mention'. It was careful about the KIND and
+     had no concept of an ITEM, so simply LOOKING at this page marked
+     every one of them read. The `fresh` class two hundred lines below
+     has been rendering since the bell shipped and was dead about a
+     second after every page load.
+
+     ⚠️ Optimistic, like dismiss and unlike block. The failure is that a
+     row stays bold one refresh longer. Nothing is lost and nobody is
+     told they are safe when they are not.
+
+     🔴 MESSAGES ARE DELIBERATELY NOT MARKED HERE. A message row says
+     "Kenny K sent you a message" and never the message, so tapping it is
+     not reading it — app/chat/[id]/Convo.jsx clears that thread when the
+     words are actually on screen. That is 0027's rule and it survives
+     this change intact. Marking it in both places would be the same rule
+     written twice, and the second copy is the one that drifts. */
+  async function markRead(id) {
+    setList((rows) => rows.map((r) => (r.id === id ? { ...r, unread: false } : r)));
+    try {
+      await browserClient().rpc('notification_mark_read', { p_id: id });
+    } catch { /* still bold next load, which is the honest failure */ }
+  }
+
+  /* 🔴 THIS ONE IS NOT OPTIMISTIC, AND THE REASON SURVIVED A REWRITE.
+
+     My first version filtered the local list by `!unread` to match what
+     the function deletes, and that was wrong for a reason that has now
+     changed underneath it: MarkSeen used to run on this very page and
+     mark every reply and mention read IN THE DATABASE while the copy in
+     this component still said unread, so the filter kept rows the
+     database had just deleted.
+
+     ⚠️ MarkSeen is gone as of 3 Sept, so that particular trap is gone
+     with it — but the conclusion is unchanged and this stays as it is.
+     markRead() above updates one row locally the moment it's tapped, so
+     this component's idea of `unread` is still a copy that can drift
+     from the database by however long the round trip takes.
 
      ⭐ The fix is to stop predicting. router.refresh() re-runs the server
      read, so what appears afterwards is what actually survived. Same
@@ -83,17 +120,21 @@ export default function Rows({ initial, askPush: askPushInitial }) {
     setBusy(false);
   }
 
-  /* ⚠️ A DISPLAY HINT, NOT THE RULE. The rule is `read_at is not null`,
-     and it lives in notifications_clear_seen() where it can be enforced.
-     This only decides whether to draw the button, and it has to account
-     for MarkSeen having already read the replies out from under us — so
-     the only thing it treats as un-clearable is an unread MESSAGE, which
-     is the one kind this page is not entitled to clear.
+  /* 🔴 THIS HAD TO CHANGE WITH MarkSeen, AND IT WOULD HAVE SHIPPED
+     BROKEN — 3 Sept.
 
-     If that's everything, the button has no work to do and shouldn't be
-     on the screen; a control that does nothing when tapped is worse than
-     an absent one. */
-  const clearable = list.filter((r) => !(r.unread && r.kind === 'message')).length;
+     It used to count everything except an unread MESSAGE, and that was
+     right only because MarkSeen had already marked the replies read
+     behind our backs. Take MarkSeen away and rows arrive genuinely
+     unread — so the old sum would draw a Clear button over a list that
+     notifications_clear_seen() will not touch, because that function
+     deletes `read_at is not null` and nothing else.
+
+     ⚠️ The rule it was already breaking on paper is right here in the
+     old comment: a control that does nothing when tapped is worse than
+     an absent one. Now it counts what is actually read, which is
+     precisely what the button can remove. */
+  const clearable = list.filter((r) => !r.unread).length;
 
   return (
     <>
@@ -170,7 +211,10 @@ export default function Rows({ initial, askPush: askPushInitial }) {
              control whose whole job is to make something go away. */
           <div key={n.id} className={'ntfitem' + (n.unread ? ' fresh' : '')}>
             {href ? (
-              <Link href={href} className="ntfrow">{body}</Link>
+              <Link href={href} className="ntfrow"
+                    onClick={() => { if (n.kind !== 'message') markRead(n.id); }}>
+                {body}
+              </Link>
             ) : (
               <div className="ntfrow">{body}</div>
             )}
