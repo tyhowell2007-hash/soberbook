@@ -46,7 +46,6 @@ export default function Inbox({ inbox, requests, members = [] }) {
   const [pending, setPending] = useState(requests);
   const [busy, setBusy] = useState(null);
   const [err, setErr] = useState('');
-  const [showQuiet, setShowQuiet] = useState(false);
 
   /* 🔴 THE CHAT DOT NO LONGER CLEARS HERE — 3 Sept, and this is a
      deletion, not a change.
@@ -92,51 +91,40 @@ export default function Inbox({ inbox, requests, members = [] }) {
     if (yes) window.location.href = `/chat/${id}`;
   }
 
-  /* ⭐ THREE GROUPS, AND THE MEASUREMENT IS THE WHOLE ARGUMENT — 3 Sept.
+  /* 🔴 THE GROUPING WAS REVERTED THE SAME NIGHT IT SHIPPED — 3 Sept.
 
-     Ty: "I have to sift through everything to find where I'm at. We need
-     to make this easier so I don't have to do that like Facebook does."
+     It sorted the inbox into "Waiting on you", the ordinary
+     conversations, and a collapsed "You said hi, nothing back yet". The
+     measurement behind it was real: 133 threads, Ty spoke last in 132,
+     117 were a hello nobody answered, exactly one was waiting on him.
 
-     His inbox: 133 threads, he spoke last in 132, 117 are a hello nobody
-     answered, and EXACTLY ONE is waiting on him. A flat list ordered by
-     recency puts that one somewhere in the middle of 132 rows that need
-     nothing from anyone.
+     ⚠️ AND IT WAS STILL WRONG, FOR A REASON THE NUMBERS COULDN'T SHOW.
+     Ty opened Chat looking for one conversation and found his list had
+     gone from 133 rows to 16, most of it folded behind a toggle, in a
+     different order. He reported it as "chat might be fucked up" and
+     "it's showing our messages like it's new." Nothing was broken —
+     133 of 133 threads were filed correctly, proven against the actual
+     messages. The list was just no longer the list he knew.
 
-     🔴 An unread badge would not have helped, and that is why this looks
-     the way it does rather than like every other inbox. He has zero
-     unread — honestly zero — so the Facebook-shaped fix would have given
-     him 133 rows and no badges at all. The useful question here is not
-     "is there something new" but **"is anybody waiting on me?"**
+     ⭐ THE LESSON, AND IT IS NOT "DON'T GROUP THINGS": people navigate a
+     familiar list by SHAPE AND POSITION, not by reading it. Reorganising
+     somebody's inbox is not a neutral improvement — it costs them
+     everything they had memorised, and that cost lands the first time
+     they go looking for something specific, which is exactly the moment
+     they are least willing to pay it.
 
-     ⚠️ `they_spoke_last` and `they_ever_spoke` come from chat_threads
-     (0122) and are NOT derived here. Members have no SELECT on
-     `messages` at all — the view is the only thing permitted to look, so
-     re-deriving this in the browser is not a style preference, it is
-     impossible without undoing the chat privacy model.
+     ⚠️ If this is ever tried again it needs to be opt-in, or introduced
+     with the old order still available, and NEVER shipped to somebody
+     mid-conversation. The view still returns they_spoke_last and
+     they_ever_spoke (0122) — the data is there and correct, it just
+     isn't rearranging anything.
 
-     ⚠️ The three tests are mutually exclusive and cover every row,
-     proven in SQL before this was written: 1 + 15 + 117 = 133, and a
-     thread with no messages at all (both columns NULL) lands in `rest`
-     rather than under a heading that would describe it wrongly. */
-  const waiting = inbox.filter((t) => t.they_spoke_last === true);
-  const quiet   = inbox.filter((t) => t.they_spoke_last !== true && t.they_ever_spoke === false);
-  const rest    = inbox.filter((t) => t.they_spoke_last !== true && t.they_ever_spoke !== false);
-
-  /* ⚠️ NOT a component defined inside render — that remounts the whole
-     row on every keystroke elsewhere in this file. Plain function, called. */
-  function thread(t, waitingOnYou) {
-    return (
-      <Link key={t.id} href={`/chat/${t.id}`} className="clink">
-        <Row t={t}>
-          {Number(t.unread) > 0
-            ? <span className="cdot" aria-label={`${t.unread} unread`}>{t.unread}</span>
-            : waitingOnYou
-              ? <span className="ib-dot" aria-label="Waiting on you" />
-              : null}
-        </Row>
-      </Link>
-    );
-  }
+     ⚠️ KEPT from that same change, because neither is cosmetic:
+       · the 200-row read in page.jsx (was 80, which silently hid 53 of
+         Ty's threads — reverting that would re-hide them)
+       · the removal of the dead `state === 'sent'` label
+       · the notification fix, which is a different thing entirely
+  */
 
   const nothing = inbox.length === 0 && pending.length === 0;
 
@@ -193,52 +181,20 @@ export default function Inbox({ inbox, requests, members = [] }) {
         </>
       )}
 
-      {/* 🔴 The old row rendered `t.state === 'sent' ? "Sent"` here. That
-          has been DEAD CODE since 29 Aug: 0087 made chat_send_blocked()
-          return false for everyone, so the view reports 'open' for every
-          thread and 'sent' can never appear. Measured on the live data —
-          all 133 of Ty's threads come back 'open'. Removed rather than
-          left to look like a working label. */}
-
-      {waiting.length > 0 && (
-        <div className="ib-grp">
-          <span className="ib-head">
-            Waiting on you <span className="ib-n">· {waiting.length}</span>
-          </span>
-          <div className="ib-wait">
-            {waiting.map((t) => thread(t, true))}
-          </div>
-        </div>
-      )}
-
-      {/* No heading on the middle group. It is the normal case, and a
-          label over "ordinary conversations" is furniture. */}
-      {rest.length > 0 && (
-        <div className="ib-grp">
-          {rest.map((t) => thread(t, false))}
-        </div>
-      )}
-
-      {quiet.length > 0 && (
-        <div className="ib-grp">
-          {/* ⚠️ Collapsed by default, and the wording is deliberately not
-              "no reply" or "ignored". These are people he wrote to who
-              haven't answered YET — a lot of them joined days ago and
-              have never used the app at all. The group exists to get
-              them out of the way, not to keep score. */}
-          <button type="button" className="ib-toggle"
-                  aria-expanded={showQuiet}
-                  onClick={() => setShowQuiet((v) => !v)}>
-            You said hi, nothing back yet · {quiet.length}
-            <span className="ib-caret" aria-hidden="true">{showQuiet ? '⌃' : '⌄'}</span>
-          </button>
-          {showQuiet && (
-            <div className="ib-quiet">
-              {quiet.map((t) => thread(t, false))}
-            </div>
-          )}
-        </div>
-      )}
+      {/* ⚠️ `t.state === 'sent' ? "Sent"` used to sit here and has been
+          DEAD CODE since 29 Aug — 0087 made chat_send_blocked() return
+          false for everyone, so every thread reports 'open' and that
+          label can never render. Measured on the live data: all 133 of
+          Ty's threads come back 'open'. It stays removed. */}
+      {inbox.map((t) => (
+        <Link key={t.id} href={`/chat/${t.id}`} className="clink">
+          <Row t={t}>
+            {Number(t.unread) > 0
+              ? <span className="cdot" aria-label={`${t.unread} unread`}>{t.unread}</span>
+              : null}
+          </Row>
+        </Link>
+      ))}
 
       {nothing && (
         <div className="empty">
