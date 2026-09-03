@@ -169,6 +169,25 @@
 .mecream .eye.off{ background:#EFE9DC; color:var(--cr-soft); }
 .mecream .eye:hover{ background:var(--cr-line); color:#fff; }
 .mecream .eye:disabled{ opacity:.45; }
+
+/* ---- the eye on an ANONYMOUS profile ----
+   Not a state of the switch — a statement that the switch has been
+   overruled. Anonymity nulls every piece of prose in public_profiles,
+   so on 160 of 191 members this control cannot do anything at all.
+
+   🔴 MEASURED. Text #5F4B36 on #EFE9DC = 6.82. The BORDER is what makes
+   this pill visible, not the fill: #EFE9DC sits on the lilac card at
+   1.06 and on butter at 1.04 — fill against fill, invisible, which is
+   exactly the pale-tag-on-a-pale-card bug from 17 Aug. #6B5B47 is the
+   darkest tint pairing at 4.97 (peach) and 5.4 against its own fill.
+   ⚠️ #8A7A66 was the first pick and measured 3.16 on peach. Too thin.
+   ⚠️ No :hover change and cursor:default — nothing happens on press,
+   so nothing should suggest it will. */
+.mecream .eye.anon{
+  background:#EFE9DC; color:var(--cr-soft); border-color:#6B5B47;
+  cursor:default;
+}
+.mecream .eye.anon:hover{ background:#EFE9DC; color:var(--cr-soft); }
 .mecream .eyeL{ font-size:11px; }
 
 /* an eye inside a label (What you're into) sits on the same line */
