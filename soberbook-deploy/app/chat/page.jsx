@@ -40,7 +40,13 @@ export default async function ChatPage({ searchParams }) {
     .from(assertReadable('chat_threads'))
     .select('*')
     .order('last_message_at', { ascending: false, nullsFirst: false })
-    .limit(80);
+    /* 🔴 200, NOT 80 — 3 Sept. Ty has 133 threads and the list is
+       ordered by recency, so a cap of 80 could silently drop the ONE
+       conversation waiting on him into the part of the list that never
+       arrives. The grouping below is only honest if it can see every
+       row. ⚠️ If anybody ever passes 200, this becomes paging, not a
+       bigger number. */
+    .limit(200);
 
   /* THE DIRECTORY. public_profiles already does the hard part: it hides
      suspended accounts, hides anybody either of you has blocked, and
@@ -54,9 +60,26 @@ export default async function ChatPage({ searchParams }) {
     .limit(200);
 
   const threads  = rows || [];
-  /* 'sent' means you reached out and they haven't answered. It lives with
-     your open conversations, not in a lane of its own — a "waiting on
-     them" section would be a scoreboard of people ignoring you. */
+  /* 🔴 THIS COMMENT USED TO ARGUE AGAINST WHAT NOW SHIPS, AND BOTH HALVES
+     OF IT HAD GONE WRONG — 3 Sept.
+
+     It said: "'sent' means you reached out and they haven't answered. It
+     lives with your open conversations, not in a lane of its own — a
+     'waiting on them' section would be a scoreboard of people ignoring
+     you."
+
+     ⚠️ FIRST HALF, FACTUALLY DEAD. 0087 made chat_send_blocked() return
+     false for everyone, so the view reports 'open' for every thread and
+     'sent' can no longer occur. Measured: all 133 of Ty's threads.
+
+     ⭐ SECOND HALF, STILL RIGHT, AND IT IS WHY THE GROUP IS COLLAPSED.
+     The worry was a scoreboard — and it would be one, if 117 unanswered
+     hellos were listed under a heading you had to scroll past every
+     time. Inbox.jsx puts them behind a closed toggle, which is the
+     opposite: the group exists to get them OFF the screen so the one
+     conversation waiting on you is visible. Ty approved that shape from
+     a mockup before it was built. If it is ever expanded by default,
+     this objection comes straight back and it is correct. */
   const requests = threads.filter((t) => t.state === 'request');
   const inbox    = threads.filter((t) => t.state !== 'request');
 
