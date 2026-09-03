@@ -199,6 +199,49 @@ export default function Landing() {
          + 'if it keeps happening tell Ty.';
   }
 
+  /* ⭐ CARRY THE ROOM THROUGH THE DOOR — 3 Sept.
+
+     A creator asked Ty for the Kratom 7-OH room, so the entire point of
+     `soberbook.app/friends?room=kratom-7oh` is that a STRANGER can follow
+     it — a creator's audience is almost entirely people with no account.
+
+     The middleware already preserves the query when it bounces a
+     signed-out visitor here (it clones the URL and only changes the
+     pathname). Verified live: signed out, that address lands on
+     `/login?room=kratom-7oh`, while the control with no param lands on
+     plain `/login`. These two handlers were the ONLY place it was lost —
+     they pushed a hard-coded destination and the room went with it.
+
+     ⚠️ READ OFF window.location, NOT useSearchParams(). This is the most
+     fragile flow in the app and the hook would change how the component
+     renders — it needs a Suspense boundary in this Next version and gets
+     the whole page wrong if it's missing. Reading the URL at the moment
+     we're already navigating adds no render-time behaviour at all.
+
+     ⚠️ Nothing here validates the slug: /friends looks it up and falls
+     back to the Front Room for anything it doesn't recognise. A second
+     copy of that rule is the copy that drifts.
+
+     🔴 KNOWN GAP, AND IT IS THE EMAIL-CONFIRMATION PATH: if Supabase
+     hands back no session, this person leaves for their inbox and returns
+     through a link we didn't build. The room is lost there. Not worth
+     chasing while confirmation is off — but if it is ever switched back
+     on, this is the sentence that stops being true.
+
+     ⚠️ `roomPath` exists because the two callers want different doors when
+     a room IS wanted. Signing in goes through '/' so app/page.jsx can
+     still decide whether this person has finished first run; a fresh
+     sign-up whose profile we just created is already past that question,
+     so it goes straight to /friends and skips a hop. When no room is
+     wanted, BOTH callers behave exactly as they did before this change. */
+  function withRoom(fallback, roomPath = fallback) {
+    try {
+      const slug = new URLSearchParams(window.location.search).get('room');
+      if (slug) return `${roomPath}?room=${encodeURIComponent(slug)}`;
+    } catch { /* no URL, no room — the fallback is always right */ }
+    return fallback;
+  }
+
   async function signIn(e) {
     e.preventDefault();
     setErr(''); setNote(''); setBusy('in');
@@ -207,7 +250,7 @@ export default function Landing() {
         email: inEmail, password: inPw,
       });
       if (error) throw error;
-      router.push('/'); router.refresh();
+      router.push(withRoom('/')); router.refresh();
     } catch (e2) { setErr(humanise(e2)); }
     finally { setBusy(''); }
   }
@@ -268,7 +311,12 @@ export default function Landing() {
           handle: upHandle, privacy: anon ? 'anonymous' : 'open',
           since: upSince, generated: !mine,
         });
-        router.push(r.ok ? '/wall' : '/');
+        /* ⚠️ The room is honoured ONLY on the r.ok branch. If the profile
+           insert didn't take, this person has no profile yet — they go to
+           '/', which routes them to /welcome to finish first run. Dropping
+           somebody into a room without a profile would be using a creator's
+           link to skip the step that 30 Aug proved people get stuck on. */
+        router.push(r.ok ? withRoom('/wall', '/friends') : withRoom('/'));
         router.refresh();
         return;
       }
