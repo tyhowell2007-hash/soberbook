@@ -351,10 +351,21 @@ export default function Me({ email, profile, posts, initialAvatarUrl,
       </div>
     );
   }
-  const deetsDirty =
-    bio !== (profile.bio || '') || town !== (profile.town || '') ||
-    state !== (profile.state || '') || programs !== (profile.programs || '') ||
+  /* 🔴 TWO DIRTY FLAGS, NOT ONE — 2 Sept. There used to be a single
+     `deetsDirty` covering all five text fields, which is what let one
+     button claim ownership of boxes sitting in a different section
+     below it. See the note on the About-you save button.
+
+     ⚠️ They are deliberately disjoint. If a field ever appears in both,
+     two buttons can write the same column and the second one wins with
+     whatever stale value it happened to be holding. */
+  const aboutDirty =
+    bio !== (profile.bio || '') ||
+    programs !== (profile.programs || '') ||
     interests !== (profile.interests || '');
+
+  const whereDirty =
+    town !== (profile.town || '') || state !== (profile.state || '');
 
   const d = dayCount(since);
   /* Only ever a number on YOUR page. startsInDays() is never handed to a
@@ -1523,13 +1534,38 @@ export default function Me({ email, profile, posts, initialAvatarUrl,
             </span>
           </button>
 
-          <button className="btn" type="button" disabled={busy || !deetsDirty}
+          {/* 🔴🔴 THIS BUTTON USED TO ALSO SAVE town AND state, AND THAT WAS
+              THE BUG — 2 Sept. Reported by Donny, who could not get his
+              details to stay.
+
+              The town and state boxes live in the NEXT section, BELOW this
+              button. So the only control that persisted them was above
+              them, already scrolled past, attached to a different heading.
+              Somebody typed their town, found no way to keep it, tapped
+              the "Showing your town" toggle instead (which saves only
+              show_location), and left. Nothing was written.
+
+              ⭐ TWO THINGS MADE IT INVISIBLE. Every other control on this
+              page — sponsoring, the location toggle, findable-by-name —
+              writes the instant you touch it, so the page teaches you it
+              saves itself. And after the location toggle fires,
+              router.refresh() re-renders while this component keeps its
+              own useState, so the typed town STAYS IN THE BOX. It looks
+              like it worked, right up until you come back tomorrow.
+
+              📉 The data said it before anybody did: 13 members have a
+              bio, 4 have a town. The three fields above this button work.
+              The two below it mostly didn't.
+
+              ⚠️ Now this saves ONLY its own three, and "Where you are" has
+              its own button for its own two. The sets are disjoint on
+              purpose — two buttons writing the same column is how one
+              quietly wipes the other. */}
+          <button className="btn" type="button" disabled={busy || !aboutDirty}
                   onClick={() => save({
                     bio: bio.trim() || null,
                     programs: programs.trim() || null,
                     interests: interests.trim() || null,
-                    town: town.trim() || null,
-                    state: state.trim() || null,
                   }, 'Saved.')}>
             {busy ? 'Saving…' : 'Save'}
           </button>
@@ -1570,6 +1606,32 @@ export default function Me({ email, profile, posts, initialAvatarUrl,
             could work out who you are &mdash; and in a town this size, that might
             be your boss. Big city, much less of a problem.
           </p>
+
+          {/* 🔴 THE MISSING BUTTON — 2 Sept, reported by Donny.
+
+              These two boxes had no way to save. The only control that
+              wrote them lived in the section ABOVE, beside the bio, and by
+              the time you had typed a town you had scrolled past it. The
+              toggle above me saves show_location and nothing else, so
+              tapping it felt like saving and wasn't.
+
+              ⚠️ It writes ONLY town and state. The three fields upstairs
+              have their own button. Overlapping the two sets is how one
+              button silently overwrites the other's work with whatever
+              stale value it was holding.
+
+              ⚠️ Sits AFTER the privacy warning deliberately — the last
+              thing you read before committing a town should be the reason
+              you might not want to. */}
+          <button className="btn" type="button" disabled={busy || !whereDirty}
+                  onClick={() => save({
+                    town: town.trim() || null,
+                    state: state.trim() || null,
+                  }, showLoc
+                       ? 'Saved. Your town shows on your page.'
+                       : 'Saved, and hidden until you turn it on.')}>
+            {busy ? 'Saving…' : 'Save where you are'}
+          </button>
 
           {/* ---- sponsoring ---- */}
         </Section>
