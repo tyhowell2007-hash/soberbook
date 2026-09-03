@@ -1,7 +1,6 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { serverClient, assertReadable } from '../../lib/supabase-server';
-import MarkSeen from './MarkSeen';
 import Rows from './Rows';
 import TagReview from './TagReview';
 
@@ -80,8 +79,8 @@ export default async function NotificationsPage() {
 
   /* ⭐ TAGS AWAITING YOUR YES. Fetched here rather than folded into
      my_notifications, and that is deliberate: a pending tag is not a
-     notification, it is a QUESTION. It has no read_at, MarkSeen must
-     never clear it, and it should stay on the screen until answered.
+     notification, it is a QUESTION. It has no read_at, nothing may
+     clear it, and it should stay on the screen until answered.
      Putting it in the notifications table would mean four separate rules
      saying "except this kind". */
   let pendingTags = [];
@@ -97,12 +96,30 @@ export default async function NotificationsPage() {
         <span className="lg cvname">What you missed</span>
       </div>
 
-      {/* 🔴 MARKING READ IS A CLIENT EFFECT, AND IT ONLY CLEARS WHAT THIS
-          PAGE ACTUALLY SHOWED. See MarkSeen for the full reasoning — the
-          short version is that this page displays a reply's content but
-          not a message's, so it may honestly clear the first and must not
-          clear the second. */}
-      <MarkSeen />
+      {/* 🔴 MARKING READ IS PER-ITEM NOW, AND MarkSeen IS DELETED —
+          3 Sept.
+
+          It used to be a client effect on this page that marked every
+          reply and every mention read the moment the page mounted. It
+          obeyed the 30 Aug rule about KIND — it never touched messages,
+          because this page shows that a message exists and never its
+          words — and it broke a rule nobody had written down yet:
+          **displaying five things is not evidence that somebody read
+          five things.**
+
+          Ty: "if somebody has five notifications and they click one, and
+          that clears all of them, that's not good… That way people can
+          keep tabs on everything."
+
+          ⭐ So a row is now marked read when it is TAPPED, one at a time,
+          by notification_mark_read() in 0121. Rows.jsx owns it, because
+          Rows.jsx owns the tap.
+
+          ⚠️ Ty's call, made after hearing both sides: the dot STAYS LIT
+          until every unread one has been opened. my_nav_dots reads
+          unread rows, so that behaviour falls out of this with no extra
+          code — a lingering dot is the feature, not a bug to fix later
+          with a blanket mark-read. */}
 
       <div className="pad ntfwrap">
         {/* ⚠️ ABOVE the list. A question you have to answer outranks a
