@@ -1552,7 +1552,7 @@ export default function Me({ email, profile, posts, initialAvatarUrl,
           {/* ---- sober date ---- */}
         </Section>
         <Section title="📝 About you" tint="lilac"
-                 eye={<Eye on={showBio} busy={busy} what="your bio"
+                 eye={<Eye on={showBio} busy={busy} what="your bio" anon={anon}
                            onToggle={() => { const n = !showBio; setShowBio(n);
                              save({ show_bio: n }, n ? 'Shown.' : 'Hidden.'); }} />}>
 
@@ -1579,11 +1579,11 @@ export default function Me({ email, profile, posts, initialAvatarUrl,
                       pathOther={pathOther} setPathOther={setPathOther}
                       savedOther={profile.path_other || ''}
                       privatePaths={privatePaths} setPrivatePaths={setPrivatePaths}
-                      save={save} busy={busy} />
+                      save={save} busy={busy} anon={anon} />
 
           <label htmlFor="int">
             What you&apos;re into
-            <Eye on={showInt} busy={busy} what="what you're into"
+            <Eye on={showInt} busy={busy} what="what you're into" anon={anon}
                  onToggle={() => { const n = !showInt; setShowInt(n);
                    save({ show_interests: n }, n ? 'Shown.' : 'Hidden.'); }} />
           </label>
@@ -1668,9 +1668,19 @@ export default function Me({ email, profile, posts, initialAvatarUrl,
           {/* ---- where you are ---- */}
         </Section>
         <Section title="📍 Where you are" tint="mint"
-                 eye={<Eye on={showLoc} busy={busy} what="your town"
+                 eye={<Eye on={showLoc} busy={busy} what="your town" anon={anon}
                            onToggle={() => { const n = !showLoc; setShowLoc(n);
                              save({ show_location: n }, n ? 'Shown.' : 'Hidden.'); }} />}>
+          {/* ⚠️ This section and Sponsoring had NO anonymous notice at all
+              until tonight — only About you did. All three are nulled by
+              the same rule, so all three have to say so. */}
+          {anon && (
+            <div className="err">
+              You&apos;re set to Anonymous, so your town doesn&apos;t show
+              anywhere. Fill it in if you like &mdash; it&apos;ll be waiting
+              if you ever switch to Open.
+            </div>
+          )}
           <div className="tworow">
             <div>
               <label htmlFor="town">Town</label>
@@ -1734,9 +1744,17 @@ export default function Me({ email, profile, posts, initialAvatarUrl,
           {/* ---- sponsoring ---- */}
         </Section>
         <Section title="🤝 Sponsoring" tint="butter"
-                 eye={<Eye on={showSp} busy={busy} what="your sponsoring answers"
+                 eye={<Eye on={showSp} busy={busy} what="your sponsoring answers" anon={anon}
                            onToggle={() => { const n = !showSp; setShowSp(n);
                              save({ show_sponsoring: n }, n ? 'Shown.' : 'Hidden.'); }} />}>
+          {anon && (
+            <div className="err">
+              You&apos;re set to Anonymous, so none of these answers show
+              anywhere &mdash; including to anyone looking for a sponsor.
+              Switch to Open in &ldquo;How you show up&rdquo; if you want
+              them seen.
+            </div>
+          )}
           <SponsorPair hasSp={hasSp} willSp={willSp} spNA={spNA}
                        setHasSp={setHasSp} setWillSp={setWillSp} setSpNA={setSpNA}
                        save={save} busy={busy} days={d} />
