@@ -147,6 +147,21 @@ export default function DropSheet({ defaultArtist = '', onClose, onDone }) {
 
           {source === 'file' ? (
             <div className="ds-file">
+            {/* 🔴 `.aiff` WAS LISTED HERE AND THE SERVER REJECTS IT — 3 Sept.
+                Listing a format by name is a promise. finalize sniffs for
+                MP3 (ID3 or frame sync), RIFF/WAV and the MP4 box tree, and
+                refuses everything else, so an artist could pick an AIFF,
+                watch it upload, and be turned away at the end. Same shape
+                as any other claim the app can't keep.
+
+                ⚠️ `audio/*` STAYS on purpose. It keeps the picker
+                permissive — somebody with a FLAC can still try — and the
+                refusal names the way out: "MP3, WAV, M4A, MP4 or MOV."
+                A clear no beats a greyed-out file you can't even select.
+                🔴 Supporting AIFF means writing a fourth stripper. It is
+                an IFF chunk tree like WAV, so lib/strip-wav.js is the
+                shape to copy — allowlist COMM and SSND, drop NAME/AUTH/
+                ANNO/ID3. That is a session with real tests, not a line. */}
               <PhotoUpload kind="drop" className="ds-pick" disabled={busy}
                            /* ⚠️ EXTENSIONS AS WELL AS MIME TYPES. macOS does
                               not reliably match `audio/*` to a .m4a in the
@@ -155,7 +170,7 @@ export default function DropSheet({ defaultArtist = '', onClose, onDone }) {
                               my song". Listing the extensions costs nothing
                               and removes the whole class of picker weirdness.
                               ⚠️ Still only a hint: finalize reads the bytes. */
-                           accept="audio/*,.m4a,.mp3,.wav,.aac,.aiff,video/mp4,video/quicktime,.mov,.mp4"
+                           accept="audio/*,.m4a,.mp3,.wav,.aac,video/mp4,video/quicktime,.mov,.mp4"
                            label={media ? '✓ ready' : 'Choose audio or video'}
                            onBusy={setBusy}
                            onDone={(path, _preview, isVideo) => {
