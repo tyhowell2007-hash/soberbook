@@ -19,7 +19,7 @@ export default async function MePage() {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('handle, display_name, sober_since, date_prompt_off, privacy_mode, created_at, anthem_url, anthem_title, anthem_art, anthem_preview, anthem_youtube, autoplay_songs, lifetime_days, show_lifetime, bio, town, state, show_location, programs, interests, sponsor_status, avatar, avatar_kind, avatar_photo, findable_by_name')
+    .select('handle, display_name, sober_since, date_prompt_off, privacy_mode, created_at, anthem_url, anthem_title, anthem_art, anthem_preview, anthem_youtube, autoplay_songs, lifetime_days, show_lifetime, bio, town, state, show_location, programs, interests, sponsor_status, avatar, avatar_kind, avatar_photo, findable_by_name, has_sponsor, will_sponsor, sponsor_na, paths, path_other, theme, day_count_visibility')
     .eq('id', user.id)
     .maybeSingle();
   if (!profile) redirect('/welcome');
