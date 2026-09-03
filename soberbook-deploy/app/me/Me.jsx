@@ -16,7 +16,7 @@ import { cleanHandle } from '../../lib/first-run';
 /* The new profile controls. Split out of this file rather than added to
    it — see the note at the top of ProfileBits.jsx. */
 import { SponsorPair, PathPicker, ThemePicker, DayCountVisibility,
-         HandleEditor } from './ProfileBits';
+         HandleEditor, Eye } from './ProfileBits';
 import PhotoUpload from '../components/PhotoUpload';
 import DeleteAccount from './DeleteAccount';
 import Blocked from './Blocked';
@@ -89,11 +89,16 @@ function ago(iso) {
    named HERE rather than picked by nth-child in CSS, so reordering the
    sections (which happened tonight, for the date) can't silently swap
    every colour. A section with no tint gets cream. */
-function Section({ title, open = false, tint, children }) {
+function Section({ title, open = false, tint, eye, children }) {
   return (
     <details className="msec" open={open} data-tint={tint}>
       <summary className="msum">
         <span>{title}</span>
+        {/* The eye sits in the heading, beside the thing it governs —
+            not on a settings page somewhere else. Every time a control
+            in this app has lived away from the thing it controls,
+            nobody has found it. */}
+        {eye}
         {/* aria-hidden: <details> already announces its own state, so
             letting a screen reader read this arrow would say the state
             twice, in two different vocabularies. */}
@@ -203,6 +208,16 @@ export default function Me({ email, profile, posts, initialAvatarUrl,
   const [theme, setTheme]         = useState(profile.theme || 'cream');
   const [dcv, setDcv]             = useState(profile.day_count_visibility || 'everyone');
   const [handle, setHandle]       = useState(profile.handle || '');
+
+  /* ⭐ WHAT PEOPLE SEE — 2 Sept, 0116. Ty: "make it so you can choose
+     what you want people to see on your profile … all the way down
+     through."
+     ⚠️ Every default is SHOWN, matching what the page already did. The
+     control is new; the disclosure is not moved on anybody's behalf. */
+  const [privatePaths, setPrivatePaths] = useState(profile.private_paths || []);
+  const [showBio,   setShowBio]   = useState(profile.show_bio        !== false);
+  const [showInt,   setShowInt]   = useState(profile.show_interests  !== false);
+  const [showSp,    setShowSp]    = useState(profile.show_sponsoring !== false);
   const [findable, setFindable] = useState(!!profile.findable_by_name);
 
   /* ---- name and face (0012) ---- */
@@ -1536,7 +1551,10 @@ export default function Me({ email, profile, posts, initialAvatarUrl,
 
           {/* ---- sober date ---- */}
         </Section>
-        <Section title="📝 About you" tint="lilac">
+        <Section title="📝 About you" tint="lilac"
+                 eye={<Eye on={showBio} busy={busy} what="your bio"
+                           onToggle={() => { const n = !showBio; setShowBio(n);
+                             save({ show_bio: n }, n ? 'Shown.' : 'Hidden.'); }} />}>
 
           {/* One notice, stated once, rather than the same warning stapled
               to five fields. If none of this shows, say so plainly and
@@ -1560,9 +1578,15 @@ export default function Me({ email, profile, posts, initialAvatarUrl,
           <PathPicker paths={paths} setPaths={setPaths}
                       pathOther={pathOther} setPathOther={setPathOther}
                       savedOther={profile.path_other || ''}
+                      privatePaths={privatePaths} setPrivatePaths={setPrivatePaths}
                       save={save} busy={busy} />
 
-          <label htmlFor="int">What you&apos;re into</label>
+          <label htmlFor="int">
+            What you&apos;re into
+            <Eye on={showInt} busy={busy} what="what you're into"
+                 onToggle={() => { const n = !showInt; setShowInt(n);
+                   save({ show_interests: n }, n ? 'Shown.' : 'Hidden.'); }} />
+          </label>
           <input id="int" type="text" maxLength={120} value={interests} disabled={busy}
                  placeholder="Fishing · Gaming · Podcasts"
                  onChange={(e) => setInterests(e.target.value)} />
@@ -1643,7 +1667,10 @@ export default function Me({ email, profile, posts, initialAvatarUrl,
 
           {/* ---- where you are ---- */}
         </Section>
-        <Section title="📍 Where you are" tint="mint">
+        <Section title="📍 Where you are" tint="mint"
+                 eye={<Eye on={showLoc} busy={busy} what="your town"
+                           onToggle={() => { const n = !showLoc; setShowLoc(n);
+                             save({ show_location: n }, n ? 'Shown.' : 'Hidden.'); }} />}>
           <div className="tworow">
             <div>
               <label htmlFor="town">Town</label>
@@ -1706,7 +1733,10 @@ export default function Me({ email, profile, posts, initialAvatarUrl,
 
           {/* ---- sponsoring ---- */}
         </Section>
-        <Section title="🤝 Sponsoring" tint="butter">
+        <Section title="🤝 Sponsoring" tint="butter"
+                 eye={<Eye on={showSp} busy={busy} what="your sponsoring answers"
+                           onToggle={() => { const n = !showSp; setShowSp(n);
+                             save({ show_sponsoring: n }, n ? 'Shown.' : 'Hidden.'); }} />}>
           <SponsorPair hasSp={hasSp} willSp={willSp} spNA={spNA}
                        setHasSp={setHasSp} setWillSp={setWillSp} setSpNA={setSpNA}
                        save={save} busy={busy} days={d} />
