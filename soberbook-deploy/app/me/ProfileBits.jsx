@@ -86,7 +86,38 @@ const YNU = [['yes', 'Yes'], ['no', 'No'], ['unsaid', 'Rather not say']];
    convention, and getting this wrong means publishing something you
    believed was private. The label removes the guess.
    --------------------------------------------------------------------- */
-export function Eye({ on, onToggle, busy, what }) {
+/* 🔴 `anon` IS NOT A DISABLED STATE, IT IS A DIFFERENT FACT, AND GETTING
+   THAT WRONG IS THE BUG THIS PROP EXISTS TO FIX — 2 Sept.
+
+   An anonymous profile carries no prose at all: public_profiles nulls
+   bio, location, programs, interests and every sponsoring flag the
+   moment privacy_mode = 'anonymous'. That rule is older than this
+   control and it OVERRULES it. So on an anonymous profile the eye was
+   sitting in the section header saying "Shown" over content the app
+   will never show — and 160 of 191 members are anonymous. Ty found it
+   on his phone: "About you isn't showing up even if you leave the eye
+   on." He was right, and the eye was the thing lying.
+
+   ⚠️ A SPAN, NOT A DISABLED BUTTON. A disabled button is skipped by
+   screen readers and shows no tooltip on touch, so the one person who
+   most needs to know why it won't move gets nothing. A span with its
+   own visible word says it out loud to everybody.
+
+   ⚠️ IT DOES NOT DISAPPEAR. A control that vanishes is one you never
+   learn exists — you'd switch to Open later and have no idea there was
+   ever a per-field choice waiting. It greys, it names its reason, it
+   stays put. */
+export function Eye({ on, onToggle, busy, what, anon }) {
+  if (anon) {
+    return (
+      <span className="eye anon"
+            title={'Your profile is set to Anonymous, so ' + what
+                   + ' is hidden from everyone no matter what this says.'}>
+        <span aria-hidden="true">{'\u{1F512}'}</span>
+        <span className="eyeL">Anonymous</span>
+      </span>
+    );
+  }
   return (
     <button type="button" className={'eye' + (on ? '' : ' off')} disabled={busy}
             aria-pressed={!on}
@@ -209,7 +240,7 @@ export function SponsorPair({ hasSp, willSp, spNA, setHasSp, setWillSp, setSpNA,
    teach us anything.
    --------------------------------------------------------------------- */
 export function PathPicker({ paths, setPaths, pathOther, setPathOther, savedOther,
-                             privatePaths, setPrivatePaths, save, busy }) {
+                             privatePaths, setPrivatePaths, save, busy, anon }) {
   const hidden = new Set(privatePaths || []);
   /* A group counts as hidden when every item in it is hidden. Membership
      lives here and ONLY here — the database stores the plain strings, so
@@ -234,7 +265,7 @@ export function PathPicker({ paths, setPaths, pathOther, setPathOther, savedOthe
                 changes nothing, which is the dead-switch this codebase
                 keeps finding. */}
             {anyPicked && (
-              <Eye on={!gh} busy={busy} what={g.n}
+              <Eye on={!gh} busy={busy} what={g.n} anon={anon}
                    onToggle={() => setPrivatePaths((prev) => {
                      const set = new Set(prev || []);
                      if (gh) g.i.forEach((k) => set.delete(k));
