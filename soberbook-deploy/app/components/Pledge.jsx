@@ -51,8 +51,46 @@ export default function Pledge() {
   const [openReview, setOpenReview] = useState(false);
   const [note, setNote] = useState('');
 
+  /* 🔴 TELL THE SERVER WHERE THIS PERSON ACTUALLY IS — 3 Sept.
+
+     profiles.timezone is NOT NULL DEFAULT 'America/New_York' and nothing
+     had ever written to it. Measured: all 197 members sat on Eastern,
+     including everybody who isn't. member_today() reads that column to
+     decide when your day ends, so a pledge at 10pm in California was
+     filed as TOMORROW and 2am in the UK as YESTERDAY — and the streak
+     then broke for a reason the member could not see and did not cause.
+
+     ⭐ On the one feature built so it can never be falsified — a pledge is
+     an intention, true even on the worst morning of your year — a wrong
+     day boundary was the single thing that could still make it lie.
+
+     ⚠️ IT LIVES HERE, NOT IN THE ROOT LAYOUT, BECAUSE THIS IS THE ONLY
+     PLACE THE COLUMN MATTERS. Nothing else in the app reads it. Mounting
+     a reporter on every page would touch 197 rows to fix a number only
+     this card uses.
+
+     ⚠️ AWAITED, AND BEFORE THE STATS — NOT IN THE Promise.all BELOW.
+     my_pledge_stats is computed FROM the timezone. Fire them together and
+     the first visit after landing in a new zone renders yesterday's day
+     and yesterday's streak, which is the bug wearing a smaller hat.
+
+     ⚠️ Wrapped, and failure is silent on purpose: no timezone is the
+     status quo we are already living with, and a card that refuses to
+     draw because a clock lookup failed is far worse than one showing a
+     day boundary that is a few hours off. */
+  async function reportTimezone(supabase) {
+    try {
+      const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      /* The server validates this against pg_timezone_names and keeps the
+         old value if it doesn't recognise it — we never have to trust
+         whatever the browser hands us. */
+      if (tz) await supabase.rpc('set_my_timezone', { p_tz: tz });
+    } catch { /* keep whatever is on the row */ }
+  }
+
   async function load() {
     const supabase = browserClient();
+    await reportTimezone(supabase);
     const [{ data: stats }, { data: n }] = await Promise.all([
       supabase.rpc('my_pledge_stats'),
       supabase.rpc('pledges_today_count'),
