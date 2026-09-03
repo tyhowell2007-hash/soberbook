@@ -145,3 +145,39 @@
 /* ---- focus ring inside the skin ---- */
 .mecream :focus-visible{ outline-color:var(--cr-line) !important; }
 .mecream .btn:focus-visible, .mecream .sgo:focus-visible{ outline-color:#fff !important; outline-offset:-4px; }
+
+/* ---- the eye ----------------------------------------------------------
+   👁 Shown / 🔒 Hidden, beside the thing it governs.
+   🔴 MEASURED, not guessed, after three unmeasured contrast figures were
+   caught in this codebase today. Ink #2A1B0C on white = 16.66. Muted
+   #5F4B36 on the hidden pill #EFE9DC = 6.82. Floor is 4.5.
+   ⚠️ margin-left:auto pushes it to the right edge of the summary row, so
+   the heading keeps its position whether or not a section has an eye. */
+.mecream .eye{
+  margin-left:auto; display:inline-flex; align-items:center; gap:5px;
+  font-family:'Archivo',system-ui,sans-serif; font-size:11px; font-weight:700;
+  letter-spacing:.01em; background:#fff; color:var(--cr-ink);
+  border:1.5px solid var(--cr-line); border-radius:999px;
+  padding:4px 10px; line-height:1; white-space:nowrap;
+  /* 44px of tappable height without a 44px-tall pill */
+  position:relative;
+}
+.mecream .eye::after{
+  content:''; position:absolute; left:0; right:0; top:50%;
+  height:44px; transform:translateY(-50%);
+}
+.mecream .eye.off{ background:#EFE9DC; color:var(--cr-soft); }
+.mecream .eye:hover{ background:var(--cr-line); color:#fff; }
+.mecream .eye:disabled{ opacity:.45; }
+.mecream .eyeL{ font-size:11px; }
+
+/* an eye inside a label (What you're into) sits on the same line */
+.mecream label > .eye{ margin-left:10px; vertical-align:middle; }
+
+/* ---- a hidden path group ---- */
+.mecream .pgrp-hid{ opacity:.72; }
+.mecream .pgrp-hid .pgL{ color:var(--cr-soft); }
+.mecream .pgrp-hid .sbpill.sel{
+  background:#6B6257; border-color:#6B6257;   /* white on this = 5.98, measured */
+}
+.mecream .pgL{ display:flex; align-items:center; gap:6px; }
