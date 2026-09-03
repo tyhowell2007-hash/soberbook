@@ -160,7 +160,19 @@ export async function middleware(request) {
      bottom of this file, which also has to let the .mp4 through. Do one
      without the other and the page renders perfectly with a black
      rectangle where the film should be, and nothing errors anywhere. */
-  const open = ['/login', '/auth', '/reset', '/privacy', '/tour', '/api/push/send',
+  /* ⚠️ '/survey' JOINED THIS LIST ON 3 SEPT, AND IT IS HALF OF A PAIR.
+     The page itself also had its own `redirect('/login')` — opening one
+     without the other changes nothing, because this file runs first and
+     bounces the request before the page is ever reached.
+
+     🔴 Why: the survey email carries a bare `soberbook.app/survey` link.
+     155 sends, ONE answer. People read email on a phone, in a browser
+     that isn't signed in, and met a password box instead of four
+     questions. See 0118 and app/survey/page.jsx for the full reasoning,
+     including what was deliberately NOT opened — anon can submit an
+     answer and can never read one. */
+  const open = ['/login', '/auth', '/reset', '/privacy', '/tour', '/survey',
+                '/api/push/send',
                 '/api/content/cron', '/api/email/notify', '/api/unsub', '/unsub'];
   const isOpen = open.some((p) => request.nextUrl.pathname.startsWith(p));
 
