@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { browserClient } from '../../lib/supabase-browser';
 
 /* =====================================================================
    A MEMBER'S RECORD, ON THE WALL. THE ONLY LOUD CARD HERE.
@@ -94,10 +95,48 @@ export default function DropCard({ drop, artUrl, mediaUrl }) {
      hook after that point gets handed the wrong state. It doesn't warn,
      it corrupts. The guard goes after. */
   const [on, setOn] = useState(false);
+  /* ⚠️ ABOVE THE GUARD with the countdowns, for the same reason: React
+     identifies hooks by call order, so a render that bails early runs
+     fewer of them and corrupts the rest. null means "haven't asked the
+     server yet" and is deliberately different from false. */
+  const [reminded, setReminded] = useState(null);
+  const [arming, setArming] = useState(false);
   const left    = useCountdown(drop && !drop.is_out ? drop.release_at : null);
   const winLeft = useCountdown(drop && drop.is_exclusive_now ? drop.exclusive_until : null);
 
+  /* 🔴 ASKED PER CARD, AND ONLY FOR A RECORD STILL COUNTING DOWN.
+
+     The answer is about YOU and nobody else — drop_reminded() has no
+     variant that counts the waiting or names them, because a "47 people
+     are waiting" badge is the play-count problem wearing a hat, and this
+     card is the one place in the app that was built to have no score.
+
+     ⚠️ Fails quiet. If the read doesn't come back the link stays in its
+     unasked state, which costs a duplicate tap at worst — the insert is
+     ON CONFLICT DO NOTHING, so asking twice is asking once. */
+  useEffect(() => {
+    if (!drop || drop.is_out) return;
+    let alive = true;
+    browserClient().rpc('drop_reminded', { p_post_id: drop.post_id })
+      .then(({ data }) => { if (alive) setReminded(!!data); })
+      .catch(() => {});
+    return () => { alive = false; };
+  }, [drop?.post_id, drop?.is_out]);
+
   if (!drop) return null;
+
+  async function remindMe() {
+    if (reminded || arming) return;
+    setArming(true);
+    setReminded(true);            // optimistic, like dismiss and unlike block
+    const { error } = await browserClient()
+      .rpc('drop_remind_me', { p_post_id: drop.post_id });
+    /* ⚠️ Put back on failure. The whole promise of this link is that it
+       arrives — a link that says "we'll tell you" when nothing was
+       written is the one failure it cannot have. */
+    if (error) setReminded(false);
+    setArming(false);
+  }
 
   /* ---------- 1 · COMING ---------- */
   if (!drop.is_out) {
@@ -165,6 +204,26 @@ export default function DropCard({ drop, artUrl, mediaUrl }) {
             </div>
             <div className="dp-when">{when(drop.release_at)}</div>
           </div>
+
+          {/* ⭐ "Notify me when it plays" — Ty's words, and his call that
+              this is a LINK rather than the button the prototype also had.
+              He saw both and cut it to one.
+
+              ⚠️ OPT-IN, PER RECORD, AND THAT IS WHAT KEEPS THE PROMISE.
+              The push card tells members "replies and messages only,
+              nothing else, ever." Nothing arrives from this unless the
+              person taps it, about this one record. YouTube's reminder
+              works the same way — that's where the shape came from.
+
+              🔴 ONE notification, at open. YouTube also buzzes about
+              thirty minutes early; we deliberately don't. The link says
+              "when it plays" and that is exactly what it does. */}
+          <button type="button" className="dp-remind"
+                  data-on={reminded ? '1' : undefined}
+                  disabled={!!reminded || arming}
+                  onClick={remindMe}>
+            {reminded ? 'We’ll tell you when it plays' : 'Notify me when it plays'}
+          </button>
         </div>
       </article>
     );
