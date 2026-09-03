@@ -144,6 +144,77 @@ export default function DropCard({ drop, artUrl, mediaUrl }) {
 
   /* ---------- 2 & 3 · OUT ---------- */
   const isVideo = drop.kind === 'video';
+
+  /* 🔴 A PLAY BUTTON OVER A RECORD WITH NOTHING TO PLAY — 3 Sept.
+     ---------------------------------------------------------------------
+     Ty: "why can't I click and listen to Jordan Cruz's song." Because
+     there is no song here. `media_path` is NULL on that drop — he posted
+     it as a Spotify link, not an upload. Nothing was ever wrong with the
+     audio.
+
+     🔴 The button was already `disabled={!mediaUrl}`, and that did almost
+     nothing: the ONLY style on `.dp-play:disabled` is `cursor:default`.
+     A phone has no cursor. So a dead play button and a live one were the
+     same pixels, and the tap just failed in silence.
+
+     ⭐ THE FIX IS NOT TO REMOVE THE BUTTON — it is to make it go where the
+     record actually lives. A link-only drop still has somewhere to send
+     you, and sending you there is what the person tapping wanted.
+
+     ⚠️ IT NAMES THE DESTINATION. House rule for every outbound link on
+     this wall (23 Aug): in a room where treatment centres pay for
+     referrals, an unlabelled link is how somebody gets sold. `no-referrer`
+     for the same reason — elsewhere a referrer is a statistic, here it
+     tells a stranger's logs that the visitor is in recovery.
+
+     ⚠️ The face is built ONCE and used by both branches. Writing the art,
+     the dots and the exclusive badge twice is how the two paths drift —
+     the mistake this schema has already made three times. */
+  const SERVICES = [
+    { host: 'spotify.com',    name: 'Spotify',     tint: '#1DB954' },
+    { host: 'music.apple.com', name: 'Apple Music', tint: '#FA243C' },
+    { host: 'youtube.com',    name: 'YouTube',     tint: '#FF0000' },
+    { host: 'youtu.be',       name: 'YouTube',     tint: '#FF0000' },
+    { host: 'soundcloud.com', name: 'SoundCloud',  tint: '#FF5500' },
+    { host: 'bandcamp.com',   name: 'Bandcamp',    tint: '#629AA9' },
+  ];
+  function whereItLives(url) {
+    try {
+      const h = new URL(url).hostname.replace(/^www\./, '');
+      return SERVICES.find((s) => h === s.host || h.endsWith('.' + s.host))
+             || { name: h, tint: null };
+    } catch { return null; }
+  }
+  const out = !mediaUrl && drop.external_url ? whereItLives(drop.external_url) : null;
+
+  const face = (
+    <>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      {artUrl
+        ? <img className="dp-art" src={artUrl} alt="" />
+        : <span className="dp-art dp-noart" aria-hidden="true" />}
+      <span className="dp-dots" aria-hidden="true" />
+
+      {/* ⚠️ Rendered from is_exclusive_now, which the DATABASE
+          computes. Doing this arithmetic in the browser would put
+          the promise at the mercy of a phone with the wrong clock. */}
+      {drop.is_exclusive_now && (
+        <span className="dp-only">
+          Only here · {parts(winLeft).d > 0
+            ? `${parts(winLeft).d}d left`
+            : `${parts(winLeft).h}h left`}
+        </span>
+      )}
+
+      <span className="dp-btn"
+            style={out && out.tint ? { background: out.tint } : undefined}
+            aria-hidden="true">
+        <span className="dp-tri"
+              style={out && out.tint ? { borderLeftColor: '#FFFFFF' } : undefined} />
+      </span>
+    </>
+  );
+
   return (
     <article className="dp">
       <div className="dp-frame">
@@ -151,29 +222,18 @@ export default function DropCard({ drop, artUrl, mediaUrl }) {
           isVideo
             ? <video className="dp-media" src={mediaUrl} controls autoPlay playsInline />
             : <audio className="dp-audio" src={mediaUrl} controls autoPlay />
+        ) : out ? (
+          <a className="dp-play" href={drop.external_url} target="_blank"
+             rel="noopener noreferrer" referrerPolicy="no-referrer"
+             aria-label={`Play ${drop.title} by ${drop.artist} on ${out.name}`}>
+            {face}
+          </a>
         ) : (
           <button type="button" className="dp-play"
                   onClick={() => setOn(true)}
                   disabled={!mediaUrl}
                   aria-label={`Play ${drop.title} by ${drop.artist}`}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            {artUrl
-              ? <img className="dp-art" src={artUrl} alt="" />
-              : <span className="dp-art dp-noart" aria-hidden="true" />}
-            <span className="dp-dots" aria-hidden="true" />
-
-            {/* ⚠️ Rendered from is_exclusive_now, which the DATABASE
-                computes. Doing this arithmetic in the browser would put
-                the promise at the mercy of a phone with the wrong clock. */}
-            {drop.is_exclusive_now && (
-              <span className="dp-only">
-                Only here · {parts(winLeft).d > 0
-                  ? `${parts(winLeft).d}d left`
-                  : `${parts(winLeft).h}h left`}
-              </span>
-            )}
-
-            <span className="dp-btn" aria-hidden="true"><span className="dp-tri" /></span>
+            {face}
           </button>
         )}
       </div>
@@ -183,11 +243,13 @@ export default function DropCard({ drop, artUrl, mediaUrl }) {
         <div className="dp-artist">{drop.artist}</div>
 
         {/* Only ever present once the window has shut — the view returns
-            NULL for external_url while the exclusive is running. */}
+            NULL for external_url while the exclusive is running.
+            ⚠️ When there's nothing to play here, this line stops being a
+            footnote and becomes the instruction, so it says where. */}
         {drop.external_url && (
           <a className="dp-link" href={drop.external_url} target="_blank"
              rel="noopener noreferrer" referrerPolicy="no-referrer">
-            Also out everywhere ↗
+            {out ? `Play on ${out.name} ↗` : 'Also out everywhere ↗'}
           </a>
         )}
       </div>
