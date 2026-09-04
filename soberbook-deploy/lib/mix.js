@@ -158,14 +158,48 @@ export function mixFeed(posts = [], content = [], { every = EVERY, lonelyId = nu
   const out = [];
   let sincePost = 0;
 
-  /* 🔴 Rule 1, applied to the pins. If the very first post is the one
-     waiting to be answered, the whole stack waits one place — they move
-     together, because splitting them would put one ad above the promoted
-     post and the rest below it, which reads as a bug. */
+  /* 🔴 Rule 1, applied to the lead pin. If the very first post is the one
+     waiting to be answered, the pin waits one place and sits under it.
+
+     ⚠️ This note used to say "the whole stack waits together, because
+     splitting them would put one ad above the promoted post and the rest
+     below it, which reads as a bug." That stopped being true the moment
+     the pins were spread out — there is no stack any more, and the rest
+     are placed by the loop below, which applies rule 1 for itself. */
+  /* ⭐ ONE PIN OPENS THE FEED. THE REST ARE SPREAD THROUGH IT — 3 Sept.
+
+     Ty, looking at four org posters stacked at the top: "we should space
+     them out a little bit better… like in between posts."
+
+     🔴 THE COMMENT ABOVE PREDICTED THIS AND NAMED THE NUMBER: "Two is a
+     lead; six is a wall of adverts a member has to scroll past to reach
+     the person who posted at 3am." Four was enough to feel it. What that
+     note got wrong was the remedy — it said the fix would be unpinning
+     old ones. It isn't. Every one of these organisations belongs on the
+     wall; they just don't belong in a single block.
+
+     ⚠️ THIS REVERSES HALF OF AN INSTRUCTION, DELIBERATELY AND ONLY HALF.
+     On 26 Aug Ty said "all ads start at the begging of the home feed",
+     which is why they were all hoisted. The newest pin still opens the
+     feed — ads still start at the beginning — but the others now take
+     their turn further down instead of queueing behind it.
+
+     ⚠️ Newest first is unchanged: pickPins() already sorts by pinned_at
+     descending, so the one Ty pinned most recently is the one that opens
+     the wall, and the older ones fall through the feed in order. */
+  const [leadPin, ...restPins] = pins;
   const pinsGoFirst = pins.length && !(posts[0] && posts[0].id === lonelyId);
   if (pinsGoFirst) {
-    for (const p of pins) out.push({ type: 'content', item: p, pinned: true });
+    out.push({ type: 'content', item: leadPin, pinned: true });
   }
+
+  /* How many posts between the remaining pins. ⚠️ Deliberately WIDER than
+     the content-card ratio: a YouTube clip is something to watch, an org
+     poster is an advert, and the wall can carry more of the former than
+     the latter before it stops feeling like people talking. */
+  const PIN_EVERY = 4;
+  const pinQueue = [...restPins];
+  let sincePin = 0;
 
   for (let i = 0; i < posts.length; i++) {
     out.push({ type: 'post', post: posts[i] });
@@ -173,9 +207,27 @@ export function mixFeed(posts = [], content = [], { every = EVERY, lonelyId = nu
        top of it. ⚠️ Also guarded so it can't land on a second post if the
        wall is somehow empty above. */
     if (pins.length && !pinsGoFirst && i === 0) {
-      for (const p of pins) out.push({ type: 'content', item: p, pinned: true });
+      out.push({ type: 'content', item: leadPin, pinned: true });
     }
     sincePost++;
+    sincePin++;
+
+    /* ⭐ THE REST OF THE PINS, ONE AT A TIME, FURTHER DOWN.
+
+       ⚠️ It obeys the same two rules the content cards obey, because a
+       poster is more of an advert than a clip is and has less licence,
+       not more:
+         RULE 1 — never directly above the post waiting to be answered.
+         RULE 3 — never straight after another card.
+       Without those, spacing the pins out would just move the pile-up
+       somewhere less visible. */
+    if (pinQueue.length && sincePin >= PIN_EVERY) {
+      const next = posts[i + 1];
+      if (!(next && next.id === lonelyId) && out[out.length - 1]?.type !== 'content') {
+        out.push({ type: 'content', item: pinQueue.shift(), pinned: true });
+        sincePin = 0;
+      }
+    }
 
     if (sincePost < every || !queue.length) continue;
 
@@ -196,5 +248,26 @@ export function mixFeed(posts = [], content = [], { every = EVERY, lonelyId = nu
      alternative — tipping the remainder onto the end — turns the bottom
      of a quiet wall into a wall of videos, which is rule 2 broken by the
      back door. A short wall shows fewer cards. That's correct. */
+
+  /* 🔴 BUT A PIN IS NOT A CARD, AND A LEFTOVER PIN IS NEVER DROPPED.
+
+     The rule directly above is right about YouTube clips — the feed
+     chooses those, so showing fewer is a smaller wall, not a mistake.
+     Nothing chooses a pin. `pinned_at` is set by hand, by Ty, one row at
+     a time, and the reason it exists is that he decided this particular
+     organisation should be seen.
+
+     ⚠️ So on a wall too short to space them all out, the remainder goes
+     on the end rather than vanishing. That is the lesser of the two
+     wrongs and the comment forty lines up says why: a pin that silently
+     disappears gives him "no way to see why" — he'd be looking at a wall
+     with an org missing and nothing anywhere saying it was dropped.
+
+     ⚠️ Rule 3 is honoured on the join, so the flush can't butt straight
+     onto a card, but it is NOT honoured between the flushed pins
+     themselves. At that point the wall has run out of posts to separate
+     them with, and the alternative is not showing them at all. */
+  for (const p of pinQueue) out.push({ type: 'content', item: p, pinned: true });
+
   return out;
 }
