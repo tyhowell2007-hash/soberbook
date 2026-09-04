@@ -507,6 +507,35 @@
 }
 
 /* =====================================================================
+   THE PHOTO WARNING IN AN ANONYMOUS ROOM. 3 Sept.
+
+   Deliberately the same SHAPE as .rnudge above — same bubble, same
+   radius, same size — because inventing a second visual language for one
+   sentence is noise, and this sits two pixels from that one.
+
+   ⚠️ TWO DIFFERENCES, AND BOTH CARRY THE MEANING. The border is SOLID
+   rather than dashed, and both it and the text are brighter. The nudge is
+   encouragement ("Morning counts"); this is a caution, and it has to
+   out-rank the thing beside it without shouting.
+
+   🔴 AND IT IS DELIBERATELY NOT RED OR AMBER. Nothing has gone wrong —
+   somebody picked a picture, which is allowed. A red bar in a room about
+   7-OH dependence reads as an accusation, and this app's whole stance is
+   that nobody has to explain themselves. Caution, not alarm.
+
+   ⚠️ MEASURED, not guessed — three contrast numbers were written into
+   comments unmeasured in two days, and two of them were failures:
+       #C7EFDD on #1A3227 = 11.00   (the nudge's own text is 9.22)
+       #6FB294 on #1A3227 =  5.54   (the nudge's border is 4.04)
+   Floor is 4.5. */
+.rshade{
+  margin:0 0 9px; padding:8px 11px;
+  border:1px solid #6FB294; border-radius:9px;
+  background:#1A3227; color:#C7EFDD;
+  font-size:12.5px; line-height:1.55;
+}
+
+/* =====================================================================
    🪑 THE FRONT PORCH — the one room in the app with a photograph behind it.
 
    Ty asked for a real country porch at dusk, and then for the view to be
