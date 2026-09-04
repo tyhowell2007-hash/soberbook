@@ -205,3 +205,63 @@
   border: 3px solid var(--x);
   background: var(--paper2);
 }
+
+/* =====================================================================
+   ONE LIST — 4 Sept. The header, the search box and the divider that
+   replaced the Conversations / Everybody tabs.
+   ===================================================================== */
+
+.ib-top { margin: 0 0 10px; }
+
+.ib-title {
+  display: block;
+  font-family: 'Archivo', system-ui, sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--gt);
+  line-height: 1.2;
+}
+
+/* The count is quieter than the word above it on purpose: it is context,
+   not a headline. #4A6659 on the page cream measures 6.41 against a 4.5
+   floor — measured, not guessed, because three unmeasured contrast
+   figures went into comments this week and two of them were failures. */
+.ib-count {
+  display: block;
+  font-family: 'Archivo', system-ui, sans-serif;
+  font-size: 13px;
+  color: #4A6659;
+  margin-top: 2px;
+}
+
+/* ⚠️ 16px, and that is not a style choice — anything smaller makes iOS
+   zoom the whole page the moment somebody taps the field, which on a
+   fixed-width list looks like the app broke. Same rule as .rin. */
+.ib-find {
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 44px;
+  padding: 10px 13px;
+  margin: 0 0 14px;
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  background: #fff;
+  font-family: 'Archivo', system-ui, sans-serif;
+  font-size: 16px;
+  color: var(--body);
+}
+.ib-find::placeholder { color: var(--soft); }
+.ib-find:focus {
+  outline: 2px solid var(--gd);
+  outline-offset: 1px;
+  border-color: var(--gd);
+}
+
+/* A hairline between the people who have spoken to you and everyone
+   else. Deliberately not a heading — see the note in Inbox.jsx: two
+   labelled sections is the grouping that was reverted on 3 Sept. */
+.ib-rule {
+  height: 1px;
+  background: var(--line);
+  margin: 16px 2px;
+}
