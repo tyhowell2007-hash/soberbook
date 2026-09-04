@@ -60,6 +60,10 @@ const KINDS = {
      road, same stripper, its own bucket — see the note in finalize about
      why it doesn't just reuse post-photos. */
   room:   { ext: 'bin' },
+  /* ✉️ A picture in a direct message (0126/0127). Same quarantine road,
+     same stripper, its own bucket — the prefix is what tells the signer
+     to ask `chat_messages` rather than a wall view. */
+  dm:     { ext: 'bin' },
 };
 
 /* What the browser is allowed to say it's sending. ⚠️ This is a HINT, not
