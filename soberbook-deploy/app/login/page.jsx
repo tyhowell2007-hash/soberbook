@@ -133,6 +133,55 @@ export default function Landing() {
   const [mine, setMine]         = useState(false);  // did they type it themselves?
   useEffect(() => { setUpHandle(makeHandles(1)[0]); }, []);
 
+  /* =====================================================================
+     🔴 SOMEBODY ARRIVING HERE ON A PASSWORD-RESET LINK GETS SENT TO /reset.
+     4 Sept, and a real member was locked out by it.
+
+     D Milton signed up at 03:23, forgot her password four minutes later,
+     asked for a reset at 03:32, and clicked the link. `auth.users` shows
+     `last_sign_in_at` at 03:33:34 — **the link worked and signed her in.**
+     Then it dropped her HERE, on the landing page, which looked at her and
+     offered "make an account or sign in" to somebody who was already
+     signed in and holding a live recovery session. She wrote: "there's no
+     direction on resetting my password."
+
+     ⭐ THE PAGE WASN'T WRONG ABOUT ANYTHING — IT JUST DIDN'T KNOW WHAT IT
+     WAS HOLDING. `/reset` has existed and worked the whole time; nothing
+     ever handed the session over to it. Thirteenth "everything built
+     except the way in" in a month, and the first one that cost somebody
+     their account on their first night.
+
+     ⚠️ WHY THIS BELONGS HERE AND NOT ONLY IN SUPABASE'S SETTINGS. The
+     root cause is upstream — a recovery link whose redirect isn't on the
+     allow list falls back to the Site URL, which is this page. That is a
+     dashboard setting, invisible from the code, changeable by anyone with
+     the login, and it has now silently broken once. **A page that can
+     receive a recovery session should know what to do with one**, whatever
+     the dashboard says this week.
+
+     ⚠️ TWO ROUTES IN, because the token arrives in one of two states:
+       1. The fragment is still on the URL — forward it, fragment intact.
+          🔴 `location.replace`, never router.push: Next's router drops the
+          hash, and the hash IS the token. Losing it here would be the
+          same class of bug as the server-side redirect that used to eat
+          it (that is why middleware exempts /reset at all).
+       2. supabase-js already consumed it — then no fragment survives and
+          the only signal left is the PASSWORD_RECOVERY event.
+     ⚠️ Case 2 is the one that actually bit her: `detectSessionInUrl` is on
+     by default, so the client had eaten the token before any of our code
+     looked at the URL. */
+  useEffect(() => {
+    const hash = typeof window !== 'undefined' ? window.location.hash : '';
+    if (hash && /type=recovery/.test(hash)) {
+      window.location.replace('/reset' + hash);
+      return;
+    }
+    const { data: sub } = supabase.auth.onAuthStateChange((event) => {
+      if (event === 'PASSWORD_RECOVERY') window.location.replace('/reset');
+    });
+    return () => sub?.subscription?.unsubscribe();
+  }, [supabase]);
+
   /* ⚠️ ONE ERROR TRANSLATOR, SHARED. Two copies would drift, and what
      would drift is the rule about never confirming who has an account —
      a safety rule, not a copy preference. */
