@@ -37,15 +37,11 @@ function Row({ t, children }) {
 }
 
 export default function Inbox({ inbox, requests, members = [] }) {
-  /* Two tabs, not two pages. Your conversations and everybody else are the
-     same question — "who can I talk to" — and splitting them across routes
-     would mean a person with no conversations lands on an empty screen and
-     has to go looking for the door. */
-  const [tab, setTab] = useState('chats');
   const [open, setOpen] = useState(false);
   const [pending, setPending] = useState(requests);
   const [busy, setBusy] = useState(null);
   const [err, setErr] = useState('');
+  const [q, setQ] = useState('');
 
   /* 🔴 THE CHAT DOT NO LONGER CLEARS HERE — 3 Sept, and this is a
      deletion, not a change.
@@ -91,61 +87,104 @@ export default function Inbox({ inbox, requests, members = [] }) {
     if (yes) window.location.href = `/chat/${id}`;
   }
 
-  /* 🔴 THE GROUPING WAS REVERTED THE SAME NIGHT IT SHIPPED — 3 Sept.
+  /* =====================================================================
+     ⭐ ONE LIST, NOT TWO TABS — 4 Sept. Ty: "we only need one that has the
+     total amount of people up above."
 
-     It sorted the inbox into "Waiting on you", the ordinary
-     conversations, and a collapsed "You said hi, nothing back yet". The
-     measurement behind it was real: 133 threads, Ty spoke last in 132,
-     117 were a hello nobody answered, exactly one was waiting on him.
+     What was here: a Conversations tab and an Everybody tab. The split
+     made sense when the app had eighteen members and your conversations
+     were most of what you'd want. It stopped making sense overnight.
 
-     ⚠️ AND IT WAS STILL WRONG, FOR A REASON THE NUMBERS COULDN'T SHOW.
-     Ty opened Chat looking for one conversation and found his list had
-     gone from 133 rows to 16, most of it folded behind a toggle, in a
-     different order. He reported it as "chat might be fucked up" and
-     "it's showing our messages like it's new." Nothing was broken —
-     133 of 133 threads were filed correctly, proven against the actual
-     messages. The list was just no longer the list he knew.
+     🔴 THE MEASUREMENT THAT SETTLED IT: after the hello went out, every
+     one of the 201 members has at least one thread — and 123 of them have
+     EXACTLY ONE, which is Ty's. So for most people Chat opened on a list
+     of one name, with the other two hundred hidden behind a word they had
+     to know to tap. That is the same "everything built except the way in"
+     shape as delete-your-post, "Say hi", sign out and the content hide
+     button, and it is the twelfth or thirteenth instance this month.
 
-     ⭐ THE LESSON, AND IT IS NOT "DON'T GROUP THINGS": people navigate a
-     familiar list by SHAPE AND POSITION, not by reading it. Reorganising
-     somebody's inbox is not a neutral improvement — it costs them
-     everything they had memorised, and that cost lands the first time
-     they go looking for something specific, which is exactly the moment
-     they are least willing to pay it.
+     ⚠️ AND THIS IS THE THING THE 3 SEPT REVERT WARNED ABOUT, DONE ON
+     PURPOSE THIS TIME. That night a grouping shipped unasked, Ty's 133
+     rows became 16 behind a toggle, and he reported chat as broken. The
+     lesson written then — people navigate a familiar list by shape and
+     position, so reorganising somebody's inbox is never neutral — still
+     stands. What is different: he asked for this one, saw a working
+     prototype with his own data first, and said ship it. The cost is the
+     same; the difference is that he chose to pay it.
+     ===================================================================== */
 
-     ⚠️ If this is ever tried again it needs to be opt-in, or introduced
-     with the old order still available, and NEVER shipped to somebody
-     mid-conversation. The view still returns they_spoke_last and
-     they_ever_spoke (0122) — the data is there and correct, it just
-     isn't rearranging anything.
+  /* 🔴 "TALKING" MEANS THEY HAVE SPOKEN, NOT THAT A THREAD EXISTS, and
+     that distinction is the whole reason this list is readable.
 
-     ⚠️ KEPT from that same change, because neither is cosmetic:
-       · the 200-row read in page.jsx (was 80, which silently hid 53 of
-         Ty's threads — reverting that would re-hide them)
-       · the removal of the dead `state === 'sent'` label
-       · the notification fix, which is a different thing entirely
-  */
+     `inbox` is ordered by last_message_at, so the obvious version — show
+     every thread with its preview — puts 181 identical copies of Ty's own
+     hello at the top of his screen. Measured on the live data the night it
+     went out: 199 threads, 18 where the other person has ever said a word.
 
-  const nothing = inbox.length === 0 && pending.length === 0;
+     ⚠️ So a thread earns the preview-and-unread treatment only once
+     they_ever_spoke (0122). Everybody else is a person you can message,
+     which is exactly what the directory row already is — no second row
+     type, no second implementation.
+
+     ⚠️ they_ever_spoke, NOT they_spoke_last. Somebody who answered you in
+     August and has been quiet since is still a conversation; using
+     "who spoke last" would drop them out of the list the moment you had
+     the final word, which is the opposite of what a chat list is for. */
+  const talking = inbox.filter((t) => t.they_ever_spoke);
+  const spoken = new Set(talking.map((t) => t.other_handle));
+
+  const term = q.trim().toLowerCase();
+  const hit = (a, b) =>
+    !term ||
+    (a || '').toLowerCase().includes(term) ||
+    (b || '').toLowerCase().includes(term);
+
+  const shownTalking = talking.filter((t) => hit(t.other_name, t.other_handle));
+
+  /* ⚠️ Anyone already shown above is removed here, or they appear twice —
+     once with their last message and once as a plain name. The key is the
+     HANDLE, not the thread id, because the two lists come from two
+     different views and only the handle is common to both. */
+  const rest = members.filter(
+    (m) => !spoken.has(m.handle) && hit(m.display_name, m.handle)
+  );
+
+  const noResults = term && shownTalking.length === 0 && rest.length === 0;
 
   return (
     <div className="pad">
-      <div className="ctabs" role="tablist">
-        <button role="tab" aria-selected={tab === 'chats'}
-                className={'ctab' + (tab === 'chats' ? ' on' : '')}
-                onClick={() => setTab('chats')}>Conversations</button>
-        <button role="tab" aria-selected={tab === 'all'}
-                className={'ctab' + (tab === 'all' ? ' on' : '')}
-                onClick={() => setTab('all')}>
-          Everybody{members.length ? ` · ${members.length}` : ''}
-        </button>
+      {/* ⚠️ The count is the plain number of people, not "Everybody · 201".
+          The word was carrying tab-label weight it no longer needs to:
+          you are looking at everybody, so saying so twice is noise. */}
+      <div className="ib-top">
+        <span className="ib-title">Everybody</span>
+        {members.length > 0 && (
+          <span className="ib-count">{members.length} people</span>
+        )}
       </div>
 
-      {tab === 'all' && <Directory members={members} />}
+      {/* 🔴 THE SEARCH BOX IS NEW AND IS HALF THE POINT OF MERGING.
+          Neither tab had one. A list of 201 names is only usable if you
+          can jump to one, and without it "one list" would just be a
+          longer scroll than the thing it replaced. */}
+      <input
+        className="ib-find"
+        type="search"
+        value={q}
+        onChange={(e) => setQ(e.target.value)}
+        placeholder="Search people…"
+        aria-label="Search people"
+      />
 
-      {tab === 'chats' && <>
       {err && <div className="err">{err}</div>}
 
+      {/* ⚠️ REQUESTS STAY THEIR OWN STRIP, ABOVE EVERYTHING, AND ARE NOT
+          FOLDED INTO THE LIST. This is a safety surface, not a sorting
+          preference — a request buried at position 40 of 201 is a request
+          nobody answers. It is also deliberately NOT filtered by the
+          search box: hiding a pending request because somebody typed a
+          name would be the app quietly withholding a decision that is
+          theirs to make. */}
       {pending.length > 0 && (
         <>
           <button className="creq" onClick={() => setOpen((v) => !v)} aria-expanded={open}>
@@ -186,48 +225,60 @@ export default function Inbox({ inbox, requests, members = [] }) {
           false for everyone, so every thread reports 'open' and that
           label can never render. Measured on the live data: all 133 of
           Ty's threads come back 'open'. It stays removed. */}
-      {inbox.map((t) => (
-        <Link key={t.id} href={`/chat/${t.id}`} className="clink">
-          <Row t={t}>
-            {Number(t.unread) > 0
-              ? <span className="cdot" aria-label={`${t.unread} unread`}>{t.unread}</span>
-              : null}
-          </Row>
-        </Link>
-      ))}
+      {shownTalking.length > 0 && (
+        <div className="ib-grp">
+          {shownTalking.map((t) => (
+            <Link key={t.id} href={`/chat/${t.id}`} className="clink">
+              <Row t={t}>
+                {Number(t.unread) > 0
+                  ? <span className="cdot" aria-label={`${t.unread} unread`}>{t.unread}</span>
+                  : null}
+              </Row>
+            </Link>
+          ))}
+        </div>
+      )}
 
-      {nothing && (
+      {/* A hairline, not a heading. "Talking" and "Everyone else" as two
+          labelled sections is the grouping that got reverted on 3 Sept —
+          it turns one list back into two and invites the same "where did
+          my list go" reaction. A rule is enough to say the order changed
+          without claiming the two halves are different kinds of thing. */}
+      {shownTalking.length > 0 && rest.length > 0 && (
+        <div className="ib-rule" aria-hidden="true" />
+      )}
+
+      {rest.length > 0 && <Directory members={rest} />}
+
+      {noResults && (
+        <p className="ib-note">Nobody here by that name.</p>
+      )}
+
+      {/* 🔴 THIS USED TO SAY "Their first message to you lands as a
+          request — yours to accept or not." THAT BECAME FALSE ON 29 AUG
+          and nobody noticed for four days.
+
+          `0087` removed the stranger cap at Ty's direction, and
+          chat_send_blocked() is now literally `select false`. Anyone
+          here can message anyone, immediately, as often as they like.
+
+          ⚠️ It is not a stale label, it is a SAFETY CLAIM. Somebody told
+          they have a gate will reasonably assume strangers cannot reach
+          them. They can.
+
+          ⚠️ It no longer says "tap Everybody above" — there is no
+          Everybody tab to tap. The whole app is on this screen now, so
+          the sentence that survives is the one about protection, which is
+          the half that was load-bearing. */}
+      {members.length === 0 && pending.length === 0 && (
         <div className="empty">
-          <div className="h">No conversations yet</div>
-          {/* 🔴 THIS USED TO SAY "Their first message to you lands as a
-              request — yours to accept or not." THAT BECAME FALSE ON 29 AUG
-              and nobody noticed for four days.
-
-              `0087` removed the stranger cap at Ty's direction, and
-              chat_send_blocked() is now literally `select false`. Anyone
-              here can message anyone, immediately, as often as they like.
-
-              ⚠️ It is not a stale label, it is a SAFETY CLAIM — and this is
-              the empty state, so it is the first thing a brand-new member
-              reads about messages. Somebody told they have a gate will
-              reasonably assume strangers cannot reach them. They can.
-
-              Same category as "Verified, real people" (15 Aug) and "No Zoom
-              account needed — join as a guest" (20 Aug): a promise the app
-              had stopped being able to keep.
-
-              ⭐ The replacement says what protection actually EXISTS rather
-              than going silent — block and report are real, reachable from
-              a row, a profile and a conversation, and a block outranks
-              everything including the owner account. */}
+          <div className="h">Nobody here yet</div>
           <p className="p">
-            Tap <b>Everybody</b> above to see who&apos;s here. Anyone in here can
-            message you — and you can block or report anyone, any time, from
-            the <b>⋯</b> on their name.
+            Anyone in here can message you — and you can block or report
+            anyone, any time, from the <b>⋯</b> on their name.
           </p>
         </div>
       )}
-      </>}
     </div>
   );
 }
