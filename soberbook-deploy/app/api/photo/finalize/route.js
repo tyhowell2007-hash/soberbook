@@ -63,6 +63,15 @@ const KINDS = {
      has never heard of it — and the picture would simply never appear.
      One bucket per audience keeps that routing honest. */
   room:   { bucket: 'room-photos', prefix: 'rooms',   max: 1600, quality: 80 },
+  /* ✉️ A DIRECT MESSAGE (0126/0127), and the same argument as the room
+     one above applies with more force. A DM photo is visible to exactly
+     two people. The prefix `dms/` is what makes lib/sign-photos.js ask
+     `chat_messages` — the view that already knows about thread
+     membership, declined threads and blocks. Drop this file into
+     post-photos and its path would start `posts/`, so the signer would
+     ask `feed_posts`, find nothing, and the picture would silently never
+     render. The bucket is not filing; it is the routing. */
+  dm:     { bucket: 'dm-photos',   prefix: 'dms',     max: 1600, quality: 80 },
 };
 
 /* ⚠️ `drop` is deliberately NOT in KINDS above. That map is the
@@ -336,8 +345,17 @@ export async function POST(req) {
     if (body?.kind !== 'post') {
       await admin.storage.from('quarantine').remove([raw]);
       return NextResponse.json({
+        /* ⚠️ 3 Sept — `dm` was added here in the same change that added it
+           to KINDS, and that is the whole point of this note. Without the
+           branch, somebody dropping a video into a conversation would be
+           told they were editing their profile picture: the exact
+           wrong-screen refusal the comment above describes, reintroduced
+           by adding a kind. A new kind is not finished until every
+           message that names a kind knows about it. */
         error: body?.kind === 'room'
           ? 'The room takes photos, not video. Put a video on the wall instead.'
+          : body?.kind === 'dm'
+          ? 'Messages take photos, not video. Put a video on the wall instead.'
           : 'A profile picture has to be a photo.',
       }, { status: 415 });
     }
