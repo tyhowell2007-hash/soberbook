@@ -545,6 +545,50 @@ export default function Room({ room, initial, meHandle, members, signed, spokenH
         </div>
       )}
 
+      {/* =====================================================================
+          🔴 WARN BEFORE A PICTURE GOES INTO AN ANONYMOUS ROOM. 3 Sept.
+
+          Ty was offered "block it", "allow it", and "allow, but warn first"
+          and picked the third. Only the ALLOW half got built — the picker
+          shipped into two anonymous rooms with nothing anywhere saying a
+          photo can undo the thing those rooms exist to do.
+
+          ⭐ WHY IT HANGS OFF THE TRAY AND NOT OFF THE PICKER. A line that
+          is always above the composer is wallpaper by somebody's second
+          visit — the same way nobody read "we're opening soon" on a live
+          landing page for a month. This appears only while a picture is
+          actually staged, which is the one moment the sentence is about
+          something, and the ✕ that takes it back out is directly above it.
+
+          ⚠️ AND THE TRAY REALLY IS THE LAST SAFE MOMENT. By the time a
+          thumbnail is here the file is uploaded and stripped, but it sits
+          in a PRIVATE bucket attached to no message — unstaging orphans it
+          and the sweeper takes it. Nothing is visible to another member
+          until Send. So warning here costs nobody anything and still lands
+          before the only irreversible step.
+
+          ⚠️ `room.anonymous`, never the slug. The porch photograph is keyed
+          off the slug because it belongs to one specific room; anonymity is
+          a property, and keying this off a slug list would mean the fourth
+          anonymous room silently ships without the warning.
+
+          ⚠️ It does NOT block and it does NOT need dismissing. He said warn,
+          not gate. A confirm dialog here gets click-throughed within a week
+          and then it is worse than nothing, because we would believe people
+          had read it.
+
+          ⚠️ The second sentence is the load-bearing one. The photo somebody
+          thinks about is the selfie. The one that actually identifies them
+          is the prescription label on the counter, the street sign through
+          the window, the kid's drawing on the fridge. */}
+      {room.anonymous && tray.length > 0 && (
+        <p className="rshade">
+          <span aria-hidden="true">🕶️ </span>
+          Your name is hidden in here. A photo isn’t — check for faces, and
+          anything behind them.
+        </p>
+      )}
+
       {/* Full size. ⚠️ A plain overlay, not a new tab — a signed URL in
           the address bar is a link somebody can copy and paste, and it
           keeps working for an hour in anybody's browser. */}
