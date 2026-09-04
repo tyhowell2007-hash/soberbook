@@ -119,6 +119,7 @@ export async function signPhotoPaths(supabase, wanted) {
   const videoPaths  = asked.filter((p) => p.startsWith('videos/'));
   const dropPaths   = asked.filter((p) => p.startsWith('drops/'));
   const roomPaths   = asked.filter((p) => p.startsWith('rooms/'));
+  const dmPaths     = asked.filter((p) => p.startsWith('dms/'));
 
   const allowed = new Set();
 
@@ -212,6 +213,36 @@ export async function signPhotoPaths(supabase, wanted) {
       (r.photo_urls || []).forEach((p) => { if (askedSet.has(p)) allowed.add(p); }));
   }
 
+  /* ✉️ A PICTURE IN A DIRECT MESSAGE (0126).
+
+     Same shape again, asked of `chat_messages` — the view the DM screen
+     already reads through. That view returns a row only when the caller
+     is one of the two people on the thread, drops a thread the caller
+     declined, and drops it entirely if either person has blocked the
+     other. So a DM photo inherits all three rules without this file
+     knowing what a thread or a block is.
+
+     ⭐ THIS IS WHY THE BUCKET IS SEPARATE. The prefix picks the view. Put
+     a DM photo in post-photos and its path would start `posts/`, so the
+     signer would ask `feed_posts` — which has never heard of it — and the
+     picture would silently never appear. Worse in the other direction: a
+     shared bucket would mean deciding audience from the row rather than
+     the path, and the row is the thing an attacker is trying to talk you
+     out of.
+
+     ⚠️ askedSet for the same reason as posts and rooms: `.overlaps()`
+     hands back the message's WHOLE array, so without the intersection we
+     would sign pictures nobody asked about. Nothing leaks — if the
+     message is visible so are its photos — but a permission control
+     should return exactly what it was asked and nothing more. */
+  if (dmPaths.length) {
+    const askedSet = new Set(dmPaths);
+    const { data } = await supabase
+      .from('chat_messages').select('photo_urls').overlaps('photo_urls', dmPaths);
+    (data || []).forEach((r) =>
+      (r.photo_urls || []).forEach((p) => { if (askedSet.has(p)) allowed.add(p); }));
+  }
+
   if (avatarPaths.length) {
     const { data } = await supabase
       .from('public_profiles')
@@ -227,7 +258,8 @@ export async function signPhotoPaths(supabase, wanted) {
                                   ['avatars',     'avatars/'],
                                   ['post-videos', 'videos/'],
                                   ['drops',       'drops/'],
-                                  ['room-photos', 'rooms/']]) {
+                                  ['room-photos', 'rooms/'],
+                                  ['dm-photos',   'dms/']]) {
     const paths = [...allowed].filter((p) => p.startsWith(prefix));
     if (!paths.length) continue;
 
