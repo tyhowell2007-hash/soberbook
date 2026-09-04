@@ -92,12 +92,53 @@ export default async function WallPage() {
 
      Ordering and interleaving happen in lib/mix.js, not here: a plain
      `order by published_at` hands the whole wall to whichever channel
-     uploads most, which the first real pull demonstrated within minutes. */
-  const { data: content } = await supabase
-    .from('feed_content')
-    .select('id, title, url, embed_id, thumb_path, published_at, source_label, category, source_id, event_at, place, pinned_at')
-    .order('published_at', { ascending: false })
-    .limit(60);
+     uploads most, which the first real pull demonstrated within minutes.
+
+     ---------------------------------------------------------------------
+     🔴 TWO QUERIES, AND THE SECOND ONE IS A BUG FIX — 3 Sept.
+
+     This used to be ONE query: newest 60 by published_at, pins and clips
+     together. Ty had six posters pinned and only TWO of them were on the
+     wall. Not a rendering fault and not mix.js — the other four never
+     arrived. The feeds pull about nine YouTube items a day, so a 60-item
+     recency window covers roughly the last week, and everything pinned
+     before 27 Aug had simply been pushed out the bottom by clips.
+
+     ⭐ THE SHAPE OF IT IS WHAT MAKES IT NASTY: a pin has no expiry and
+     nothing anywhere says it stopped showing. Ty pinned OCAAR, BrightView,
+     Operation Lean On Me and the Mohican convention on purpose, one row at
+     a time, and they disappeared on a timer nobody set. The convention is
+     an EVENT — 14 September — and it went dark eleven days before it.
+
+     ⚠️ THE RULE: A RECENCY WINDOW AND A HAND-PLACED ITEM CANNOT SHARE A
+     QUERY. Recency is the feed choosing; a pin is Ty choosing. The moment
+     they compete for the same 60 slots, the thing that uploads twelve
+     times a week wins — which is the exact argument fairOrder() already
+     makes one layer down, arriving here from a direction nobody checked.
+
+     So: pins are fetched on their own with no limit, and the recency query
+     now EXCLUDES them (`.is('pinned_at', null)`). The exclusion isn't
+     tidiness — without it the two newest pins come back in both lists and
+     mix.js would place the same poster twice. */
+  const [{ data: clips }, { data: pinned }] = await Promise.all([
+    supabase
+      .from('feed_content')
+      .select('id, title, url, embed_id, thumb_path, published_at, source_label, category, source_id, event_at, place, pinned_at')
+      .is('pinned_at', null)
+      .order('published_at', { ascending: false })
+      .limit(60),
+    supabase
+      .from('feed_content')
+      .select('id, title, url, embed_id, thumb_path, published_at, source_label, category, source_id, event_at, place, pinned_at')
+      .not('pinned_at', 'is', null)
+      .order('pinned_at', { ascending: false }),
+  ]);
+
+  /* ⚠️ Still one array, because mixFeed() takes one array and pulls the
+     pins back out itself with pickPins(). Splitting the fetch must not
+     turn into splitting the RULE — mix.js stays the only place that
+     decides where a pin goes. */
+  const content = [...(pinned || []), ...(clips || [])];
 
   /* A member's own record (0058), keyed by post id.
 
