@@ -57,7 +57,17 @@ export default async function ChatPage({ searchParams }) {
     .from(assertReadable('public_profiles'))
     .select('handle, display_name, display_avatar, day_count, joined_at, last_public_post, is_mine')
     .order('joined_at', { ascending: false })
-    .limit(200);
+    /* 🔴 500, NOT 200 — 4 Sept. There are 201 members, so the old cap was
+       already dropping the oldest account off the bottom of the list, and
+       nothing said so. That was survivable while this was a secondary tab
+       nobody opened; it is not survivable now that this IS the chat
+       screen and the header prints a count next to it — a list capped at
+       200 under a heading saying "201 people" is the app contradicting
+       itself in the same glance.
+       ⚠️ Same standing rule as the threads read directly above: if
+       anybody ever passes 500, this becomes paging, not a bigger
+       number. */
+    .limit(500);
 
   const threads  = rows || [];
   /* 🔴 THIS COMMENT USED TO ARGUE AGAINST WHAT NOW SHIPS, AND BOTH HALVES
