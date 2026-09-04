@@ -41,7 +41,7 @@ import MsgMenu from './MsgMenu';
    conversation; it is not a presence signal. */
 const POLL_MS = 12000;
 
-const COLS = 'id, body, photo_urls, edited_at, created_at, is_mine, handle, display_name, display_avatar';
+const COLS = 'id, body, photo_urls, edited_at, created_at, is_mine, handle, display_name, display_avatar, likes, i_liked';
 
 export default function Room({ room, initial, meHandle, members, signed, spokenHere = true }) {
   /* ⚠️ `initial === null` means nobody has fetched this room yet (see
@@ -239,6 +239,36 @@ export default function Room({ room, initial, meHandle, members, signed, spokenH
      which is closer to the block case than the message case. It's one
      round trip on a deliberate action, with the field right there.
      --------------------------------------------------------------- */
+  /* =====================================================================
+     TOGGLE A HEART.
+
+     ⚠️ THE SERVER'S ANSWER OVERWRITES THE GUESS, it doesn't just confirm
+     it. `room_like` returns the real count after the write, so if two
+     people heart the same message in the same second this lands on the
+     true number instead of on our own +1. Guessing and then never
+     checking is how a count drifts and nobody notices for a week.
+
+     ⚠️ On failure the row goes back exactly as it was. The database
+     refuses hearting your own message and anything you can't see, so a
+     refusal here is a real answer, not a glitch to paper over. */
+  async function heart(id) {
+    const before = msgs.find((x) => x.id === id);
+    if (!before) return;
+
+    setMsgs((all) => all.map((x) => x.id === id
+      ? { ...x, i_liked: !x.i_liked, likes: (x.likes || 0) + (x.i_liked ? -1 : 1) }
+      : x));
+
+    const { data, error } = await browserClient().rpc('room_like', { m_id: id });
+    const row = Array.isArray(data) ? data[0] : data;
+
+    setMsgs((all) => all.map((x) => x.id === id
+      ? (error || !row
+          ? { ...x, i_liked: before.i_liked, likes: before.likes }
+          : { ...x, i_liked: row.liked, likes: row.likes })
+      : x));
+  }
+
   function startEdit(id) {
     const m = msgs.find((x) => x.id === id);
     if (!m) return;
@@ -511,6 +541,48 @@ export default function Room({ room, initial, meHandle, members, signed, spokenH
                   recover from it differently. Same rule as RowMenu.
                   Hidden on a message still in flight: there is nothing on
                   the server yet to delete or report. */}
+              {/* =====================================================
+                  ♥ A HEART, AND THE RULE IS THAT IT NEVER SHOWS A ZERO.
+
+                  Ty, 3 Sept: "in all chat rooms, I want you to be able to
+                  like other people's comments underneath yours."
+
+                  ⭐ SOMEBODY ELSE'S MESSAGE ALWAYS GETS THE OUTLINE, so
+                  the way to answer without words is visible even on a
+                  message nobody has answered yet. The NUMBER only appears
+                  once it is at least one — there is no "0" anywhere on
+                  this screen to feel bad about, the same rule the
+                  open-room card follows.
+
+                  ⭐ YOUR OWN MESSAGE GETS NO BUTTON, only the count, and
+                  only if somebody hearted it. So a message of yours that
+                  nobody answered looks exactly like a message of yours —
+                  not like a message of yours with a zero beside it.
+
+                  ⚠️ Optimistic, unlike Block. A heart that appears and
+                  then fails is a visible retry; the database refuses what
+                  it must refuse, so the worst case is a heart that pops
+                  back off. Block waits, because a block that only LOOKS
+                  like it worked is dangerous — this isn't that.
+
+                  ⚠️ Hidden while a message is still in flight: there is
+                  no row on the server yet to heart. */}
+              {!m.pending && !m.is_mine && (
+                <button type="button"
+                        className={'rheart' + (m.i_liked ? ' on' : '')}
+                        aria-pressed={!!m.i_liked}
+                        aria-label={m.i_liked ? 'Take your heart back' : 'Heart this'}
+                        onClick={() => heart(m.id)}>
+                  <span aria-hidden="true">{m.i_liked ? '♥' : '♡'}</span>
+                  {m.likes > 0 && <span className="rheartn">{m.likes}</span>}
+                </button>
+              )}
+              {!m.pending && m.is_mine && m.likes > 0 && (
+                <span className="rheart on mine" aria-label={`${m.likes} hearted this`}>
+                  <span aria-hidden="true">♥</span>
+                  <span className="rheartn">{m.likes}</span>
+                </span>
+              )}
               {!m.pending && (
                 <MsgMenu id={m.id} mine={m.is_mine} name={m.display_name}
                          onEdit={startEdit}
