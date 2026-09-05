@@ -5,6 +5,7 @@ import { milestoneToday, dayCount } from '../../lib/milestones';
 import { signPhotoPaths, collectPaths } from '../../lib/sign-photos';
 import { fetchPreviews } from '../../lib/previews';
 import { fetchTags } from '../../lib/tags';
+import { fetchBroadcasts } from '../../lib/highlights';
 import Wall from './Wall';
 import FeedRefresh from '../components/FeedRefresh';
 import OpenRoom from './OpenRoom';
@@ -83,6 +84,17 @@ export default async function WallPage() {
      server for the same reason: names appearing a beat after the post
      would shift the page under somebody's thumb. */
   const tags = await fetchTags(supabase, (posts || []).map((p) => p.id));
+
+  /* ⭐ Which of these posts genuinely announced themselves to the room
+     (0139). Fetched here, on the server, for the same reason the tags
+     above are: a confirmation appearing a beat after the post would
+     shift the page under somebody's thumb.
+
+     🔴 THIS IS THE DATABASE'S ANSWER, NOT A READING OF THE WORDS. Nine
+     posts on the live wall contain "@highlight" and only eight of them
+     ever broadcast. Drawing the pill from the text would put "this
+     reached everybody" on the one that reached nobody. */
+  const broadcast = await fetchBroadcasts(supabase, (posts || []).map((p) => p.id));
 
   /* Something to look at, mixed in with what people wrote (0057).
 
@@ -284,6 +296,7 @@ export default async function WallPage() {
             photoUrls={photoUrls}
             previews={previews}
             tags={tags}
+            broadcast={broadcast}
             content={content || []}
             thumbBase={thumbBase}
             /* ⚠️ Passed as a plain boolean, not the profile row. The
