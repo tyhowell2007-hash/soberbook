@@ -59,7 +59,19 @@ const CATS = [
    '✅ ☑️ ✔️ ❌ ⭕ 🚫 ⛔ ❗ ❓ ⚠️ 🔺 🔻 🔸 🔹 🔶 🔷 🟥 🟧 🟨 🟩 🟦 🟪 ⬛ ⬜ 🔘 🔴 🟠 🟡 🟢 🔵 🟣 ⚫ ⚪ ♻️ ⚜️ 🔱 ⚛️ 🕉️ ✡️ ☸️ ☯️ ✝️ ☦️ ☪️ ☮️ 🔯 ♈ ♉ ♊ ♋ ♌ ♍ ♎ ♏ ♐ ♑ ♒ ♓ ➕ ➖ ✖️ ➗ 🟰 💲 🔤 🔡 🔠 🔢 🔣 ℹ️ 🆗 🆕 🆒 🆓 🆙 🔝 🔜 ⏺️ ▶️ ⏸️ ⏹️ ⏭️ ⏮️ 🔀 🔁 🔂 🔄 ➡️ ⬅️ ⬆️ ⬇️ ↗️ ↘️ ↙️ ↖️ 🔗 ♾️'],
 ];
 
-export default function EmojiPicker({ open, onClose, onPick }) {
+/* ⚠️ `skin` is a PROP, not a stylesheet that happens to load later.
+
+   The room is a dark green page and gets the dark panel; the wall, the
+   reply sheet and chat are cream pages and get the light one. That could
+   have been done by letting friends.css override app/emoji.css — and it
+   would have worked, right up until somebody reordered two import lines
+   and silently repainted a screen. A cascade that depends on import
+   order is a rule you cannot read from the component.
+
+   ⚠️ Light is the DEFAULT because three of the four callers are light. A
+   component that has to be configured to look right in the common case
+   is a component that gets misconfigured. */
+export default function EmojiPicker({ open, onClose, onPick, skin }) {
   const [cat, setCat] = useState(0);
   const ref = useRef(null);
 
@@ -75,7 +87,7 @@ export default function EmojiPicker({ open, onClose, onPick }) {
   if (!open) return null;
 
   return (
-    <div className="emp" ref={ref}>
+    <div className={'emp' + (skin === 'green' ? ' emp-green' : '')} ref={ref}>
       <div className="emp-tabs" role="tablist" aria-label="Emoji categories">
         {CATS.map((c, i) => (
           <button key={c[1]} type="button" role="tab"
