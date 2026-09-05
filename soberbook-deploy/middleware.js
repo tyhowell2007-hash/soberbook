@@ -282,5 +282,5 @@ export const config = {
      real member appears anywhere. It also means the browser can make
      range requests straight to the CDN, so seeking works and none of it
      burns an edge invocation per chunk. */
-  matcher: ['/((?!_next/static|_next/image|favicon.ico|manifest\\.webmanifest|sw\\.js|offline\\.html|home\\.html|.*\\.(?:svg|png|jpg|jpeg|gif|webp|mp4|webmanifest|ico)$).*)'],
+  matcher: ['/((?!_next/static|_next/image|favicon.ico|manifest\\.webmanifest|sw\\.js|offline\\.html|home\\.html|\\.well-known|.*\\.(?:svg|png|jpg|jpeg|gif|webp|mp4|webmanifest|ico)$).*)'],
 };
