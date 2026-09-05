@@ -60,7 +60,18 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { activeQuery, suggest, buildIndex, findMentions } from '../../lib/mentions';
-import { supabase } from '../../lib/supabase-browser';
+/* 🔴 browserClient(), NOT a `supabase` named export — THERE ISN'T ONE.
+   This file first said `import { supabase } from '../../lib/supabase-browser'`.
+   That module exports browserClient(), READABLE_VIEWS and assertReadable and
+   nothing called `supabase`, so the import resolved to undefined, the first
+   .rpc() threw, and /friends went down for every member.
+
+   ⚠️ esbuild parsed it, the build was green, and the undefined-COMPONENT
+   check passed because this is a value, not a JSX tag. A missing named
+   export is not a syntax error in any single file — it only exists as a
+   relationship BETWEEN two files, which is why nothing local caught it.
+   There is a check for it now. */
+import { browserClient } from '../../lib/supabase-browser';
 
 /* One shared fetch of who can be tagged.
 
@@ -73,7 +84,7 @@ export function useTaggablePeople(enabled = true) {
   useEffect(() => {
     if (!enabled) return;
     let alive = true;
-    supabase.rpc('taggable_members')
+    browserClient().rpc('taggable_members')
       .then(({ data }) => { if (alive) setPeople(data || []); });
     return () => { alive = false; };
   }, [enabled]);
@@ -124,7 +135,7 @@ export function useTagBox({ text, setText, boxRef, people, enabled = true, noteF
     if (!enabled || t.length < 1) { setDir([]); return; }
     let alive = true;
     const timer = setTimeout(() => {
-      supabase.from('public_profiles')
+      browserClient().from('public_profiles')
         .select('handle, display_name')
         .or(`handle.ilike.${t}%,display_name.ilike.${t}%`)
         .limit(8)
@@ -248,7 +259,7 @@ export function useTagBox({ text, setText, boxRef, people, enabled = true, noteF
 export async function tellThemTheyWereTagged(kind, id, handles) {
   if (!id || !handles || !handles.length) return 0;
   try {
-    const { data } = await supabase.rpc('notify_mention_in',
+    const { data } = await browserClient().rpc('notify_mention_in',
       { p_kind: kind, p_id: id, p_handles: handles });
     return data || 0;
   } catch {
