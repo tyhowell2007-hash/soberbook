@@ -1619,3 +1619,21 @@ textarea:focus-visible{ outline:4px solid var(--x); outline-offset:3px; }
 .pt-no{ background:var(--paper2); color:var(--body); border:1.5px solid var(--line); font-weight:500; }
 .pt-btns button:disabled{ opacity:.55; cursor:default; }
 .pt-fine{ font-size:11.5px; color:var(--soft); margin:9px 0 0; line-height:1.5; }
+
+
+/* 🎬 A video in a direct message (5 Sept). Same weight as a DM picture so
+   a clip and a photo read as the same kind of thing in the thread.
+   ⚠️ NOT object-fit:cover — cropping a still is visible at a glance;
+   cropping a video hides somebody's head for the length of the clip. */
+.dmvid{
+  display:block; width:100%; max-width:280px; max-height:340px;
+  border-radius:12px; background:#000; margin:0 0 6px;
+}
+/* The staged video sitting in the tray, with its way back off. */
+.dmtray-one{ position:relative; display:inline-block; }
+.dmtray-one video{ width:96px; height:96px; object-fit:cover; border-radius:10px; background:#000; }
+.dmtray-x{
+  position:absolute; top:3px; right:3px; width:22px; height:22px; border:0;
+  border-radius:999px; background:rgba(0,0,0,.66); color:#fff;
+  font-size:13px; line-height:1; cursor:pointer; padding:0;
+}

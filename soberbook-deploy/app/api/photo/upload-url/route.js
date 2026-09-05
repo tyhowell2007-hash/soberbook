@@ -64,6 +64,11 @@ const KINDS = {
      same stripper, its own bucket — the prefix is what tells the signer
      to ask `chat_messages` rather than a wall view. */
   dm:     { ext: 'bin' },
+  /* 💬 A picture on a REPLY (0133). Same quarantine road, its own bucket,
+     prefix `comments/` — which is what makes lib/sign-photos.js ask
+     `feed_comments`, the view that already knows about post visibility,
+     blocks, suspension and anonymity. */
+  comment:{ ext: 'bin' },
 };
 
 /* What the browser is allowed to say it's sending. ⚠️ This is a HINT, not

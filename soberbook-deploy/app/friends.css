@@ -682,3 +682,13 @@
   border-bottom:1px solid #57987A;
 }
 .roomhelp a:hover{ color:#EAF6EF; border-bottom-color:#9FE1CB; }
+
+/* 🎬 A video in a room message (5 Sept). Sized like the picture grid so a
+   clip and a photo sit at the same weight in the conversation.
+   ⚠️ object-fit is deliberately NOT `cover`: cropping a still is visible
+   at a glance, cropping a video hides somebody's head for the length of
+   the clip. Black bars are honest. (18 Aug, on post video.) */
+.rvid{
+  display:block; width:100%; max-width:320px; max-height:360px;
+  border-radius:12px; background:#000; margin:0 0 6px;
+}

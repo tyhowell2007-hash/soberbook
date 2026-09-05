@@ -229,9 +229,39 @@ export function useTagBox({ text, setText, boxRef, people, enabled = true, noteF
     </div>
   ) : null;
 
+  /* 🙂 INSERTING AN EMOJI AT THE CARET, WRITTEN ONCE.
+
+     Room.jsx and Convo.jsx each had their own identical copy of this. Ty
+     asked for emoji in every box, which would have made it four copies —
+     and the hook already owns the caret and the ref, so it is the only
+     place that has everything the job needs.
+
+     ⚠️ It writes at the SELECTION, not the end. Appending would drop the
+     emoji after whatever you had typed even if your cursor was mid
+     sentence, which is the small wrongness people notice and can't name.
+
+     ⚠️ And it puts the caret back AFTER the emoji, so you can keep
+     typing. Same reasoning as choose() above. */
+  function insertEmoji(ch) {
+    const el = boxRef.current;
+    if (!el) { setText(text + ch); return; }
+    const s = el.selectionStart ?? text.length;
+    const e = el.selectionEnd ?? s;
+    setText(text.slice(0, s) + ch + text.slice(e));
+    const pos = s + ch.length;
+    requestAnimationFrame(() => {
+      const node = boxRef.current;
+      if (!node) return;
+      node.focus();
+      try { node.setSelectionRange(pos, pos); } catch { /* older browsers */ }
+      setCaret(pos);
+    });
+  }
+
   return {
     menu,
     inputProps,
+    insertEmoji,
     options,
     handles: (found || []).map((m) => m.handle),
     mentions: found || [],

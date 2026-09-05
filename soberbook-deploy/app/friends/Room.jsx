@@ -63,6 +63,11 @@ export default function Room({ room, initial, meHandle, members, signed, spokenH
      the whole quarantine round trip before it calls back — so "staged"
      means staged in this form, not staged on a server somewhere. */
   const [tray, setTray]   = useState([]);
+  /* One video, or none. ⚠️ Its own slot rather than a flag inside `tray`,
+     because the send path wants a single column and the tray is an
+     array — keeping them separate means no filtering at the one moment
+     that has to be right. */
+  const [vid, setVid]     = useState(null);
   const [upBusy, setUpBusy] = useState(false);
   /* path -> temporary https URL. Seeded from the server render so the
      first screen has its pictures already, then topped up as new
@@ -134,19 +139,11 @@ export default function Room({ room, initial, meHandle, members, signed, spokenH
      ⚠️ The caret is put back explicitly afterwards. Setting .value on an
      input moves the caret to the end as a side effect, so without this
      every pick would fling you to the end of your own sentence. */
-  function insertEmoji(e) {
-    const el = inputRef.current;
-    if (!el) { setBody((b) => b + e); return; }
-    const s = el.selectionStart ?? body.length;
-    const t = el.selectionEnd ?? s;
-    const next = body.slice(0, s) + e + body.slice(t);
-    setBody(next);
-    requestAnimationFrame(() => {
-      el.focus();
-      const p = s + e.length;
-      try { el.setSelectionRange(p, p); } catch { /* older browsers */ }
-    });
-  }
+  /* ⚠️ The local copy of this was DELETED, not left alongside the shared
+     one — 0049's lesson: the fix is to remove a copy, not to update it.
+     tag.insertEmoji owns the caret because the tag menu already does. */
+  const insertEmoji = tag.insertEmoji;
+
 
   /* Was the reader already at the bottom before new messages arrived?
      ⚠️ Checked BEFORE the list re-renders, because after it there is no
@@ -181,6 +178,11 @@ export default function Room({ room, initial, meHandle, members, signed, spokenH
     const want = [];
     for (const m of rows) {
       for (const p of m.photo_urls || []) if (p && !have[p]) want.push(p);
+      /* 🔴 ASK FOR THE VIDEO TOO. A path nobody asks to sign is a path
+         that never gets a URL — the video would upload, save, and render
+         as an empty player with no error anywhere. Same silent shape as
+         the 0065 bug where photos 2-10 were never collected. */
+      if (m.video_url && !have[m.video_url]) want.push(m.video_url);
     }
     if (!want.length) return null;
     try {
@@ -376,6 +378,7 @@ export default function Room({ room, initial, meHandle, members, signed, spokenH
 
     const mine = {
       id, body: text || null, photo_urls: paths.length ? paths : null,
+      video_url: vid ? vid.path : null,
       created_at: new Date().toISOString(),
       is_mine: true, handle: meHandle, display_name: 'you', display_avatar: null,
       pending: true,
@@ -386,6 +389,7 @@ export default function Room({ room, initial, meHandle, members, signed, spokenH
     setMsgs((m) => [...m, mine]);
     setBody('');
     setTray([]);
+    setVid(null);
     setShowNudge(false);   // they've spoken; the invitation has done its job
     setEmoji(false);   // sending is finishing; leaving it open hides the room
 
@@ -399,6 +403,7 @@ export default function Room({ room, initial, meHandle, members, signed, spokenH
            text-only message would be refused by the CHECK, which would
            look like "posting is broken" rather than like a bug here. */
         photo_urls: paths.length ? paths : null,
+        video_url: vid ? vid.path : null,
       });
 
     if (!error) {
@@ -416,6 +421,7 @@ export default function Room({ room, initial, meHandle, members, signed, spokenH
          paths are still good, so putting the tray back means one tap to
          retry instead of picking six photos again. */
       setTray(tray);
+      setVid(vid);                        // and their video
       setErr('That didn’t send. Try again.');
     }
     setBusy(false);
@@ -498,7 +504,13 @@ export default function Room({ room, initial, meHandle, members, signed, spokenH
                 <div className="redit">
                   {/* The pictures stay put and are not editable — swapping
                       the image under a message people have already seen
-                      is a different problem from fixing a typo. */}
+                      is a different problem from fixing a typo. The video
+                      is here for the same reason: hiding it while you fix
+                      a typo makes it look like editing deleted it. */}
+                  {m.video_url && urls[m.video_url] && (
+                    <video className="rvid" src={urls[m.video_url]}
+                           controls playsInline preload="metadata" />
+                  )}
                   {pics.length > 0 && (
                     <div className={'rpics' + (pics.length === 1 ? ' one'
                                             : pics.length === 2 ? ' two' : ' many')}>
@@ -565,6 +577,17 @@ export default function Room({ room, initial, meHandle, members, signed, spokenH
                       </button>
                     ))}
                   </div>
+                )}
+                {/* 🎬 A VIDEO IN THE ROOM (0133).
+                    ⚠️ preload="metadata", never "auto" — "auto" pulls the
+                    whole file for every video on screen on every load.
+                    ⚠️ And nothing autoplays: a room is a conversation,
+                    and a video here is often somebody talking about the
+                    worst thing that happened to them. It must not start
+                    playing to a room because a thumb moved. */}
+                {m.video_url && urls[m.video_url] && (
+                  <video className="rvid" src={urls[m.video_url]}
+                         controls playsInline preload="metadata" />
                 )}
                 {m.body && <span className="rtext"><Body text={m.body} tags={people} /></span>}
                 {/* 🔴 SHOWN TO EVERYONE, not just the author. Without it,
@@ -644,6 +667,17 @@ export default function Room({ room, initial, meHandle, members, signed, spokenH
 
       {tray.length > 0 && (
         <div className="rtray" aria-label={`${tray.length} picture${tray.length === 1 ? '' : 's'} ready to send`}>
+          {vid && (
+            <div className="rtray-one">
+              {/* ⚠️ controls + preload="metadata". Nothing autoplays in a
+                  room — the Wall's note says why, and it is stronger
+                  here: a room is a conversation, not a feed. */}
+              <video src={vid.preview} controls playsInline preload="metadata" />
+              <button type="button" className="rtray-x"
+                      aria-label="Take the video off"
+                      onClick={() => setVid(null)}>×</button>
+            </div>
+          )}
           {tray.map((p) => (
             <div key={p.path} className="rtray-one">
               {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -761,11 +795,30 @@ export default function Room({ room, initial, meHandle, members, signed, spokenH
             second copy is always the one that drifts. */}
         <PhotoUpload
           kind="room"
+          /* 🎬 VIDEO TOO (0133). ONE button, not a second one beside it —
+             the Wall's note argues this and it holds here: two controls
+             doing one job on the narrowest row in the app forces a
+             decision the file picker is about to ask anyway.
+
+             ⚠️ Narrowed once a video is staged: one video per message,
+             so offering a second means uploading a file we are about to
+             refuse. Cheaper not to offer it.
+
+             🔴 In an ANONYMOUS room the picker stays images-only. The
+             database refuses the write either way (room_video_guard), but
+             letting somebody choose a video, wait for the upload and THEN
+             be refused is the worst version of a rule. Say no before the
+             work, not after. */
+          accept={room.anonymous ? 'image/*'
+                  : vid ? 'image/*' : 'image/*,video/mp4,video/quicktime'}
           label="🖼️"
           busyLabel="…"
           className="rpick"
           onBusy={setUpBusy}
-          onDone={(path, preview) => setTray((t) => [...t, { path, preview }])}
+          onDone={(path, preview, isVideo) => {
+            if (isVideo) setVid({ path, preview });
+            else setTray((t) => [...t, { path, preview }]);
+          }}
         />
         <input
           ref={inputRef}
@@ -782,7 +835,7 @@ export default function Room({ room, initial, meHandle, members, signed, spokenH
             upload is still running, so nobody sends a message a beat
             before its photo finishes and loses it. */}
         <button className="rgo" type="submit"
-                disabled={busy || upBusy || (!body.trim() && tray.length === 0)}>
+                disabled={busy || upBusy || (!body.trim() && tray.length === 0 && !vid)}>
           {busy ? '…' : 'Send'}
         </button>
       </form>

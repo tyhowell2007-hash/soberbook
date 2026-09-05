@@ -72,6 +72,37 @@ const KINDS = {
      ask `feed_posts`, find nothing, and the picture would silently never
      render. The bucket is not filing; it is the routing. */
   dm:     { bucket: 'dm-photos',   prefix: 'dms',     max: 1600, quality: 80 },
+  /* 💬 A PICTURE ON A REPLY (0133). Same argument as the room and DM
+     entries above: the prefix picks the view. `comments/` sends the
+     signer to feed_comments, which already refuses a reply on a post you
+     cannot see and returns NULL photos on an anonymous reply. Put this
+     in post-photos and the signer would ask feed_posts, find nothing,
+     and the picture would silently never render. */
+  comment:{ bucket: 'comment-photos', prefix: 'comments', max: 1600, quality: 80 },
+};
+
+/* =====================================================================
+   WHERE A VIDEO GOES, PER KIND (0133).
+
+   🔴 THIS MAP EXISTS BECAUSE THE VIDEO BRANCH USED TO HARDCODE ONE
+   DESTINATION AND REFUSE EVERY OTHER KIND. Adding video to the rooms and
+   DMs by only changing the refusal message would have uploaded them into
+   post-videos with a `videos/` path — and the signer would then ask
+   feed_posts about a room's video, find nothing, and never render it.
+
+   ⚠️ A kind absent from here still cannot send video, and that is
+   deliberate: an avatar is a face not a film, cover art is a still, and
+   a reply takes pictures only. Absence IS the rule.
+   ===================================================================== */
+const VIDEO_KINDS = {
+  post: { bucket: 'post-videos', prefix: 'videos' },
+  /* 🛋️ ⚠️ THE ROOM ENTRY IS NOT THE WHOLE PERMISSION. room_video_guard
+     (0133) refuses a video in an ANONYMOUS room at write time — a photo
+     shows a face, a video carries a voice and whatever is audible behind
+     it. This map cannot see which room the message is for, so the
+     database is where that rule lives. Do not try to enforce it here. */
+  room: { bucket: 'room-videos', prefix: 'roomvids' },
+  dm:   { bucket: 'dm-videos',   prefix: 'dmvids' },
 };
 
 /* ⚠️ `drop` is deliberately NOT in KINDS above. That map is the
@@ -342,7 +373,8 @@ export async function POST(req) {
        into The Front Room would be told, wrongly, that they were editing
        their profile picture. A refusal that describes the wrong screen
        is a refusal people can't act on. */
-    if (body?.kind !== 'post') {
+    const vk = VIDEO_KINDS[String(body?.kind || '')];
+    if (!vk) {
       await admin.storage.from('quarantine').remove([raw]);
       return NextResponse.json({
         /* ⚠️ 3 Sept — `dm` was added here in the same change that added it
@@ -352,10 +384,14 @@ export async function POST(req) {
            wrong-screen refusal the comment above describes, reintroduced
            by adding a kind. A new kind is not finished until every
            message that names a kind knows about it. */
-        error: body?.kind === 'room'
-          ? 'The room takes photos, not video. Put a video on the wall instead.'
-          : body?.kind === 'dm'
-          ? 'Messages take photos, not video. Put a video on the wall instead.'
+        /* ⚠️ Still one message per kind, for the reason the note above
+           gives: a refusal that describes the wrong screen is a refusal
+           nobody can act on. `room` and `dm` have LEFT this list because
+           they now take video — and `comment` has joined it. */
+        error: body?.kind === 'comment'
+          ? 'A reply takes pictures, not video. Put a video on the wall instead.'
+          : body?.kind === 'dropart'
+          ? 'Cover art has to be a picture.'
           : 'A profile picture has to be a photo.',
       }, { status: 415 });
     }
@@ -389,9 +425,9 @@ export async function POST(req) {
       }, { status: 422 });
     }
 
-    const vpath = `videos/${crypto.randomUUID()}.${video.ext}`;
+    const vpath = `${vk.prefix}/${crypto.randomUUID()}.${video.ext}`;
     const { error: vErr } = await admin
-      .storage.from('post-videos')
+      .storage.from(vk.bucket)
       .upload(vpath, stripped.out, { contentType: video.mime, upsert: false });
 
     if (vErr) {

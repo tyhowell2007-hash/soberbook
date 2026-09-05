@@ -8,6 +8,7 @@ import Thread from './Thread';
 import PostMenu from './PostMenu';
 import PhotoUpload from '../components/PhotoUpload';
 import { Body, Player } from '../components/Linked';
+import EmojiPicker from '../friends/EmojiPicker';
 import { fetchPreviews, PREVIEW_COUNT } from '../../lib/previews';
 import { fetchDrops } from '../../lib/drops';
 import { fetchTags, attachTags } from '../../lib/tags';
@@ -256,6 +257,7 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
      rather than anywhere in the box. */
   const [caret, setCaret] = useState(0);
   const [pick, setPick] = useState(0);        // highlighted row in the menu
+  const [emoji, setEmoji] = useState(false);  // the emoji sheet (5 Sept)
   const boxRef = useRef(null);
 
   /* ⭐ A LOOKUP, NOT A REGEX. A name has spaces and there is no way to
@@ -1043,6 +1045,25 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
              on the screen was made somewhere other than where you were
              typing. Decide how brave you're being at the moment you're
              being it. */}
+      {/* Above the composer, so choosing one never covers what you wrote. */}
+      <EmojiPicker open={emoji} onClose={() => setEmoji(false)} onPick={(ch) => {
+        /* ⚠️ Inserts at the CARET, not the end — the Wall keeps its own
+           caret state, so this mirrors what TagBox.insertEmoji does for
+           the other three boxes. When Wall.jsx moves onto the shared hook
+           (task 274) this goes with it. */
+        const el = boxRef.current;
+        const at = el && el.selectionStart != null ? el.selectionStart : text.length;
+        const to = el && el.selectionEnd != null ? el.selectionEnd : at;
+        setText(text.slice(0, at) + ch + text.slice(to));
+        const pos = at + ch.length;
+        requestAnimationFrame(() => {
+          if (!el) return;
+          el.focus();
+          try { el.setSelectionRange(pos, pos); } catch { /* older browsers */ }
+          setCaret(pos);
+        });
+      }} />
+
       <form className="composer" onSubmit={post}>
         <div className="ctop">
           <input ref={boxRef} value={text} maxLength={5000}
@@ -1141,6 +1162,15 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
           {!anon && !rec && media.length === 0 && (
             <span className="cmedia">photo or<br />video</span>
           )}
+          {/* 🙂 Ty, 5 Sept: emoji in every box. The rooms and chat have had
+              this since August; the Wall — the box most people type in
+              first — never did.
+              ⚠️ type="button". Inside a <form>, a button with no type IS a
+              submit button, so opening the picker would post the message.
+              That trap has now bitten three files; this is the fourth
+              place it is written down. */}
+          <button type="button" className="cemo" aria-label="Open emoji"
+                  aria-expanded={emoji} onClick={() => setEmoji((v) => !v)}>🙂</button>
           {/* ⚠️ `!text.trim() && !photo` — NOT `!text.trim()`. A photo on its
               own is a post. The old version left this button dead while a
               picture sat attached above it, with nothing on screen saying

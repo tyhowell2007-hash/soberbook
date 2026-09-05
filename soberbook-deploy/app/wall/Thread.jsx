@@ -4,6 +4,8 @@ import { useEffect, useRef, useState } from 'react';
 import { browserClient } from '../../lib/supabase-browser';
 import { Body, Player } from '../components/Linked';
 import { useTagBox, useTaggablePeople, tellThemTheyWereTagged } from '../components/TagBox';
+import PhotoUpload from '../components/PhotoUpload';
+import EmojiPicker from '../friends/EmojiPicker';
 import ReplyMenu from './ReplyMenu';
 
 /* A post, opened.
@@ -50,6 +52,11 @@ export default function Thread({ post, onClose, onCountChange }) {
   const boxRef = useRef(null);
   const people = useTaggablePeople();
   const tag = useTagBox({ text, setText, boxRef, people, enabled: !anon });
+  /* Pictures staged for this reply, and the emoji sheet. */
+  const [tray, setTray] = useState([]);
+  const [upBusy, setUpBusy] = useState(false);
+  const [emoji, setEmoji] = useState(false);
+  const [urls, setUrls] = useState({});     // path -> signed link
 
   async function load() {
     const { data, error } = await supabase
@@ -59,6 +66,42 @@ export default function Thread({ post, onClose, onCountChange }) {
       .order('created_at', { ascending: true });
     if (error) setErr(error.message);
     setRows(data || []);
+
+    /* 🔴 ASK FOR THE PICTURES. feed_comments hands back paths, not links —
+       a path nobody asks to sign never gets a URL and renders as nothing.
+       Swallowed on failure: a reply with no picture beats no reply. */
+    const want = [];
+    for (const c of data || []) for (const p of c.photo_urls || []) if (p) want.push(p);
+    if (want.length) {
+      try {
+        const res = await fetch('/api/photo/sign', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ paths: want }),
+        });
+        const j = await res.json();
+        if (j && j.urls) setUrls((u) => ({ ...u, ...j.urls }));
+      } catch { /* leave them unsigned */ }
+    }
+  }
+
+  /* 🔴 A DEAD SIGNED URL REPAIRS ITSELF, ONCE. A signed link lives an
+     hour and 0078 reuses it for fifty minutes, so a sheet left open goes
+     stale and every picture below the fold 404s. ⚠️ ONE retry per path,
+     ever: without the guard a genuinely deleted file asks, fails, and
+     asks again forever — a broken picture is a small bug, a browser
+     hammering our own endpoint in a loop is our outage. (5 Sept, Wall.) */
+  const retried = useRef(new Set());
+  async function reSign(path) {
+    if (!path || retried.current.has(path)) return;
+    retried.current.add(path);
+    try {
+      const res = await fetch('/api/photo/sign', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ paths: [path] }),
+      });
+      const { urls: fresh } = await res.json();
+      if (fresh && fresh[path]) setUrls((u) => ({ ...u, [path]: fresh[path] }));
+    } catch { /* a missing picture beats an error banner */ }
   }
 
   useEffect(() => { load(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [post.id]);
@@ -73,7 +116,10 @@ export default function Thread({ post, onClose, onCountChange }) {
   async function send(e) {
     e.preventDefault();
     const body = text.trim();
-    if (!body) return;
+    /* ⭐ A PICTURE IS A REPLY. 0134 dropped the NOT NULL on comments.body
+       for exactly this — answering with a photo and no words is a real
+       answer, and often the kindest one. */
+    if (!body && tray.length === 0) return;
     setBusy(true);
     setErr('');
     try {
@@ -93,8 +139,13 @@ export default function Thread({ post, onClose, onCountChange }) {
         id: commentId,
         post_id: post.id,
         author_id: user.id,
-        body,
+        body: body || null,
         is_anonymous: anon,
+        /* ⚠️ null, not [] — comment_photo_paths_ok allows null or 1..10,
+           and an empty array is neither. Sending [] for a words-only
+           reply is refused by the CHECK and reads as "replying is
+           broken". Same trap the room composer already carries. */
+        photo_urls: tray.length ? tray.map((t) => t.path) : null,
       });
       if (error) throw error;
 
@@ -104,6 +155,7 @@ export default function Thread({ post, onClose, onCountChange }) {
       tellThemTheyWereTagged('comment', commentId, named);
 
       setText('');
+      setTray([]);
       await load();
       onCountChange && onCountChange(post.id);
     } catch (e2) {
@@ -166,7 +218,22 @@ export default function Thread({ post, onClose, onCountChange }) {
                         aria-haspopup="dialog"
                         onClick={() => setMenuFor(c)}>⋯</button>
               </div>
-              <p className="rbody"><Body text={c.body} tags={people} /></p>
+              {/* 💬 Pictures on a reply (0133). ⚠️ An unsigned path draws
+                  NOTHING rather than a broken-image icon — the same call
+                  the DM screen makes, and for the same reason: a torn
+                  page glyph reads as "they sent something and it's gone."
+                  ⚠️ onError re-signs once, so an hour-old sheet repairs
+                  itself instead of showing broken frames (5 Sept). */}
+              {(c.photo_urls || []).filter(Boolean).length > 0 && (
+                <div className="rpics">
+                  {(c.photo_urls || []).filter(Boolean).map((p) => (urls[p] ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img key={p} src={urls[p]} alt="" className="rpic" loading="lazy"
+                         onError={() => reSign(p)} />
+                  ) : null))}
+                </div>
+              )}
+              {c.body && <p className="rbody"><Body text={c.body} tags={people} /></p>}
               {/* 🔴 THE ACTUAL LINK TY ASKED ABOUT WAS IN A COMMENT, not a
                   post — which is exactly why my first database search for
                   it came back empty. Comments carry links too. */}
@@ -203,15 +270,40 @@ export default function Thread({ post, onClose, onCountChange }) {
               Wall can afford to put it underneath because its composer is
               at the TOP of the page. Same menu, opposite direction. */}
           {tag.menu}
+          <EmojiPicker open={emoji} onClose={() => setEmoji(false)} onPick={tag.insertEmoji} />
+          {tray.length > 0 && (
+            <div className="rtray">
+              {tray.map((t) => (
+                <div key={t.path} className="rtray-one">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={t.preview} alt="" />
+                  <button type="button" className="rtray-x" aria-label="Take this picture off"
+                          onClick={() => setTray((x) => x.filter((y) => y.path !== t.path))}>×</button>
+                </div>
+              ))}
+            </div>
+          )}
           <button type="button" className={'ranon' + (anon ? ' on' : '')}
                   aria-pressed={anon} onClick={() => setAnon(!anon)}>
             {anon ? '🤫 replying anonymously' : 'reply anonymously?'}
           </button>
           <form onSubmit={send}>
+            {/* 🙂 Emoji, and 📷 pictures — but the camera is ABSENT while
+                anonymous, not disabled. An anonymous reply cannot carry a
+                photo (comments_anon_no_media), so a greyed-out button
+                would be an invitation to work out how to enable something
+                that has no answer. Same call the Wall composer makes. */}
+            <button type="button" className="remo" aria-label="Open emoji"
+                    aria-expanded={emoji} onClick={() => setEmoji((v) => !v)}>🙂</button>
+            {!anon && tray.length < 10 && (
+              <PhotoUpload kind="comment" className="rpick" label="📷" busyLabel="…"
+                           onBusy={setUpBusy}
+                           onDone={(path, preview) => setTray((t) => [...t, { path, preview }])} />
+            )}
             <input ref={boxRef} value={text} {...tag.inputProps} maxLength={2000}
                    aria-label="Write a reply"
                    placeholder={anon ? 'Nobody will see who wrote this…' : 'Say something… @ to tag'} />
-            <button type="submit" disabled={busy || !text.trim()}>
+            <button type="submit" disabled={busy || upBusy || (!text.trim() && tray.length === 0)}>
               {busy ? '…' : 'Reply'}
             </button>
           </form>

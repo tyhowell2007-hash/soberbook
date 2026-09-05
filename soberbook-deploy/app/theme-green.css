@@ -1286,3 +1286,32 @@ body{
   flex:none; font:400 12px/1.2 'Archivo',system-ui,sans-serif;
   color:#3B6D11; text-align:left;
 }
+
+
+/* 🙂 / 📷 in the reply sheet and the Wall composer (5 Sept).
+   MEASURED: #0F3D2A on #fff is 12.20 and on #F3F7F2 is 11.27 — both well
+   over the 4.5 floor.
+   ⚠️ Typed as 12.83/12.09 first and corrected by the check. That is the
+   FOURTH unmeasured contrast figure written today, all four caught only
+   because the number is now always run before the comment ships. Run it
+   first. Every time. 40px square keeps the 44px-ish tap target the post
+   footer already fought for on 18 Aug. */
+.composer .ctop .cemo,
+.replybar .remo, .replybar .rpick{
+  flex:none; width:40px; height:40px; padding:0;
+  border:1px solid var(--line); border-radius:10px; background:#fff;
+  color:#0F3D2A; font-size:17px; line-height:1; cursor:pointer;
+}
+.composer .ctop .cemo:disabled, .replybar .rpick:disabled{ opacity:.5; }
+
+/* Pictures on a reply, and the tray of ones not sent yet. */
+.rpics{ display:flex; flex-wrap:wrap; gap:5px; margin:0 0 6px; }
+.rpics .rpic{ width:100%; max-width:220px; border-radius:10px; display:block; }
+.rtray{ display:flex; gap:6px; flex-wrap:wrap; padding:0 0 7px; }
+.rtray-one{ position:relative; display:inline-block; }
+.rtray-one img{ width:64px; height:64px; object-fit:cover; border-radius:9px; }
+.rtray-x{
+  position:absolute; top:2px; right:2px; width:20px; height:20px; border:0;
+  border-radius:999px; background:rgba(0,0,0,.66); color:#fff;
+  font-size:12px; line-height:1; cursor:pointer; padding:0;
+}
