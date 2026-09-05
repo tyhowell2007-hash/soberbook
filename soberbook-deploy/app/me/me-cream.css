@@ -200,3 +200,104 @@
   background:#6B6257; border-color:#6B6257;   /* white on this = 5.98, measured */
 }
 .mecream .pgL{ display:flex; align-items:center; gap:6px; }
+
+/* =====================================================================
+   🎵 THE SONG PICKER. 5 Sept.
+
+   🔴 NINE CLASS NAMES WITH NO RULES ANYWHERE IN THE APP: .hits .hit
+   .hitmeta .hittitle .hitartist .picked .pickedmeta .pickedlab
+   .pickedtitle. Not in the wrong file — in no file. SongPicker.jsx has
+   been rendering raw, unstyled markup on the profile editor since it
+   shipped: artwork jammed against text, no rows, no card.
+
+   ⚠️ Confirmed on the LIVE page before writing a line, not inferred from
+   a grep — .picked measured display:block, background transparent,
+   border none, padding 0. (A grep is what told me last night that the
+   chat composer had no styles, and it was wrong.)
+
+   ⚠️ It sits OUTSIDE the disabled `{false && …}` theme block in Me.jsx —
+   that closes at line 1778 and the picker renders at 1785 — so this has
+   been live for every member, on the one feature Ty describes as the
+   MySpace thing.
+
+   ---------------------------------------------------------------------
+   IT INVENTS NOTHING. Every value is borrowed from the cream skin
+   already on this page: #FFF3DC card, 2px --cr-line edge, 14px radius,
+   4px 4px 0 shadow. A picker that looked like its own idea would be a
+   second design language on one screen.
+
+   🔴 COLOURS MEASURED BEFORE THE COMMENT WAS WRITTEN, floor 4.5:
+     title    --cr-ink  #2A1B0C on #FFFFFF ..... 16.66
+     artist   --cr-soft #5F4B36 on #FFFFFF .....  8.25
+     'your song' #FFFFFF on #111111 ............ 18.88
+     2px edge #111111 on the butter card ....... 17.18
+
+   🔴 AND THE ONE THAT CHANGED THE DESIGN: a hover FILL of #FFF3DC on
+   white measures 1.10 — invisible. That is the 17 Aug pale-tag-on-a-
+   pale-card bug exactly, where a 1.00 tag sat unreadable on the most
+   important card on the page. So a hovered row moves its EDGE, not its
+   fill: a solid bar down the left. Audit fills as well as type.
+   ===================================================================== */
+
+/* The results. A bordered panel, so a list of songs reads as one object
+   rather than as loose text under the search box. */
+.mecream .hits{
+  list-style:none; margin:0 0 14px; padding:0;
+  background:#fff; border:2px solid var(--cr-line); border-radius:12px;
+  overflow:hidden;
+}
+
+/* ⚠️ 44px minimum. Picking the wrong song is the failure mode that
+   matters here, and this is a phone. */
+.mecream .hits li + li .hit{ border-top:1px solid #E4DBC8; }
+.mecream .hit{
+  display:flex; align-items:center; gap:10px;
+  width:100%; min-height:44px; padding:8px 10px;
+  background:#fff; border:0; border-radius:0;
+  text-align:left; cursor:pointer; font-family:inherit;
+}
+.mecream .hit img{
+  width:40px; height:40px; flex:none;
+  border-radius:6px; display:block; background:#EFE9DC;
+}
+/* ⚠️ min-width:0 or a long title refuses to shrink and pushes the row
+   wider than the panel — the flexbox default nobody remembers. */
+.mecream .hitmeta{ display:flex; flex-direction:column; min-width:0; }
+.mecream .hittitle{
+  font-size:15px; font-weight:600; color:var(--cr-ink);
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+}
+.mecream .hitartist{
+  font-size:12.5px; color:var(--cr-soft);
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+}
+/* 🔴 AN EDGE, NOT A FILL — see the note above. */
+.mecream .hit:hover, .mecream .hit:focus-visible{
+  box-shadow:inset 3px 0 0 var(--cr-line); outline:none;
+}
+
+/* What you chose. The one thing here that persists, so it is the one
+   thing that gets the shadow — the results vanish the moment you pick. */
+.mecream .picked{
+  display:flex; align-items:center; gap:11px;
+  background:#fff; border:2px solid var(--cr-line); border-radius:12px;
+  padding:9px 10px; box-shadow:4px 4px 0 var(--cr-line);
+}
+.mecream .picked img{
+  width:48px; height:48px; flex:none;
+  border-radius:6px; display:block; background:#EFE9DC;
+}
+.mecream .pickedmeta{ display:flex; flex-direction:column; min-width:0; }
+/* ⚠️ A real colour on a real fill, never opacity on text — opacity
+   multiplies against whatever is behind it, so the same rule measures
+   differently on every surface it lands on. Banned here since 5 Sept. */
+.mecream .pickedlab{
+  align-self:flex-start;
+  font-size:10px; font-weight:700; letter-spacing:.08em; text-transform:uppercase;
+  color:#fff; background:var(--cr-line);
+  padding:1px 7px; border-radius:99px; margin-bottom:3px;
+}
+.mecream .pickedtitle{
+  font-size:15px; font-weight:600; color:var(--cr-ink);
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+}
