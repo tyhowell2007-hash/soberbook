@@ -1121,6 +1121,26 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
                            setPostErr('');
                          }} />
           )}
+          {/* 🔴 VIDEO HAS WORKED SINCE 18 AUGUST AND NOBODY KNEW.
+              Ty, 5 Sept: "I want people to be able to post videos up on
+              the home feed." It was already built — bucket, GPS strip,
+              the picker accepts mp4 and mov, five members have posted
+              one. The button is a bare 📷 and NOTHING anywhere said video
+              was allowed, so almost nobody tried. Fourteenth
+              "everything built except the way in" in this log.
+
+              ⚠️ Two words, not a second 🎥 button. The comment above
+              explains why one control is right — the file picker already
+              knows the difference and asking twice is worse. What was
+              missing was never a control, it was a SENTENCE.
+
+              ⚠️ It disappears the moment anything is attached: by then
+              the tray below shows exactly what you picked, and a hint
+              that keeps telling you what you have already done is
+              wallpaper. */}
+          {!anon && !rec && media.length === 0 && (
+            <span className="cmedia">photo or<br />video</span>
+          )}
           {/* ⚠️ `!text.trim() && !photo` — NOT `!text.trim()`. A photo on its
               own is a post. The old version left this button dead while a
               picture sat attached above it, with nothing on screen saying

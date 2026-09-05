@@ -295,7 +295,21 @@ body{
 .composer .ctop{ display:flex; align-items:center; gap:9px; }
 .composer .ctop input{
   flex:1; min-width:0; border:0; outline:0; background:transparent;
-  font:400 13.5px/1.4 'Archivo',system-ui,sans-serif; color:var(--body);
+  /* 🔴 16px, NOT 13.5px. Ty, 5 Sept: "a lot of those type boxes, you can
+     barely read them."
+
+     Measured before changing anything, because three unmeasured contrast
+     figures went into comments this week and two of them were failures.
+     COLOUR WAS NEVER THE PROBLEM: the text is 16.02:1 and the placeholder
+     5.05:1, both well over the 4.5 floor. THE PROBLEM WAS SIZE — 13.5px
+     was the smallest type anywhere in the app, in the one box every
+     member uses.
+
+     ⚠️ AND UNDER 16px iOS ZOOMS THE WHOLE PAGE ON FOCUS. So tapping the
+     composer shoved the layout sideways on every phone, every time. The
+     room input has carried a "16px or iOS zooms" note since it was
+     written; the composer never got the same treatment. */
+  font:400 16px/1.45 'Archivo',system-ui,sans-serif; color:var(--body);
 }
 /* was #9AA8A2 — 2.47:1, effectively decorative. This placeholder is the
    prompt that tells someone what the box is for ("Share something with
@@ -488,7 +502,9 @@ body{
    exactly the shape of the --gm and --soft misses earlier in this file.
    #8CC4AC is 3.27:1. */
 .cbar input{ border:1px solid #8CC4AC; border-radius:11px; background:#fff;
-  font-family:'Archivo',system-ui,sans-serif; font-size:15px; color:var(--body); }
+  /* ⚠️ 16px for the same reason as the composer — 15px still trips the
+     iOS zoom-on-focus threshold, which is 16 and not 15. */
+  font-family:'Archivo',system-ui,sans-serif; font-size:16px; color:var(--body); }
 .cbar input::placeholder{ color:var(--soft); }
 .cbar input[disabled]{ background:#EDF3F0; color:var(--soft); }
 .cbar button{ background:#fff; color:var(--gt); border-radius:11px;
@@ -1256,4 +1272,17 @@ body{
 .thDot{
   width:18px; height:18px; flex:none; border-radius:50%;
   border:1.5px solid rgba(0,0,0,.22);
+}
+
+/* The "photo or video" hint beside the camera (5 Sept). Measured, not
+   MEASURED: #3B6D11 on #fff is 6.21:1, over the 4.5 floor at 12px.
+   ⚠️ Written as 6.53 first and corrected by the check, minutes after the
+   same mistake was made and corrected in photos.css. Twice in one batch.
+   Run the number, THEN write the comment — not the other way round.
+   ⚠️ Green rather than --soft grey because it names a CAPABILITY people
+   did not know they had — this is the one thing on that row that is
+   news. It goes the instant something is attached. */
+.composer .ctop .cmedia{
+  flex:none; font:400 12px/1.2 'Archivo',system-ui,sans-serif;
+  color:#3B6D11; text-align:left;
 }

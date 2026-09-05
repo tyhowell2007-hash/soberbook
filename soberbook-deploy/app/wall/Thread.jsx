@@ -1,8 +1,9 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { browserClient } from '../../lib/supabase-browser';
 import { Body, Player } from '../components/Linked';
+import { useTagBox, useTaggablePeople, tellThemTheyWereTagged } from '../components/TagBox';
 import ReplyMenu from './ReplyMenu';
 
 /* A post, opened.
@@ -40,6 +41,16 @@ export default function Thread({ post, onClose, onCountChange }) {
      deliberately NULL on an anonymous reply. */
   const [menuFor, setMenuFor] = useState(null);
 
+  /* ---- tagging in a reply (5 Sept) ----
+     ⚠️ enabled is `!anon`, exactly as on the Wall. An anonymous reply CAN
+     carry a mention — unlike an anonymous post, which mentions_guard
+     refuses outright — but offering the menu while anonymous invites
+     somebody to think about who they are naming at the same moment they
+     are trying not to be named. The @ still works if they type it. */
+  const boxRef = useRef(null);
+  const people = useTaggablePeople();
+  const tag = useTagBox({ text, setText, boxRef, people, enabled: !anon });
+
   async function load() {
     const { data, error } = await supabase
       .from('feed_comments')
@@ -68,13 +79,30 @@ export default function Thread({ post, onClose, onCountChange }) {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('You seem to be signed out. Reload and try again.');
+
+      /* 🔴 THE ID IS MADE HERE AND SENT WITH THE ROW, NEVER READ BACK.
+         Members hold INSERT on comments and no SELECT, so appending
+         `.select()` or a RETURNING clause is refused with 42501 — a
+         RETURNING clause is a read (23 Aug, fourth appearance). We need
+         to know the id to tell the people who were named, and the only
+         way to know it is to have chosen it. Same shape as posts. */
+      const commentId = crypto.randomUUID();
+      const named = tag.handles;
+
       const { error } = await supabase.from('comments').insert({
+        id: commentId,
         post_id: post.id,
         author_id: user.id,
         body,
         is_anonymous: anon,
       });
       if (error) throw error;
+
+      /* ⚠️ AFTER the insert and never awaited into the failure path. The
+         reply is already saved; a notification that doesn't fire must not
+         be able to make it look like the reply didn't land. */
+      tellThemTheyWereTagged('comment', commentId, named);
+
       setText('');
       await load();
       onCountChange && onCountChange(post.id);
@@ -98,7 +126,7 @@ export default function Thread({ post, onClose, onCountChange }) {
         </div>
 
         <div className="threadbody">
-          <p className="orig"><Body text={post.body} /></p>
+          <p className="orig"><Body text={post.body} tags={people} /></p>
           <Player text={post.body} />
           <div className="origmeta">
             {ago(post.created_at)}{post.is_anonymous ? ' · anonymous' : ''}
@@ -138,7 +166,7 @@ export default function Thread({ post, onClose, onCountChange }) {
                         aria-haspopup="dialog"
                         onClick={() => setMenuFor(c)}>⋯</button>
               </div>
-              <p className="rbody"><Body text={c.body} /></p>
+              <p className="rbody"><Body text={c.body} tags={people} /></p>
               {/* 🔴 THE ACTUAL LINK TY ASKED ABOUT WAS IN A COMMENT, not a
                   post — which is exactly why my first database search for
                   it came back empty. Comments carry links too. */}
@@ -169,14 +197,20 @@ export default function Thread({ post, onClose, onCountChange }) {
         )}
 
         <div className="replybar">
+          {/* ⚠️ ABOVE the bar, not under it. The reply box sits at the
+              bottom of the sheet, so a menu rendered below it would open
+              off-screen — on a phone, straight behind the keyboard. The
+              Wall can afford to put it underneath because its composer is
+              at the TOP of the page. Same menu, opposite direction. */}
+          {tag.menu}
           <button type="button" className={'ranon' + (anon ? ' on' : '')}
                   aria-pressed={anon} onClick={() => setAnon(!anon)}>
             {anon ? '🤫 replying anonymously' : 'reply anonymously?'}
           </button>
           <form onSubmit={send}>
-            <input value={text} onChange={(e) => setText(e.target.value)} maxLength={2000}
+            <input ref={boxRef} value={text} {...tag.inputProps} maxLength={2000}
                    aria-label="Write a reply"
-                   placeholder={anon ? 'Nobody will see who wrote this…' : 'Say something…'} />
+                   placeholder={anon ? 'Nobody will see who wrote this…' : 'Say something… @ to tag'} />
             <button type="submit" disabled={busy || !text.trim()}>
               {busy ? '…' : 'Reply'}
             </button>
