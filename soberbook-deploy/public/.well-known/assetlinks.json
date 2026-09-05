@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "app.soberbook",
+      "sha256_cert_fingerprints": [
+        "0F:2F:D9:67:74:30:DD:6E:24:62:54:2F:7B:7C:1C:4E:A0:45:D9:54:97:C2:42:F6:C7:E8:82:5C:1D:63:E3:54"
+      ]
+    }
+  }
+]
