@@ -1036,6 +1036,39 @@ body{
 }
 .bell:active{ background:rgba(255,255,255,.14); }
 
+/* =====================================================================
+   THE TWO SMALL MASTHEAD LINKS — ♫ (your page) and 🔍 (find someone).
+
+   🔴 THESE HAD NO RULES ANYWHERE IN THE APP. Measured on the live wall
+   before writing this: colour rgb(0,0,238), text-decoration underline,
+   box 15×25px. They were rendering as DEFAULT BROWSER LINKS — blue and
+   underlined — sitting on the deep-green masthead, at a fifteen-pixel
+   tap target.
+
+   ⚠️ Found by check-css-coverage.py, not by looking. Nobody reported it,
+   which is the pattern: people don't file a bug saying "the little icon
+   looks cheap", they just quietly think the app is cheap.
+
+   ⭐ They now match .bell exactly, because they ARE the same kind of
+   thing — a small icon link in the masthead. Copying the sibling that is
+   already right beats inventing a third look for the same row.
+
+   ⚠️ 40×44, same as .bell. The old 15px box was under half a thumb.
+   ⚠️ #fff on --gd measures 6.46:1, the same figure .bell relies on.
+   ===================================================================== */
+.songlink{
+  flex-shrink:0;
+  min-width:40px; min-height:44px; display:flex;
+  align-items:center; justify-content:center;
+  color:#fff; font-size:18px; line-height:1; text-decoration:none;
+  border-radius:10px;
+}
+.songlink:active{ background:rgba(255,255,255,.14); }
+/* ⚠️ .findlink carries no colour of its own — it is .songlink with a
+   different glyph, and giving it a second declaration is how the two
+   drift apart. It exists only so the search link can be found in the
+   markup and moved later without touching the music one. */
+
 /* 🔴 A DOT, NEVER A COUNT. That is the 18 Aug rule and it is a safety
    decision, not a style one: my_nav_dots asks exists(), so there is no
    number anywhere in the system to accidentally render. A count is also
