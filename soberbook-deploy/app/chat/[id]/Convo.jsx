@@ -13,6 +13,7 @@ import PhotoUpload from '../../components/PhotoUpload';
 import { Body } from '../../components/Linked';
 import { useTagBox, useTaggablePeople } from '../../components/TagBox';
 import EmojiPicker from '../../friends/EmojiPicker';
+import Shot from '../../components/Shot';
 
 /* =====================================================================
    ONE CONVERSATION.
@@ -279,7 +280,8 @@ export default function Convo({ thread, initial }) {
               {pics.length > 0 && (
                 <div className="dmpics">
                   {pics.map((p) => (urls[p] ? (
-                    <img key={p} src={urls[p]} alt="" className="dmpic" loading="lazy" />
+                    <Shot key={p} path={p} src={urls[p]} alt="" className="dmpic"
+                          onFixed={(k, u) => setUrls((m) => ({ ...m, [k]: u }))} />
                   ) : null))}
                 </div>
               )}
@@ -307,7 +309,32 @@ export default function Convo({ thread, initial }) {
           pointing at it, which is exactly what the orphan sweeper is for.
           Deleting here would mean a delete call that can fail while the
           user is mid-message, for a file nobody can reach. */}
-      {tray.length > 0 && (
+      {/* 🔴 THE DOCK. Everything that belongs to the composer lives inside
+          ONE fixed container, and .cbar is static inside it (app/convo.css).
+
+          Before this, .cbar was position:fixed on its own and the tag
+          menu, the emoji panel and the staged tray were rendered as its
+          siblings IN NORMAL FLOW — so they did not stack above the bar,
+          they sat in the page behind it. That is the real reason "chat
+          tagging doesn't work": the menu was mounting correctly and
+          landing underneath a fixed element.
+
+          ⚠️ Do NOT go back to giving each one its own `bottom:` value.
+          The bar's height moves with the font size, the safe-area inset
+          and whether the error line is showing, and every one of those
+          silently slides a panel over the bar or opens a gap. A
+          container cannot drift out of sync with its own contents. */}
+      <div className="dmdock">
+
+      <EmojiPicker open={emoji} onClose={() => setEmoji(false)} onPick={insertEmoji} />
+
+      {/* 🔴 `|| vid` — WITHOUT IT, STAGING ONLY A VIDEO RENDERED NO TRAY.
+          The gate was tray.length alone, and tray holds photos only, so a
+          video with no photo alongside it was invisible and the button to
+          take it back off was unreachable. Same shape as the bug where
+          this whole block was nested inside the photos branch: the video
+          path keeps getting written as if a photo is always there too. */}
+      {(tray.length > 0 || vid) && (
         <div className="dmtray">
           {vid && (
             <div className="dmtray-one">
@@ -327,14 +354,13 @@ export default function Convo({ thread, initial }) {
         </div>
       )}
 
-      <EmojiPicker open={emoji} onClose={() => setEmoji(false)} onPick={insertEmoji} />
-
       {/* .cbar, NOT .composer — the green room re-declares .composer as
           position:static so it can sit at the top of the wall, and
           inheriting that here would unpin the message box. */}
       {/* ⚠️ Above the bar — this composer is pinned to the bottom, so a
           menu under it opens behind the keyboard. Same reasoning as the
-          rooms and the reply sheet. */}
+          rooms and the reply sheet. It is INSIDE the dock, which is what
+          makes "above the bar" actually true rather than merely intended. */}
       {tag.menu}
 
       <form className="cbar" onSubmit={send}>
@@ -372,6 +398,8 @@ export default function Convo({ thread, initial }) {
           Send
         </button>
       </form>
+
+      </div>{/* .dmdock */}
     </>
   );
 }
