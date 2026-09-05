@@ -8,6 +8,7 @@ import PhotoUpload from '../components/PhotoUpload';
 import MsgMenu from './MsgMenu';
 import { Body } from '../components/Linked';
 import { useTagBox, useTaggablePeople, tellThemTheyWereTagged } from '../components/TagBox';
+import Shot from '../components/Shot';
 
 /* =====================================================================
    🛋️ THE FRONT ROOM — everybody, talking, in one place.
@@ -573,7 +574,8 @@ export default function Room({ room, initial, meHandle, members, signed, spokenH
                               aria-label="Open this picture"
                               onClick={() => urls[p] && setBig(urls[p])}>
                         {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={urls[p] || ''} alt="" loading="lazy" />
+                        <Shot path={p} src={urls[p]} alt=""
+                              onFixed={(k, u) => addUrls({ [k]: u })} />
                       </button>
                     ))}
                   </div>
@@ -771,7 +773,12 @@ export default function Room({ room, initial, meHandle, members, signed, spokenH
       )}
 
       {/* Above the bar, so picking one never covers the conversation. */}
-      <EmojiPicker open={emoji} onClose={() => setEmoji(false)} onPick={insertEmoji} />
+      {/* ⚠️ skin="green" — this is the one caller on a dark page. The
+          panel's dark palette used to come from friends.css; it now comes
+          from asking for it, so it cannot be lost by a stylesheet that
+          did not load. Nothing about how this looks has changed. */}
+      <EmojiPicker open={emoji} onClose={() => setEmoji(false)} onPick={insertEmoji}
+                   skin="green" />
 
       {/* ⚠️ ABOVE the bar. This composer is pinned to the bottom of the
           screen, so a menu rendered under it opens off-screen behind the
