@@ -203,49 +203,18 @@
 .rmsg.pending .rbub{ opacity:.55; }
 
 /* =====================================================================
-   🙂 THE EMOJI PICKER, in the room.
+   🙂 THE EMOJI PICKER'S STYLES MOVED OUT OF THIS FILE. 5 Sept.
 
-   ⚠️ All six class names checked against every stylesheet before being
-   written — .emp / .emp-tabs / .emp-tab / .emp-grid / .emp-one / .remo
-   were all free. That check exists because `.composer` collided in
-   August, `.sheetwrap` collided last night, and `.rmwrap` collided while
-   I was fixing the collision.
+   🔴 They used to live here, and that was the bug. EmojiPicker.jsx is
+   imported by FOUR files — Wall.jsx, Thread.jsx, Convo.jsx and Room.jsx
+   — while friends.css is imported by ONE layout. So the picker was
+   styled in the room and completely naked on the other three screens.
 
-   ⚠️ Its own dark palette, like the rest of the room. --gm as text on
-   this panel measures 3.84 and is banned here; every colour below is one
-   already measured for this surface.
+   ⭐ They are now in app/emoji.css, imported by all three layouts that
+   render it, with the room's dark palette kept as .emp-green. The room
+   looks exactly as it did; nothing here changed except where it lives.
+   See the header of app/emoji.css for the whole story.
    ===================================================================== */
-.emp{
-  border:1px solid #2A4A38; border-radius:12px; background:#152B21;
-  margin:0 0 9px; overflow:hidden;
-}
-.emp-tabs{
-  display:flex; gap:2px; padding:6px; overflow-x:auto;
-  border-bottom:1px solid #23402F;
-  /* the tab strip scrolls sideways on a phone rather than wrapping into
-     two rows and stealing height from the conversation */
-  -webkit-overflow-scrolling:touch;
-}
-.emp-tab{
-  flex:none; border:0; background:none; cursor:pointer;
-  font-size:16px; line-height:1; padding:7px 9px; border-radius:8px;
-}
-.emp-tab.on{ background:#2E6B4C; }
-
-/* ⚠️ Capped height, and it scrolls. Ten categories of emoji would
-   otherwise push the composer off the bottom of a phone — the control
-   you opened this to use. */
-.emp-grid{
-  display:grid; grid-template-columns:repeat(8, 1fr); gap:1px;
-  max-height:168px; overflow-y:auto; padding:6px;
-  -webkit-overflow-scrolling:touch;
-}
-.emp-one{
-  border:0; background:none; cursor:pointer;
-  font-size:20px; line-height:1; padding:6px 0; border-radius:6px;
-}
-.emp-one:hover{ background:#1F3A2C; }
-.emp-one:focus-visible{ outline:2px solid #4FA97A; outline-offset:-2px; }
 
 /* The 🙂 beside the box. 44px, same as Send — it sits in the same row and
    a smaller sibling reads as less tappable than it is. */

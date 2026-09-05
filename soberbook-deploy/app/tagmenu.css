@@ -1,0 +1,92 @@
+/* =====================================================================
+   THE @ MENU'S STYLES — MOVED OUT OF photos.css. 5 Sept.
+
+   🔴 "Chat tagging doesn't work." It did work. Nobody could see it.
+
+   The @ menu became a shared hook on 5 Sept (app/components/TagBox.jsx)
+   and is now used by the wall composer, the reply sheet, both room
+   composers and chat. Its styles stayed where they were born: photos.css
+   — which is imported by app/wall/layout.jsx and app/friends/layout.jsx
+   and NOT by app/chat/layout.jsx.
+
+   So in chat the menu mounted, matched the right people, and rendered as
+   unstyled buttons with no panel, no border and no background, in the
+   normal flow of a page whose composer is position:fixed. Invisible, or
+   underneath the message bar. Every single line of the logic was fine.
+
+   ⭐ THE SAME MISTAKE AS emoji.css, MADE THE SAME NIGHT, IN A SECOND
+   FILE: a component was promoted to shared and its stylesheet was not.
+   That is now a rule with two scars on it — see the header of emoji.css.
+
+   ⚠️ THIS IS A MOVE, NOT A REDESIGN. Every rule below is byte-identical
+   to what has been live on the wall since 0067, including the measured
+   colour. The wall must look exactly as it did this morning; the only
+   change anyone should be able to SEE is that the menu now also appears
+   in chat.
+   ===================================================================== */
+
+/* ---- the @menu (0067, revised) ----
+   ⭐ Short, filtered, and only while typing after an @. Ty rejected a full
+   friend list sitting open under the composer; this is the Facebook shape
+   he asked for instead — it is absent almost all of the time. */
+.atmenu {
+  margin: 6px 0 0;
+  border: 1px solid rgba(0,0,0,.14);
+  border-radius: 10px;
+  overflow: hidden;
+  background: #FFFFFF;
+  /* ⚠️ Capped. Six friends is three rows; six hundred without a cap would
+     push the Post button off the bottom of a phone. */
+  max-height: 232px; overflow-y: auto;
+}
+.atopt {
+  display: flex; align-items: baseline; gap: 8px; width: 100%;
+  border: 0; border-bottom: 1px solid rgba(0,0,0,.06);
+  background: none; cursor: pointer; text-align: left;
+  /* ⚠️ 44px: this is a thumb target on a phone, and picking the wrong
+     person is the failure mode that matters here. */
+  padding: 11px 13px; min-height: 44px; font-size: 15px;
+}
+.atopt:last-child { border-bottom: 0; }
+.atopt b { font-weight: 600; }
+/* 🔴 A REAL COLOUR FAILURE, and the only one the audit found. This was
+   `opacity: .5` at 12.5px, which composites to #8E9190 on white and
+   measures 3.18:1 — under the 4.5 floor, on the line that tells you
+   whether a tag needs approval.
+
+   ⚠️ Opacity on text is the anti-pattern this project already banned
+   once: it multiplies against whatever is behind it, so the same rule
+   measures differently on every surface it lands on. A real colour
+   measures the same everywhere. #5F5E5A on white is 6.49:1.
+
+   ⚠️ That figure was TYPED AS 6.29 first and corrected before it shipped,
+   because the check ran after the comment was written. A contrast number
+   nobody ran is worth less than no number, since it stops the next
+   person checking. */
+.atopt span { color: #5F5E5A; font-size: 13px; }
+.atopt.on, .atopt:hover { background: rgba(37, 99, 235, .08); }
+
+/* ⚠️ ONE ADDED LINE, and it is the reason the menu was invisible rather
+   than merely ugly in chat: the panel now declares its own background.
+   On the wall it sat on a white composer and inherited one by luck. In
+   chat it floats over a scrolling conversation, and a menu you can read
+   the messages through is not a menu. */
+
+/* =====================================================================
+   THE RESULT OF A TAG, not just the menu that makes one.
+
+   🔴 .mention was in photos.css until 5 Sept, and that is why a tag
+   in a DM rendered as plain text. Linked.jsx draws it and Linked.jsx is
+   on every surface; photos.css is not. The menu and the thing the menu
+   produces now travel together, so a route that can tag somebody can
+   always show the tag.
+   ===================================================================== */
+/* ⭐ THE BLUE. Deliberately the one blue in an otherwise green and acid
+   app — it is the universal "this is a person you can tap", and borrowing
+   the convention costs nothing and explains itself. */
+.mention {
+  color: #2563eb;
+  text-decoration: none;
+  font-weight: 600;
+}
+.mention:hover { text-decoration: underline; }

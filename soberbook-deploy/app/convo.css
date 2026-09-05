@@ -1,0 +1,95 @@
+/* =====================================================================
+   THE CHAT COMPOSER DOCK. 5 Sept.
+
+   ⚠️ THIS FILE IS DELIBERATELY SMALL, and an earlier draft of it was not.
+
+   I first wrote a full set of rules here for .dmemo, .dmpick, .dmpics,
+   .dmpic, .dmtray and .dmtrayx, on the belief that those classes had no
+   rules anywhere in the app. THAT WAS WRONG. They are in
+   app/chat/inbox.css and have been live the whole time.
+
+   🔴 HOW I GOT IT WRONG, because the mistake is more useful than the
+   fix: I grepped `app/*.css`. That glob does not match
+   `app/chat/inbox.css` — one directory down. A shell glob that silently
+   matches fewer files than you think returns an empty result, and an
+   empty result reads exactly like a real finding. It was caught by
+   probing the LIVE page's CSSOM, which reported three .dmemo rules that
+   my local tree "did not have".
+
+   ⭐ Had I shipped that draft, the chat composer would have had TWO
+   competing definitions in two files — which is the drift this schema
+   has paid for three times (0046 → 0047 → 0049). The bug I was fixing
+   would have been replaced by a worse one.
+
+   ⚠️ So those buttons are NOT touched. Ty did not complain about them,
+   they are already styled, and the Aug 15 rule stands: being right about
+   how something could look does not make it mine to change.
+
+   ---------------------------------------------------------------------
+   WHAT IS ACTUALLY BROKEN, measured on a COLD load of a real chat thread
+   in production (a warm tab lies here — CSS chunks from previously
+   visited routes stay in the document across client-side navigation, so
+   /chat looked half-styled only because that tab had been to /wall):
+
+     .emp, .emp-tab, .emp-grid, .emp-one ... 0 rules   emoji panel naked
+     .atmenu, .atopt ...................... 0 rules   @ menu naked
+     .mention ............................. 0 rules   a tag renders as
+                                                      plain text
+     .phserr .............................. 0 rules   upload errors naked
+
+   Those four are fixed by importing the right stylesheets in
+   app/chat/layout.jsx — see the note there. Nothing in THIS file.
+
+   ---------------------------------------------------------------------
+   WHAT THIS FILE IS FOR: THE ONE THING AN IMPORT CANNOT FIX.
+
+   🔴 .cbar is position:fixed. Everything Convo.jsx renders above the
+   form — the @ menu, the emoji panel — is in normal document flow, so
+   even fully styled it does not stack above the bar. It sits in the page
+   behind a fixed element. That is the other half of "chat tagging
+   doesn't work": the menu was mounting, matching the right people, and
+   landing underneath the composer.
+
+   ⭐ .dmdock is ONE fixed container holding the menu, the panel, the
+   tray and the bar, with the bar static inside it. Then things above the
+   composer stack above the composer because that is what normal flow
+   does — not because three `bottom:` values were guessed and kept in
+   sync by hand.
+
+   ⚠️ inbox.css currently pins .dmtray with
+   `bottom: calc(60px + 68px + env(safe-area-inset-bottom, 0px))`, where
+   68px is the bar's height WRITTEN DOWN. That number moves with the font
+   size, the safe-area inset and whether the error line is showing. It is
+   the exact failure the dock exists to remove, so inside the dock the
+   tray goes back to normal flow. The rule in inbox.css is left alone for
+   any other surface that may rely on it.
+   ===================================================================== */
+
+.dmdock{
+  position: fixed; left: 0; right: 0;
+  max-width: 520px; margin: 0 auto; z-index: 55;
+  /* sits ON TOP of the tab bar's 60px, so both are reachable. env() is
+     the iPhone home-indicator strip — without it the send button lands
+     under the little grey bar and can't be tapped. Same values .cbar
+     used when it was fixed on its own; the dock inherits its job. */
+  bottom: calc(60px + env(safe-area-inset-bottom, 0px));
+}
+
+/* ⚠️ The bar keeps every one of its own colours and its padding. It
+   gives up only the positioning, which the dock has taken over. */
+.dmdock .cbar{ position: static; max-width: none; margin: 0; }
+
+/* ⚠️ Two classes, one rule: the tray is no longer pinned by hand — it
+   is simply the thing above the bar inside the dock. */
+.dmdock .dmtray{
+  position: static; max-width: none; z-index: auto;
+  bottom: auto; left: auto; right: auto;
+  margin: 0 12px 9px;
+}
+
+/* ⚠️ The panel and the menu float over a scrolling conversation, so they
+   are inset from the edges while the bar stays full-bleed — that
+   contrast is what makes them read as sitting ON the bar rather than
+   being part of it. */
+.dmdock .emp{ margin: 0 12px 9px; }
+.dmdock .atmenu{ margin: 0 12px 9px; }

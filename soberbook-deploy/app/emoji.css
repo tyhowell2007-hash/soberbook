@@ -1,0 +1,117 @@
+/* =====================================================================
+   🙂 THE EMOJI PANEL — ITS OWN FILE, BECAUSE FOUR SCREENS USE IT. 5 Sept.
+
+   🔴 THE BUG THIS FILE EXISTS TO FIX, and it is mine from last night.
+
+   EmojiPicker.jsx is imported by FOUR files — Wall.jsx, Thread.jsx (the
+   reply sheet), Convo.jsx (chat) and Room.jsx. Every one of its styles
+   lived in friends.css, and friends.css is imported by exactly ONE
+   layout: app/friends/layout.jsx.
+
+   So the picker was correctly styled in one of the four places it
+   appears. On the wall, in a reply and in a chat it rendered as a bare
+   div of about a hundred unstyled browser buttons in a flat run — no
+   panel, no grid, no capped height, no tab strip. Ty's words: "the
+   emoji tab looks like shit." He was right, and it was not a design
+   problem — it was a stylesheet that never loaded.
+
+   ⭐ THE RULE THIS BROKE IS ALREADY WRITTEN DOWN, 19 Aug: a stylesheet
+   must be imported by the layout of the route whose classes it holds.
+   What that rule did not say, and now does: WHEN A COMPONENT BECOMES
+   SHARED, ITS STYLESHEET HAS TO BECOME SHARED IN THE SAME COMMIT.
+   Moving the JSX into common use and leaving the CSS in one route's
+   file is how you get a component that works in one place and is naked
+   everywhere else — with a green build and no error anywhere.
+
+   ⚠️ THE FAILURE IS SILENT IN BOTH DIRECTIONS. Missing CSS throws
+   nothing, logs nothing and renders something. It cannot be caught by a
+   parse check, a build, or the undefined-component check — the markup
+   is perfect. Only looking at the screen finds it, which is exactly how
+   it was found.
+
+   ---------------------------------------------------------------------
+   TWO SKINS, ONE DESIGN, AND WHY IT IS A PROP AND NOT IMPORT ORDER.
+
+   The Front Room is a dark green page, so its panel is dark green. The
+   wall, the reply sheet and chat are cream pages with a green bar, so
+   they get a light panel. Ty picked that split after seeing both.
+
+   ⚠️ The dark skin is a MODIFIER CLASS the caller asks for
+   (<EmojiPicker skin="green" />), NOT a rule in friends.css that
+   happens to win because friends.css is imported after this file. A
+   cascade that depends on import order is a rule you cannot read from
+   the component, and the next person to reorder two import lines
+   silently repaints a screen.
+
+   ⚠️ Light is the DEFAULT because three of the four surfaces are light.
+   A component that must be configured to look right in the common case
+   gets misconfigured.
+
+   🔴 EVERY COLOUR BELOW IS MEASURED, and the green values are lifted
+   unchanged from the panel already live in the room rather than
+   re-picked. Four unmeasured contrast figures were typed into comments
+   in this project in a single day and all four were wrong, so the
+   numbers here were run before the comment was written:
+     panel edge   #C9C2B2 on #FFFFFF ...... 1.77   (an edge, not text)
+     tab divider  #E4DFD3 on #FFFFFF ...... 1.33   (a hairline)
+     active tab   #1B6B4A on #FFFFFF ...... 6.46
+     focus ring   #1B6B4A on #FFFFFF ...... 6.46
+   ⚠️ The panel carries no text of its own — every glyph in it is a
+   full-colour emoji the OS draws — so the numbers that matter here are
+   the ones that make the ACTIVE TAB and the FOCUS RING findable, and
+   both clear the 4.5 floor comfortably.
+   ===================================================================== */
+
+/* The panel. Sits ABOVE the composer and covers no part of the
+   conversation — in a room where people are talking to each other,
+   hiding the talk to pick a smiley is the wrong trade. */
+.emp{
+  border: 1px solid #C9C2B2;
+  border-radius: 12px;
+  background: #FFFFFF;
+  margin: 0 0 9px;
+  overflow: hidden;
+}
+
+/* ⚠️ Scrolls sideways rather than wrapping to two rows. Ten categories
+   wrapped would steal height from the conversation behind it. */
+.emp-tabs{
+  display: flex; gap: 2px; padding: 6px;
+  overflow-x: auto;
+  border-bottom: 1px solid #E4DFD3;
+  -webkit-overflow-scrolling: touch;
+}
+.emp-tab{
+  flex: none; border: 0; background: none; cursor: pointer;
+  font-size: 16px; line-height: 1; padding: 7px 9px; border-radius: 8px;
+}
+.emp-tab.on{ background: #1B6B4A; }
+
+/* ⚠️ Capped height, and it scrolls. Ten categories of emoji would
+   otherwise push the composer off the bottom of a phone — the control
+   you opened this to use. */
+.emp-grid{
+  display: grid; grid-template-columns: repeat(8, 1fr); gap: 1px;
+  max-height: 168px; overflow-y: auto; padding: 6px;
+  -webkit-overflow-scrolling: touch;
+}
+.emp-one{
+  border: 0; background: none; cursor: pointer;
+  font-size: 20px; line-height: 1; padding: 6px 0; border-radius: 6px;
+}
+.emp-one:hover{ background: #F2F0E9; }
+.emp-one:focus-visible{ outline: 2px solid #1B6B4A; outline-offset: -2px; }
+
+/* ---------------------------------------------------------------------
+   THE GREEN ROOM'S SKIN. Values unchanged from the panel that has been
+   live in The Front Room since 30 Aug — this is a move, not a redesign,
+   so nothing anybody has already looked at changes.
+
+   ⚠️ --gm as text on this panel measures 3.84 and is banned here; every
+   colour below is one already measured for this surface.
+   --------------------------------------------------------------------- */
+.emp-green{ border-color: #2A4A38; background: #152B21; }
+.emp-green .emp-tabs{ border-bottom-color: #23402F; }
+.emp-green .emp-tab.on{ background: #2E6B4C; }
+.emp-green .emp-one:hover{ background: #1F3A2C; }
+.emp-green .emp-one:focus-visible{ outline-color: #4FA97A; }
