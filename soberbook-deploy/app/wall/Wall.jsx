@@ -12,7 +12,8 @@ import EmojiPicker from '../friends/EmojiPicker';
 import { fetchPreviews, PREVIEW_COUNT } from '../../lib/previews';
 import { fetchDrops } from '../../lib/drops';
 import { fetchTags, attachTags } from '../../lib/tags';
-import { buildIndex, findMentions, activeQuery, suggest } from '../../lib/mentions';
+import { fetchBroadcasts } from '../../lib/highlights';
+import { buildIndex, findMentions, activeQuery, suggest, saysHighlight } from '../../lib/mentions';
 import { mixFeed } from '../../lib/mix';
 import ContentCard from '../components/ContentCard';
 import DropCard from '../components/DropCard';
@@ -120,6 +121,7 @@ function who(p) {
    you a greeting, never a blank page. */
 export default function Wall({ initial, me = { name: null, avatar: null, handle: null }, mark = null,
                                photoUrls = {}, previews = {}, tags: tags0 = {},
+                               broadcast: broadcast0 = [],
                                content = [], thumbBase = '',
                                drops = {}, dropUrls = {}, canHide = false }) {
   const router = useRouter();
@@ -141,6 +143,16 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
      the whole server page re-renders, so a tag added a second ago
      wouldn't appear until a full reload. */
   const [tags, setTags] = useState(tags0);
+  /* ⭐ WHICH POSTS ACTUALLY ANNOUNCED THEMSELVES (0139), in state for the
+     same reason tags are: a prop only changes when the whole server page
+     re-renders, so an announcement made a second ago would show no
+     confirmation until a full reload — which is the precise bug that made
+     Ty send the same announcement twice on 31 Aug.
+
+     ⚠️ An ARRAY in transit, a Set at the point of use. React cannot
+     serialise a Set from a server component to a client one. */
+  const [bcast, setBcast] = useState(broadcast0);
+  const didBroadcast = new Set(bcast);
   const [text, setText] = useState('');
   const [anon, setAnon] = useState(false);
   /* 'open' | 'friends'. Resets to open after every post — a sticky
@@ -301,7 +313,14 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
 
   /* ⭐ @highlight — one post, everybody hears it. Ty's call, 31 Aug, made
      after being shown the argument for gating it to the owner: every
-     member gets this, three a day each.
+     member gets this.
+
+     🔴 THIS COMMENT USED TO END "three a day each" AND THAT RULE IS GONE
+     (0138, 5 Sept — Ty asked for it removed entirely, the same call he
+     made about the tagging cap hours earlier). There is now NOTHING
+     limiting how often anybody can push a notification to every member.
+     Said here as well as in the migration because this is the file
+     somebody reads when they wonder why the room got shouted at.
 
      ⚠️ IT IS A RESERVED WORD, NOT A MEMBER. There is no profile with the
      handle "highlight", so findMentions correctly fails to match it and
@@ -314,7 +333,7 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
      ⚠️ \b after the word, so "@highlighted" and "@highlightreel" are not
      it. And no anonymous broadcast — the database refuses one too, but
      asking is worse than not asking. */
-  const wantsHighlight = !anon && /(^|\s)@highlight\b/i.test(text);
+  const wantsHighlight = !anon && saysHighlight(text);
 
   /* The Facebook menu — null most of the time, which is the point. */
   const q = anon ? null : activeQuery(text, caret);
@@ -649,6 +668,7 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
          cost nothing. */
       setConvo(await fetchPreviews(supabase, data.map((p) => p.id)));
       setTags(await fetchTags(supabase, data.map((p) => p.id)));
+      setBcast(await fetchBroadcasts(supabase, data.map((p) => p.id)));
       const freshDrops = await fetchDrops(supabase, data.map((p) => p.id));
       setRecs(freshDrops);
       signMissing(Object.values(freshDrops).map((d) => ({
@@ -867,15 +887,16 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
 
       /* ⭐ @highlight LAST, AND IT CANNOT LOSE THE POST EITHER.
          Same reasoning as the tags above: by the time this runs the post
-         is saved. If the three-a-day cap refuses, the post stays and the
-         person is told why — losing what somebody wrote because they used
-         one word too many times today would be indefensible.
+         is saved. If the database refuses — an anonymous post, or one
+         that isn't yours — the post stays and the person is told why.
+         Losing what somebody wrote because of the word they put at the
+         end of it would be indefensible.
 
          ⚠️ The refusal message comes from the DATABASE, not from a copy of
-         the rule here. highlight_post() raises with the number and the
-         window in it ("that's 3 in 24 hours"), so there is exactly one
-         place that knows what the limit is. A second copy in this file is
-         how it ends up saying 3 while the database enforces 5. */
+         the rule here, so there is exactly one place that knows what the
+         rules are. A second copy in this file is how the screen ends up
+         stating a limit the database stopped enforcing — which is what
+         0138 just made true of the three-a-day cap. */
       if (wantsHighlight) {
         const { data: reached, error: hErr } = await supabase
           .rpc('highlight_post', { p_post_id: postId });
@@ -1537,7 +1558,7 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
               {/* A photo-only post has an empty body. Rendering the empty
                   paragraph anyway leaves a blank gap above the picture that
                   looks like text failed to load. */}
-              {p.body && !recs[p.id] ? <p className="bd"><Body text={p.body} tags={tags[p.id]} /></p> : null}
+              {p.body && !recs[p.id] ? <p className="bd"><Body text={p.body} tags={tags[p.id]} hl={didBroadcast.has(p.id)} /></p> : null}
 
               {/* ⭐ Aug 23. A member posted his music and the link came out
                   as plain text you had to copy and leave for. It plays
