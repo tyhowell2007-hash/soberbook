@@ -6,6 +6,8 @@ import { browserClient, assertReadable } from '../../lib/supabase-browser';
 import EmojiPicker from './EmojiPicker';
 import PhotoUpload from '../components/PhotoUpload';
 import MsgMenu from './MsgMenu';
+import { Body } from '../components/Linked';
+import { useTagBox, useTaggablePeople, tellThemTheyWereTagged } from '../components/TagBox';
 
 /* =====================================================================
    🛋️ THE FRONT ROOM — everybody, talking, in one place.
@@ -55,6 +57,7 @@ export default function Room({ room, initial, meHandle, members, signed, spokenH
   const [busy, setBusy]   = useState(false);
   const [err, setErr]     = useState('');
   const [emoji, setEmoji] = useState(false);
+
   /* Pictures chosen but not sent yet: { path, preview }. The path is
      already a stripped file sitting in room-photos — PhotoUpload finishes
      the whole quarantine round trip before it calls back — so "staged"
@@ -83,6 +86,30 @@ export default function Room({ room, initial, meHandle, members, signed, spokenH
   const boxRef            = useRef(null);
   const stickRef          = useRef(true);
   const inputRef          = useRef(null);
+
+  /* ---- tagging in a room (5 Sept) ----
+     Ty: "Any room we have that you can type to somebody, they should be
+     able to tag somebody."
+
+     ⚠️ ALWAYS ENABLED, INCLUDING IN THE ANONYMOUS ROOMS, and that is not
+     an oversight. Your handle is already hidden in here — room_wall nulls
+     it and hands out a per-room alias — so naming SOMEBODY ELSE says
+     nothing about you. And 0131 reads actor_anon off room.anonymous, so
+     the notification the tag produces says "Someone", never your name.
+     Anonymity survives the tag on both ends. */
+  const people = useTaggablePeople();
+  const tag = useTagBox({ text: body, setText: setBody, boxRef: inputRef, people });
+
+  /* 🔴 THIS BLOCK SITS BELOW inputRef ON PURPOSE, AND IT IS NOT STYLE.
+     It was first written up with the other useState calls, ~30 lines
+     ABOVE the ref — and `const` is hoisted but not initialised, so
+     reading inputRef there throws "Cannot access 'inputRef' before
+     initialization" and white-screens this whole page for every member.
+
+     ⚠️ esbuild parsed it clean. A temporal dead zone is a RUNTIME error,
+     so the build is green and the page is dead — the 2 Sept lesson
+     ("a green build proves it compiles, not that the page opens")
+     arriving from a new direction. Do not move this back up. */
 
   /* 🔴 A REF, NOT THE STATE, AND THIS IS THE AUG 26 EGRESS BUG WAITING TO
      HAPPEN AGAIN. refresh() runs from a setInterval created once, so it
@@ -330,6 +357,9 @@ export default function Room({ room, initial, meHandle, members, signed, spokenH
     if (!user) { setErr('Sign in again.'); setBusy(false); return; }
 
     const id = crypto.randomUUID();
+    /* ⚠️ Read BEFORE setBody('') a few lines down. Once the composer is
+       cleared the text is gone, and with it every name in it. */
+    const named = tag.handles;
 
     /* Show it immediately. ⚠️ Optimistic ON PURPOSE here, and deliberately
        NOT for blocking (Aug 6) — the difference is what a wrong guess
@@ -370,6 +400,14 @@ export default function Room({ room, initial, meHandle, members, signed, spokenH
            look like "posting is broken" rather than like a bug here. */
         photo_urls: paths.length ? paths : null,
       });
+
+    if (!error) {
+      /* ⚠️ Only on success, and never awaited into the failure path. The
+         message is already on the wall by the time this runs; a
+         notification that doesn't fire must not be able to make a sent
+         message look unsent. */
+      tellThemTheyWereTagged('room', id, named);
+    }
 
     if (error) {
       setMsgs((m) => m.filter((x) => x.id !== id));
@@ -528,7 +566,7 @@ export default function Room({ room, initial, meHandle, members, signed, spokenH
                     ))}
                   </div>
                 )}
-                {m.body && <span className="rtext">{m.body}</span>}
+                {m.body && <span className="rtext"><Body text={m.body} tags={people} /></span>}
                 {/* 🔴 SHOWN TO EVERYONE, not just the author. Without it,
                     editing is a way to change what you appear to have
                     said after somebody has already answered you. Four
@@ -701,6 +739,12 @@ export default function Room({ room, initial, meHandle, members, signed, spokenH
       {/* Above the bar, so picking one never covers the conversation. */}
       <EmojiPicker open={emoji} onClose={() => setEmoji(false)} onPick={insertEmoji} />
 
+      {/* ⚠️ ABOVE the bar. This composer is pinned to the bottom of the
+          screen, so a menu rendered under it opens off-screen behind the
+          keyboard. The Wall puts the same menu below its own composer
+          because that one sits at the TOP of the page. */}
+      {tag.menu}
+
       <form className="rbar" onSubmit={send}>
         {/* ⚠️ type="button" — inside a <form>, a button with no type is a
             SUBMIT button, so opening the picker would have sent the
@@ -727,8 +771,8 @@ export default function Room({ room, initial, meHandle, members, signed, spokenH
           ref={inputRef}
           className="rin"
           value={body}
-          onChange={(e) => setBody(e.target.value)}
-          placeholder="Say something…"
+          {...tag.inputProps}
+          placeholder="Say something… @ to tag"
           maxLength={2000}
           aria-label="Say something in The Front Room"
         />
