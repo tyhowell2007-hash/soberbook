@@ -120,6 +120,15 @@ export async function signPhotoPaths(supabase, wanted) {
   const dropPaths   = asked.filter((p) => p.startsWith('drops/'));
   const roomPaths   = asked.filter((p) => p.startsWith('rooms/'));
   const dmPaths     = asked.filter((p) => p.startsWith('dms/'));
+  /* 5 Sept — three new namespaces, and each one is a DIFFERENT VIEW.
+     ⚠️ roomvids/ and dmvids/ are deliberately NOT `rooms/` and `dms/`.
+     The sweeper compares a bucket listing against referenced_media(),
+     which returns bare paths with no bucket attached — so a shared
+     prefix would let a live photo vouch for a dead video in the other
+     bucket. Distinct prefixes keep that comparison exact (0135). */
+  const cmtPaths    = asked.filter((p) => p.startsWith('comments/'));
+  const roomVids    = asked.filter((p) => p.startsWith('roomvids/'));
+  const dmVids      = asked.filter((p) => p.startsWith('dmvids/'));
 
   const allowed = new Set();
 
@@ -243,6 +252,42 @@ export async function signPhotoPaths(supabase, wanted) {
       (r.photo_urls || []).forEach((p) => { if (askedSet.has(p)) allowed.add(p); }));
   }
 
+  /* 💬 A PICTURE ON A REPLY (0133). Asked of `feed_comments`, which
+     already drops a reply on a post you cannot see, a reply by somebody
+     suspended, and a reply either side of a block — and which returns
+     photo_urls as NULL on an anonymous reply (0136). So a reply photo
+     inherits every one of those rules without this file knowing what any
+     of them are.
+
+     ⚠️ askedSet for the same reason as posts, rooms and DMs:
+     `.overlaps()` hands back the row's WHOLE array. */
+  if (cmtPaths.length) {
+    const askedSet = new Set(cmtPaths);
+    const { data } = await supabase
+      .from('feed_comments').select('photo_urls').overlaps('photo_urls', cmtPaths);
+    (data || []).forEach((r) =>
+      (r.photo_urls || []).forEach((p) => { if (askedSet.has(p)) allowed.add(p); }));
+  }
+
+  /* 🛋️ A VIDEO IN A ROOM (0133). Same view as a room photo, different
+     column. room_wall already handles blocks, suspension, deletion and a
+     closed room — and a video cannot exist in an anonymous room at all,
+     because room_video_guard refuses the write. */
+  if (roomVids.length) {
+    const { data } = await supabase
+      .from('room_wall').select('video_url').in('video_url', roomVids);
+    (data || []).forEach((r) => r.video_url && allowed.add(r.video_url));
+  }
+
+  /* ✉️ A VIDEO IN A DIRECT MESSAGE (0133). `chat_messages` returns a row
+     only to the two people on the thread, drops a declined thread, and
+     drops the lot if either has blocked the other. */
+  if (dmVids.length) {
+    const { data } = await supabase
+      .from('chat_messages').select('video_url').in('video_url', dmVids);
+    (data || []).forEach((r) => r.video_url && allowed.add(r.video_url));
+  }
+
   if (avatarPaths.length) {
     const { data } = await supabase
       .from('public_profiles')
@@ -259,7 +304,10 @@ export async function signPhotoPaths(supabase, wanted) {
                                   ['post-videos', 'videos/'],
                                   ['drops',       'drops/'],
                                   ['room-photos', 'rooms/'],
-                                  ['dm-photos',   'dms/']]) {
+                                  ['dm-photos',   'dms/'],
+                                  ['comment-photos', 'comments/'],
+                                  ['room-videos',    'roomvids/'],
+                                  ['dm-videos',      'dmvids/']]) {
     const paths = [...allowed].filter((p) => p.startsWith(prefix));
     if (!paths.length) continue;
 
