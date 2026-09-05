@@ -26,6 +26,14 @@ import '../dropsheet.css';
 /* AFTER theme-green, so photo rules can reshape green-room ones without
    reaching for !important. Same ordering argument as the note above. */
 import '../photos.css';
+/* 🔴 The wall renders EmojiPicker (composer) and the reply sheet renders
+   it too — and every one of its styles was in friends.css, which this
+   layout does not import. The picker has been unstyled on the wall and in
+   replies since it shipped. The @ menu's styles moved out of photos.css
+   in the same pass so chat can have them; nothing about how either looks
+   on this page changes. See app/emoji.css. */
+import '../emoji.css';
+import '../tagmenu.css';
 /* The ad-card button. Its own small file rather than four more rules in
    wall.css — that file is 71KB and silently failed to upload three deploys
    running on Aug 23. Small files land. */
