@@ -8,6 +8,12 @@
    NavBar; a new one is only finished when it does too. */
 import '../theme-green.css';
 import '../photos.css';
+/* ⚠️ The emoji panel and the @ menu moved OUT of friends.css/photos.css
+   on 5 Sept because four screens use them and only this one loaded their
+   styles. The room looks exactly as it did — it now asks for the dark
+   skin by prop (skin="green") instead of getting it by which file won. */
+import '../emoji.css';
+import '../tagmenu.css';
 import '../friends.css';
 import NavBar from '../components/NavBar';
 
