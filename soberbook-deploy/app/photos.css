@@ -550,7 +550,21 @@
 }
 .atopt:last-child { border-bottom: 0; }
 .atopt b { font-weight: 600; }
-.atopt span { opacity: .5; font-size: 12.5px; }
+/* 🔴 A REAL COLOUR FAILURE, and the only one the audit found. This was
+   `opacity: .5` at 12.5px, which composites to #8E9190 on white and
+   measures 3.18:1 — under the 4.5 floor, on the line that tells you
+   whether a tag needs approval.
+
+   ⚠️ Opacity on text is the anti-pattern this project already banned
+   once: it multiplies against whatever is behind it, so the same rule
+   measures differently on every surface it lands on. A real colour
+   measures the same everywhere. #5F5E5A on white is 6.49:1.
+
+   ⚠️ That figure was TYPED AS 6.29 first and corrected before it shipped,
+   because the check ran after the comment was written. Fourth time this
+   week. A contrast number nobody ran is worth less than no number, since
+   it stops the next person checking. */
+.atopt span { color: #5F5E5A; font-size: 13px; }
 .atopt.on, .atopt:hover { background: rgba(37, 99, 235, .08); }
 
 /* ---- editing a post (0070) ---- */
