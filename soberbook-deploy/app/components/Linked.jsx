@@ -91,10 +91,68 @@ function withHandles(chunk, keyBase, index) {
   return out;
 }
 
+/* @highlight IN A FINISHED POST — the confirmation that was missing.
+
+   Ty, 5 Sept: "the finished result should be a highlighted blue on their
+   name or highlight to signify that it worked."
+
+   ⭐ THE PILL ONLY APPEARS IF THE ANNOUNCEMENT GENUINELY WENT OUT, and
+   `hl` is the database's answer to that (posts_that_broadcast, 0139) —
+   never a test of whether the word is present. Nine posts on the wall
+   contain "@highlight"; eight broadcast and one didn't. Keying the pill
+   off the text would stamp "this reached everybody" on the one that
+   reached nobody.
+
+   🔴 A PILL, NOT BLUE TEXT, AND TY CHOSE THIS OFF A DRAWING. Blue text
+   is what .mention uses, and in this app blue text means "a person you
+   can tap" — @highlight is not a person and taps nowhere. A tappable
+   thing that goes nowhere is the exact bug this codebase keeps hitting
+   (the "Say hi" link that loaded the right page and did nothing, 20
+   Aug). The filled pill is the same blue so it clearly belongs to the
+   same family, and cannot be mistaken for somebody's name.
+
+   ⚠️ It is the same shape and wording as .taghi, the chip in the
+   composer, on purpose: what you saw while typing and what you see after
+   posting finally agree. They are separate classes because the contexts
+   differ — one sits in a chip row, this one sits inline in a sentence
+   and has to not wreck the line.
+
+   ⚠️ White on #2563eb measures 5.17:1 — MEASURED, not copied from the
+   existing comment that claimed it. Four contrast figures went into
+   comments in this repo on one day and all four were wrong. */
+function withHighlight(chunk, keyBase, index, hl) {
+  if (!hl) return withHandles(chunk, keyBase, index);
+
+  /* ⚠️ The (^|\s) is kept out of the match so the space before the word
+     survives into the output — swallowing it welds the pill onto the
+     previous word. Same boundary rule as saysHighlight() in
+     lib/mentions.js, which is what decided this post could broadcast. */
+  const re = /(^|\s)@highlight\b/gi;
+  const out = [];
+  let last = 0, m, n = 0;
+  while ((m = re.exec(chunk)) !== null) {
+    const at = m.index + m[1].length;
+    if (at > last) out.push(withHandles(chunk.slice(last, at), `${keyBase}-t${n}`, index));
+    out.push(
+      <span key={`${keyBase}-h${n}`} className="hlpill">@highlight · everybody</span>
+    );
+    last = at + '@highlight'.length;
+    n++;
+  }
+  if (!n) return withHandles(chunk, keyBase, index);
+  if (last < chunk.length) out.push(withHandles(chunk.slice(last), `${keyBase}-t${n}`, index));
+  return out;
+}
+
 /* `tags` comes from post_tags — see lib/tags.js. When it's absent (a
    reply, a preview, anywhere tags aren't fetched) nothing is highlighted,
-   which is correct: no tags means nobody was tagged. */
-export function Body({ text, tags }) {
+   which is correct: no tags means nobody was tagged.
+
+   ⚠️ `hl` defaults to false for exactly the same reason. Every surface
+   that doesn't fetch the broadcast set shows no pill, rather than
+   guessing from the words. Silence is the safe direction to be wrong in;
+   a false confirmation is not. */
+export function Body({ text, tags, hl = false }) {
   if (!text) return null;
   const index = tags && tags.length ? buildIndex(tags) : null;
   return (
@@ -102,7 +160,7 @@ export function Body({ text, tags }) {
       {pieces(text).map((p, i) =>
         p.t === 'link'
           ? <Out key={i} url={p.v} />
-          : <span key={i}>{withHandles(p.v, i, index)}</span>
+          : <span key={i}>{withHighlight(p.v, i, index, hl)}</span>
       )}
     </>
   );
