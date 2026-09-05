@@ -1,0 +1,202 @@
+/* =====================================================================
+   THE CREAM SKIN — /me only. 2 Sept 2026, Ty's pick ("A").
+
+   The photo he sent: pastel section cards, 2px black borders, a hard
+   offset shadow, black buttons, emoji headings. On the cream the landing
+   page already uses (#FFF8EC), not white.
+
+   ⚠️ SCOPED TO .mecream, which app/me/layout.jsx wraps around the page.
+   theme-green.css is still imported by this layout and stays untouched
+   — this file loads after it and overrides only what the skin changes.
+   The masthead and the bottom nav are NOT restyled: a page that looks
+   different is a choice, navigation that looks different is a bug
+   (the readings-page rule, 22 Aug).
+
+   🔴 EVERY COLOUR PAIR BELOW WAS MEASURED before it was written, after
+   three unmeasured contrast figures were caught in this codebase today.
+   Ink #2A1B0C on the tints: 12.66 (peach) to 15.78 (page). Muted
+   #5F4B36 on the tints: 6.27 (peach) to 7.81 (page). White on #111:
+   18.88. Floor is 4.5. Lowest pair anywhere in this file: 6.27.
+
+   ⚠️ Section colours come from data-tint on <details class="msec">,
+   set in Me.jsx's Section() — never nth-child. The date moved from
+   third to first tonight; nth-child would have recoloured every card.
+   ===================================================================== */
+
+.mecream{
+  --cr-page:#FFF8EC; --cr-ink:#2A1B0C; --cr-soft:#5F4B36; --cr-line:#111;
+  background:var(--cr-page); color:var(--cr-ink); min-height:100vh;
+}
+.mecream .bar{ background:#FFF3DC; color:var(--cr-ink); }
+
+/* ---- the count (read view) — the one loud thing, acid on cream ---- */
+.mecream .count{
+  background:#D6FF2E; background-image:none; color:var(--cr-ink);
+  border:2px solid var(--cr-line); border-radius:14px;
+  box-shadow:5px 5px 0 var(--cr-line); transform:none;
+}
+.mecream .count .cn{ color:var(--cr-ink); }
+.mecream .count .cl, .mecream .count .mnext{ color:var(--cr-ink); }
+.mecream .count .mbar{ background:rgba(0,0,0,.12); }
+.mecream .count .mfill{ background:var(--cr-line); }
+
+/* ---- every card on the page ---- */
+.mecream .deets, .mecream .pcard, .mecream .item, .mecream .empty,
+.mecream .facepick, .mecream .facegrid{
+  background:#FFF3DC; border:2px solid var(--cr-line); border-radius:14px;
+  box-shadow:4px 4px 0 var(--cr-line);
+}
+.mecream .deets h3, .mecream .pcard h3{ color:var(--cr-ink); }
+
+/* ---- the sections (editor) ---- */
+.mecream .msec{
+  border:2px solid var(--cr-line); border-radius:14px; margin:0 0 16px;
+  box-shadow:4px 4px 0 var(--cr-line); background:#FFF3DC; overflow:hidden;
+}
+.mecream .msec[data-tint="acid"]  { background:#D6FF2E; }
+.mecream .msec[data-tint="sand"]  { background:#FFE9B8; }
+.mecream .msec[data-tint="pink"]  { background:#FADDE6; }
+.mecream .msec[data-tint="sky"]   { background:#DCEBFF; }
+.mecream .msec[data-tint="lilac"] { background:#EBDDFF; }
+.mecream .msec[data-tint="mint"]  { background:#CFF3E3; }
+.mecream .msec[data-tint="butter"]{ background:#FFE39A; }
+.mecream .msec[data-tint="peach"] { background:#FFD9C2; }
+.mecream .msec[data-tint="stone"] { background:#ECE6DA; }
+.mecream .msec[data-tint="cream"] { background:#FFF3DC; }
+.mecream .msum{
+  color:var(--cr-ink); font-family:'Archivo',system-ui,sans-serif;
+  font-weight:700; font-size:17px; padding:14px 14px;
+}
+.mecream .msec[open] .msum{ border-bottom:2px solid var(--cr-line); }
+.mecream .mchev{ color:var(--cr-ink); }
+.mecream .mbody{ padding:12px 14px 16px; }
+.mecream .msum:focus-visible{ outline:3px solid var(--cr-line); outline-offset:-3px; }
+
+/* ---- type inside cards ---- */
+.mecream label{ color:var(--cr-ink); font-weight:700; }
+.mecream .hint{ color:var(--cr-soft); }
+.mecream .deet-sub{ color:var(--cr-soft); }
+
+/* ---- fields ---- */
+.mecream input[type="text"], .mecream input[type="url"], .mecream input[type="date"],
+.mecream input[type="search"], .mecream textarea, .mecream select{
+  background:#fff; color:var(--cr-ink); border:2px solid var(--cr-line);
+  border-radius:9px;
+}
+.mecream input:focus-visible, .mecream textarea:focus-visible, .mecream select:focus-visible{
+  outline:3px solid var(--cr-line); outline-offset:2px;
+}
+
+/* ---- buttons ---- */
+.mecream .btn, .mecream .sgo{
+  background:var(--cr-line); color:#fff; border:2px solid var(--cr-line); border-radius:9px;
+}
+.mecream .btn:hover, .mecream .sgo:hover{ background:#333; color:#fff; }
+.mecream .btn.ghost{ background:transparent; color:var(--cr-ink); border:2px solid var(--cr-line); }
+.mecream .btn.out{ background:transparent; color:var(--cr-soft); border:2px solid var(--cr-line); }
+.mecream .btn.out.arm{ background:#B3261E; color:#fff; border-color:#B3261E; }
+.mecream .btn:disabled, .mecream .sgo:disabled{ opacity:.45; }
+.mecream .pencil{ background:#fff; color:var(--cr-ink); border:2px solid var(--cr-line); }
+.mecream .pencil:hover{ background:var(--cr-line); color:#fff; }
+
+/* ---- choice cards (open/anon, show town, not-interested, sign out…) ---- */
+.mecream .choice{
+  background:#fff; color:var(--cr-ink); border:2px solid var(--cr-line);
+  border-radius:11px; box-shadow:3px 3px 0 var(--cr-line);
+}
+.mecream .choice .cd{ color:var(--cr-soft); }
+.mecream .choice.sel{ background:var(--cr-line); color:#fff; border-color:var(--cr-line); }
+.mecream .choice.sel .cd{ color:#E6E6E6; }   /* 15.13 on #111, measured */
+.mecream .choice.sel.dark{ background:var(--cr-line); }
+
+/* ---- pills (sponsoring, paths, visibility) ---- */
+.mecream .sbpill{
+  background:#fff; color:var(--cr-ink); border:1.5px solid var(--cr-line); border-radius:999px;
+}
+.mecream .sbpill:hover{ background:#FFF3DC; }
+.mecream .sbpill.sel{ background:var(--cr-line); color:#fff; border-color:var(--cr-line); }
+.mecream .pgL{ color:var(--cr-soft); }
+
+/* ---- the sponsoring rows: the three coloured cards from the photo ---- */
+.mecream .msec[data-tint="butter"] .sqrow{
+  border:2px solid var(--cr-line); border-radius:11px; padding:10px 12px;
+  margin:0 0 10px; box-shadow:3px 3px 0 var(--cr-line);
+}
+.mecream .msec[data-tint="butter"] .sqrow:nth-of-type(1){ background:#CFEFC4; }
+.mecream .msec[data-tint="butter"] .sqrow:nth-of-type(2){ background:#FFE39A; }
+.mecream .msec[data-tint="butter"] .choice{ background:#D9E1FF; }
+.mecream .msec[data-tint="butter"] .choice.sel{ background:var(--cr-line); }
+.mecream .sqL{ color:var(--cr-ink); font-weight:700; }
+
+/* ---- the face tile and emoji grid ---- */
+.mecream .face{ background:#fff; border:2px solid var(--cr-line); border-radius:10px; }
+.mecream .face.sel{ background:var(--cr-line); border-color:var(--cr-line); }
+.mecream .fpnow{ background:#fff; border:2px solid var(--cr-line); border-radius:10px; }
+
+/* ---- the theme chips (hidden until /u reads them) ---- */
+.mecream .thChip{ background:#fff; border:2px solid var(--cr-line); color:var(--cr-ink); }
+.mecream .thChip.sel{ background:var(--cr-line); color:#fff; }
+
+/* ---- posts under "What you've put up" ---- */
+.mecream h2.sec{ color:var(--cr-ink); }
+.mecream .item .nm, .mecream .item .body{ color:var(--cr-ink); }
+.mecream .item .when{ color:var(--cr-soft); }
+
+/* ---- focus ring inside the skin ---- */
+.mecream :focus-visible{ outline-color:var(--cr-line) !important; }
+.mecream .btn:focus-visible, .mecream .sgo:focus-visible{ outline-color:#fff !important; outline-offset:-4px; }
+
+/* ---- the eye ----------------------------------------------------------
+   👁 Shown / 🔒 Hidden, beside the thing it governs.
+   🔴 MEASURED, not guessed, after three unmeasured contrast figures were
+   caught in this codebase today. Ink #2A1B0C on white = 16.66. Muted
+   #5F4B36 on the hidden pill #EFE9DC = 6.82. Floor is 4.5.
+   ⚠️ margin-left:auto pushes it to the right edge of the summary row, so
+   the heading keeps its position whether or not a section has an eye. */
+.mecream .eye{
+  margin-left:auto; display:inline-flex; align-items:center; gap:5px;
+  font-family:'Archivo',system-ui,sans-serif; font-size:11px; font-weight:700;
+  letter-spacing:.01em; background:#fff; color:var(--cr-ink);
+  border:1.5px solid var(--cr-line); border-radius:999px;
+  padding:4px 10px; line-height:1; white-space:nowrap;
+  /* 44px of tappable height without a 44px-tall pill */
+  position:relative;
+}
+.mecream .eye::after{
+  content:''; position:absolute; left:0; right:0; top:50%;
+  height:44px; transform:translateY(-50%);
+}
+.mecream .eye.off{ background:#EFE9DC; color:var(--cr-soft); }
+.mecream .eye:hover{ background:var(--cr-line); color:#fff; }
+.mecream .eye:disabled{ opacity:.45; }
+
+/* ---- the eye on an ANONYMOUS profile ----
+   Not a state of the switch — a statement that the switch has been
+   overruled. Anonymity nulls every piece of prose in public_profiles,
+   so on 160 of 191 members this control cannot do anything at all.
+
+   🔴 MEASURED. Text #5F4B36 on #EFE9DC = 6.82. The BORDER is what makes
+   this pill visible, not the fill: #EFE9DC sits on the lilac card at
+   1.06 and on butter at 1.04 — fill against fill, invisible, which is
+   exactly the pale-tag-on-a-pale-card bug from 17 Aug. #6B5B47 is the
+   darkest tint pairing at 4.97 (peach) and 5.4 against its own fill.
+   ⚠️ #8A7A66 was the first pick and measured 3.16 on peach. Too thin.
+   ⚠️ No :hover change and cursor:default — nothing happens on press,
+   so nothing should suggest it will. */
+.mecream .eye.anon{
+  background:#EFE9DC; color:var(--cr-soft); border-color:#6B5B47;
+  cursor:default;
+}
+.mecream .eye.anon:hover{ background:#EFE9DC; color:var(--cr-soft); }
+.mecream .eyeL{ font-size:11px; }
+
+/* an eye inside a label (What you're into) sits on the same line */
+.mecream label > .eye{ margin-left:10px; vertical-align:middle; }
+
+/* ---- a hidden path group ---- */
+.mecream .pgrp-hid{ opacity:.72; }
+.mecream .pgrp-hid .pgL{ color:var(--cr-soft); }
+.mecream .pgrp-hid .sbpill.sel{
+  background:#6B6257; border-color:#6B6257;   /* white on this = 5.98, measured */
+}
+.mecream .pgL{ display:flex; align-items:center; gap:6px; }
