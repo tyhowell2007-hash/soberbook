@@ -90,3 +90,43 @@
   font-weight: 600;
 }
 .mention:hover { text-decoration: underline; }
+
+/* =====================================================================
+   @highlight, CONFIRMED — the pill on a finished post.
+
+   🔴 IT LIVES HERE, NOT IN photos.css, AND THAT IS THE WHOLE LESSON OF
+   5 SEPT. .mention sat in photos.css and so a tag in a DM rendered as
+   plain text, because Linked.jsx draws it and Linked.jsx is on every
+   surface while photos.css is not. .taghi — the composer's version of
+   this chip — is still in photos.css and that is correct: the composer
+   only exists on the wall. This one rides with the renderer.
+
+   ⚠️ MEASURED: white on #2563eb is 5.17:1, above the 4.5 floor.
+   Controls run at the same time that MUST fail it: white on --gl
+   (#e8f4ed) is 1.13 and white on --gm (#2e8b5f) is 4.22. A contrast
+   number nobody ran is worth less than no number, because it stops the
+   next person checking — this app has a standing scar from a tag that
+   measured 1.00 and was invisible on the most important card on the
+   page.
+
+   ⚠️ inline-block with a small negative margin, so a pill in the middle
+   of a paragraph doesn't push its own line taller than its neighbours
+   and make the post look like it stutters.
+
+   ⚠️ nowrap: "@highlight · everybody" breaking across two lines would
+   read as two separate things, and one of them would be the word
+   "everybody" sitting alone at the start of a line. */
+.hlpill {
+  display: inline-block;
+  color: #fff;
+  background: #2563eb;
+  font-weight: 600;
+  font-size: 12.5px;
+  line-height: 1.5;
+  border-radius: 999px;
+  padding: 1px 9px;
+  margin: -1px 1px;
+  letter-spacing: .01em;
+  white-space: nowrap;
+  vertical-align: baseline;
+}
