@@ -186,3 +186,38 @@ export function suggest(friends, typed, limit = 6) {
     || (a.f.display_name || a.f.handle).localeCompare(b.f.display_name || b.f.handle));
   return scored.slice(0, limit).map((x) => x.f);
 }
+
+/* =====================================================================
+   @highlight — THE ONE PLACE THAT DECIDES WHAT COUNTS AS THE WORD.
+
+   Ty, 5 Sept: the finished post should show that a highlight worked, not
+   just the composer. That means two different files now need to answer
+   the same question — Wall.jsx to decide whether to BROADCAST, and
+   Linked.jsx to decide whether to draw the confirmation.
+
+   🔴 SO IT IS WRITTEN ONCE. This schema has been bitten three times by a
+   rule stated in two places (0046, then 0047, then 0049 deleting the
+   copy rather than updating it): the send rule lived in a trigger and was
+   restated in a view, they drifted, and the message box sat greyed out
+   telling members they had to wait for a reply they had already had.
+   A second regex here would fail the same way and it would be WORSE than
+   greying a box — the wall would say an announcement went out when it
+   hadn't, or stay silent when it had.
+
+   ⚠️ \b AFTER THE WORD, so "@highlighted" and "@highlightreel" are not
+   it. And it must be at a boundary, so an email address or a URL with
+   "@highlight" inside it doesn't trigger a broadcast.
+
+   ⚠️ IT IS A RESERVED WORD, NOT A MEMBER. No profile has this handle, so
+   findMentions correctly never matches it — which is why the composer
+   has to filter it out of the "nobody here goes by that" warning
+   separately. Two true statements that together would be a lie.
+
+   ⚠️ THIS ANSWERS "DID SOMEBODY ASK FOR IT", NEVER "DID IT HAPPEN."
+   Eight of the nine posts on the wall containing this word broadcast;
+   one did not. Whether it actually went out is a question only the
+   database can answer — see posts_that_broadcast() in 0139. Do not use
+   this function to draw the confirmation pill. */
+export function saysHighlight(text) {
+  return /(^|\s)@highlight\b/i.test(text || '');
+}
