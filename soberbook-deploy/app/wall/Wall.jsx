@@ -512,6 +512,61 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
     }
   }
 
+  /* =====================================================================
+     🔴 A DEAD SIGNED URL NOW REPAIRS ITSELF. 5 Sept.
+
+     Ty, on a phone tab: "I can't see any of the photos." Broken-image
+     icons, not empty frames — the browser fetched each one and was
+     REFUSED. That distinction is the whole diagnosis.
+
+     THREE CORRECT DECISIONS MEETING BADLY:
+       - a signed URL lives one hour (TTL, lib/sign-photos.js)
+       - 0078 REUSES a cached URL for up to fifty of those minutes, so we
+         stop minting a new one per render. That fix was real: cached
+         egress had hit 7.963 GB of a 5 GB tier, 159%, because a URL the
+         browser has never seen can never be served from its cache.
+       - post photos are loading="lazy", so they are NOT fetched when the
+         page renders. They are fetched when you scroll to them.
+
+     So: open the wall, get handed a URL with ten minutes left on it,
+     don't scroll, come back later, scroll — and every picture below the
+     fold is dead. ⭐ Avatars are NOT lazy. They fetch instantly while the
+     token is fresh, which is exactly why they kept working while post
+     photos didn't, and why this looked like "photos are broken" rather
+     than "old links expire".
+
+     ⚠️ signMissing() could not help. It only asks for paths it holds NO
+     url for. An expired url is present and dead, so its condition is
+     false and it walks straight past the broken picture.
+
+     ⭐ Everything needed already existed — the endpoint, the freshUrls
+     state, and urlFor() preferring fresh over stale. Nothing connected a
+     failed image to any of it.
+
+     🔴 ONE RETRY PER PATH, EVER. Without the ref, an image that fails for
+     any OTHER reason — a deleted file, a genuine 404 — asks for a new
+     url, fails again, and asks again, forever. A photo that stays broken
+     is a small bug. A browser hammering the sign endpoint in a loop is an
+     outage, and it would be OUR outage, at 200 members.
+     ===================================================================== */
+  const retriedPaths = useRef(new Set());
+  async function reSign(path) {
+    if (!path || retriedPaths.current.has(path)) return;
+    retriedPaths.current.add(path);
+    try {
+      const res = await fetch('/api/photo/sign', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ paths: [path] }),
+      });
+      const { urls } = await res.json();
+      if (urls && urls[path]) setFreshUrls((u) => ({ ...u, [path]: urls[path] }));
+    } catch {
+      /* Same reasoning as signMissing: a missing picture beats an error
+         banner over somebody's wall. */
+    }
+  }
+
   /* ⚠️ ONE EFFECT, NOT THREE CALL SITES.
 
      The feed is re-read in three places — refresh(), the milestone share,
@@ -1379,6 +1434,7 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
                     it was given, and what it was given is already safe. */}
                 {!p.is_anonymous && urlFor(p.display_avatar_photo) ? (
                   <img className="pa pa-photo" src={urlFor(p.display_avatar_photo)}
+                       onError={() => reSign(p.display_avatar_photo)}
                        alt="" aria-hidden="true" />
                 ) : (
                   <span className="pa" aria-hidden="true">
@@ -1490,7 +1546,8 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
                 if (shots.length === 1) {
                   return (
                     <div className="pphoto">
-                      <img src={urlFor(shots[0])} alt="" loading="lazy" />
+                      <img src={urlFor(shots[0])} alt="" loading="lazy"
+                           onError={() => reSign(shots[0])} />
                     </div>
                   );
                 }
@@ -1504,6 +1561,7 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
                   <div className="pgrid" data-n={Math.min(shots.length, 4)}>
                     {shots.map((s, i) => (
                       <img key={s} src={urlFor(s)} loading="lazy"
+                           onError={() => reSign(s)}
                            /* ⚠️ alt="" everywhere else, but with several
                               pictures a screen reader otherwise hears
                               nothing at all where sighted people see six
@@ -1544,6 +1602,7 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
               {p.video_url && urlFor(p.video_url) && (
                 <div className="pphoto pvideo">
                   <video src={urlFor(p.video_url)} controls playsInline
+                         onError={() => reSign(p.video_url)}
                          preload="none" />
                 </div>
               )}
