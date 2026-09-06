@@ -89,6 +89,38 @@
 }
 .lp input:focus{ border-color:var(--lp-tang); box-shadow:0 0 0 3px rgba(232,89,12,.13); }
 
+/* ---- THE SOBER-SINCE DROPDOWNS, IN THE DOOR'S OWN SKIN — 6 SEPT ----
+
+   🔴 The three <select>s under "SOBER SINCE" had NO rules on this route
+   at all. .mdy lives in theme-green.css, which the door does not import,
+   so they rendered as raw browser widgets: 13.33px type, no gap, butted
+   edge to edge, next to fields that are 16px cream boxes with an orange
+   edge. The structure is fixed in globals.css now — this is the skin.
+
+   ⚠️ The 16px above is not a style choice and it applies here too. The
+   comment over `.lp input` already spells out why: under 16px, iOS
+   Safari zooms the entire page the moment the control is focused. That
+   rule was written for text inputs and simply never reached the three
+   dropdowns sitting eight lines below them in the same form.
+
+   ⭐ Every value below is COPIED from `.lp input`, not chosen. The point
+   is that the date field stops looking like it wandered in from another
+   website — so anything I picked myself would be me redesigning Ty's
+   approved page instead of repairing it. Ink on paper measures 16.39;
+   the 1px --lp-line edge is decorative and identical to the one on every
+   other field in this card. */
+.lp .mdy select{
+  border:1px solid var(--lp-line); background:#FFFDF8; color:var(--lp-ink);
+  padding:13px 8px;
+}
+.lp .mdy select:focus{
+  outline:none; border-color:var(--lp-tang);
+  box-shadow:0 0 0 3px rgba(232,89,12,.13);
+}
+/* The label sits above three controls, not one — it needs the same
+   bottom margin the inputs give themselves, or it collides with them. */
+.lp .mdy{ margin:0 0 12px; }
+
 /* Ink fill, tang on hover — straight out of the source design's .frow
    button. ⚠️ Ink on cream measures 13.9:1; the orange hover state is
    4.9:1 with cream text, which passes, but it is a HOVER state only for
