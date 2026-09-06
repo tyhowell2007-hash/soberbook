@@ -132,3 +132,80 @@ input:focus-visible{ outline:4px solid var(--acid); outline-offset:0; box-shadow
 .legal hr{ border:0; border-top:1px solid #DCE7E1; margin:34px 0 18px; }
 .legal .fine{ font-size:14px; color:#63716A; }
 .legal .back{ margin-top:22px; font-size:15px; }
+
+/* =====================================================================
+   TWO THINGS THAT BELONG TO NO ROUTE — 6 SEPT
+
+   Both were found by check-css-coverage.py, and both are the same bug
+   Ty caught by eye the night before with .rwho: a class rendered by a
+   route whose layout never loads the stylesheet holding it. That bug
+   throws nothing, logs nothing, and renders SOMETHING, so only a check
+   or a pair of eyes will ever find it.
+
+   ⭐ THE RULE THIS FILE NOW CARRIES: a class used by more than one route
+   lives HERE, once. globals.css is imported by the ROOT layout, so it is
+   the only stylesheet guaranteed to be on every page. The alternative —
+   copying the rule into the second route's stylesheet — is how .rwho
+   happened, and the second copy is always the one that drifts.
+
+   ⚠️ Structure only, no colours. Each skin still owns how these LOOK
+   (theme-green for the rooms, landing.css for the door), because a
+   colour that is right in the green room is wrong on the cream door.
+   ---------------------------------------------------------------------
+
+   1. THE THREE DATE DROPDOWNS (DatePick.jsx — /me AND the sign-up form).
+
+   🔴 .mdy lived only in theme-green.css, which /login does not import.
+   Measured on the live sign-up form at 375px before this fix:
+
+       display .......... block, not grid    (no 1.25fr .8fr 1fr)
+       gap .............. none — the three selects were butted edge to
+                          edge at x=50, 138, 175
+       font-size ........ 13.33px, the browser default
+       min-height ....... none
+
+   ⚠️ The 13.33px is the one that actually hurt. Anything under 16px and
+   iOS Safari ZOOMS THE WHOLE PAGE the instant the control is focused —
+   on the front door that reads as the site breaking. landing.css already
+   knew this and says so above `.lp input`; the rule was written for text
+   inputs and the three <select>s were simply never covered by it. */
+.mdy{ display:grid; grid-template-columns:1.25fr .8fr 1fr; gap:7px; }
+.mdy select{
+  /* 44px is the app's tap-target floor. 16px is the iOS zoom floor.
+     Neither is negotiable and neither is a colour, so they live here. */
+  /* ⚠️ `font:inherit` THEN `font-size:16px`, in that order and not the
+     other way round — the shorthand resets size, so swapping these two
+     lines silently puts the dropdowns back to 13.33px and back to zooming
+     the page on iOS. Copied verbatim from where it worked. */
+  width:100%; min-height:44px; font:inherit; font-size:16px;
+  border-radius:7px; padding:10px 8px; box-sizing:border-box;
+}
+.mdy select:disabled{ opacity:.6; }
+
+/* ---------------------------------------------------------------------
+   2. THE ERROR LINE UNDER A CONTROL (.phserr).
+
+   Used by SEVEN components across the wall, /me, chat, the admin
+   dashboard, the profile and — the one that found this — /meetings,
+   where it is the line that says a meeting room failed to open.
+
+   🔴 It lived in photos.css because a photo upload was the first thing
+   that could fail. Then it spread, and every route that picked it up
+   without also importing photos.css showed its failure message as plain
+   unstyled body text. Chat hit this on 5 Sept and was patched by adding
+   the photos.css import; /meetings had the same hole and no photo
+   upload at all, so importing a whole photo stylesheet to get one error
+   line would have been the wrong shape — and photos.css and meetings.css
+   both define .btn, so the import order would have become load-bearing.
+
+   ⭐ Moving it here fixes every route at once and cannot collide. It is
+   DELETED from photos.css, not left alongside — that is the whole
+   lesson.
+
+   ⚠️ friends.css still scopes `.rbar .phserr` for the room composer.
+   That is fine and stays: higher specificity, deliberately different
+   (pale on the room's dark panel), and it is a SKIN, not a second copy
+   of the rule. */
+.phserr{
+  margin:6px 0 0; font-size:12.5px; line-height:1.5; color:#8A2B2B;
+}
