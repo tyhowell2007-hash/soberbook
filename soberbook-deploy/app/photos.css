@@ -149,10 +149,21 @@
   border-radius:0; font-size:13px; line-height:1.6; color:var(--gt);
 }
 
-/* Upload errors, next to the control rather than in an alert box. */
-.phserr{
-  margin:6px 0 0; font-size:12.5px; line-height:1.5; color:#8A2B2B;
-}
+/* 🔴 .phserr MOVED TO globals.css ON 6 SEPT AND IS DELETED FROM HERE.
+
+   It started life as "the line under the photo picker that says the
+   upload failed", which is why it lived in this file. Then seven other
+   components picked it up — the wall composer, the post menu, the friend
+   button, delete-account, /admin/numbers, and the one that exposed it:
+   /meetings, where it is the line saying a meeting room would not open.
+   None of those routes had a reason to import a photo stylesheet, so on
+   several of them the app's failure message rendered as plain body text.
+
+   ⭐ It is DELETED here rather than duplicated there. A class defined in
+   two stylesheets is exactly the .rwho bug Ty found on 5 Sept by looking
+   at a real conversation: friends.css and wall.css both owned that name,
+   the loser depended on which page you had visited first, and no sweep
+   or fresh page load could ever catch it. */
 
 /* =====================================================================
    THE PROFILE EDITOR, FOLDED UP (Aug 18)
