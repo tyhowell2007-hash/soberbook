@@ -1,6 +1,6 @@
 'use client';
 
-import { buildIndex, findMentions } from '../../lib/mentions';
+import { buildIndex, findMentions, HIGHLIGHT_PATTERN } from '../../lib/mentions';
 
 import { useState } from 'react';
 import { pieces, classify, firstPlayable, host } from '../../lib/links';
@@ -123,15 +123,27 @@ function withHandles(chunk, keyBase, index) {
 function withHighlight(chunk, keyBase, index, hl) {
   if (!hl) return withHandles(chunk, keyBase, index);
 
-  /* ⚠️ The (^|\s) is kept out of the match so the space before the word
-     survives into the output — swallowing it welds the pill onto the
-     previous word. Same boundary rule as saysHighlight() in
-     lib/mentions.js, which is what decided this post could broadcast. */
-  const re = /(^|\s)@highlight\b/gi;
+  /* 🔴 6 SEPT — THIS USED TO CARRY ITS OWN COPY: /(^|\s)@highlight\b/gi.
+     It is now built from HIGHLIGHT_PATTERN in lib/mentions.js, the same
+     source saysHighlight() uses to decide whether the post broadcasts.
+
+     ⭐ WHY THAT MATTERS MORE THAN IT LOOKS. These two answer different
+     questions — "may this go out" and "draw the confirmation" — but they
+     must agree on what the WORD IS. When the boundary was loosened so
+     "Comming!!!@highlight" counts, a second copy left here would have
+     broadcast to 219 people and drawn nothing, and the wall would have
+     looked like the announcement never happened. A silent disagreement
+     between the enforcement and its display is 0046 all over again.
+
+     ⚠️ The lookbehind never CONSUMES the character before the @, so the
+     space in front survives into the output for free — the old `(^|\s)`
+     had to be carefully excluded from the match to stop the pill welding
+     itself onto the previous word. `m.index` is now already the @. */
+  const re = new RegExp(HIGHLIGHT_PATTERN, 'gi');
   const out = [];
   let last = 0, m, n = 0;
   while ((m = re.exec(chunk)) !== null) {
-    const at = m.index + m[1].length;
+    const at = m.index;
     if (at > last) out.push(withHandles(chunk.slice(last, at), `${keyBase}-t${n}`, index));
     out.push(
       <span key={`${keyBase}-h${n}`} className="hlpill">@highlight · everybody</span>
