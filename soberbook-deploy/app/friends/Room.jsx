@@ -559,7 +559,7 @@ export default function Room({ room, initial, meHandle, members, signed, spokenH
 
           return (
           <div key={m.id} className={'rmsg' + (m.is_mine ? ' mine' : '') + (m.pending ? ' pending' : '')}>
-            {!m.is_mine && <div className="rwho">{m.display_name}</div>}
+            {!m.is_mine && <div className="roomwho">{m.display_name}</div>}
             <div className="rline">
               <div className="rbub">
                 {pics.length > 0 && (
