@@ -26,10 +26,16 @@ import '../emoji.css';
 import '../tagmenu.css';
 import '../convo.css';
 /* ⚠️ Chat has had photo upload since 3 Sept and never loaded the photo
-   stylesheet — so `.phserr`, the line that tells you an upload failed,
-   had no rules and appeared as unstyled body text on the one screen
-   where something has just gone wrong. A route that can upload a picture
-   loads the picture styles. */
+   stylesheet. A route that can upload a picture loads the picture styles,
+   so this import stays and is still doing real work.
+
+   ⚠️ CORRECTION, 6 SEPT: this import was originally added to rescue
+   `.phserr`, the line that tells you an upload failed. That was treating
+   one route's symptom. `.phserr` is used by seven components across the
+   wall, /me, /admin and /meetings — and /meetings had the same hole with
+   no photo upload anywhere on it, so there was nothing to justify the
+   same patch there. It now lives in globals.css, which the ROOT layout
+   imports, and is deleted from photos.css. Do not re-add it here. */
 import '../photos.css';
 
 import NavBar from '../components/NavBar';
