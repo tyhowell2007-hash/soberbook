@@ -869,16 +869,20 @@ body{
 .dc-row{ display:flex; gap:8px; margin-top:10px; }
 .dc-row .btn{ flex:1; }
 
-/* ---- the three dropdowns ----
+/* ---- the three dropdowns: THE GREEN ROOM'S SKIN ONLY ----
    ⚠️ Year column is widest: it carries four digits and it is the one
    people actually reach for. Month gets the most room after it because
-   its options are words, not numbers. */
-.mdy{ display:grid; grid-template-columns:1.25fr .8fr 1fr; gap:7px; }
-.mdy select{
-  width:100%; min-height:44px; border-radius:7px; border:0; padding:10px 8px;
-  font:inherit; font-size:16px; color:var(--gt); background:#fff;
-}
-.mdy select:disabled{ opacity:.6; }
+   its options are words, not numbers. That grid, the 44px tap target and
+   the 16px iOS-zoom floor MOVED TO globals.css on 6 Sept — see the long
+   note there. They are structure, and /login renders the same component
+   without ever loading this file, so keeping them here left the sign-up
+   form's dropdowns at 13.33px with no gap.
+
+   🔴 What is left below is COLOUR, and it stays here on purpose: --gt on
+   white measures 12.20, which is right in the green room and wrong on
+   the cream door. landing.css carries the door's own skin. One structure,
+   two skins, and neither is a copy of the other. */
+.mdy select{ border:0; color:var(--gt); background:#fff; }
 
 /* =====================================================================
    PEOPLE YOU'VE BLOCKED — /me → Account.
@@ -1348,3 +1352,42 @@ body{
   border-radius:999px; background:rgba(0,0,0,.66); color:#fff;
   font-size:12px; line-height:1; cursor:pointer; padding:0;
 }
+
+/* =====================================================================
+   "NO PAGE HERE" — /u/<handle> when the handle opens onto nothing.
+   6 Sept.
+
+   🔴 app/u/[handle]/not-found.jsx has rendered .gone, .gone .h and
+   .gone .p since the day it was written, and NONE of the three existed
+   in ANY of the app's 25 stylesheets. Grepped with comments stripped and
+   a control that fired. So a member who mistyped a handle — or followed
+   a link to somebody who has since gone — got three lines of raw browser
+   default text.
+
+   ⭐ It lives HERE rather than in globals.css because exactly one route
+   renders it and that route's layout (app/u/layout.jsx) loads this file.
+   The globals.css rule is for classes MORE THAN ONE route needs; putting
+   a single-route class there would make every page carry it for nothing.
+
+   ⚠️ QUIET ON PURPOSE. Four different situations land on that page — no
+   such handle, a suspended account, you blocked them, they blocked you —
+   and not-found.jsx says the same neutral sentence for all four so the
+   page can't confirm an account exists or announce that somebody took
+   action against somebody. A page is an output channel the same way an
+   error message is. Styling it with anything alarming — red, a warning
+   icon, a heavy border — would put a TONE on a screen that is carefully
+   toneless, and in the blocked case that tone would be a leak.
+
+   Measured, not guessed: heading #0F3D2A on white 12.20, body #4A5B52 on
+   white 7.22, both over the 4.5 floor. The border is --gm at 4.22, which
+   this file labels DECORATION ONLY — correct, it is an edge and never
+   carries a word. */
+.gone{
+  border:2px solid var(--gm); border-radius:12px; background:#fff;
+  padding:22px 18px; margin:6px 0 14px; text-align:center;
+}
+.gone .h{
+  font-size:19px; font-weight:700; color:var(--gt); margin:0 0 8px;
+  letter-spacing:-.01em;
+}
+.gone .p{ font-size:15px; line-height:1.65; color:#4A5B52; margin:0; }
