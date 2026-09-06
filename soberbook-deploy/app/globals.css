@@ -169,7 +169,16 @@ input:focus-visible{ outline:4px solid var(--acid); outline-offset:0; box-shadow
    on the front door that reads as the site breaking. landing.css already
    knew this and says so above `.lp input`; the rule was written for text
    inputs and the three <select>s were simply never covered by it. */
-.mdy{ display:grid; grid-template-columns:1.25fr .8fr 1fr; gap:7px; }
+/* ⚠️ 1.7fr, NOT the 1.25fr this grid carried for a month. MEASURED on the
+   live sign-up form once the 16px floor was in place: the month column came
+   out 107px, and "September" — the longest option, and the current month,
+   so it is what the field shows by default — needs 123px once you subtract
+   8px padding either side and the ~20px the browser's own dropdown arrow
+   eats. It was overflowing by SIXTEEN PIXELS and rendering as "Septembe⌄".
+   ⭐ The old ratio was not wrong when it was written; it was written before
+   the type was 16px. Raising a font size can break a layout that has
+   nothing to do with the font size, and neither change errors. */
+.mdy{ display:grid; grid-template-columns:1.7fr .75fr 1fr; gap:7px; }
 .mdy select{
   /* 44px is the app's tap-target floor. 16px is the iOS zoom floor.
      Neither is negotiable and neither is a colour, so they live here. */
