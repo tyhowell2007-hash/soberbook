@@ -189,7 +189,19 @@
 .roomempty{ margin:4px 2px 8px; font-size:13px; line-height:1.6; color:#7FBFA0; }
 
 .rmsg{ margin:0 0 10px; }
-.rwho{ font-size:11px; color:#9FE1CB; margin:0 0 3px; font-weight:600; }
+/* 🔴 RENAMED FROM .rwho, 6 SEPT. IT COLLIDED WITH THE WALL'S REPLY AUTHOR.
+   Ty, looking at a real thread: "you can barely see the names with that
+   color font." Two stylesheets both defined `.rwho` — this one (11px pale
+   green, built for the Front Room's DARK panel, where #9FE1CB measures
+   9.22) and wall.css's (15px Anton, near-black, 16.02 on white). The root
+   layout loads wall.css on every page and /friends loads this one after
+   it, so once a member had visited Community the pale green won on the
+   WALL too — 1.49 against white. Invisible, and only after a particular
+   navigation, which is why it never showed up in a fresh page load.
+   ⚠️ Same family as the `.composer` collision (16 Aug) and the four
+   landing-page names that forced the `lp-` prefix (23 Aug). A class name
+   is a global; two files owning one is a bug waiting for a route change. */
+.roomwho{ font-size:11px; color:#9FE1CB; margin:0 0 3px; font-weight:600; }
 .rbub{
   display:inline-block; max-width:88%; padding:8px 11px; border-radius:12px;
   background:#1A3227; color:#EAF6EF; font-size:14px; line-height:1.5;
