@@ -208,6 +208,35 @@ export function suggest(friends, typed, limit = 6) {
    it. And it must be at a boundary, so an email address or a URL with
    "@highlight" inside it doesn't trigger a broadcast.
 
+   🔴 6 SEPT — THE LEADING BOUNDARY WAS `(^|\s)` AND IT WAS TOO STRICT.
+   Ty: "the highlight option wont work." It wasn't broken; it was refusing
+   his punctuation. He wrote:
+
+       "Keep Them Comming!!!@highlight"                    → silent
+       "Awesome!!! ...Lets hear all of you!@highlight"     → silent
+
+   The character before the @ was `!`, not a space, so the rule declined.
+   Every one that HAD worked — 3, 4 and 5 Sept — either opened the post or
+   had a space in front of it, which is why this looked intermittent
+   rather than broken and why nobody caught it for three days.
+
+   ⭐ THE REAL FAULT IS THAT NOTHING SAID NO. The post saved, the word sat
+   there in the body, and no screen anywhere said "that didn't go out."
+   Same shape as the greyed-out message box in 0046: the app was enforcing
+   a rule it never showed. The regex below is the cheap half of the fix;
+   telling somebody their announcement didn't fire is the real one, and it
+   is NOT done yet.
+
+   ⚠️ A LOOKBEHIND, NOT `(^|\W)`. `\W` would consume the character, so two
+   highlights in one post could overlap and the second would be missed —
+   and it would also match `x@highlight` where x is punctuation inside an
+   address. `(?<![A-Za-z0-9._%+-])` asserts without consuming and refuses
+   exactly the characters an email local-part is made of. Tested 11 cases:
+   fires on `!!!@highlight`, `day 30!@highlight`, `(@highlight)`; still
+   silent on `hello@highlight.com`, `ty.howell@highlight.org`,
+   `soberbook.app/x@highlight`, `@highlighted`, `@highlightreel`. Nothing
+   that worked before changes.
+
    ⚠️ IT IS A RESERVED WORD, NOT A MEMBER. No profile has this handle, so
    findMentions correctly never matches it — which is why the composer
    has to filter it out of the "nobody here goes by that" warning
@@ -218,6 +247,23 @@ export function suggest(friends, typed, limit = 6) {
    one did not. Whether it actually went out is a question only the
    database can answer — see posts_that_broadcast() in 0139. Do not use
    this function to draw the confirmation pill. */
+/* 🔴 6 SEPT — THE PATTERN IS A STRING, AND THIS IS THE WHOLE POINT.
+   Linked.jsx had its OWN copy of `(^|\s)@highlight\b` to draw the pill.
+   Fixing only the one above would have produced something worse than the
+   original bug: "Comming!!!@highlight" would BROADCAST to 219 people and
+   the wall would draw no pill, so the app would look like it had done
+   nothing while an announcement was in flight. That is the 0046→0049
+   drift exactly — a rule stated twice, and the second copy is where the
+   bug goes.
+
+   ⚠️ A STRING, NOT A SHARED RegExp OBJECT. A regex with the `g` flag
+   carries `lastIndex` between calls, so two files sharing one instance
+   would skip matches depending on who ran first — a bug that appears only
+   under a particular order of rendering and is close to unfindable. Each
+   site builds its own from this source with the flags it needs: `i` here
+   for a yes/no, `gi` in Linked.jsx to walk every occurrence. */
+export const HIGHLIGHT_PATTERN = '(?<![A-Za-z0-9._%+-])@highlight\\b';
+
 export function saysHighlight(text) {
-  return /(^|\s)@highlight\b/i.test(text || '');
+  return new RegExp(HIGHLIGHT_PATTERN, 'i').test(text || '');
 }
