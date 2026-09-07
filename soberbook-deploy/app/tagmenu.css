@@ -130,3 +130,53 @@
   white-space: nowrap;
   vertical-align: baseline;
 }
+
+/* =====================================================================
+   @highlight IN THE MENU — 7 Sept. Ty picked this shape off a mockup.
+
+   The menu lists members. @highlight — the one @name that reaches all
+   231 of them — was never in it, so you had to already know the word.
+
+   🔴 A SEPARATE STRIP, NOT A MENU ROW, AND THAT IS THE POINT. Ty was
+   shown a version pinned as the first row and turned it down: the menu
+   pre-selects row one and Enter picks it, so typing "@ni" and hitting
+   Enter out of habit would have inserted @highlight instead of Nic.
+   Sitting outside .atmenu it is unreachable by arrow keys and Enter —
+   tap only, the one input that cannot happen by accident.
+
+   ⚠️ MEASURED, then written down — that order, because four contrast
+   figures went into comments in this repo on one day and all four were
+   wrong. #0C447C on #E6F1FB is 8.60, #185FA5 on the same is 5.70, and
+   the two are different stops on purpose: same stop for title and
+   subtitle reads flat. The 1px #378ADD edge is 3.59 on white, which is
+   a boundary rather than text, so 3:1 is its floor.
+
+   ⚠️ 44px, because it is a thumb target sitting directly under a list
+   of people's names and picking the wrong one here shouts at 231 people
+   instead of tapping one on the shoulder. */
+.athl {
+  display: flex; align-items: baseline; gap: 8px; width: 100%;
+  margin: 6px 0 0;
+  border: 1px solid #378ADD; border-radius: 10px;
+  background: #E6F1FB; cursor: pointer; text-align: left;
+  padding: 11px 13px; min-height: 44px; font-size: 15px;
+}
+.athl b    { font-weight: 600; color: #0C447C; }
+.athl span { font-size: 13px;  color: #185FA5; }
+.athl:hover, .athl:focus-visible { background: #D8E9F9; }
+
+/* ⭐ THE CONFIRMATION IN A REPLY. The Wall composer has had .taghi since
+   5 Sept; the reply box had nothing, so the word sat there giving no
+   sign it had registered — and for three days it genuinely hadn't.
+
+   ⚠️ It lives HERE rather than reusing .taghi from photos.css. Every
+   surface that draws the @ menu already loads this file; photos.css is
+   not on all of them, and a class whose stylesheet a route doesn't load
+   renders naked (the .rwho family, 6 Sept). Same blue, same wording,
+   measured the same: white on #2563eb is 5.17. */
+.athlnote {
+  display: inline-block; margin: 0 0 6px;
+  color: #fff; background: #2563eb;
+  font-weight: 600; font-size: 12.5px; line-height: 1.5;
+  border-radius: 999px; padding: 3px 10px;
+}
