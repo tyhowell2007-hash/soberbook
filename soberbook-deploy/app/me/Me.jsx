@@ -1921,6 +1921,10 @@ export default function Me({ email, profile, posts, initialAvatarUrl,
                 <div className="mm">
                   {ago(p.created_at)}
                   {p.is_anonymous ? ' · posted anonymously' : ''}
+                  {/* 🔴 Never a zero. "0 support" on your own post is a
+                      worse thing to read than nothing at all. */}
+                  {p.support_count > 0 ? ` · ❤️ ${p.support_count}` : ''}
+                  {p.strength_count > 0 ? ` · 🤝 ${p.strength_count}` : ''}
                   {p.comment_count > 0
                     ? ` · ${p.comment_count} ${p.comment_count === 1 ? 'reply' : 'replies'}`
                     : ' · no replies yet'}
