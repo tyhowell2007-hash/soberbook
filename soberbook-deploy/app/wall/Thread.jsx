@@ -44,6 +44,38 @@ export default function Thread({ post, onClose, onCountChange }) {
      is_mine is the only ownership signal that exists here. author_id is
      deliberately NULL on an anonymous reply. */
   const [menuFor, setMenuFor] = useState(null);
+  const [hearting, setHearting] = useState(() => new Set());
+
+  /* ⭐ A HEART ON A REPLY. Ty's ask, 7 Sept.
+
+     ⚠️ THIS REVERSES A DELIBERATE REFUSAL, and it is safe for the same
+     reason the room hearts were (0129): the danger the original note
+     named was RANKING — a heart deciding what floats up and burying
+     whoever answered quietly at 3am. This list is chronological, and the
+     wall shows the LAST two replies, not the top ones. There is no order
+     for a heart to corrupt.
+
+     🔴 SILENT. No notification, unlike Support/Strength. Those say
+     something specific; a heart does not, which is why 0025 said "likes
+     are not a kind" and why that still stands. */
+  async function heartReply(c) {
+    if (hearting.has(c.id)) return;
+    const nowOn = !c.liked_by_me;
+    setHearting((s) => new Set(s).add(c.id));
+    setRows((list) => (list || []).map((x) => (x.id === c.id
+      ? { ...x, liked_by_me: nowOn, like_count: (x.like_count || 0) + (nowOn ? 1 : -1) }
+      : x)));
+    try {
+      const { error } = await supabase.rpc('like_comment', { p_comment: c.id });
+      if (error) throw error;
+    } catch (e) {
+      setRows((list) => (list || []).map((x) => (x.id === c.id
+        ? { ...x, liked_by_me: !nowOn, like_count: (x.like_count || 0) + (nowOn ? -1 : 1) }
+        : x)));
+    } finally {
+      setHearting((s) => { const n = new Set(s); n.delete(c.id); return n; });
+    }
+  }
 
   /* ---- tagging in a reply (5 Sept) ----
      ⚠️ enabled is `!anon`, exactly as on the Wall. An anonymous reply CAN
@@ -248,6 +280,26 @@ export default function Thread({ post, onClose, onCountChange }) {
                     an anonymous writer can be moderated without ever being
                     unmasked. Proven — a reported anonymous reply comes back
                     with author_handle NULL. */}
+                {/* 🔴 NEVER A ZERO, and no button at all on your own reply
+                    — like_comment() refuses it, and a heart you cannot
+                    press next to your own words is just clutter. On
+                    somebody else's the outline always shows, so the
+                    wordless answer is available even where nobody has
+                    used it yet; the NUMBER only appears at one or more.
+                    Same rule as the room hearts and the open-room card. */}
+                {!c.is_mine && (
+                  <button type="button"
+                          className={'cheart' + (c.liked_by_me ? ' on' : '')}
+                          aria-pressed={!!c.liked_by_me}
+                          aria-label={c.liked_by_me ? 'Undo heart' : 'Heart this reply'}
+                          onClick={() => heartReply(c)}>
+                    {c.liked_by_me ? '♥' : '♡'}
+                    {c.like_count > 0 ? ` ${c.like_count}` : ''}
+                  </button>
+                )}
+                {c.is_mine && c.like_count > 0 && (
+                  <span className="cheart cheartmine">♥ {c.like_count}</span>
+                )}
                 <button type="button" className="rdots"
                         aria-label="More"
                         aria-haspopup="dialog"
