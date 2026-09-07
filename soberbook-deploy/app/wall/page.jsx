@@ -265,7 +265,32 @@ export default async function WallPage() {
           {days !== null ? `day ${days}` : profile.handle} ›
         </Link>
       </div>
-      <div className="bar">No steps to prove · no gaps to explain</div>
+      {/* 🔴 THE TWO DOORS — 7 Sept, Ty's option A off a mockup.
+
+          They are HERE, in the strip under the masthead, and not in the
+          masthead itself, because the masthead is FULL. Measured with
+          the real Archivo at 375px: the logo is 138px, the three icons
+          120, the day count 53, padding 30 — 341 of 375, leaving 34px
+          of slack. The two pills need 151. The first mockup showed them
+          up there and was undrawable; the header had been simplified in
+          the sketch and the icons left out.
+
+          ⚠️ WHAT THIS COSTS: the strip used to read "No steps to prove ·
+          no gaps to explain". That is Ty's line and this was his call to
+          spend it — a tagline is read once, and these are used daily.
+
+          ⚠️ NOT A SEVENTH AND EIGHTH TAB. Six is the ceiling for a bar
+          of words (22 Aug) and a seventh cannot be solved by shrinking
+          type again. This is the same shape as the bell: somewhere you
+          reach for, not a room you live in.
+
+          🔴 "Right now" is FIRST and it is the clay one. Somebody
+          opening this app in trouble should not have to read past a
+          check-in to find the door marked for them. */}
+      <div className="bar bar-doors">
+        <Link href="/now" className="dr dr-now">Right now</Link>
+        <Link href="/checkin" className="dr dr-in">Check in</Link>
+      </div>
       {/* Renders nothing. Keeps the podcast feed fresh when the Vercel
           cron doesn't fire — which, as of 29 Aug, is most days. */}
       <FeedRefresh />
