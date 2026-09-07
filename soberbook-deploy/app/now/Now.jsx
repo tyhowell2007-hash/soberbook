@@ -58,6 +58,11 @@ export default function Now({ plan }) {
   }
 
   const has = plan && plan.has_plan;
+  /* ⚠️ Default to an empty array, never to plan.craving_steps directly.
+     A member with a plan but no list has NULL here, and .map() on null
+     throws — which on this page means an application error instead of a
+     breathing exercise, at the worst possible moment. */
+  const steps = (plan && plan.craving_steps) || [];
   const list = PRACTICES.filter((p) => HERE.includes(p.id));
 
   return (
@@ -77,6 +82,33 @@ export default function Now({ plan }) {
       </div>
 
       <div className="pad nw-pad">
+        {/* ---------------- 0 · THE CRAVING PLAN, ABOVE ALL OF IT ------
+            ⭐ Migration 0147. The member's own ordered list, first thing
+            on the screen. Ty asked for "a craving plan for people who
+            are craving that they can do things to stop it", and the
+            number that shaped it was 0: not one of 236 members had
+            filled in the seven-box plan. So this is six short lines, and
+            it is the first thing here rather than a section of that.
+
+            🔴 AN <ol>, AND THE ORDER IS THE WHOLE POINT. Somebody in the
+            middle of a craving cannot pick from a menu. They can do
+            number one. */}
+        {steps.length > 0 && (
+          <section className="nw-sec">
+            <h2 className="nw-lbl">Start at the top</h2>
+            <ol className="nw-steps">
+              {steps.map((s, i) => (
+                <li key={`${i}-${s}`} className="nw-step">
+                  {/* aria-hidden: the <ol> already announces the position,
+                      so the digit is the same fact drawn for the eye. */}
+                  <span className="nw-stepn" aria-hidden="true">{i + 1}</span>
+                  <span className="nw-stept">{s}</span>
+                </li>
+              ))}
+            </ol>
+          </section>
+        )}
+
         {/* ---------------- 1 · YOUR OWN WORDS, FIRST ---------------- */}
         {has ? (
           <section className="nw-sec">
@@ -113,7 +145,11 @@ export default function Now({ plan }) {
             <div className="nw-card nw-none">
               <p>You haven&apos;t written anything down yet — that&apos;s fine, it isn&apos;t
                  for right now.</p>
-              <Link href="/plan" className="nw-editplan">Write it for next time ›</Link>
+              {/* ⚠️ Names the SHORT thing, not the seven-box form. 0 of 236
+                  members had filled that in; "a few lines" is a promise we
+                  can keep and "write your plan" is the one that got
+                  ignored. Still one link — two would be a decision. */}
+              <Link href="/plan" className="nw-editplan">Later, write a few lines for next time ›</Link>
             </div>
           </section>
         )}
