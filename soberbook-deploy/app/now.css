@@ -170,3 +170,73 @@
 .nw-row:focus-visible,
 .nw-988:focus-visible,
 .nw-editplan:focus-visible { outline: 3px solid var(--gd); outline-offset: 2px; }
+
+/* ---------- the craving plan  ·  7 Sept, migration 0147 --------------
+
+   The member's own ordered list, at the very top of this page — above
+   what_works, above the practices, above everything the app wrote.
+
+   ⭐ AN <ol>, NOT A STACK OF CARDS, AND THE ORDER IS THE FEATURE. A
+   craving lasts ten or twenty minutes and the person reading this has
+   no capacity to choose. A paragraph asks them to read and decide; a
+   numbered list asks them to do number one.
+
+   Every figure below was RUN before this comment was written — four
+   contrast numbers went into comments from memory on 5 Sept and all
+   four were wrong.
+
+     #fff     on --gd     6.46   the step number
+     --gt     on white   12.20   the step itself
+     --gm     on white    4.22   the card edge (non-text floor 3.0)
+     --gd     on white    6.46   the number's disc (non-text)
+     --soft   on white    5.12   the label above it
+   🔴 CONTROL: --line on white measures 1.27 and would be invisible —
+   the fill-against-fill trap that hid a whole tag on 17 Aug. The check
+   fires, so the numbers above are worth something.
+
+   ⚠️ 18px, THE LARGEST TYPE ON THE PAGE, and larger than .nw-card's 16.
+   This is the one thing here that must be readable at arm's length by
+   somebody who is not at their best. */
+.nw-steps {
+  margin: 0;
+  padding: 6px 0;
+  list-style: none;              /* the disc below replaces the marker */
+  background: var(--paper2);
+  border: 1.5px solid var(--gm);
+  border-radius: 13px;
+}
+
+.nw-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 11px 16px;
+}
+/* A hairline between steps, never under the last one. */
+.nw-step + .nw-step { border-top: 1px solid var(--line); }
+
+/* ⚠️ aria-hidden in the markup. The <ol> already tells a screen reader
+   this is item one of four; the visible digit is the same fact drawn
+   again for the eye, and reading "1 Call Rob" twice is noise. */
+.nw-stepn {
+  flex: none;
+  width: 24px;
+  height: 24px;
+  margin-top: 1px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Archivo', system-ui, sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: #fff;
+  background: var(--gd);
+  border-radius: 50%;
+}
+
+.nw-stept {
+  font-size: 18px;
+  line-height: 1.4;
+  color: var(--gt);
+  overflow-wrap: anywhere;
+}
