@@ -1,0 +1,98 @@
+/* =====================================================================
+   YOUR PLAN.  7 Sept.  Migration 0146.
+
+   Every figure below was RUN before this comment was written. Four
+   contrast numbers were typed from memory on 5 Sept and all four were
+   wrong; two on 2 Sept were under the floor while the comment beside
+   them said they passed.
+
+     --gt    on --gl      10.80   the privacy note
+     --gm-t  on --gl       5.38   its second line
+     --gt    on --paper   11.61   a field label
+     --soft  on --paper    4.87   the hint under a label
+     --body  on white     16.02   what you actually type
+     #FFFFFF on --gd       6.46   Save my plan
+     --gm    on white      4.22   the box edge (non-text, floor 3.0)
+     --gm-t  on --paper    5.78   the saved confirmation
+     #8A2B2B on --paper    8.12   the error line
+
+   ⚠️ 16px ON THE TEXTAREAS, AND IT IS NOT A STYLE CHOICE. Anything
+   under 16px makes iOS zoom the whole page on focus. The wall composer
+   sat at 13.5px for weeks doing exactly that, and Ty reported it as
+   "you can barely read them" on 5 Sept. Seven boxes on one page makes
+   it seven times worse.
+
+   ⚠️ Own file, not appended to wall.css — that file is 71KB and
+   silently failed to upload three deploys running on 23 Aug.
+
+   ⚠️ Prefix pn-. Checked against all 25 stylesheets: no collisions.
+   ===================================================================== */
+
+.pn-note {
+  padding: 14px 16px;
+  margin: 0 0 1.4rem;
+  background: var(--gl);
+  border: 1.5px solid var(--gm);
+  border-radius: 13px;
+}
+.pn-note p { margin: 0; font-size: 15px; line-height: 1.55; color: var(--gt); }
+.pn-note2 { margin-top: 0.5rem !important; font-size: 13px !important; color: var(--gm-t) !important; }
+
+.pn-f { margin: 0 0 1.5rem; }
+
+.pn-lbl {
+  display: block;
+  font-family: 'Archivo', system-ui, sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--gt);
+}
+
+/* ⚠️ --soft, not --gm: a mid-green measures 4.02 on paper and this is
+   small text. theme-green.css labels --gm DECORATION ONLY. */
+.pn-hint {
+  margin: 0.2rem 0 0.5rem;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--soft);
+}
+
+.pn-in {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 11px 12px;
+  font: inherit;
+  font-size: 16px;          /* 🔴 see the note above — iOS zoom */
+  line-height: 1.5;
+  color: var(--body);
+  background: var(--paper2);
+  border: 1.5px solid var(--gm);
+  border-radius: 11px;
+  resize: vertical;
+}
+.pn-in:focus { outline: none; border-color: var(--gd); box-shadow: 0 0 0 3px var(--gl); }
+
+.pn-save {
+  width: 100%;
+  min-height: 50px;
+  font: inherit;
+  font-size: 16px;
+  font-weight: 700;
+  color: #fff;
+  background: var(--gd);
+  border: 0;
+  border-radius: 12px;
+  cursor: pointer;
+}
+.pn-save:disabled { opacity: 0.55; cursor: default; }
+.pn-save:focus-visible { outline: 3px solid var(--gd); outline-offset: 3px; }
+
+.pn-ok  { margin: 0.8rem 0 0; font-size: 14px; color: var(--gm-t); }
+.pn-err { margin: 0.8rem 0 0; font-size: 14px; color: #8A2B2B; }
+
+.pn-fine {
+  margin: 1.6rem 0 0;
+  font-size: 13px;
+  color: var(--soft);
+}
