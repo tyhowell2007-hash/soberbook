@@ -1732,3 +1732,37 @@ textarea:focus-visible{ outline:4px solid var(--x); outline-offset:3px; }
   font-size: 13px;
   color: var(--soft);
 }
+
+/* ---------- a heart on a reply  ·  7 Sept -----------------------------
+   Sits in the reply's meta row, left of the ⋯, so the two actions on a
+   reply are together.
+
+   🔴 CALLED .cheart, NOT .rheart, AND THAT IS NOT A STYLE CHOICE. .rheart
+   is already the ROOM message heart in friends.css (0129), and wall.css
+   is imported by the ROOT layout — so it loads on /friends too and the
+   two rules would fight, with load order deciding whose heart worked.
+   That is the .composer collision from 16 Aug exactly. Caught by the
+   collision check before this shipped, not after. Measured, not recalled:
+     --soft on white   5.12   the resting outline
+     #8A2B2B on white  8.53   the filled heart (the 988 clay, already in use)
+   🔴 CONTROL: --line on white is 1.27 and would be invisible.
+   ⚠️ 32x44 — narrower than 44 wide because it sits beside the ⋯ in a
+   tight row, but the full 44 tall, which is the dimension a thumb
+   misses on. Same compromise the room heart makes. */
+.cheart {
+  margin-left: auto;
+  min-width: 32px;
+  min-height: 44px;
+  padding: 0 6px;
+  font: inherit;
+  font-size: 13px;
+  color: var(--soft);
+  background: none;
+  border: 0;
+  cursor: pointer;
+  line-height: 1;
+}
+.cheart.on { color: #8A2B2B; }
+.cheart:focus-visible { outline: 3px solid var(--gd); outline-offset: 2px; }
+/* Your own reply: the count, never a button. */
+.cheartmine { cursor: default; color: #8A2B2B; }
