@@ -206,11 +206,36 @@ export default function Rows({ initial, askPush: askPushInitial }) {
            can't have a destination, it must not be in my_nav_dots — a dot
            you cannot clear trains people to ignore the dot, which costs
            far more than the notification was ever worth. */
+        /* 🔴 AND IT HAPPENED AGAIN, ONE KIND ALONG — 6 Sept.
+
+           0131 let members tag each other inside a talk room. A room
+           mention has NO post: notify_mention_in() writes post_id NULL
+           and talk_room_id = the room. So it fell past both branches
+           above, rendered as a plain <div>, and became exactly the dot
+           this comment was written about — unread forever, counted by
+           my_nav_dots.home, with nothing anywhere able to clear it.
+
+           Measured today: 2 unread room mentions, both belonging to one
+           member (theproducermicro), both from 5 Sept. Twenty-eight
+           hours of a green dot he could do nothing with.
+
+           ⭐ THE ADDRESS ALREADY EXISTED. /friends?room=<slug> was built
+           on 2 Sept so a creator could link straight into the 7-OH room,
+           and my_notifications has returned room_slug since 0132. The
+           only missing piece was this branch and the column in page.jsx's
+           select. FOURTEENTH "everything built except the way in".
+
+           ⚠️ So the rule in this file needs its second half stated: a
+           kind is not finished when the row has somewhere to go IN
+           PRINCIPLE. It is finished when the query actually FETCHES the
+           field that points there. A destination nobody selected is the
+           same as no destination at all. */
         const href =
           n.kind === 'message' && n.thread_id ? `/chat/${n.thread_id}` :
           (n.kind === 'reply' || n.kind === 'mention' ||
            n.kind === 'highlight' || n.kind === 'drop') && n.post_id
             ? `/p/${n.post_id}` :
+          n.kind === 'mention' && n.room_slug ? `/friends?room=${n.room_slug}` :
           null;
 
         const icon = n.kind === 'message' ? '✉️'
