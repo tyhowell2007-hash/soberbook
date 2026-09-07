@@ -313,17 +313,35 @@
 .pl-crave {
   flex: 1 1 0;
   min-width: 0;
-  min-height: 44px;
-  padding: 0 4px;
+  /* ⚠️ 56px, not 44. The chip carries two lines now — a face and the word
+     under it — and 44px would crush them together. The floor is still the
+     tap target; this is above it. */
+  min-height: 56px;
+  padding: 5px 3px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
   font: inherit;
-  font-size: 13px;
-  font-weight: 600;
   color: var(--gt);
   background: var(--paper2);
   border: 1.5px solid var(--gm);
   border-radius: 10px;
   cursor: pointer;
 }
+
+/* 🔴 THE FACE IS DECORATION ON A WORD, NEVER A REPLACEMENT FOR IT. It is
+   aria-hidden in the markup, so a screen reader hears "None" and not
+   "relieved face". Removing .pl-craveword would leave five emoji that
+   nothing can read and that no two people would rank the same way. */
+.pl-craveface { font-size: 17px; line-height: 1; }
+
+/* ⚠️ 12px, not 11. Ty on 5 Sept: "you can barely read them." Measured with
+   the real Archivo: the widest word is "Strong" at 37px inside a 58px chip
+   on a 375px screen, so 12px clears with 10px of slack. Sized to the
+   WIDEST state, not to "None". */
+.pl-craveword { font-size: 12px; font-weight: 600; line-height: 1.1; }
 
 .pl-crave.on {
   color: #fff;
