@@ -37,7 +37,25 @@ const FIELDS = [
    'What you want the next morning to look like. Written now, while it is easy to be kind about it.'],
 ];
 
+/* 🔴 SIX, AND THE CAP IS ENFORCED IN THE DATABASE TOO (0147). This
+   number is the UI's copy of a rule that lives in craving_steps_ok() —
+   if it ever changes, it changes in both places or the form silently
+   offers a seventh box that will not save. The database is the one that
+   decides; this is only how many boxes get drawn. */
+const SLOTS = 6;
+
 export default function PlanForm({ initial }) {
+  /* Six fixed boxes, pre-filled from whatever is stored. Fixed rather
+     than add-a-row: an empty box is an invitation, and an "add another"
+     button is a thing to find. */
+  const [steps, setSteps] = useState(() => {
+    const a = (initial && initial.craving_steps) || [];
+    return Array.from({ length: SLOTS }, (_, i) => a[i] || '');
+  });
+  const [sbusy, setSbusy] = useState(false);
+  const [sok, setSok] = useState(false);
+  const [serr, setSerr] = useState('');
+
   const [v, setV] = useState(() => {
     const start = {};
     for (const [k] of FIELDS) start[k] = (initial && initial[k]) || '';
@@ -55,6 +73,44 @@ export default function PlanForm({ initial }) {
   function set(k, val) {
     setV((prev) => ({ ...prev, [k]: val }));
     setSaved(false);
+  }
+
+  /* ⚠️ THE UPDATER FORM AGAIN — see the note on set() below. Six boxes
+     is exactly the shape that produced the survey bug on 2 Sept. */
+  function setStep(i, val) {
+    setSteps((prev) => {
+      const next = prev.slice();
+      next[i] = val;
+      return next;
+    });
+    setSok(false);
+  }
+
+  async function saveSteps() {
+    setSbusy(true);
+    setSerr('');
+    try {
+      /* Blanks are dropped here AND in the function. Somebody who fills
+         boxes 1, 2 and 5 means three steps, not two gaps. */
+      const clean = steps.map((x) => x.trim()).filter(Boolean);
+      const { error } = await browserClient()
+        .rpc('save_my_craving_steps', { p_steps: clean });
+      if (error) {
+        setSerr(/too long/i.test(error.message || '')
+          ? 'One of those is too long to fit on the screen.'
+          : 'That didn’t save. Try once more?');
+      } else {
+        setSok(true);
+        /* Re-seed from what was actually kept, so the boxes show the
+           deduplicated, capped list the database really holds rather
+           than what was typed. A form that lies about what it saved is
+           worse than one that refuses. */
+        setSteps(Array.from({ length: SLOTS }, (_, i) => clean[i] || ''));
+      }
+    } catch {
+      setSerr('That didn’t save. Try once more?');
+    }
+    setSbusy(false);
   }
 
   async function save() {
@@ -102,6 +158,45 @@ export default function PlanForm({ initial }) {
           <p className="pn-note2">It’s here so that on a bad night the app can
              show you your own words instead of somebody else’s advice.</p>
         </div>
+
+        {/* ---------------- THE CRAVING PLAN, FIRST ----------------
+            ⭐ Above the seven boxes because it is the one most likely to
+            get finished, and the one /now puts in front of somebody at
+            3am. See plan.css for why it has its own Save. */}
+        <div className="pn-steps">
+          <label className="pn-lbl" htmlFor="pn-s0">When a craving hits, do this</label>
+          <p className="pn-hint">
+            A few short things that work for you, in the order you&apos;d do them.
+            These go at the top of Right now — so on a bad night you start at
+            number one instead of deciding anything.
+          </p>
+          {steps.map((val, i) => (
+            <div className="pn-srow" key={i}>
+              <span className="pn-sn" aria-hidden="true">{i + 1}</span>
+              <input
+                id={`pn-s${i}`}
+                className="pn-sin"
+                type="text"
+                /* 🔴 80 matches the database's limit exactly. The box
+                   cannot hold something the database will refuse — the
+                   30 Aug handle lesson: the fix is not a better error
+                   message, it is a field that can't be wrong. */
+                maxLength={80}
+                value={val}
+                aria-label={`Step ${i + 1}`}
+                placeholder={i === 0 ? 'Call someone' : i === 1 ? 'Get out of the house' : ''}
+                onChange={(e) => setStep(i, e.target.value)}
+              />
+            </div>
+          ))}
+          <button type="button" className="pn-ssave" disabled={sbusy} onClick={saveSteps}>
+            {sbusy ? 'Saving…' : 'Save my list'}
+          </button>
+          {sok && !serr && <p className="pn-ok">Saved. It’s at the top of Right now.</p>}
+          {serr && <p className="pn-err">{serr}</p>}
+        </div>
+
+        <hr className="pn-shr" />
 
         {FIELDS.map(([k, label, hint]) => (
           <div className="pn-f" key={k}>
