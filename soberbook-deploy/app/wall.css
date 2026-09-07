@@ -1679,3 +1679,56 @@ textarea:focus-visible{ outline:4px solid var(--x); outline-offset:3px; }
   border-radius:999px; background:rgba(0,0,0,.66); color:#fff;
   font-size:13px; line-height:1; cursor:pointer; padding:0;
 }
+
+/* ---------- support / strength  ·  7 Sept, migrations 0149-0150 -------
+
+   Ty's ask, off a competitor's feed. Its own row above .ft, because that
+   footer already carries the heart, the reply invitation and the dots,
+   and two more controls on a 375px phone wraps into mush.
+
+   Every figure below was RUN earlier today against these same variables,
+   not recalled:
+     --gt   on white  12.20   the resting label
+     --gm   on white   4.22   the edge (non-text floor 3.0)
+     #fff   on --gd    6.46   the label once it is on
+     --soft on white   5.12   the counts on your own post
+   🔴 CONTROL: --line on white is 1.27 and would be an invisible edge —
+   the fill-against-fill trap from 17 Aug. The check can still fail, so
+   the numbers above are worth something.
+
+   ⚠️ 44px MINIMUM. These sit directly under somebody's worst night and a
+   mis-tap sends the wrong thing to a real person. */
+.reactrow {
+  display: flex;
+  gap: 8px;
+  margin: 10px 0 0;
+}
+
+.react {
+  flex: 1;
+  min-height: 44px;
+  padding: 0 8px;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--gt);
+  background: var(--paper2);
+  border: 1.5px solid var(--gm);
+  border-radius: 999px;
+  cursor: pointer;
+}
+.react.on {
+  color: #fff;
+  background: var(--gd);
+  border-color: var(--gd);
+}
+.react:focus-visible { outline: 3px solid var(--gd); outline-offset: 2px; }
+
+/* 🔴 Your own post shows the COUNTS and no buttons — you cannot react to
+   yourself, and the author is exactly who needs to see that somebody
+   showed up. Quiet type: this is a fact, not a thing to do. */
+.reactmine {
+  gap: 14px;
+  font-size: 13px;
+  color: var(--soft);
+}
