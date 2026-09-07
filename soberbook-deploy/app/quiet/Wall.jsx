@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { browserClient } from '../../lib/supabase-browser';
+import { plainError } from '../../lib/plain-error';
 import Practice, { PRACTICES } from './Practice';
 
 /* =====================================================================
@@ -72,7 +73,14 @@ export default function Wall({ answers, mine }) {
     setBusy(true); setErr('');
     const supabase = browserClient();
     const { error } = await supabase.rpc('set_my_higher_power', { answer: t, anonymous: anon });
-    if (error) { setErr(error.message); setBusy(false); return; }
+    /* 🔴 NOT error.message. Proven live: a body outside 2..280 comes back
+       as `new row for relation "higher_powers" violates check constraint
+       "higher_powers_body_check"`, and this is the page where somebody
+       writes about their daughter or their god. Meeting a Postgres
+       constraint name here is the app breaking character at the worst
+       possible moment. plainError() passes our own refusals through and
+       replaces anything Postgres wrote. */
+    if (error) { setErr(plainError(error)); setBusy(false); return; }
     /* Reload rather than patching the list by hand. The row has to come
        back THROUGH THE VIEW — that's what decides whether it carries an
        alias or a name, and what the day count is. Building the new card
@@ -84,7 +92,7 @@ export default function Wall({ answers, mine }) {
     setBusy(true); setErr('');
     const supabase = browserClient();
     const { error } = await supabase.rpc('clear_my_higher_power');
-    if (error) { setErr(error.message); setBusy(false); return; }
+    if (error) { setErr(plainError(error)); setBusy(false); return; }
     window.location.reload();
   }
 
