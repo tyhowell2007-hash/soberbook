@@ -100,6 +100,35 @@ const BUCKETS = [
      above demands, and it was done in that order. Verified: both paths of
      a two-photo message come back from referenced_media(). */
   { bucket: 'room-photos', prefix: 'rooms',   grace: GRACE_HOURS },
+  /* 🔴 THE SAME OMISSION, FOUR MORE TIMES — found 6 Sept, before it cost
+     anything. 0133/0135 shipped pictures and video into replies, direct
+     messages and the rooms, with four new buckets:
+
+         comment-photos / comments      dm-photos / dms
+         room-videos    / roomvids      dm-videos / dmvids
+
+     None of them was added here. All four hold 0 files today, so nothing
+     has leaked yet — but every one of them orphans the same two ways the
+     room photos did: a delete whose file removal failed, and a picture
+     staged in the tray and then taken off before sending. Left alone
+     they would accumulate silently and forever, and egress on this
+     project has already touched 159% of the free tier once.
+
+     ⭐ ADDING THEM IS SAFE ONLY BECAUSE THE HARD HALF WAS ALREADY DONE IN
+     THE RIGHT ORDER. referenced_media() has known about comments.
+     photo_urls, messages.photo_urls/video_url and room_messages.video_url
+     since 0136 — which was written deliberately BEFORE any picker
+     existed. Verified today by reading the live function, not by
+     assuming: all twelve unions are present.
+
+     ⚠️ The order is the whole safety rule and it does not bend: never
+     add a bucket to this list without first confirming its columns are
+     in referenced_media(). An incomplete answer there does not look like
+     an error. It looks like a helpful list of files to delete. */
+  { bucket: 'comment-photos', prefix: 'comments', grace: GRACE_HOURS },
+  { bucket: 'dm-photos',      prefix: 'dms',      grace: GRACE_HOURS },
+  { bucket: 'room-videos',    prefix: 'roomvids', grace: GRACE_HOURS },
+  { bucket: 'dm-videos',      prefix: 'dmvids',   grace: GRACE_HOURS },
 ];
 
 /* Supabase's list() is paginated and folder-scoped. It also returns a
