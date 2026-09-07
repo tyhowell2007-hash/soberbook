@@ -108,7 +108,13 @@ export default async function ProfilePage({ params }) {
      exactly this reason. The null IS the rule. */
   const { data: theirPosts } = await supabase
     .from(assertReadable('feed_posts'))
-    .select('id, body, photo_url, photo_urls, video_url, created_at, like_count, comment_count')
+    /* 🔴 support_count/strength_count, NOT like_count. The ♥ this page
+       used to print came from `likes`, which was RETIRED on 7 Sept when
+       Support took the heart. Leaving it here meant the wall said
+       "❤️ Support 3" and the profile said "· 3 ♥" for the same post, from
+       two different tables — the app disagreeing with itself about the
+       same fact. Found because Ty looked at his own profile. */
+    .select('id, body, photo_url, photo_urls, video_url, created_at, support_count, strength_count, comment_count')
     .eq('author_handle', p.handle)
     .order('created_at', { ascending: false })
     .limit(30);
@@ -312,7 +318,13 @@ export default async function ProfilePage({ params }) {
                 <div className="mm">
                   {new Date(t.created_at).toLocaleDateString('en-US',
                     { month: 'short', day: 'numeric' })}
-                  {t.like_count > 0 ? ` · ${t.like_count} ♥` : ''}
+                  {/* ⚠️ Counts, not buttons. This is a compact list of a
+                      member's posts, not a feed of cards — a tappable
+                      control in a one-line summary row is a mis-tap
+                      waiting to happen. You react on the post itself.
+                      🔴 Never a zero, same as everywhere else. */}
+                  {t.support_count > 0 ? ` · ❤️ ${t.support_count}` : ''}
+                  {t.strength_count > 0 ? ` · 🤝 ${t.strength_count}` : ''}
                   {t.comment_count > 0
                     ? ` · ${t.comment_count} ${t.comment_count === 1 ? 'reply' : 'replies'}`
                     : ''}
