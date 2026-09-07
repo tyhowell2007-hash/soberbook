@@ -53,7 +53,11 @@ export default function Thread({ post, onClose, onCountChange }) {
      are trying not to be named. The @ still works if they type it. */
   const boxRef = useRef(null);
   const people = useTaggablePeople();
-  const tag = useTagBox({ text, setText, boxRef, people, enabled: !anon });
+  /* ⚠️ canHighlight is `!anon`, not `true`. An announcement carries your
+     handle to every member, so an anonymous reply cannot make one — the
+     database refuses it and the strip must agree, or the menu offers a
+     button that is going to be turned down. Same call the Wall makes. */
+  const tag = useTagBox({ text, setText, boxRef, people, enabled: !anon, canHighlight: !anon });
   /* Pictures staged for this reply, and the emoji sheet. */
   const [tray, setTray] = useState([]);
   const [upBusy, setUpBusy] = useState(false);
@@ -300,6 +304,18 @@ export default function Thread({ post, onClose, onCountChange }) {
               Wall can afford to put it underneath because its composer is
               at the TOP of the page. Same menu, opposite direction. */}
           {tag.menu}
+          {/* ⭐ THE CONFIRMATION, 7 Sept. The Wall composer has shown this
+              chip since 5 Sept; the reply box showed nothing, so you typed
+              @highlight and had no sign it had registered until after you
+              pressed Reply — and for three days it hadn't registered at
+              all. Now the word says so while you are still writing.
+              ⚠️ It is a claim about INTENT ("this will go to everybody"),
+              not about outcome. Whether it actually went out is answered
+              afterwards by the pill on the posted reply, which comes from
+              the database (0141) and never from the text. */}
+          {tag.highlighting && (
+            <div className="athlnote">@highlight · everybody</div>
+          )}
           <EmojiPicker open={emoji} onClose={() => setEmoji(false)} onPick={tag.insertEmoji} />
           {tray.length > 0 && (
             <div className="rtray">
