@@ -4,9 +4,11 @@ import { useEffect, useRef, useState } from 'react';
 import { browserClient } from '../../lib/supabase-browser';
 import { Body, Player } from '../components/Linked';
 import { useTagBox, useTaggablePeople, tellThemTheyWereTagged } from '../components/TagBox';
+import { saysHighlight } from '../../lib/mentions';
 import PhotoUpload from '../components/PhotoUpload';
 import EmojiPicker from '../friends/EmojiPicker';
 import ReplyMenu from './ReplyMenu';
+import Shot from '../components/Shot';
 
 /* A post, opened.
    ==========================================================================
@@ -57,6 +59,9 @@ export default function Thread({ post, onClose, onCountChange }) {
   const [upBusy, setUpBusy] = useState(false);
   const [emoji, setEmoji] = useState(false);
   const [urls, setUrls] = useState({});     // path -> signed link
+  /* Which replies actually reached everybody — the DATABASE's answer, not
+     the text's. See the note by the fetch in load(). */
+  const [didBroadcast, setDidBroadcast] = useState(new Set());
 
   async function load() {
     const { data, error } = await supabase
@@ -66,6 +71,23 @@ export default function Thread({ post, onClose, onCountChange }) {
       .order('created_at', { ascending: true });
     if (error) setErr(error.message);
     setRows(data || []);
+
+    /* 🔴 ASK THE DATABASE WHICH REPLIES BROADCAST — never re-read the text.
+       saysHighlight() answers "did somebody ASK for it", which is a
+       different question and the one that made today so confusing: the word
+       sat in Ty's reply looking exactly like the ones that had worked.
+       comments_that_broadcast() (0141) answers "did it HAPPEN", and it is
+       the only thing allowed to draw the pill. Same rule 0139 set for posts.
+
+       ⚠️ Swallowed on failure — a missing pill is cosmetic, a thread that
+       won't open is not. */
+    try {
+      const ids = (data || []).map((c) => c.id);
+      if (ids.length) {
+        const { data: hl } = await supabase.rpc('comments_that_broadcast', { p_ids: ids });
+        setDidBroadcast(new Set((hl || []).map((r) => (typeof r === 'string' ? r : r.id))));
+      }
+    } catch { /* no pill, still a thread */ }
 
     /* 🔴 ASK FOR THE PICTURES. feed_comments hands back paths, not links —
        a path nobody asks to sign never gets a URL and renders as nothing.
@@ -84,25 +106,9 @@ export default function Thread({ post, onClose, onCountChange }) {
     }
   }
 
-  /* 🔴 A DEAD SIGNED URL REPAIRS ITSELF, ONCE. A signed link lives an
-     hour and 0078 reuses it for fifty minutes, so a sheet left open goes
-     stale and every picture below the fold 404s. ⚠️ ONE retry per path,
-     ever: without the guard a genuinely deleted file asks, fails, and
-     asks again forever — a broken picture is a small bug, a browser
-     hammering our own endpoint in a loop is our outage. (5 Sept, Wall.) */
-  const retried = useRef(new Set());
-  async function reSign(path) {
-    if (!path || retried.current.has(path)) return;
-    retried.current.add(path);
-    try {
-      const res = await fetch('/api/photo/sign', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ paths: [path] }),
-      });
-      const { urls: fresh } = await res.json();
-      if (fresh && fresh[path]) setUrls((u) => ({ ...u, [path]: fresh[path] }));
-    } catch { /* a missing picture beats an error banner */ }
-  }
+  /* ⚠️ The local reSign() was DELETED, not left alongside — <Shot> owns
+     the one-retry rule now, and 0049's lesson is that the fix is to
+     remove a copy rather than update it. */
 
   useEffect(() => { load(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [post.id]);
 
@@ -153,6 +159,31 @@ export default function Thread({ post, onClose, onCountChange }) {
          reply is already saved; a notification that doesn't fire must not
          be able to make it look like the reply didn't land. */
       tellThemTheyWereTagged('comment', commentId, named);
+
+      /* 🔴 @highlight FROM A REPLY — 6 Sept, and it never worked here before.
+         Ty typed it into this box three times today and got silence every
+         time: no broadcast, no pill, no error. The word was only ever wired
+         to the Wall composer, while THIS box says "Say something… @ to tag"
+         and looks like it should take it.
+
+         ⚠️ saysHighlight is imported from lib/mentions — the same function
+         Wall.jsx asks and the same string Linked.jsx draws the pill from.
+         Three callers, one rule. A local copy here is exactly how the
+         0046→0049 drift happened and it would be worse than silence: the
+         reply would broadcast to 224 people while the thread showed nothing.
+
+         ⚠️ `!anon` mirrors the database, which refuses an anonymous
+         broadcast outright. Asking and being refused is worse than not
+         asking, so the client doesn't ask. */
+      if (!anon && saysHighlight(body || '')) {
+        const { data: reached, error: hErr } =
+          await supabase.rpc('highlight_comment', { p_comment_id: commentId });
+        /* ⭐ AND IT SAYS SO EITHER WAY. The real fault today was not the
+           regex — it was that nothing on screen ever said whether the
+           announcement went out. Silence is what cost three attempts. */
+        if (hErr) setErr(`Replied. ${hErr.message}`);
+        else if (reached > 0) setErr(`Replied, and everybody was told — ${reached} members.`);
+      }
 
       setText('');
       setTray([]);
@@ -226,14 +257,13 @@ export default function Thread({ post, onClose, onCountChange }) {
                   itself instead of showing broken frames (5 Sept). */}
               {(c.photo_urls || []).filter(Boolean).length > 0 && (
                 <div className="rpics">
-                  {(c.photo_urls || []).filter(Boolean).map((p) => (urls[p] ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img key={p} src={urls[p]} alt="" className="rpic" loading="lazy"
-                         onError={() => reSign(p)} />
-                  ) : null))}
+                  {(c.photo_urls || []).filter(Boolean).map((p) => (
+                    <Shot key={p} path={p} src={urls[p]} alt="" className="rpic"
+                          onFixed={(k, u) => setUrls((m) => ({ ...m, [k]: u }))} />
+                  ))}
                 </div>
               )}
-              {c.body && <p className="rbody"><Body text={c.body} tags={people} /></p>}
+              {c.body && <p className="rbody"><Body text={c.body} tags={people} hl={didBroadcast.has(c.id)} /></p>}
               {/* 🔴 THE ACTUAL LINK TY ASKED ABOUT WAS IN A COMMENT, not a
                   post — which is exactly why my first database search for
                   it came back empty. Comments carry links too. */}
