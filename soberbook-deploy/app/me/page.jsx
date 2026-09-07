@@ -56,7 +56,10 @@ export default async function MePage() {
      column the whole anonymity design exists to withhold. */
   const { data: mine } = await supabase
     .from(assertReadable('feed_posts'))
-    .select('id, body, photo_url, photo_urls, video_url, created_at, is_anonymous, comment_count')
+    /* ⭐ support_count/strength_count added 7 Sept. Your own posts show
+       the COUNTS — you cannot react to yourself, and the author is
+       exactly who needs to see that somebody showed up. */
+    .select('id, body, photo_url, photo_urls, video_url, created_at, is_anonymous, support_count, strength_count, comment_count')
     .eq('is_mine', true)
     .order('created_at', { ascending: false })
     .limit(50);
