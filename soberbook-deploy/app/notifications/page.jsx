@@ -52,7 +52,19 @@ export default async function NotificationsPage() {
 
   const { data: rows } = await supabase
     .from(assertReadable('my_notifications'))
-    .select('id, kind, created_at, unread, post_id, thread_id, who, who_handle, about')
+    /* 🔴 room_slug ADDED 6 Sept, AND ITS ABSENCE WAS THE WHOLE BUG.
+       my_notifications has returned it since 0132 — it LEFT JOINs rooms
+       on talk_room_id specifically so a mention made in a talk room can
+       be opened. This explicit column list never asked for it, so the
+       field arrived undefined and Rows.jsx could not build an href.
+       A mention in a room therefore rendered as a plain <div> with no
+       link, no onClick, and no reachable markRead() — while my_nav_dots
+       counts unread mentions toward the Home dot. Two members' dots have
+       been lit since 5 Sept with nothing in the app able to put them out.
+       ⚠️ Character-for-character the 3 Sept stuck-highlight bug, one kind
+       along. The destination and the reader both already existed; only
+       the field connecting them was missing from this line. */
+    .select('id, kind, created_at, unread, post_id, thread_id, who, who_handle, about, room_slug')
     .order('created_at', { ascending: false })
     .limit(100);
 
