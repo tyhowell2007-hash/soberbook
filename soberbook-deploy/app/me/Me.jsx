@@ -23,6 +23,7 @@ import Blocked from './Blocked';
 import PushSwitch from '../components/PushSwitch';
 import EmailSwitch from '../components/EmailSwitch';
 import PledgeRecord from './PledgeRecord';
+import Shot from '../components/Shot';
 
 /* The faces you can pick from.
 
@@ -1899,8 +1900,8 @@ export default function Me({ email, profile, posts, initialAvatarUrl,
                   return (
                     <div className="pgrid" data-n={Math.min(shots.length, 4)}>
                       {shots.map((s, i) => (
-                        <img key={s} src={postPhotoUrls[s]} loading="lazy"
-                             alt={`Photo ${i + 1} of ${shots.length}`} />
+                        <Shot key={s} path={s} src={postPhotoUrls[s]}
+                              alt={`Photo ${i + 1} of ${shots.length}`} />
                       ))}
                     </div>
                   );
@@ -1908,7 +1909,7 @@ export default function Me({ email, profile, posts, initialAvatarUrl,
                 {(!Array.isArray(p.photo_urls) || p.photo_urls.length < 2)
                   && p.photo_url && postPhotoUrls[p.photo_url] && (
                   <div className="mphoto">
-                    <img src={postPhotoUrls[p.photo_url]} alt="" loading="lazy" />
+                    <Shot path={p.photo_url} src={postPhotoUrls[p.photo_url]} alt="" />
                   </div>
                 )}
                 {p.video_url && postPhotoUrls[p.video_url] && (
