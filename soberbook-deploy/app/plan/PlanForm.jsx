@@ -93,7 +93,7 @@ export default function PlanForm({ initial }) {
       /* Blanks are dropped here AND in the function. Somebody who fills
          boxes 1, 2 and 5 means three steps, not two gaps. */
       const clean = steps.map((x) => x.trim()).filter(Boolean);
-      const { error } = await browserClient()
+      const { data, error } = await browserClient()
         .rpc('save_my_craving_steps', { p_steps: clean });
       if (error) {
         setSerr(/too long/i.test(error.message || '')
@@ -101,11 +101,16 @@ export default function PlanForm({ initial }) {
           : 'That didn’t save. Try once more?');
       } else {
         setSok(true);
-        /* Re-seed from what was actually kept, so the boxes show the
-           deduplicated, capped list the database really holds rather
-           than what was typed. A form that lies about what it saved is
-           worse than one that refuses. */
-        setSteps(Array.from({ length: SLOTS }, (_, i) => clean[i] || ''));
+        /* 🔴 RE-SEED FROM WHAT THE DATABASE RETURNED, NEVER FROM `clean`.
+           `clean` only drops blanks; DEDUPLICATION HAPPENS IN THE
+           FUNCTION. Seeding from it showed four lines on screen while
+           the table held three — caught on the live page, not in a test.
+           That is the 0046 -> 0049 drift: the rule was implemented in
+           SQL and restated here, and the restatement was wrong the day
+           it was written. The client does not get to have an opinion
+           about what was saved; it renders what came back. */
+        const kept = Array.isArray(data) ? data : [];
+        setSteps(Array.from({ length: SLOTS }, (_, i) => kept[i] || ''));
       }
     } catch {
       setSerr('That didn’t save. Try once more?');
