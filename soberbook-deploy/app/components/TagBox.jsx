@@ -59,7 +59,7 @@
    ===================================================================== */
 
 import { useEffect, useRef, useState } from 'react';
-import { activeQuery, suggest, buildIndex, findMentions } from '../../lib/mentions';
+import { activeQuery, suggest, buildIndex, findMentions, saysHighlight } from '../../lib/mentions';
 /* 🔴 browserClient(), NOT a `supabase` named export — THERE ISN'T ONE.
    This file first said `import { supabase } from '../../lib/supabase-browser'`.
    That module exports browserClient(), READABLE_VIEWS and assertReadable and
@@ -117,7 +117,24 @@ export function useTaggablePeople(enabled = true) {
    similar display names. */
 const DEFAULT_NOTE = (f) => '@' + f.handle;
 
-export function useTagBox({ text, setText, boxRef, people, enabled = true, noteFor = DEFAULT_NOTE }) {
+/* 🔴 canHighlight IS OFF BY DEFAULT, AND THAT DEFAULT IS THE SAFETY.
+
+   7 Sept. Ty: the @ menu lists members, and @highlight — the one @name
+   that reaches all 231 people — was never in it. You had to already know
+   the word and type it perfectly. He asked for it in the menu.
+
+   ⚠️ BUT IT MUST ONLY APPEAR WHERE IT ACTUALLY DOES SOMETHING. There is
+   a highlight_post() and a highlight_comment(); there is NO
+   highlight_room_message, and chat deliberately raises no notification
+   at all. So in the rooms and in a DM the word is a no-op — offering it
+   there would build the exact bug this whole thread was about: a control
+   that looks like it works and silently doesn't. Three files call this
+   hook and only ONE passes canHighlight.
+
+   ⚠️ Which is why it defaults to false rather than true. A new composer
+   added later gets silence, not a broken promise. */
+export function useTagBox({ text, setText, boxRef, people, enabled = true,
+                            canHighlight = false, noteFor = DEFAULT_NOTE }) {
   const [caret, setCaret] = useState(0);
   const [pick, setPick] = useState(0);
   const [dir, setDir] = useState([]);
@@ -177,6 +194,39 @@ export function useTagBox({ text, setText, boxRef, people, enabled = true, noteF
     });
   }
 
+  /* ⭐ THE HIGHLIGHT STRIP — Ty picked this shape off a mockup, 7 Sept.
+
+     Shown while the @ menu is open and what has been typed so far is
+     still a prefix of "highlight" — so it is there on a bare `@`, stays
+     through `@h`, `@hi`, `@hig`, and leaves the moment you are clearly
+     naming a person.
+
+     🔴 IT IS DELIBERATELY NOT PART OF `options`, AND THAT IS THE WHOLE
+     DESIGN. Ty was shown a version pinned as the first menu row and
+     rejected it for the reason it was drawn with: `pick` starts at 0 and
+     Enter/Tab chooses options[pick], so typing "@ni" and hitting Enter
+     out of habit would insert @highlight instead of Nic. Keeping it out
+     of the array means the arrow keys and Enter can never reach it — it
+     is tap-only, which is the one input that cannot happen by accident.
+
+     ⚠️ Hidden once the word is already in the box. Offering it twice
+     would suggest a second one does something; it doesn't. */
+  const typedSoFar = ((q && q.typed) || '').toLowerCase();
+  const showHighlight = !!q && canHighlight && !saysHighlight(text)
+    && 'highlight'.startsWith(typedSoFar);
+
+  function chooseHighlight() {
+    if (!q) return;
+    const next = text.slice(0, q.at) + '@highlight ' + text.slice(caret);
+    setText(next);
+    const pos = q.at + '@highlight '.length;
+    setPick(0);
+    requestAnimationFrame(() => {
+      const el = boxRef.current;
+      if (el) { el.focus(); el.setSelectionRange(pos, pos); setCaret(pos); }
+    });
+  }
+
   const index = buildIndex(people || []);
   const { found, ambiguous, unmatched } = findMentions(enabled ? text : '', index);
 
@@ -212,7 +262,9 @@ export function useTagBox({ text, setText, boxRef, people, enabled = true, noteF
      puts it under the composer; the rooms and chat put it ABOVE the bar,
      because their composer is pinned to the bottom of the screen and a
      menu below it would be off-screen behind the keyboard. */
-  const menu = options.length > 0 ? (
+  const menu = (options.length > 0 || showHighlight) ? (
+    <>
+    {options.length > 0 && (
     <div className="atmenu" role="listbox" aria-label="Tag somebody">
       {options.map((f, i) => (
         <button type="button" key={f.handle} role="option"
@@ -227,6 +279,18 @@ export function useTagBox({ text, setText, boxRef, people, enabled = true, noteF
         </button>
       ))}
     </div>
+    )}
+    {showHighlight && (
+      /* ⚠️ onMouseDown, not onClick — same reason as the rows above: a
+         click fires after blur, and blur closes the menu, so the button
+         would be gone before the click landed. */
+      <button type="button" className="athl"
+              onMouseDown={(e) => { e.preventDefault(); chooseHighlight(); }}>
+        <b>@highlight</b>
+        <span>tell everybody</span>
+      </button>
+    )}
+    </>
   ) : null;
 
   /* 🙂 INSERTING AN EMOJI AT THE CARET, WRITTEN ONCE.
@@ -262,6 +326,12 @@ export function useTagBox({ text, setText, boxRef, people, enabled = true, noteF
     menu,
     inputProps,
     insertEmoji,
+    /* ⭐ So the caller can draw the confirming chip. The Wall has had one
+       since 5 Sept ("@highlight · everybody"); a reply had nothing at
+       all, so you typed the word and got no sign it had registered until
+       after you pressed Reply. That silence is most of what made this
+       feel broken for three days. */
+    highlighting: canHighlight && saysHighlight(text),
     options,
     handles: (found || []).map((m) => m.handle),
     mentions: found || [],
