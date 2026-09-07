@@ -8,6 +8,12 @@ import RowMenu from '../../friends/RowMenu';
 import FriendButton from './FriendButton';
 import { sinceFromCount } from '../../../lib/milestones';
 import { signPhotoPaths } from '../../../lib/sign-photos';
+/* 🔴 A CLIENT COMPONENT IMPORTED BY A SERVER PAGE, and that is allowed —
+   it is the DEFAULT export. What is not allowed is importing a NAMED
+   export from a client module here; Next turns those into client
+   references and calling one on the server throws (2 Sept, /wall down
+   fifteen minutes). Shot has exactly one export for that reason. */
+import Shot from '../../components/Shot';
 
 export const dynamic = 'force-dynamic';
 
@@ -285,8 +291,8 @@ export default async function ProfilePage({ params }) {
                   return (
                     <div className="pgrid" data-n={Math.min(shots.length, 4)}>
                       {shots.map((s, i) => (
-                        <img key={s} src={photos[s]} loading="lazy"
-                             alt={`Photo ${i + 1} of ${shots.length}`} />
+                        <Shot key={s} path={s} src={photos[s]}
+                              alt={`Photo ${i + 1} of ${shots.length}`} />
                       ))}
                     </div>
                   );
@@ -294,7 +300,7 @@ export default async function ProfilePage({ params }) {
                 {(!Array.isArray(t.photo_urls) || t.photo_urls.length < 2)
                   && t.photo_url && photos[t.photo_url] && (
                   <div className="mphoto">
-                    <img src={photos[t.photo_url]} alt="" loading="lazy" />
+                    <Shot path={t.photo_url} src={photos[t.photo_url]} alt="" />
                   </div>
                 )}
                 {t.video_url && photos[t.video_url] && (
