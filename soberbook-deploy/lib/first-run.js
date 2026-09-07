@@ -1,3 +1,4 @@
+import { plainError } from './plain-error';
 /* =====================================================================
    FIRST RUN — CREATING THE PROFILE ROW. ONE PLACE, TWO CALLERS.
 
@@ -119,7 +120,13 @@ export function explainProfileError(e) {
   if (/handle/i.test(m) && /check|constraint|invalid/i.test(m)) {
     return 'Handles can use letters, numbers and underscores, three characters or more.';
   }
-  return 'That didn’t save. Try once more, and if it keeps happening tell Ty.';
+  /* ⚠️ DELEGATES — it does not keep its own fallback any more. The two
+     branches above are sign-up specific and stay here; everything else is
+     the general rule, and a second copy of a rule is how the general one
+     drifts. This function used to end in a catch-all sentence of its own,
+     which meant a member on /welcome and a member on /me got different
+     answers to the same database error. */
+  return plainError(e);
 }
 
 /**
