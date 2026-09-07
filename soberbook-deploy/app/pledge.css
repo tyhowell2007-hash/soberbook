@@ -272,3 +272,70 @@
   font-size: 12px;
   color: var(--gm-t);
 }
+
+/* ---------- how's the craving right now  ·  7 Sept, migration 0144 ----
+
+   Five chips under the why box. Every number here was RUN before this
+   comment was written, not after — four contrast figures were typed
+   into comments from memory on 5 Sept and all four were wrong.
+
+     --soft   #63716A  on white   5.12   the question
+     --gt     #0F3D2A  on white  12.20   an unpicked chip
+     --gm     #2E8B5F  on white   4.22   the chip's EDGE (non-text, 3.0)
+     #fff             on --gd     6.46   the picked chip
+     --gm-t   #256F4C  on --gl    5.38   the line on the done card
+
+   🔴 THE EDGE IS LOAD-BEARING AND --line CANNOT DO IT. --line on white
+   measures 1.27 — invisible, the fill-against-fill trap that hid a
+   whole tag on the meetings page on 17 Aug and a lock pill on 2 Sept.
+   A chip whose border you cannot see is not a chip, it is text.
+
+   ⚠️ 13px, not 12. Ty: "you can barely read them." Measured with the
+   real Archivo: the widest word is "Strong"/"Rough" at 40px inside a
+   58px chip on a 375px screen, so 13px fits with 9px either side. It
+   was sized to the WIDEST state, not to "None" — that is the layout
+   bug this project has hit on four separate days.
+
+   ⚠️ 44px minimum height. These sit directly above the button somebody
+   is aiming for, and a mis-tap here changes what they said about their
+   own craving. */
+.pl-craveq {
+  margin: 0.85rem 0 0.4rem;
+  font-size: 13px;
+  color: var(--soft);
+}
+
+.pl-craves {
+  display: flex;
+  gap: 5px;
+}
+
+.pl-crave {
+  flex: 1 1 0;
+  min-width: 0;
+  min-height: 44px;
+  padding: 0 4px;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--gt);
+  background: var(--paper2);
+  border: 1.5px solid var(--gm);
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.pl-crave.on {
+  color: #fff;
+  background: var(--gd);
+  border-color: var(--gd);
+}
+
+.pl-crave:focus-visible { outline: 3px solid var(--gd); outline-offset: 2px; }
+
+/* ⚠️ On the done card, which is --gl, not white. */
+.pl-cravewas {
+  margin: 0.5rem 0 0;
+  font-size: 13px;
+  color: var(--gm-t);
+}
