@@ -43,10 +43,55 @@ import { browserClient } from '../../lib/supabase-browser';
 
 const DAYS = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
 
+/* 🔴 HOW'S THE CRAVING RIGHT NOW — 7 Sept, migration 0144.
+
+   ⚠️ The migration is named 0144_how_strong_is_the_pull because that
+   was the wording when it was applied, and a migration is history —
+   append-only, like a campaign key. The LABEL is Ty's, changed the same
+   day: "the pull" is our metaphor, and the app already says "craving"
+   on the urge-surfing practice in /quiet. One word across both surfaces
+   means nobody has to learn our language to answer a question about
+   themselves. The column has always been `craving`.
+
+   Ty asked for MyRecoveryPal's check-in, which scores your MOOD 1–6
+   every day. Reading the schema first showed we already had that half:
+   review_today() has logged hard / alright / good since 1 Sept and 17
+   people use it. A second mood scale would have been the same question
+   asked twice, and the second copy drifts.
+
+   ⭐ CRAVING IS THE OTHER AXIS, AND IT IS THE ONE THAT WAS MISSING.
+   `felt` is retrospective and about mood; this is right now and about
+   RISK. A bad day and a dangerous day are not the same day — people
+   relapse on good ones.
+
+   ⚠️ IT KEEPS THE PROPERTY THAT MAKES THE PLEDGE WORK. A pledge is an
+   intention, so it cannot be falsified. "Rough" cannot be either: it is
+   a fact about an hour, not a grade. That is exactly why a mood SCORE
+   was refused here and this was not — a score can be wrong, performed,
+   and turned into a report card.
+
+   🔴 NOTHING RANKS IT, SUMS IT, OR SHOWS IT TO ANOTHER MEMBER, and
+   there is deliberately no craving version of pledges_today_count().
+   "12 people are struggling today" is a leaderboard of pain.
+
+   ⚠️ OPTIONAL, AND null IS NOT 'none'. Saying there's no craving and
+   not answering are different facts, and the button works either way — the
+   pledge being effortless is the whole reason 55 of 234 members use it.
+   Making it a required second step would buy a data column with the one
+   feature that is working. */
+const CRAVING = [
+  ['none',   'None'],
+  ['mild',   'Mild'],
+  ['some',   'Some'],
+  ['strong', 'Strong'],
+  ['rough',  'Rough'],
+];
+
 export default function Pledge() {
   const [s, setS] = useState(null);      // null = still asking the server
   const [count, setCount] = useState(null);
   const [why, setWhy] = useState('');
+  const [craving, setCraving] = useState(null);
   const [busy, setBusy] = useState(false);
   const [openReview, setOpenReview] = useState(false);
   const [note, setNote] = useState('');
@@ -105,9 +150,11 @@ export default function Pledge() {
   async function say() {
     setBusy(true);
     try {
-      await browserClient().rpc('pledge_today', { p_why: why || null });
+      await browserClient().rpc('pledge_today',
+        { p_why: why || null, p_craving: craving });
       await load();
       setWhy('');
+      setCraving(null);
     } catch { /* leave the form up; a reload tells the truth */ }
     setBusy(false);
   }
@@ -146,6 +193,34 @@ export default function Pledge() {
              action we want to be effortless. */
           onKeyDown={(e) => { if (e.key === 'Enter' && !busy) say(); }}
         />
+        {/* ⚠️ BELOW the why and ABOVE the button, deliberately. The
+            intention is the thing being made; the craving is context on it.
+            Put the chips first and the screen opens by asking somebody
+            how bad it is, which is a different — and worse — first
+            question at 6am. */}
+        {/* ⚠️ "craving", not "the pull" — Ty's call, 7 Sept. The app
+            already uses that word: the urge-surfing practice on Quiet
+            is titled "The craving won't stop". One word across both
+            surfaces means nobody has to learn our metaphor to answer a
+            question about themselves. */}
+        <p className="pl-craveq">How&apos;s the craving right now?</p>
+        <div className="pl-craves" role="group"
+             aria-label="How's the craving right now">
+          {CRAVING.map(([k, label]) => (
+            <button
+              key={k}
+              type="button"
+              /* ⚠️ aria-pressed, not a radio. Nothing is selected by
+                 default and it can be un-picked, so "which one is on" is
+                 the honest description of the state. */
+              aria-pressed={craving === k}
+              className={'pl-crave' + (craving === k ? ' on' : '')}
+              onClick={() => setCraving((prev) => (prev === k ? null : k))}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
         <button type="button" className="pl-go" disabled={busy} onClick={say}>
           {busy ? 'One second…' : 'I’m in'}
         </button>
@@ -175,6 +250,22 @@ export default function Pledge() {
       </p>
 
       {s.today_why && <p className="pl-why">“{s.today_why}”</p>}
+
+      {/* ⚠️ Past tense, and it names the CRAVING rather than the person.
+          "The craving was rough" is a fact about an hour that has already
+          gone; "you were struggling" is a label somebody has to wear for
+          the rest of the day on their own home screen.
+
+          ⚠️ Rendered only when they answered. null and 'none' are
+          different facts — 'none' means there was no craving and is worth
+          seeing back; not answering is worth nothing at all. */}
+      {s.today_craving && (
+        <p className="pl-cravewas">
+          {s.today_craving === 'none'
+            ? 'No craving when you said it.'
+            : `The craving was ${s.today_craving} when you said it.`}
+        </p>
+      )}
 
       {/* The evening half. ⚠️ Never chased, never required — the MORNING
           is the streak. Two required halves is two ways to fail instead
