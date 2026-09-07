@@ -96,3 +96,93 @@
   font-size: 13px;
   color: var(--soft);
 }
+
+/* ---------- the craving plan editor  ·  7 Sept, migration 0147 -------
+
+   Six one-line boxes at the TOP of this page, above the seven long ones.
+
+   ⭐ IT GOES FIRST BECAUSE IT IS THE CHEAP ONE. When this shipped, 0 of
+   236 members had filled in the seven-box form below — it is homework,
+   and homework does not get done. Six short lines is a sixty-second job,
+   and it is the half that /now actually puts in front of somebody at
+   3am. Leading with the long form buries the thing most likely to be
+   finished.
+
+   ⚠️ SEPARATE SAVE BUTTON, AND THAT IS NOT A CONVENIENCE. It calls
+   save_my_craving_steps(), which touches only this column.
+   save_my_plan() overwrites all seven boxes including with NULL, on
+   purpose, because it backs a form that submits all seven at once — so
+   one shared button would blank somebody's plan every time they edited
+   their list. Two write shapes, two buttons.
+
+   Colours are the page's existing ones, re-measured on this surface
+   rather than assumed:
+     --gt   on white  12.20   the step text
+     --soft on white   5.12   the hint
+     --gm   on white    4.22   the input edge (non-text floor 3.0)
+     #fff   on --gd     6.46   the save button
+   🔴 CONTROL: --line on white is 1.27 and would be an invisible edge. */
+.pn-steps { margin: 0 0 2rem; }
+
+.pn-srow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 8px;
+}
+
+.pn-sn {
+  flex: none;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Archivo', system-ui, sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: #fff;
+  background: var(--gd);
+  border-radius: 50%;
+}
+
+/* ⚠️ 16px MINIMUM, like every other input in the app. iOS Safari zooms
+   the whole page when you focus anything smaller and does not zoom back
+   out, leaving the member on a page that no longer fits. */
+.pn-sin {
+  flex: 1;
+  min-width: 0;
+  box-sizing: border-box;
+  padding: 11px 12px;
+  font: inherit;
+  font-size: 16px;
+  color: var(--body);
+  background: var(--paper2);
+  border: 1.5px solid var(--gm);
+  border-radius: 11px;
+}
+.pn-sin:focus { outline: none; border-color: var(--gd); box-shadow: 0 0 0 3px var(--gl); }
+.pn-sin::placeholder { color: var(--soft); opacity: 0.75; }
+
+/* A quieter save than the plan's — same size target, outline not fill,
+   so the page still has exactly one solid primary button on it. */
+.pn-ssave {
+  min-height: 46px;
+  padding: 0 18px;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--gm-t);
+  background: transparent;
+  border: 1.5px solid var(--gm);
+  border-radius: 999px;
+  cursor: pointer;
+}
+.pn-ssave:disabled { opacity: 0.55; cursor: default; }
+.pn-ssave:focus-visible { outline: 3px solid var(--gd); outline-offset: 3px; }
+
+.pn-shr {
+  margin: 2rem 0;
+  border: 0;
+  border-top: 1px solid var(--line);
+}
