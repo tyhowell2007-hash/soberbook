@@ -1,0 +1,172 @@
+/* =====================================================================
+   RIGHT NOW.  7 Sept.
+
+   Every contrast figure below was RUN before this comment was written.
+   Four numbers were typed into comments from memory on 5 Sept and all
+   four were wrong; two more on 2 Sept were under the floor while the
+   comment beside them claimed they passed.
+
+     #FFFFFF  on #1A3227   13.73   the headline on the dark band
+     #C7EFDD  on #1A3227   11.00   "Nothing here is recorded"
+     --gt     on white     12.20   your own words on a card
+     --soft   on --paper    4.87   a section label
+     --gm-t   on --paper    5.78   the quieter sub-lines
+     #FFFFFF  on #8A2B2B    8.53   988
+     --gm     on white      4.22   a card edge (non-text, floor 3.0)
+
+   🔴 THE EDGES ARE LOAD-BEARING. --line on white measures 1.27 — the
+   fill-against-fill trap that hid a whole tag on /meetings (17 Aug) and
+   a lock pill on a profile card (2 Sept). A card you cannot see the
+   boundary of is not a card, it is a paragraph.
+
+   ⚠️ Own file, not appended to wall.css. That file is 71KB and silently
+   failed to upload on three consecutive deploys on 23 Aug. Small files
+   land.
+
+   ⚠️ Class prefix nw-. Checked against all 25 stylesheets before
+   writing: no collisions. 70 class names in this project are already
+   owned by more than one sheet and that is a live open problem — this
+   file does not add to it.
+   ===================================================================== */
+
+/* The dark band. ⚠️ NOT the masthead green (--gd #1B6B4A): this page is
+   a different kind of place and it should feel like one the moment it
+   opens, without a single word being read. */
+.nw-top {
+  background: #1A3227;
+  padding: 22px 16px 20px;
+}
+
+.nw-head {
+  margin: 0;
+  font-family: 'Archivo', system-ui, sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.25;
+  color: #FFFFFF;
+}
+
+.nw-sub {
+  margin: 0.45rem 0 0;
+  font-size: 14px;
+  color: #C7EFDD;
+}
+
+/* The nav spacer already lives in .pad's bottom padding. */
+.nw-pad { padding-top: 18px; }
+
+.nw-sec { margin: 0 0 1.4rem; }
+
+.nw-lbl {
+  margin: 1.3rem 0 0.5rem;
+  font-family: 'Archivo', system-ui, sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--soft);
+}
+.nw-sec .nw-lbl:first-child { margin-top: 0; }
+
+/* Your own words. ⭐ These get the largest, plainest type on the page —
+   bigger than anything the app wrote. */
+.nw-card {
+  padding: 14px 16px;
+  font-size: 16px;
+  line-height: 1.55;
+  color: var(--gt);
+  background: var(--paper2);
+  border: 1.5px solid var(--gm);
+  border-radius: 13px;
+  white-space: pre-wrap;      /* they typed line breaks; keep them */
+  overflow-wrap: anywhere;    /* a pasted phone number can't overflow */
+}
+
+.nw-big { font-size: 19px; line-height: 1.5; }
+
+.nw-none {
+  font-size: 15px;
+  border-style: dashed;
+  background: var(--gl);
+}
+.nw-none p { margin: 0 0 0.6rem; }
+
+.nw-editplan {
+  display: inline-block;
+  margin: 0.7rem 0 0;
+  min-height: 44px;
+  line-height: 44px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--gm-t);
+  text-decoration: none;
+}
+.nw-editplan:hover { text-decoration: underline; text-underline-offset: 3px; }
+
+/* Three things to do. */
+.nw-prac { display: flex; flex-direction: column; gap: 8px; }
+
+.nw-pbtn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 60px;
+  padding: 12px 14px;
+  text-align: left;
+  font: inherit;
+  color: var(--gt);
+  background: var(--paper2);
+  border: 1.5px solid var(--gm);
+  border-radius: 13px;
+  cursor: pointer;
+}
+
+.nw-pmark { font-size: 22px; line-height: 1; flex-shrink: 0; }
+
+.nw-ptxt { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.nw-ptxt b { font-size: 15px; font-weight: 600; }
+/* ⚠️ --gm-t, never --gm: a mid-green measures 4.02 on paper and this is
+   small text. The variable's own comment says DECORATION ONLY. */
+.nw-ptxt i { font-style: normal; font-size: 13px; color: var(--gm-t); }
+
+/* People. */
+.nw-rows { display: flex; flex-direction: column; gap: 8px; }
+
+.nw-row {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-height: 60px;
+  padding: 12px 14px;
+  text-decoration: none;
+  color: var(--gt);
+  background: var(--paper2);
+  border: 1.5px solid var(--gm);
+  border-radius: 13px;
+  justify-content: center;
+}
+.nw-row b { font-size: 15px; font-weight: 600; }
+.nw-row i { font-style: normal; font-size: 13px; color: var(--gm-t); }
+
+/* 988. Last on the page, and the only clay thing in the app. */
+.nw-988 {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  align-items: center;
+  justify-content: center;
+  margin: 1.8rem 0 0;
+  min-height: 64px;
+  padding: 14px;
+  text-decoration: none;
+  color: #FFFFFF;
+  background: #8A2B2B;
+  border-radius: 13px;
+}
+.nw-988 b { font-family: 'Archivo', system-ui, sans-serif; font-size: 22px; font-weight: 700; }
+.nw-988 i { font-style: normal; font-size: 13px; }
+
+.nw-pbtn:focus-visible,
+.nw-row:focus-visible,
+.nw-988:focus-visible,
+.nw-editplan:focus-visible { outline: 3px solid var(--gd); outline-offset: 2px; }
