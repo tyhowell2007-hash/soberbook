@@ -1821,29 +1821,38 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
                     aria-pressed={!!p.supported_by_me}
                     onClick={() => react(p, 'support')}
                   >
-                    Support{p.support_count > 0 ? ` ${p.support_count}` : ''}
+                    ❤️ Support{p.support_count > 0 ? ` ${p.support_count}` : ''}
                   </button>
                   <button
                     className={'react' + (p.strengthed_by_me ? ' on' : '')}
                     aria-pressed={!!p.strengthed_by_me}
                     onClick={() => react(p, 'strength')}
                   >
-                    Strength{p.strength_count > 0 ? ` ${p.strength_count}` : ''}
+                    🤝 Strength{p.strength_count > 0 ? ` ${p.strength_count}` : ''}
                   </button>
                 </div>
               )}
 
               <div className="ft">
-                {/* aria-pressed is what tells a screen reader this is a
-                    toggle that's currently on, rather than just a button. */}
-                <button
-                  className={'heart' + (p.liked_by_me ? ' on' : '')}
-                  aria-pressed={!!p.liked_by_me}
-                  aria-label={p.liked_by_me ? 'Undo like' : 'Like this'}
-                  onClick={() => like(p)}
-                >
-                  {p.liked_by_me ? '♥' : '♡'} {p.like_count}
-                </button>
+                {/* 🔴 THE OLD ♥ LIKE BUTTON WAS RETIRED HERE ON 7 SEPT, and
+                    its 207 hearts were COPIED into post_reactions as
+                    support (migration: the_heart_retires_into_support).
+
+                    Ty asked for a ❤️ on Support, which put a second heart
+                    two inches from this one meaning something different.
+                    Two hearts under one post is the app contradicting
+                    itself, so this one goes and Support owns the heart.
+
+                    ⚠️ NOTHING WAS DELETED. The `likes` table is intact and
+                    like() below still works — it is simply no longer
+                    reachable from here, which makes this reversible by
+                    putting the button back. 27 self-likes were NOT copied,
+                    because a reaction cannot be your own, and they are
+                    still in `likes` if they are ever wanted.
+
+                    ⚠️ REPLYING IS UNTOUCHED. "join in" below is the
+                    comment button and it stays exactly as it was — the
+                    only thing that left this row is the like. */}
                 {/* The reply count is the tap target. Deliberately worded as
                     an invitation when it's zero — that's the post that most
                     needs someone, and it's the one already sized biggest. */}
