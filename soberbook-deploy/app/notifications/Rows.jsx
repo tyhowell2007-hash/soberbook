@@ -233,7 +233,8 @@ export default function Rows({ initial, askPush: askPushInitial }) {
         const href =
           n.kind === 'message' && n.thread_id ? `/chat/${n.thread_id}` :
           (n.kind === 'reply' || n.kind === 'mention' ||
-           n.kind === 'highlight' || n.kind === 'drop') && n.post_id
+           n.kind === 'highlight' || n.kind === 'drop' ||
+           n.kind === 'support' || n.kind === 'strength') && n.post_id
             ? `/p/${n.post_id}` :
           n.kind === 'mention' && n.room_slug ? `/friends?room=${n.room_slug}` :
           null;
@@ -242,6 +243,8 @@ export default function Rows({ initial, askPush: askPushInitial }) {
           : n.kind === 'mention' ? '@'
           : n.kind === 'highlight' ? '📣'
           : n.kind === 'drop' ? '🎵'
+          : n.kind === 'support' ? '🤝'
+          : n.kind === 'strength' ? '💪'
           : '💬';
 
         /* ⚠️ A highlight used to fall through to "answered your post",
@@ -255,6 +258,12 @@ export default function Rows({ initial, askPush: askPushInitial }) {
           : n.kind === 'mention' ? `${n.who} mentioned you`
           : n.kind === 'highlight' ? `${n.who} posted an announcement`
           : n.kind === 'drop' ? `${n.who}’s record is out`
+          /* ⚠️ "sent you support", not "supported your post". The thing
+             that happened is between two people, not between a person and
+             a post — and at 2am the sentence that helps is the one with a
+             human in it. */
+          : n.kind === 'support' ? `${n.who} sent you support`
+          : n.kind === 'strength' ? `${n.who} sent you strength`
           : `${n.who} answered your post`;
 
         const body = (
