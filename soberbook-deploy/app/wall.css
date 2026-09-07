@@ -314,6 +314,48 @@ ul.mine li > *{ position:relative; z-index:1; }
   border-top:2px solid var(--line);
 }
 
+/* ---------- the two doors  ·  7 Sept ----------
+
+   Ty's option A: "Right now" and "Check in" take over the strip that
+   used to carry the tagline. They are NOT in the masthead — measured
+   with the real Archivo at 375px, the masthead already uses 341px
+   (logo 138 · three icons 120 · day count 53 · padding 30), leaving 34,
+   and the two pills need 151.
+
+   Numbers RUN before this comment was written, not after:
+     #8A2B2B on --gl   7.56   Right now
+     --gt    on --gl  10.80   Check in
+     #6B8F7C on --gl   3.18   the hairline between them (non-text)
+
+   ⚠️ THE STRIP KEEPS .bar's BACKGROUND AND LOSES ITS TEXT RULES.
+   .bar is text-align:center with a size and weight meant for one
+   sentence. .bar-doors overrides the layout only, so if the theme ever
+   repaints .bar, these repaint with it.
+
+   ⚠️ 46px, not 44. This strip sits directly under a sticky masthead and
+   directly above the composer, so both of its edges are next to
+   something else that can be tapped. */
+.bar-doors{ display:flex; padding:0; text-align:left; }
+
+.dr{
+  flex:1 1 0; min-height:46px;
+  display:flex; align-items:center; justify-content:center;
+  font-family:'Archivo',system-ui,sans-serif;
+  font-size:14px; font-weight:600; letter-spacing:0;
+  text-transform:none; text-decoration:none;
+}
+
+/* 🔴 A COLOUR AND A RULE, NOT A FILL. Clay AS a fill on this strip is
+   the fill-against-fill trap — the same mistake measured 1.32 against
+   the masthead green earlier today, and hid a whole tag on /meetings on
+   17 Aug. The left rule separates the two doors; the colour of the word
+   marks which one is urgent. */
+.dr-now{ color:#8A2B2B; }
+.dr-in { color:var(--gt); border-left:1px solid #6B8F7C; }
+
+.dr:hover{ text-decoration:underline; text-underline-offset:3px; }
+.dr:focus-visible{ outline:3px solid var(--gd); outline-offset:-3px; }
+
 /* the day count in the masthead is now the way in to /me */
 .mast .melink{ text-decoration:none; padding:4px 0 4px 6px; }
 .mast .melink:hover{ text-decoration:underline; text-underline-offset:3px; }
