@@ -234,8 +234,42 @@ export default function Pledge() {
             </button>
           ))}
         </div>
+        {/* ⭐ THE BUTTON IS THE PLEDGE. You do not tap "I'm in", you tap the
+            promise itself — Ty's call on 7 Sept, after looking at how a
+            competitor words theirs: "it gets the user involved. It just
+            isn't about chat with other people. It's about the user getting
+            better every day with Sober Book."
+
+            He is right on the evidence, and it is the strongest number in
+            the app: 55 of 234 members have pledged, 83 pledges in six days,
+            67 of them with words typed in — against 180 of 230 who have
+            never posted or replied anywhere. The solo daily loop beats
+            every social feature combined.
+
+            ⚠️ WIDTH WAS MEASURED, NOT EYEBALLED. In the real Archivo at
+            16px/700 the label is 214px inside a 310px button on a 375px
+            phone — a third to spare. Sized to the WIDEST state, which is
+            this string and not 'One second…' (107px).
+
+            🔴 "SOBER" IS TY'S CALL, MADE AFTER HEARING THE ARGUMENT
+            AGAINST, AND IT IS RECORDED HERE SO NOBODY RE-OPENS IT THINKING
+            IT WAS NEVER NOTICED. The cost: the meetings banner says "all
+            paths welcome — Suboxone included", one member's sober date is
+            deliberately NULL because he is not sober yet, and some members
+            are here for somebody else. To those people this button now
+            names something they may not claim. He was shown that and chose
+            the word anyway, because the promise is the point.
+
+            ⚠️ IF A MEMBER EVER SAYS IT SHUT THEM OUT, THAT is the reason to
+            revisit this — a real person, not the hypothesis above.
+
+            ⚠️ It is still an INTENTION, so the never-falsifiable rule
+            holds: you can tap this at 6am after the worst night of your
+            year and it is completely true. It claims nothing about
+            yesterday, which is why the streak counts pledges and not
+            sober days. */}
         <button type="button" className="pl-go" disabled={busy} onClick={say}>
-          {busy ? 'One second…' : 'I’m in'}
+          {busy ? 'One second…' : 'I pledge to stay sober today'}
         </button>
         {/* ⚠️ Said BEFORE they type, not after. Somebody deciding how
             honest to be needs to know who reads it at the moment they
