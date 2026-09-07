@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { browserClient } from '../../lib/supabase-browser';
+import { plainError } from '../../lib/plain-error';
 import SongPicker from './SongPicker';
 import SongPlayer from '../components/SongPlayer';
 import Milestones from '../components/Milestones';
@@ -634,27 +635,26 @@ export default function Me({ email, profile, posts, initialAvatarUrl,
       setNote(said);
       router.refresh();          // so the Wall picks the change up
     } catch (e) {
-      /* Translate the database's words into a person's.
+      /* Translate the database's words into a person's — the Aug 6
+         principle, that an error message is an output channel, so decide
+         what it says instead of letting Postgres decide for you.
 
-         A constraint violation reads like
-           new row violates check constraint "anthem_url_shape"
-         which tells a member nothing and looks like the app broke. The
-         check is doing exactly its job; it just doesn't speak English.
+         🔴 THIS USED TO BE ITS OWN if/else CHAIN AND IT ENDED IN
+         `setErr(m)`. It knew three constraints by name and handed the
+         raw Postgres string to the member for everything else — proven
+         live on 7 Sept: a mistyped year showed "sober_since cannot be in
+         the future (got 2027-10-12, today is 2026-09-07)", and a long
+         display name showed `violates check constraint
+         "display_name_len"`, on the page where somebody edits their own
+         account.
 
-         Same principle as the block-RPC leak on Aug 6, pointed the other
-         way: an error message is an output channel, so decide what it
-         says instead of letting Postgres decide for you. */
-      const m = String(e.message || '');
-      if (m.includes('anthem_url_shape')) {
-        setErr('That link isn’t one we can play. Use a share link from '
-             + 'Spotify, YouTube or Apple Music — it should start with https://');
-      } else if (m.includes('anthem_title_len')) {
-        setErr('That title is a bit long — 120 characters or fewer.');
-      } else if (m.includes('bio_len')) {
-        setErr('That bio is over 200 characters.');
-      } else {
-        setErr(m);
-      }
+         ⭐ It was one of THREE partial translators (here, lib/first-run's
+         explainProfileError, and a prefix-stripping regex in Convo.jsx),
+         each covering a different subset of the same rule and each
+         falling through to raw. One rule, three implementations, all
+         incomplete — the 0046 -> 0049 drift. They all call plainError()
+         now, and it passes our own P0001 refusals through untouched. */
+      setErr(plainError(e));
     } finally {
       setBusy(false);
     }
