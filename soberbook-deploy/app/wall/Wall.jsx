@@ -686,6 +686,43 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
      The trade is that for a moment the screen shows something that isn't
      true yet. That's fine for a heart. It would NOT be fine for anything
      with consequences — a post, a payment, a sign-out. */
+  /* ⭐ SUPPORT / STRENGTH. Migration 0149-0150.
+
+     ⚠️ GOES THROUGH THE RPC, NOT A TABLE WRITE — unlike like() above,
+     which inserts into `likes` directly. Members hold NO grant on
+     post_reactions on purpose, so who reacted is unreachable rather
+     than merely unlisted, and react_to_post() is the only door. It also
+     asks feed_posts whether the post is visible instead of restating
+     that rule here (0056).
+
+     🔴 THE PENDING KEY IS post+kind, not post. You can tap Support and
+     Strength on the same post, and keying on the post alone would make
+     the second tap a no-op that looks like the button is broken. */
+  async function react(p, kind) {
+    const key = `${p.id}:${kind}`;
+    if (pending.has(key)) return;
+    const isSup = kind === 'support';
+    const nowOn = !(isSup ? p.supported_by_me : p.strengthed_by_me);
+    const bump  = (x) => isSup
+      ? { ...x, supported_by_me: nowOn,  support_count:  (x.support_count  || 0) + (nowOn ? 1 : -1) }
+      : { ...x, strengthed_by_me: nowOn, strength_count: (x.strength_count || 0) + (nowOn ? 1 : -1) };
+    const undo  = (x) => isSup
+      ? { ...x, supported_by_me: !nowOn,  support_count:  (x.support_count  || 0) + (nowOn ? -1 : 1) }
+      : { ...x, strengthed_by_me: !nowOn, strength_count: (x.strength_count || 0) + (nowOn ? -1 : 1) };
+
+    setPending((s) => new Set(s).add(key));
+    setPosts((list) => list.map((x) => (x.id === p.id ? bump(x) : x)));
+    try {
+      const { error } = await supabase.rpc('react_to_post',
+        { p_post: p.id, p_kind: kind });
+      if (error) throw error;
+    } catch (e) {
+      setPosts((list) => list.map((x) => (x.id === p.id ? undo(x) : x)));
+    } finally {
+      setPending((s) => { const n = new Set(s); n.delete(key); return n; });
+    }
+  }
+
   async function like(p) {
     if (pending.has(p.id)) return;                 // already in flight
     const nowLiked = !p.liked_by_me;
@@ -1736,6 +1773,63 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
                       <span className="rpvb"><Body text={c.body} /></span>
                     </div>
                   ))}
+                </div>
+              )}
+
+              {/* ---------------- SUPPORT / STRENGTH ----------------
+                  ⭐ Ty, off a competitor's feed: "I like how they had their
+                  news feed with the boxes that says support and strength."
+
+                  ⭐ THE REASON IT IS THE RIGHT FEATURE, measured first: of
+                  123 posts, 50 had no reply and 15 had NOTHING AT ALL. A
+                  heart is the wrong instrument for a hard post — you
+                  cannot "like" somebody saying they sat outside a bar for
+                  an hour — so the posts that most needed answering were
+                  the ones getting silence, because the only options were
+                  an inappropriate heart or finding words.
+
+                  ⚠️ THE NAMES ARE TY'S, CHOSEN OVER MY RECOMMENDATION of
+                  "Been there" / "I'm here". Recorded in 0149 with the
+                  argument, so nobody re-opens it thinking it was missed.
+
+                  🔴 ITS OWN ROW, NOT SQUEEZED INTO .ft. The footer already
+                  carries the heart, the reply invitation and the ⋯; two
+                  more on a 375px phone is how you get a wrapped, unusable
+                  row. Ty said "boxes", and boxes need width.
+
+                  🔴 NEVER SHOW A ZERO — the same rule as the room hearts
+                  and the open-room card. "Support 0" under somebody's
+                  worst night is worse than no number at all.
+
+                  🔴 ON YOUR OWN POST THEY ARE NOT BUTTONS, THEY ARE THE
+                  COUNTS. react_to_post() refuses your own post anyway, but
+                  the author is exactly who needs to see that three people
+                  showed up — that is the entire point of the feature. */}
+              {p.is_mine ? (
+                (p.support_count > 0 || p.strength_count > 0) && (
+                  <div className="reactrow reactmine">
+                    {p.support_count > 0 && (
+                      <span>{p.support_count} sent support</span>)}
+                    {p.strength_count > 0 && (
+                      <span>{p.strength_count} sent strength</span>)}
+                  </div>
+                )
+              ) : (
+                <div className="reactrow">
+                  <button
+                    className={'react' + (p.supported_by_me ? ' on' : '')}
+                    aria-pressed={!!p.supported_by_me}
+                    onClick={() => react(p, 'support')}
+                  >
+                    Support{p.support_count > 0 ? ` ${p.support_count}` : ''}
+                  </button>
+                  <button
+                    className={'react' + (p.strengthed_by_me ? ' on' : '')}
+                    aria-pressed={!!p.strengthed_by_me}
+                    onClick={() => react(p, 'strength')}
+                  >
+                    Strength{p.strength_count > 0 ? ` ${p.strength_count}` : ''}
+                  </button>
                 </div>
               )}
 
