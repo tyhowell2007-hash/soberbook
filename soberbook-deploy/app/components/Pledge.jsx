@@ -79,12 +79,24 @@ const DAYS = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Satur
    pledge being effortless is the whole reason 55 of 234 members use it.
    Making it a required second step would buy a data column with the one
    feature that is working. */
+/* ⚠️ THE FACES ARE TY'S CALL, MADE AFTER HEARING THE ARGUMENT AGAINST.
+   7 Sept: "I wanna do faces and emojis." My advice was words only — a face
+   turns a craving level into a MOOD grade, and 😣 on "Strong" tells somebody
+   they are miserable when the honest answer is often "I'm fine, it's just
+   loud today." He chose faces. Recorded here so nobody re-opens it thinking
+   it was never noticed.
+
+   🔴 THE WORD STAYS UNDER EVERY FACE AND MUST NEVER BE REMOVED. An emoji
+   alone is not a label: it reads differently to different people, it is
+   unusable to a screen reader, and 😐 vs 😣 is not a distinction anybody
+   can make reliably at 6am. The face is decoration on a word, not a
+   replacement for it. */
 const CRAVING = [
-  ['none',   'None'],
-  ['mild',   'Mild'],
-  ['some',   'Some'],
-  ['strong', 'Strong'],
-  ['rough',  'Rough'],
+  ['none',   'None',   '😌'],
+  ['mild',   'Mild',   '🙂'],
+  ['some',   'Some',   '😐'],
+  ['strong', 'Strong', '😣'],
+  ['rough',  'Rough',  '😖'],
 ];
 
 export default function Pledge() {
@@ -180,8 +192,8 @@ export default function Pledge() {
     return (
       <div className="pl pl-ask">
         <p className="pl-day">{DAYS[new Date().getDay()]}</p>
-        <p className="pl-head">One more day.</p>
-        <p className="pl-sub">Why today? One line is plenty.</p>
+        <p className="pl-head">🌱 One more day.</p>
+        <p className="pl-sub">✍️ Why today? One line is plenty.</p>
         <input
           className="pl-in"
           value={why}
@@ -203,10 +215,10 @@ export default function Pledge() {
             is titled "The craving won't stop". One word across both
             surfaces means nobody has to learn our metaphor to answer a
             question about themselves. */}
-        <p className="pl-craveq">How&apos;s the craving right now?</p>
+        <p className="pl-craveq">🌊 How&apos;s the craving right now?</p>
         <div className="pl-craves" role="group"
              aria-label="How's the craving right now">
-          {CRAVING.map(([k, label]) => (
+          {CRAVING.map(([k, label, face]) => (
             <button
               key={k}
               type="button"
@@ -217,7 +229,8 @@ export default function Pledge() {
               className={'pl-crave' + (craving === k ? ' on' : '')}
               onClick={() => setCraving((prev) => (prev === k ? null : k))}
             >
-              {label}
+              <span className="pl-craveface" aria-hidden="true">{face}</span>
+              <span className="pl-craveword">{label}</span>
             </button>
           ))}
         </div>
@@ -235,7 +248,7 @@ export default function Pledge() {
   /* ---------------- said it: the record for the rest of the day ------- */
   return (
     <div className="pl pl-done">
-      <p className="pl-day">Said it today ✓</p>
+      <p className="pl-day">🌱 Said it today</p>
       <p className="pl-streak">
         {s.streak === 1 ? 'Day 1' : `${s.streak} in a row`}
       </p>
@@ -262,8 +275,8 @@ export default function Pledge() {
       {s.today_craving && (
         <p className="pl-cravewas">
           {s.today_craving === 'none'
-            ? 'No craving when you said it.'
-            : `The craving was ${s.today_craving} when you said it.`}
+            ? '🌊 No craving when you said it.'
+            : `🌊 The craving was ${s.today_craving} when you said it.`}
         </p>
       )}
 
@@ -272,7 +285,7 @@ export default function Pledge() {
           of one thing to do. */}
       {!s.reviewed && !openReview && (
         <button type="button" className="pl-rev" onClick={() => setOpenReview(true)}>
-          How was today?
+          🌙 How was today?
         </button>
       )}
       {!s.reviewed && openReview && (
@@ -294,7 +307,7 @@ export default function Pledge() {
           </div>
         </div>
       )}
-      {s.reviewed && <p className="pl-done-rev">Logged for tonight.</p>}
+      {s.reviewed && <p className="pl-done-rev">🌙 Logged for tonight.</p>}
 
       {/* ⭐ THE ONLY THING ANYBODY ELSE TOUCHES: A COUNT. No names, no
           handles, no ranking, and no member's number ever sits next to
