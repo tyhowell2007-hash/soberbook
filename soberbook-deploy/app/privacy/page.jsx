@@ -34,7 +34,7 @@ export default function Privacy() {
         everything yourself at any time.
       </p>
 
-      <p className="upd">Last updated 18 August 2026</p>
+      <p className="upd">Last updated 7 September 2026</p>
 
       <h2>What we store</h2>
       <p>Only what you type in, plus what the app needs to work:</p>
@@ -83,6 +83,48 @@ export default function Privacy() {
         see that.
       </p>
 
+      {/* ⭐ ADDED 7 SEPT, THE DAY SAGE WAS BUILT AND BEFORE IT WENT LIVE.
+          Not after. The page below promises that a change that matters
+          gets announced rather than quietly edited in, and shipping the
+          feature first would have made this document false for however
+          long the gap was — which is the /tour bug exactly: a truthful
+          email, then a product that contradicted it. */}
+      <h2>Sage</h2>
+      <p>
+        Sage is a computer program that can answer questions about how this
+        app works. It is not a person, it is not a member, and it will never
+        appear here wearing a name and a face as though it were one.
+        Wherever you see it, it says what it is.
+      </p>
+      <p><strong>What it is shown:</strong></p>
+      <ul>
+        <li>A question you type into the help page.</li>
+      </ul>
+      <p><strong>What it is never shown, and cannot be:</strong></p>
+      <ul>
+        <li><strong>Your messages to other members.</strong> Not one, not ever.</li>
+        <li><strong>The reason you write when you pledge.</strong> That text is
+          not shown to another member, to a friend, or to us — there is no way
+          to ask the database for it, and Sage is not getting one.</li>
+        <li>Your email, your handle, your sober date, or anything you have
+          hidden on your profile. We send your question and nothing else, so
+          the company that runs it could not identify who asked even if they
+          wanted to.</li>
+      </ul>
+      <p>
+        That company is Anthropic. Their commercial terms say plainly that they
+        may not train models on what we send them, and we read that ourselves
+        rather than taking anybody&apos;s word for it. Nothing you ask Sage is
+        stored on our side either — there is no transcript of it anywhere, the
+        same way there is no record of you doing the breathing exercise.
+      </p>
+      <p>
+        <strong>Sage does not handle an emergency.</strong> If something you
+        write reads like you are in danger, it does not try to talk you through
+        it — you get the 988 line and a way to real people. It is not a
+        counsellor, a doctor or a sponsor, and it is not a substitute for one.
+      </p>
+
       <h2>We do not sell your information</h2>
       <p>
         Not to advertisers, not to insurers, not to treatment providers, not to
@@ -104,10 +146,18 @@ export default function Privacy() {
       </p>
 
       <h2>Who we share with</h2>
-      <p>We use two companies to run the app, and no others:</p>
+      {/* 🔴 THIS SENTENCE WENT FROM TWO TO THREE ON 7 SEPT AND IT IS THE
+          ONLY LINE IN THE WHOLE POLICY THAT SAGE BROKE. Everything else
+          about it survived intact — including "no third-party trackers",
+          which is still true: a model we hand a question to on purpose is
+          not a tracker. The fix was a new section and one number, not a
+          softened old claim. */}
+      <p>We use three companies to run the app, and no others:</p>
       <ul>
         <li><strong>Supabase</strong> — stores the database and files.</li>
         <li><strong>Vercel</strong> — serves the app itself.</li>
+        <li><strong>Anthropic</strong> — answers the questions you ask Sage,
+          and only those. See above for what it is and is not shown.</li>
       </ul>
       <p>
         Both are infrastructure providers acting on our instructions. Neither is

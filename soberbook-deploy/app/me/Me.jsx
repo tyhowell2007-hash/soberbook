@@ -1856,6 +1856,28 @@ export default function Me({ email, profile, posts, initialAvatarUrl,
             </button>
           )}
 
+          {/* ⭐ THE DOOR TO THE HELP DESK, AND IT IS HERE ON PURPOSE.
+
+              The person who cannot find a control is standing on THIS
+              page hunting for it. Putting the "how do I…" page anywhere
+              else — the crisis page, the wall, a nav tab we don't have
+              room for — is the mistake this app has made twelve times:
+              building the thing and not the way in. Log-out sat three
+              taps deep for weeks and Ty himself couldn't find it.
+
+              ⚠️ It sits ABOVE sign-out and delete, because it is the
+              answer to "I'm stuck", and those two are what somebody
+              reaches for when being stuck stops being worth it. */}
+          {/* ⚠️ .mtour, NOT an invented class. The first draft of this line
+              used `.tourlink` — a name I assumed existed because /me links
+              to /tour. It exists in NO stylesheet, and it would have
+              shipped a naked unstyled link. Caught by the check, one
+              minute after writing a comment about that exact bug. Reusing
+              the class the /tour link on this same page already uses. */}
+          <Link href="/resources" className="mtour">
+            Stuck? Ask how something works ›
+          </Link>
+
           {/* ⚠️ Above delete, below sign-out. It renders NOTHING when you
               haven't blocked anybody, so for most members this section
               doesn't exist — a permanent "People you've blocked (0)"
