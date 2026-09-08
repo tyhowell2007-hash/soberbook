@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { browserClient } from '../../lib/supabase-browser';
 
 /* =====================================================================
@@ -122,6 +123,53 @@ export default function DropCard({ drop, artUrl, mediaUrl }) {
       .catch(() => {});
     return () => { alive = false; };
   }, [drop?.post_id, drop?.is_out]);
+
+  /* =====================================================================
+     🔴 THE CARD MUST COME ALIVE BY ITSELF AT ZERO. 8 Sept.
+
+     Ty's first real premiere: *"when a countdown hit zero, nothing
+     happened. Nobody's gonna be there as long as I was trying to figure
+     it out. I had to restart the window over again and then hit play."*
+
+     ⭐ THE CAUSE: `drop.is_out` is a SERVER-RENDERED PROP and nothing ever
+     changes it. useCountdown ticks `left` down to zero perfectly — and
+     then the very next line, `if (!drop.is_out)`, still returns the
+     COMING state, forever, because that boolean was decided when the page
+     loaded. The clock reaches zero and the card keeps waiting.
+
+     🔴 So every member sitting on the wall at release time saw a frozen
+     countdown, and only somebody who thought to reload found the record.
+     On the one feature whose entire job is a shared moment, that is the
+     worst possible failure — everyone who showed up on time saw nothing.
+
+     ⚠️ SCHEDULED AGAINST THE CLOCK, NOT AGAINST `left`. useCountdown
+     deliberately starts at 0 on first render to avoid a hydration
+     mismatch (see its own note), so `if (left === 0) refresh()` would
+     fire instantly on mount for every card on the page. Reading
+     release_at directly is the only honest source.
+
+     ⚠️ +2s of slack. The browser's clock and the database's are not the
+     same clock, and refreshing a moment early re-renders the identical
+     waiting card and gives up its one shot.
+
+     ⚠️ router.refresh() rather than a client re-fetch, because the media
+     URL has to be SIGNED and only the server can do that — see
+     lib/sign-photos.js. Asking the server again is what turns
+     `media_path: null` into a playable record. */
+  const router = useRouter();
+  const [opened, setOpened] = useState(false);
+  useEffect(() => {
+    if (!drop || drop.is_out || opened || !drop.release_at) return;
+    const ms = new Date(drop.release_at) - Date.now();
+    const go = () => { setOpened(true); router.refresh(); };
+    if (ms <= 0) { go(); return; }
+    /* ⚠️ setTimeout is capped at ~24.8 days by the spec; anything longer
+       silently fires IMMEDIATELY. A record scheduled a month out would
+       refresh on mount forever without this. */
+    if (ms > 86_400_000) return;
+    const t = setTimeout(go, ms + 2000);
+    return () => clearTimeout(t);
+  }, [drop?.release_at, drop?.is_out, opened, router]);
 
   if (!drop) return null;
 
