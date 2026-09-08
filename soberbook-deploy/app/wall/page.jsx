@@ -287,9 +287,29 @@ export default async function WallPage() {
           🔴 "Right now" is FIRST and it is the clay one. Somebody
           opening this app in trouble should not have to read past a
           check-in to find the door marked for them. */}
+      {/* ⭐ SAGE IS THE THIRD DOOR, AND IT IS ON THE WALL BECAUSE /me WAS
+          NOT GOOD ENOUGH. Ty: "it's too hard to find. It needs to be on
+          the home feed where it's accessible." He is right, and the
+          reasoning is the posting cliff: the person who needs a help desk
+          is stuck on THIS screen about to close the app, not browsing
+          their own settings. A door nobody walks past is a door nobody
+          opens — twelve instances of that in this file's history.
+
+          🔴 IT GOES THIRD, AND THAT ORDER IS NOT NEGOTIABLE. "Right now"
+          stays first for the reason written above: somebody opening this
+          app in trouble must not read past anything to reach it. A help
+          desk never outranks the crisis door.
+
+          ⚠️ No new colour. It reuses --gt on --gl, measured 10.80, which
+          is exactly what "Check in" beside it already uses — so the only
+          thing marking it out is the ◆, the same mark Sage wears
+          everywhere else. Three unmeasured contrast figures went into
+          comments this week and two were failures; the safest new colour
+          is no new colour. */}
       <div className="bar bar-doors">
         <Link href="/now" className="dr dr-now">Right now</Link>
         <Link href="/checkin" className="dr dr-in">Check in</Link>
+        <Link href="/resources" className="dr dr-ask">◆ Ask Sage</Link>
       </div>
       {/* Renders nothing. Keeps the podcast feed fresh when the Vercel
           cron doesn't fire — which, as of 29 Aug, is most days. */}
