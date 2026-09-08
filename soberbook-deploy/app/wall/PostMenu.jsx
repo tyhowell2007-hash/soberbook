@@ -274,6 +274,22 @@ export default function PostMenu({ post, onClose, onBlocked, onEdited }) {
                   the pile, not into the spam queue.
                 </span>
               </button>
+              {/* ⚠️ THE WAY IN, added 8 Sept with /rules. This lane has said
+                  "it breaks the rules" since 0023 and there were no written
+                  rules anywhere to read — the member was being asked to judge
+                  against a standard nobody had ever published.
+                  ⭐ target="_blank" is load-bearing, not habit: navigating away
+                  from this sheet mid-report throws the report away, and the
+                  person most likely to want to check the rules is the one
+                  halfway through filing one.
+                  ⚠️ Reuses .back2 rather than inventing a class. wall.css and
+                  theme-green.css paint these sheets on different surfaces, so
+                  one new colour would have been right on one and wrong on the
+                  other — and .back2 is already an underlined link style sitting
+                  in exactly this slot. */}
+              <a className="back2" href="/rules" target="_blank" rel="noopener noreferrer">
+                what the rules actually say
+              </a>
               <button className="back2" type="button" onClick={() => setView('menu')}>
                 back
               </button>
