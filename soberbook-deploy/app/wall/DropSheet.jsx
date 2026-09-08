@@ -169,8 +169,28 @@ export default function DropSheet({ defaultArtist = '', onClose, onDone }) {
                               unselectable, which reads as "the app won't take
                               my song". Listing the extensions costs nothing
                               and removes the whole class of picker weirdness.
-                              ⚠️ Still only a hint: finalize reads the bytes. */
-                           accept="audio/*,.m4a,.mp3,.wav,.aac,video/mp4,video/quicktime,.mov,.mp4"
+                              ⚠️ Still only a hint: finalize reads the bytes.
+
+                              🔴 8 SEPT — `video/*` LEADS, AND THAT IS THE FIX.
+                              Ty could not put up a .mov and nothing ever
+                              reached the quarantine bucket, so it was failing
+                              before a single byte moved. ⭐ iOS Safari ignores
+                              file EXTENSIONS in accept entirely — it reads MIME
+                              types only — so every `.mov`/`.mp4` above was dead
+                              weight on a phone, leaving `audio/*` at the head
+                              of the list. An accept list led by audio makes iOS
+                              offer the Files browser instead of the camera
+                              roll, and a video sitting in Photos is then simply
+                              not reachable. No error, nothing to report: the
+                              picker just never shows the file.
+
+                              ⚠️ `video/*` is deliberately WIDER than what we
+                              can process. A .webm or .avi can now be chosen and
+                              will be refused — but refused with a sentence,
+                              which beats a file that silently cannot be picked.
+                              The 30 Aug rule: a control that gives no reason
+                              trains people to think the app is broken. */
+                           accept="video/*,audio/*,.mov,.mp4,.m4a,.mp3,.wav,.aac"
                            label={media ? '✓ ready' : 'Choose audio or video'}
                            onBusy={setBusy}
                            onDone={(path, _preview, isVideo) => {
