@@ -1,0 +1,177 @@
+/* =====================================================================
+   /resources — SAGE'S HELP DESK.  7 Sept.
+
+   ⚠️ EVERY CLASS IS PREFIXED sg-. Checked before writing, not after:
+   `grep -rho "\.sg-[a-z0-9-]*" app/*.css` returned nothing across all
+   stylesheets, so this prefix is unowned. That check exists because
+   .rheart was already the ROOM message heart when a reply heart tried to
+   claim it, and wall.css loads on every page — 70 class names in this
+   app are still owned by more than one file.
+
+   ---------------------------------------------------------------------
+   !! COLOURS MEASURED 7 SEPT against the real theme-green values,
+   floor 4.5 for text:
+
+     --gt   #0F3D2A on --paper #F7FAF8 = 11.61     on --gl #E8F4ED = 10.80
+     --gd   #1B6B4A on --paper         =  6.15     on --gl          =  5.72
+     --gm-t #256F4C on --paper         =  5.78     on --gl          =  5.38
+     --soft #63716A on --paper         =  4.87     on --gl          =  4.53
+     white          on --gd (button)   =  6.46
+     --line #DCE7E1 on --paper         =  1.21  <- NON-TEXT ONLY
+
+   🔴 --gm #2E8B5F MEASURES 4.02 ON --paper AND IS THEREFORE NOT USED AS
+   TEXT ANYWHERE IN THIS FILE. It is the obvious "brand green" to reach
+   for and it is under the floor. theme-green.css already labels it
+   decoration; this is what that means in practice. --gm-t is the text
+   twin and is what every green word here uses.
+   ===================================================================== */
+
+.sg-wrap { max-width: 620px; }
+
+.sg-h {
+  margin: 0 0 6px;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--gt);
+}
+
+.sg-lede {
+  margin: 0 0 18px;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--soft);
+}
+
+/* ---- the six chips ---------------------------------------------------
+   ⚠️ 44px minimum height. The 18 Aug audit found the two controls
+   everyone uses sized at ~20px, and these are the only way most people
+   will ever use this page. */
+.sg-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+
+.sg-chip {
+  min-height: 44px;
+  padding: 10px 14px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--paper2);
+  color: var(--gd);
+  font-size: 14px;
+  font-family: inherit;
+  cursor: pointer;
+  text-align: left;
+}
+
+.sg-chip:hover { border-color: var(--gm-t); }
+
+/* ---- the box ---------------------------------------------------------
+   🔴 16px, NOT SMALLER. Anything under 16px makes iOS zoom the whole
+   page the moment the field is focused — the wall composer sat at 13.5px
+   for weeks doing exactly that to everybody. */
+.sg-form { display: flex; gap: 8px; margin-bottom: 16px; }
+
+.sg-in {
+  flex: 1;
+  min-height: 48px;
+  padding: 12px 14px;
+  font-size: 16px;
+  font-family: inherit;
+  color: var(--gt);
+  background: var(--paper2);
+  border: 1.5px solid var(--line);
+  border-radius: 10px;
+}
+
+.sg-in:focus { outline: none; border-color: var(--gm-t); }
+.sg-in::placeholder { color: var(--soft); }
+
+.sg-go {
+  min-height: 48px;
+  padding: 0 20px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--gd);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.sg-go:disabled { opacity: 1; background: var(--line); color: var(--soft); }
+/* ⚠️ NOT opacity. Opacity on text multiplies against whatever is behind
+   it, so the same rule measures differently on every surface — that is
+   how the tag-menu subtitle ended up at 3.18. A real colour instead. */
+
+/* ---- the answer ------------------------------------------------------ */
+.sg-ans {
+  padding: 14px 16px;
+  border-radius: 10px;
+  background: var(--gl);
+  border-left: 4px solid var(--gd);
+  margin-bottom: 20px;
+}
+
+/* 🔴 THE LABEL. Never a handle, never a face, never a day count. If this
+   rule is ever softened, Sage stops being an honest product choice and
+   becomes the "verified, real people" claim wearing a person's clothes. */
+.sg-who {
+  margin: 0 0 7px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 10.5px;
+  letter-spacing: 0.1em;
+  color: var(--gm-t);
+}
+
+.sg-say {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--gt);
+}
+
+.sg-say strong { font-weight: 700; }
+
+.sg-take {
+  display: inline-block;
+  margin-top: 12px;
+  min-height: 44px;
+  line-height: 44px;
+  padding: 0 18px;
+  border-radius: 8px;
+  background: var(--gd);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+/* The crisis answer. ⚠️ Still the calm palette — NOT red, NOT amber.
+   Nothing has gone wrong and nobody is in trouble; a warning colour here
+   would read as an accusation, which is the opposite of the job. The
+   left edge widens instead, so it is distinct without being alarming. */
+.sg-urgent { border-left-width: 8px; }
+
+/* ---- the way to a person -------------------------------------------- */
+.sg-out {
+  margin: 22px 0 10px;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--soft);
+}
+
+.sg-out a { color: var(--gd); }
+
+.sg-help {
+  display: inline-block;
+  min-height: 44px;
+  line-height: 44px;
+  font-size: 14.5px;
+  color: var(--gd);
+  font-weight: 600;
+  text-decoration: none;
+}
