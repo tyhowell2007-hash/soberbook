@@ -156,6 +156,13 @@ export default function MsgMenu({ id, mine, name, onGone, onEdit }) {
                 <p className="rmenu-note">
                   If someone’s life may be at risk, call or text <strong>988</strong> now.
                 </p>
+                {/* ⚠️ THE WAY IN — see PostMenu.jsx for the full note. Sits
+                    BELOW the 988 line deliberately: the crisis number outranks
+                    a rules page every time. New tab, or the report is lost. */}
+                <a className="rmenu-btn" href="/rules"
+                   target="_blank" rel="noopener noreferrer">
+                  <span className="rmenu-l1">What the rules actually say</span>
+                </a>
               </>
             )}
 
