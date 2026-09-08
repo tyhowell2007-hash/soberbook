@@ -51,6 +51,34 @@ export default function PhotoUpload({
     if (!file) return;
 
     setErr('');
+
+    /* ---- refuse it here, before the upload, not after ---------------
+       🔴 Ty, 8 Sept: "I'm trying to upload a video, and it's not working."
+       There was NO size check on this side at all. So an oversized file
+       was carried all the way to Supabase — minutes, on a phone — and
+       only then refused. The wait made it feel like a broken app rather
+       than a file that was never going to be accepted.
+
+       ⚠️ 50MB is finalize's MAX_VIDEO_BYTES, the LARGER of the two server
+       ceilings, and that is deliberate. The browser cannot reliably tell
+       a photo from a video — Android hands over `application/octet-stream`
+       for perfectly good MP4s, which is why the note further down says the
+       server decides by reading the bytes. Checking against the tighter
+       25MB photo limit here would refuse large videos that are genuinely
+       fine. ⭐ So this check only ever catches what BOTH limits would
+       reject; finalize stays the authority, exactly as it is for type. */
+    const MAX_CLIENT_BYTES = 50 * 1024 * 1024;
+    if (file.size > MAX_CLIENT_BYTES) {
+      const mb = (file.size / 1024 / 1024).toFixed(0);
+      /* Says the real number and what to do instead. "Too big" on its own
+         leaves somebody trimming a video by guesswork. */
+      setErr(
+        `That file is ${mb}MB — the limit is 50MB. ` +
+        `For something longer, put it up on YouTube and paste the link instead.`
+      );
+      return;
+    }
+
     setBusy(true);
     onBusy?.(true);
 
@@ -75,7 +103,33 @@ export default function PhotoUpload({
       const { error: upErr } = await browserClient()
         .storage.from('quarantine')
         .uploadToSignedUrl(d1.path, d1.token, file);
-      if (upErr) throw new Error('That upload didn’t finish. Try again.');
+      /* 🔴 THIS LINE USED TO DISCARD `upErr` AND SUBSTITUTE "That upload
+         didn't finish. Try again." — and that is why a whole session went
+         into GUESSING what was wrong with Ty's video on 8 Sept.
+
+         ⭐ Supabase says exactly what happened here: wrong mime type for
+         the bucket, over the bucket's size limit, expired token, network.
+         Every one of those needs a different response from the person
+         holding the phone, and we were flattening all of them into one
+         sentence that means "try the identical thing again" — which is
+         the one action guaranteed not to help.
+
+         ⚠️ The generic line is KEPT as a fallback, because upErr.message
+         can be empty on a bare network drop, and a blank error is worse
+         than a vague one. */
+      if (upErr) {
+        const why = (upErr.message || '').trim();
+        /* mime is the likeliest real cause and the least guessable: the
+           quarantine bucket has an allow-list, and a phone can hand over
+           a type that is not on it — at which point nothing about the
+           file being "too big" or the network is true. */
+        const mime = /mime|content.?type/i.test(why)
+          ? ` Sober Book can't take a ${file.type || 'file of that type'} yet.`
+          : '';
+        throw new Error(
+          (why ? `That upload didn’t finish — ${why}.` : 'That upload didn’t finish.') + mime
+        );
+      }
 
       /* --- 3 · strip and promote ------------------------------------ */
       setStage('Finishing…');
