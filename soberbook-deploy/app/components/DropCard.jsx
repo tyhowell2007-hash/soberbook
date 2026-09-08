@@ -8,6 +8,9 @@ import { browserClient } from '../../lib/supabase-browser';
    refused every single time, which is what made profile songs silent on
    every phone until 23 Aug while working perfectly on a laptop. */
 import { play as playShared, release as releaseShared, element as sharedEl } from '../../lib/song-audio';
+/* ⚠️ THE SAME function the wall's server uses, so the two cannot drift —
+   and it reads feed_drops, which is what withholds an unreleased file. */
+import { fetchDrops } from '../../lib/drops';
 
 /* =====================================================================
    A MEMBER'S RECORD, ON THE WALL. THE ONLY LOUD CARD HERE.
@@ -163,10 +166,58 @@ export default function DropCard({ drop, artUrl, mediaUrl }) {
      `media_path: null` into a playable record. */
   const router = useRouter();
   const [opened, setOpened] = useState(false);
+  /* 🔴 THE CARD FETCHES ITS OWN RELEASED STATE — router.refresh() IS NOT
+     ENOUGH ON ITS OWN, AND THAT COST US A LIVE TEST.
+
+     Ty watched a real countdown: the music played on time, the clock hit
+     zero, and the video never started. ⭐ The cause is in Wall.jsx:
+
+         const [recs, setRecs] = useState(drops);
+
+     The drops are copied into STATE at first mount, and a useState
+     initialiser runs exactly once. So refresh() re-rendered the server,
+     the server sent back `is_out: true` with a freshly signed file — and
+     the wall threw it away and kept handing this card the row it had at
+     page load, where the record is still unreleased. The countdown
+     finishes and the card is still holding yesterday's answer.
+
+     ⚠️ Rather than change how the wall stores 60 posts at 8pm, the card
+     asks for itself. `fetchDrops` is the same function the server uses,
+     so the two cannot drift, and `feed_drops` is what decides whether the
+     file may be handed over at all — the exclusive is still enforced in
+     the view, not here.
+
+     ⚠️ The path then has to be SIGNED, and only the server can do that.
+     Same endpoint the wall's photo repair uses. */
+  const [fresh, setFresh] = useState(null);
+  const [freshUrl, setFreshUrl] = useState(null);
+  async function pullReleased() {
+    try {
+      const map = await fetchDrops(browserClient(), [drop.post_id]);
+      const row = map && map[drop.post_id];
+      if (!row || !row.is_out) return;
+      setFresh(row);
+      if (row.media_path) {
+        const res = await fetch('/api/photo/sign', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ paths: [row.media_path] }),
+        });
+        const { urls } = await res.json();
+        if (urls && urls[row.media_path]) setFreshUrl(urls[row.media_path]);
+      }
+    } catch {
+      /* Swallowed like every other read on this wall: a card that stays
+         on its countdown is a disappointment, an error banner over
+         somebody's feed is a broken app. router.refresh() below is the
+         second chance, and a reload is the third. */
+    }
+  }
+
   useEffect(() => {
     if (!drop || drop.is_out || opened || !drop.release_at) return;
     const ms = new Date(drop.release_at) - Date.now();
-    const go = () => { setOpened(true); router.refresh(); };
+    const go = () => { setOpened(true); pullReleased(); router.refresh(); };
     if (ms <= 0) { go(); return; }
     /* ⚠️ setTimeout is capped at ~24.8 days by the spec; anything longer
        silently fires IMMEDIATELY. A record scheduled a month out would
@@ -198,20 +249,33 @@ export default function DropCard({ drop, artUrl, mediaUrl }) {
      member gets the normal controls and has to press play again — Ty's
      "after that, you have to play it every time". No loop, deliberately:
      a record restarting forever in somebody's room at 2am is hostile. */
+  /* ⭐ THE FRESHEST ROW WINS, and every hook below reads these rather than
+     the props. `fresh` is what this card fetched for itself at zero;
+     `drop` is what the wall handed down, which can be stale for the
+     reason in the note above. */
+  const liveDrop = fresh || drop;
+  const liveUrl  = freshUrl || mediaUrl;
+
   useEffect(() => {
-    if (opened && drop && drop.is_out && mediaUrl) setOn(true);
-  }, [opened, drop?.is_out, mediaUrl]);
+    if (opened && liveDrop && liveDrop.is_out && liveUrl) setOn(true);
+  }, [opened, liveDrop?.is_out, liveUrl]);
 
   /* =====================================================================
-     🎹 THE LAST TWENTY SECONDS HAVE MUSIC.
+     🎹 THE LAST MINUTE HAS MUSIC.
 
-     Ty: *"when it gets down to twenty seconds, there's no elevator music
-     that goes on."*
+     Ty asked for twenty seconds, heard it run for real, and moved it:
+     *"the music plays at exactly twenty seconds. Let's make that go a
+     little further and start the music at one minute."*
 
-     ⭐ TWENTY SECONDS AND NOT THE WHOLE WAIT, and that is the better
-     design: a loop running for two hours stops being heard by minute
-     three. Starting it near zero makes it a CUE — silence, then music,
-     then the video. The change in the room is what says it's happening.
+     ⭐ A MINUTE AND NOT THE WHOLE WAIT, and that is the point: a loop
+     running for two hours stops being heard by minute three. Starting it
+     near zero makes it a CUE — silence, then music, then the video. The
+     change in the room is what says it's happening.
+
+     ⚠️ Twenty was too short to register as anticipation; it arrived and
+     was over. Sixty gives it room to be noticed and then waited through.
+     This number is the whole feel of the moment — if it moves again it
+     moves HERE, and nowhere else needs touching.
 
      ⚠️ It plays through lib/song-audio's SHARED element, keyed to this
      post. That module owns the app's one speaker: whoever plays last owns
@@ -265,6 +329,16 @@ export default function DropCard({ drop, artUrl, mediaUrl }) {
   }, [on, drop?.post_id]);
 
   if (!drop) return null;
+
+  /* ⚠️ EVERYTHING BELOW THIS LINE RENDERS THE FRESHEST ROW. Destructured
+     parameters are assignable, and reassigning here is deliberate: the
+     alternative is renaming `drop` and `mediaUrl` at ~30 call sites in
+     the markup below, which is a much larger change to make at the end of
+     a long day for the same result. The two hooks that schedule against
+     release_at ran above and correctly used the ORIGINAL row — a stale
+     row still carries the right release time. */
+  if (fresh) drop = fresh;
+  if (freshUrl) mediaUrl = freshUrl;
 
   async function remindMe() {
     if (reminded || arming) return;
