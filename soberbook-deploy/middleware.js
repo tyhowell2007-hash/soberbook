@@ -186,8 +186,16 @@ export async function middleware(request) {
      form, no button and no route — deleting an account still requires a
      session and still goes through /api/account/delete, which refuses
      anyone without one. */
+  /* 🔴 /rules IS OPEN FOR THE SAME REASON, ADDED 8 SEPT. Apple's Guideline
+     1.2 requires the community guidelines to be PUBLISHED — a reviewer with
+     no account has to be able to read them, and so does anybody deciding
+     whether to sign up in the first place. A rules page behind a login is
+     not a published rules page.
+
+     ⚠️ It opens nothing. Like /delete-account it is a static document with
+     no form and no route behind it. */
   const open = ['/login', '/auth', '/reset', '/privacy', '/tour', '/survey',
-                '/delete-account',
+                '/delete-account', '/rules',
                 '/api/push/send',
                 '/api/content/cron', '/api/email/notify', '/api/unsub', '/unsub'];
   const isOpen = open.some((p) => request.nextUrl.pathname.startsWith(p));
