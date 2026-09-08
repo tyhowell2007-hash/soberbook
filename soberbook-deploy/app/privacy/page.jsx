@@ -159,9 +159,16 @@ export default function Privacy() {
         <li><strong>Anthropic</strong> — answers the questions you ask Sage,
           and only those. See above for what it is and is not shown.</li>
       </ul>
+      {/* 🔴 THIS SAID "BOTH" FOR AN HOUR AFTER THE LIST BECAME THREE, and it
+          was caught by reading the LIVE page rather than the diff. Two
+          companies went to three above and the sentence underneath was left
+          alone — so the promise that nobody may use your data for their own
+          purposes silently excluded the one company members would most want
+          it to cover. A count in prose is a second copy of the list above
+          it, and the second copy is the one that drifts. */}
       <p>
-        Both are infrastructure providers acting on our instructions. Neither is
-        given permission to use anything for their own purposes.
+        All three act only on our instructions. None of them is given
+        permission to use anything for their own purposes.
       </p>
 
       <h2>Young people</h2>
@@ -177,6 +184,16 @@ export default function Privacy() {
       <p className="fine">
         If this policy ever changes in a way that matters, the app will say so
         rather than quietly updating this page.
+      </p>
+      {/* ⚠️ Added 8 Sept with /rules. This page says what we do with what you
+          write; /rules says what you can write. They are the two halves of the
+          same question and a stranger deciding whether to sign up will want
+          both — /privacy is reachable from the front door, so it is also the
+          cheapest place to make the rules findable without an account. */}
+      <p className="fine">
+        What we ask of each other in here is a separate page:{' '}
+        <Link href="/rules">the rules</Link>. Deleting your account is{' '}
+        <Link href="/delete-account">here</Link>.
       </p>
       <p className="back"><Link href="/login">← Back</Link></p>
     </div>
