@@ -171,6 +171,32 @@ export default function DropCard({ drop, artUrl, mediaUrl }) {
     return () => clearTimeout(t);
   }, [drop?.release_at, drop?.is_out, opened, router]);
 
+  /* =====================================================================
+     ▶️ IT STARTS ITSELF — BUT ONLY FOR SOMEBODY WHO WATCHED THE CLOCK.
+
+     Ty: *"when it hits zero, it should play automatically the video. And
+     then after that, you have to play it every time. Just like YouTube."*
+
+     ⭐ `opened` IS THE CONSENT SIGNAL, AND IT COSTS NOTHING EXTRA. It is
+     true only in a browser that was sitting on this card when the
+     countdown ran out — which is exactly the person who came for the
+     premiere. Somebody scrolling past this record three hours later
+     mounts with `opened` false and gets an ordinary card with a play
+     button, silent until they choose it.
+
+     🔴 That is what keeps the August rule intact without making a music
+     video look like a broken image. The line was never "don't autoplay",
+     it is "nobody's phone makes noise they didn't ask for" — and sitting
+     through a countdown IS asking. See the drop-room design note.
+
+     ⚠️ Fires ONCE. `on` is not reset anywhere, so when the video ends the
+     member gets the normal controls and has to press play again — Ty's
+     "after that, you have to play it every time". No loop, deliberately:
+     a record restarting forever in somebody's room at 2am is hostile. */
+  useEffect(() => {
+    if (opened && drop && drop.is_out && mediaUrl) setOn(true);
+  }, [opened, drop?.is_out, mediaUrl]);
+
   if (!drop) return null;
 
   async function remindMe() {
