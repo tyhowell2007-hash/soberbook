@@ -2,6 +2,10 @@
 
 import { useRef, useState } from 'react';
 import { browserClient } from '../../lib/supabase-browser';
+/* ⚠️ NAMED imports out of a plain lib module — shrink-video.js carries no
+   'use client' directive on purpose, so this file's server-rendered
+   siblings could import it too without the 5 Sept named-export trap. */
+import { canShrink, shrinkVideo, SHRINK_ABOVE_BYTES } from '../../lib/shrink-video';
 
 /* =====================================================================
    PICK A PHOTO — now in three steps instead of one.
@@ -43,7 +47,7 @@ export default function PhotoUpload({
   const [stage, setStage] = useState('');
 
   async function chosen(e) {
-    const file = e.target.files?.[0];
+    let file = e.target.files?.[0];
     /* ⚠️ Clear it immediately — otherwise picking the same file twice in
        a row fires no change event the second time, and the button
        silently dies after one use. */
@@ -51,6 +55,34 @@ export default function PhotoUpload({
     if (!file) return;
 
     setErr('');
+
+    /* ---- shrink a phone video before anything else ------------------
+       🔴 A two-minute iPhone 4K clip is 412MB. Without this the 50MB
+       ceiling means members get about fourteen seconds, and they don't
+       report that — they conclude the app is broken. See lib/shrink-video.js.
+
+       ⚠️ Deliberately BEFORE the size check below, so the check measures
+       what we are actually about to upload rather than what was picked.
+       Getting that order wrong would refuse a file we were about to make
+       perfectly acceptable. */
+    const looksVideo = /^video\//.test(file.type || '')
+      || /\.(mov|mp4|m4v)$/i.test(file.name || '');
+    if (looksVideo && file.size > SHRINK_ABOVE_BYTES && canShrink()) {
+      setBusy(true);
+      onBusy?.(true);
+      setStage('Shrinking… 0%');
+      /* ⚠️ Real time — two minutes of video takes two minutes. The
+         percentage is not decoration, it is the difference between
+         "working" and "frozen". */
+      const smaller = await shrinkVideo(file, {
+        onProgress: (p) => setStage(`Shrinking… ${Math.round(p * 100)}%`),
+      });
+      /* null means it declined — unsupported browser, decode failure, or
+         it would have come out bigger. The original carries on to the
+         size check, which will refuse it honestly if it must. */
+      if (smaller) file = smaller;
+      setStage('');
+    }
 
     /* ---- refuse it here, before the upload, not after ---------------
        🔴 Ty, 8 Sept: "I'm trying to upload a video, and it's not working."
