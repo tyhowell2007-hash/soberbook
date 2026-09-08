@@ -171,7 +171,23 @@ export async function middleware(request) {
      questions. See 0118 and app/survey/page.jsx for the full reasoning,
      including what was deliberately NOT opened — anon can submit an
      answer and can never read one. */
+  /* 🔴 /delete-account IS OPEN, ADDED 8 SEPT, AND IT IS REQUIRED — NOT A
+     CONVENIENCE. Google Play's Data safety form demands a deletion URL
+     reachable WITHOUT the app and WITHOUT an account; that URL was
+     entered as https://soberbook.app/delete-account. Leave this line out
+     and a signed-out reviewer is bounced to /login, which is exactly the
+     dead end the page exists to prevent.
+
+     ⚠️ It would also LOOK fine to anyone testing it while signed in —
+     the same trap as 17 Aug, where a redirect was mistaken for a working
+     page. Test it signed out or don't test it.
+
+     🔴 THIS OPENS NOTHING. The page is a static document. It has no
+     form, no button and no route — deleting an account still requires a
+     session and still goes through /api/account/delete, which refuses
+     anyone without one. */
   const open = ['/login', '/auth', '/reset', '/privacy', '/tour', '/survey',
+                '/delete-account',
                 '/api/push/send',
                 '/api/content/cron', '/api/email/notify', '/api/unsub', '/unsub'];
   const isOpen = open.some((p) => request.nextUrl.pathname.startsWith(p));
