@@ -183,6 +183,13 @@ export default function ReplyMenu({ reply, onClose, onGone }) {
                   the pile, not into the spam queue.
                 </span>
               </button>
+              {/* ⚠️ THE WAY IN — see PostMenu.jsx for the full note. The lane
+                  above has named "the rules" since 0023 with nothing written
+                  down anywhere to read. New tab on purpose: leaving this sheet
+                  mid-report throws the report away. */}
+              <a className="back2" href="/rules" target="_blank" rel="noopener noreferrer">
+                what the rules actually say
+              </a>
               <button className="back2" type="button" onClick={() => setView('menu')}>back</button>
             </>
           )}
