@@ -124,6 +124,19 @@ input:focus-visible{ outline:4px solid var(--acid); outline-offset:0; box-shadow
 }
 .legal h1{ font-size:30px; margin:0 0 14px; letter-spacing:-.01em; }
 .legal h2{ font-size:19px; margin:32px 0 8px; letter-spacing:-.005em; }
+/* ⚠️ ADDED 8 SEPT WITH /rules, AND IT HAD TO BE ADDED IN THE SAME COMMIT.
+   /rules is the first legal page to use an <h3> — the eight numbered rules
+   sit one level under "The rules". There was no `.legal h3` anywhere in any
+   of the 25 stylesheets, so it would have rendered at the browser default
+   (~18.7px bold, 1em margins) — LOUDER than the h2 above it and with the
+   wrong rhythm, which throws no error and looks almost right.
+   ⭐ That is the .rwho / .gone / .phserr bug family, fourth time: a class a
+   route renders with no rule behind it. The fix belongs HERE, in globals,
+   because .legal is used by three routes now (/privacy, /delete-account,
+   /rules) and a copy in one route's stylesheet is the copy that drifts.
+   17px sits between the 19px h2 and the 16px body; the tighter top margin
+   is deliberate so a rule stays visually attached to its own heading. */
+.legal h3{ font-size:17px; margin:22px 0 4px; letter-spacing:-.004em; }
 .legal .lead{ font-size:17px; margin:0 0 6px; }
 .legal .upd{ font-size:13px; color:#63716A; margin:0 0 8px; }
 .legal ul{ padding-left:20px; margin:8px 0 0; }
