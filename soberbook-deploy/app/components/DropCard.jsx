@@ -3,6 +3,11 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { browserClient } from '../../lib/supabase-browser';
+/* ⚠️ THE SHARED, ALREADY-BLESSED ELEMENT — never a new <audio> tag. iOS
+   blesses an ELEMENT, not a page: one that no tap has ever touched is
+   refused every single time, which is what made profile songs silent on
+   every phone until 23 Aug while working perfectly on a laptop. */
+import { play as playShared, release as releaseShared, element as sharedEl } from '../../lib/song-audio';
 
 /* =====================================================================
    A MEMBER'S RECORD, ON THE WALL. THE ONLY LOUD CARD HERE.
@@ -196,6 +201,68 @@ export default function DropCard({ drop, artUrl, mediaUrl }) {
   useEffect(() => {
     if (opened && drop && drop.is_out && mediaUrl) setOn(true);
   }, [opened, drop?.is_out, mediaUrl]);
+
+  /* =====================================================================
+     🎹 THE LAST TWENTY SECONDS HAVE MUSIC.
+
+     Ty: *"when it gets down to twenty seconds, there's no elevator music
+     that goes on."*
+
+     ⭐ TWENTY SECONDS AND NOT THE WHOLE WAIT, and that is the better
+     design: a loop running for two hours stops being heard by minute
+     three. Starting it near zero makes it a CUE — silence, then music,
+     then the video. The change in the room is what says it's happening.
+
+     ⚠️ It plays through lib/song-audio's SHARED element, keyed to this
+     post. That module owns the app's one speaker: whoever plays last owns
+     it, so a member with a profile song open does not end up with two
+     things playing at once — the room takes the floor, which is correct,
+     because a countdown at four seconds outranks background music.
+
+     ⚠️ THE FADE IS A VOLUME RAMP, not a fade in the file. A loop snapping
+     on at exactly 20.0 is a jump scare; the point is anticipation.
+
+     🔴 play() THROWS IF THE ELEMENT WAS NEVER BLESSED — somebody who
+     loaded the wall and never touched it has given no gesture, and iOS
+     refuses. That is caught and ignored: no music is a small loss, an
+     unhandled rejection on the wall is not. AudioUnlock in the root
+     layout blesses on the first tap anywhere, so in practice anyone who
+     has interacted at all will hear it. */
+  useEffect(() => {
+    if (!drop || drop.is_out || !drop.release_at) return;
+    const key = `droplobby:${drop.post_id}`;
+    const lead = new Date(drop.release_at) - Date.now() - 20_000;
+    if (lead > 86_400_000) return;          // same setTimeout ceiling as above
+    let ramp = null;
+    const start = async () => {
+      try {
+        await playShared(key, '/lobby.mp3', { loop: true });
+        const a = sharedEl();
+        a.volume = 0;
+        const t0 = Date.now();
+        ramp = setInterval(() => {
+          const p = Math.min(1, (Date.now() - t0) / 3000);
+          a.volume = p * 0.55;              // never full — it sits UNDER the moment
+          if (p >= 1) { clearInterval(ramp); ramp = null; }
+        }, 60);
+      } catch {}
+    };
+    const t = setTimeout(start, Math.max(0, lead));
+    return () => {
+      clearTimeout(t);
+      if (ramp) clearInterval(ramp);
+      releaseShared(key);
+    };
+  }, [drop?.release_at, drop?.is_out, drop?.post_id]);
+
+  /* 🔴 AND IT STOPS DEAD THE INSTANT THE RECORD STARTS. Two things playing
+     over each other would ruin the one moment this whole feature exists
+     for. ⚠️ release(), never a pause left owning the floor — see the note
+     at the bottom of lib/song-audio.js about why releasing is not
+     closing. */
+  useEffect(() => {
+    if (on && drop) releaseShared(`droplobby:${drop.post_id}`);
+  }, [on, drop?.post_id]);
 
   if (!drop) return null;
 
