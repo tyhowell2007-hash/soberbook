@@ -231,7 +231,7 @@ export default function DropCard({ drop, artUrl, mediaUrl }) {
   useEffect(() => {
     if (!drop || drop.is_out || !drop.release_at) return;
     const key = `droplobby:${drop.post_id}`;
-    const lead = new Date(drop.release_at) - Date.now() - 20_000;
+    const lead = new Date(drop.release_at) - Date.now() - 60_000;
     if (lead > 86_400_000) return;          // same setTimeout ceiling as above
     let ramp = null;
     const start = async () => {
