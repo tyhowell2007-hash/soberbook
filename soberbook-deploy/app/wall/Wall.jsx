@@ -19,6 +19,7 @@ import ContentCard from '../components/ContentCard';
 import DropCard from '../components/DropCard';
 import DropSheet from './DropSheet';
 import PushAsk from '../components/PushAsk';
+import InviteAsk from './InviteAsk';
 import TourCard from '../components/TourCard';
 import Pledge from '../components/Pledge';
 
@@ -1473,6 +1474,20 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
           Only ever rendered when push_ask_due() came back true, which is
           once, on a first post. */}
       {askPush && <PushAsk onDone={() => setAskPush(false)} />}
+
+      {/* ⭐ BRING ONE PERSON. Renders NOTHING unless invite_ask_due()
+          comes back true, so there is no state here to keep in step with
+          it — the walkthrough card's shape, not PushAsk's. PushAsk hangs
+          off an action the wall witnesses (you just posted); a reply
+          arrived at some other time on somebody else's phone, so there is
+          no event here to hang this off.
+
+          ⚠️ Sits below PushAsk deliberately. On the rare render where a
+          member is due both, the notification ask is the one that has to
+          land — it is what makes the NEXT reply reach them at all. */}
+      <InviteAsk />
+
+
 
       {/* ⭐ THE WALKTHROUGH CARD. Above the wall, below the composer.
           It decides for itself whether to render — it asks the server
