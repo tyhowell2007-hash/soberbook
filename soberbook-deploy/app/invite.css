@@ -1,1 +1,168 @@
+/* =====================================================================
+   BRING ONE PERSON — the card on Home, and the quiet line on /me.
 
+   🔴 WHY, MEASURED 9 SEPT. 245 members. 50 have ever said anything, and
+   **39 of those 50 said it on the day they joined.** Eleven people in
+   thirty-seven days have ever broken their silence on a later day. The
+   room does not warm anybody up, so the only channel worth building is
+   the one where the new arrival lands ALREADY KNOWING SOMEBODY.
+
+   ⚠️ Its own file, imported by app/wall/layout.jsx and app/me/layout.jsx.
+   Same argument as openroom.css, tourcard.css and pledge.css: wall.css is
+   71KB and failed three consecutive uploads on 23 Aug, because GitHub's
+   folder-drag silently gives up on the largest file in a batch. Small
+   files land.
+
+   ⚠️ `.iv*` prefix, checked against every stylesheet before writing a
+   rule — 0 collisions. 70 class names in this app are already owned by
+   more than one sheet and that is a live open problem; this does not add
+   to it.
+
+   ---------------------------------------------------------------------
+   EVERY COLOUR BELOW WAS RUN THROUGH THE CONTRAST MATH BEFORE THE
+   COMMENT WAS TYPED. Four unmeasured figures went into comments on
+   5 Sept and all four were wrong; two more on 2 Sept were outright
+   failures sitting under a comment claiming they passed.
+
+   ⚠️ AND A CORRECTION TO A NEIGHBOUR: openroom.css states #F4FBF7 is
+   "6.05 on --gd" and #C6E4D2 is "4.62". Re-measured today they are
+   **6.15** and **4.75**. Both still clear the floor so nothing is broken
+   — but the numbers there are not exact, and should not be copied
+   forward as if they were.
+
+   🔴 #A9CDBA WAS MY FIRST PICK FOR THE FINE PRINT AND IT MEASURES 3.73 —
+   under the 4.5 floor. So the fine print is the same colour as the body
+   and separates by SIZE instead. The dimmest green that passes at all is
+   #C0DFCE at 4.52, which is too close to the line to spend.
+   ===================================================================== */
+
+.ivcard {
+  /* ⚠️ 14px side margins, matching .composer and .orcard — the card
+     brings its own gutter. A `.pad` wrapper round a component that
+     renders null most of the time left a 110px empty band at the top of
+     Home on 2 Sept. */
+  margin: 0 14px 14px;
+  padding: 15px 16px;
+  background: var(--gd, #1b6b4a);
+  border-radius: 14px;
+}
+
+.ivEyebrow {
+  display: block;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+  color: #A8EDC3;          /* 4.79 on --gd — MEASURED */
+}
+
+/* ⚠️ display:block on every one of these. They are spans, a span is
+   inline by default, and MARGIN DOES NOTHING ON AN INLINE ELEMENT — the
+   4 Aug bug that put two lines on top of each other on /welcome, and
+   again on .orTtl in September. */
+.ivTtl {
+  display: block;
+  margin: 5px 0 0;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.3;
+  color: #F4FBF7;          /* 6.15 on --gd — MEASURED */
+}
+.ivBody {
+  display: block;
+  margin: 6px 0 0;
+  font-size: 14px;
+  line-height: 1.55;
+  color: #C6E4D2;          /* 4.75 on --gd — MEASURED */
+}
+.ivFine {
+  display: block;
+  margin: 9px 0 0;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: #C6E4D2;          /* same colour, smaller — see the header note */
+}
+
+/* ---------- the two buttons ----------
+   🔴 THEY ARE THE SAME SIZE, AND THAT IS THE WHOLE POINT.
+   A big bright yes over a small grey "no thanks" is the standard growth
+   pattern and it is a dark one. Copied deliberately from PushAsk, which
+   made the same call for the same reason: this is a room for people who
+   have been leaned on enough. */
+.ivRow {
+  display: flex;
+  gap: 8px;
+  margin: 14px 0 0;
+}
+.ivBtn {
+  flex: 1 1 0;
+  /* ⚠️ 44px minimum. The post footer shipped with ~20px tap targets on
+     the only two controls anybody used, and it took a month to notice. */
+  min-height: 44px;
+  padding: 11px 10px;
+  border-radius: 9px;
+  font-size: 13.5px;
+  font-weight: 700;
+  text-align: center;
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+.ivBtn.go {
+  background: #F4FBF7;
+  color: #1B6B4A;          /* 6.15 on #F4FBF7 — MEASURED */
+  border-color: #F4FBF7;
+}
+.ivBtn.no {
+  background: transparent;
+  color: #F4FBF7;          /* 6.15 on --gd — MEASURED */
+  border-color: #A8EDC3;   /* 4.79 — well over the 3.0 an edge needs */
+}
+.ivBtn:disabled { opacity: .7; cursor: default; }
+
+/* The link in the clear, for when the clipboard refuses.
+   🔴 NOT a fallback nobody can reach: some iOS webviews reject
+   navigator.clipboard outside a narrow gesture window, and a copy button
+   that silently does nothing is character-for-character the
+   "everything built except the way in" bug this app has hit thirteen
+   times. If the copy fails, the address is on screen to read. */
+.ivLink {
+  display: block;
+  margin: 12px 0 0;
+  padding: 10px 12px;
+  background: #12523A;
+  border: 1px solid #A8EDC3;
+  border-radius: 9px;
+  color: #F4FBF7;
+  font-size: 13px;
+  word-break: break-all;
+  width: 100%;
+  font-family: inherit;
+}
+
+/* ---------- the permanent line at the bottom of /me ----------
+   Cream, because /me is the cream skin, not the green room. */
+.ivMe { margin: 22px 0 0; }
+.ivMeTtl {
+  margin: 0;
+  font-size: 14.5px;
+  font-weight: 500;
+  color: #1A1610;          /* 17.06 on #FFF8EC — MEASURED */
+}
+.ivMeSub {
+  margin: 4px 0 0;
+  font-size: 13px;
+  line-height: 1.55;
+  color: #5C5245;          /* 7.24 on #FFF8EC — MEASURED */
+}
+.ivMeBtn {
+  margin: 12px 0 0;
+  min-height: 44px;
+  padding: 11px 18px;
+  background: #111;
+  color: #FFF8EC;          /* 17.89 on #111 — MEASURED */
+  border: 2px solid #111;
+  border-radius: 9px;
+  font-size: 13.5px;
+  font-weight: 500;
+  cursor: pointer;
+}
