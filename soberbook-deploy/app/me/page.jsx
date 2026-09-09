@@ -96,6 +96,18 @@ export default async function MePage() {
      one screen that is already about you and nobody else. */
   const { data: pending } = await supabase.rpc('my_pending_tags');
 
+  /* Your people (8 Sept). ⭐ Already ordered quietest-first by the
+     function itself — the component does not sort, because "who have I
+     not heard from" is a rule about relationships and belongs next to
+     the data, not in the markup.
+
+     ⚠️ my_friends() is SECURITY DEFINER and takes NO ARGUMENT, so it can
+     only ever return the caller's own friendships — there is no version
+     of it that could hand back somebody else's list. That is exactly why
+     this grid is safe here and was refused on a public profile; 0155
+     dropped the friends_of(handle) I had written for that. */
+  const { data: friends } = await supabase.rpc('my_friends');
+
   return (
     <Me
       email={user.email}
@@ -105,6 +117,7 @@ export default async function MePage() {
       postPhotoUrls={postPhotoUrls}
       pendingTags={pending || []}
       notes={notes || []}
+      friends={friends || []}
     />
   );
 }
