@@ -237,6 +237,12 @@ export default function Rows({ initial, askPush: askPushInitial }) {
            n.kind === 'support' || n.kind === 'strength') && n.post_id
             ? `/p/${n.post_id}` :
           n.kind === 'mention' && n.room_slug ? `/friends?room=${n.room_slug}` :
+          /* ⚠️ A friend row goes to the PERSON, and that is the whole
+             design of it: Accept and Ignore live on their profile, side
+             by side and the same size, so answering means having looked
+             at who is asking. An Accept button in this list would let you
+             let somebody in without ever seeing them. */
+          n.kind === 'friend' && n.who_handle ? `/u/${n.who_handle}` :
           null;
 
         const icon = n.kind === 'message' ? '✉️'
@@ -245,6 +251,7 @@ export default function Rows({ initial, askPush: askPushInitial }) {
           : n.kind === 'drop' ? '🎵'
           : n.kind === 'support' ? '🤝'
           : n.kind === 'strength' ? '💪'
+          : n.kind === 'friend' ? '👋'
           : '💬';
 
         /* ⚠️ A highlight used to fall through to "answered your post",
@@ -264,6 +271,20 @@ export default function Rows({ initial, askPush: askPushInitial }) {
              human in it. */
           : n.kind === 'support' ? `${n.who} sent you support`
           : n.kind === 'strength' ? `${n.who} sent you strength`
+          /* 🔴 TWO DIFFERENT EVENTS, ONE KIND. `detail` is the only thing
+             that tells them apart, and getting it wrong here would be the
+             highlight bug again — a row confidently describing something
+             that did not happen.
+
+             ⚠️ "sent you a friend request" is the honest sentence and it
+             was NOT true between 29 Aug and tonight: 0087 made Add friend
+             instant and one-sided, so for eleven days people were being
+             added without being asked and without being told. 0153 put
+             the ask back. */
+          : n.kind === 'friend'
+            ? (n.detail === 'accepted'
+                ? `${n.who} accepted your friend request`
+                : `${n.who} sent you a friend request`)
           : `${n.who} answered your post`;
 
         const body = (
