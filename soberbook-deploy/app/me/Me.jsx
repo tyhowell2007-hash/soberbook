@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { browserClient } from '../../lib/supabase-browser';
 import { plainError } from '../../lib/plain-error';
+import People from './People';
 import SongPicker from './SongPicker';
 import SongPlayer from '../components/SongPlayer';
 import Milestones from '../components/Milestones';
@@ -112,7 +113,13 @@ function Section({ title, open = false, tint, eye, children }) {
 }
 
 export default function Me({ email, profile, posts, initialAvatarUrl,
-                             postPhotoUrls = {}, notes = [], pendingTags = [] }) {
+                             postPhotoUrls = {}, notes = [], pendingTags = [],
+                             /* ⚠️ Defaults to an empty array, not undefined.
+                                People.jsx reads .length on the first line;
+                                an undefined prop from a page that forgets to
+                                pass it would white-screen /me for everybody
+                                rather than showing an empty shelf. */
+                             friends = [] }) {
   /* Tags waiting on this member (0082). Kept in state so approving or
      declining one takes it off the screen immediately — the person is
      standing right there watching, and a round trip reads as a dead
@@ -1333,6 +1340,19 @@ export default function Me({ email, profile, posts, initialAvatarUrl,
 
           {/* ---- about you ---- */}
         </Section>
+
+        {/* 🔴 YOUR PEOPLE SITS DIRECTLY UNDER YOUR DATE, and both of those
+            positions were Ty's. The date is first because it is the number
+            you open this page to look at. This is second because it is the
+            only thing here that is about somebody other than you.
+
+            ⚠️ NOT a <Section>. Every other block on this page is a
+            collapsible settings card — a thing you open, change, and
+            close. This is content: it should already be showing when the
+            page loads, because a wall of your people behind a chevron is
+            the same mistake as the friends list at the bottom of the
+            Community page that nobody could reach. */}
+        <People friends={friends} />
 
         <Section title="🪪 Your handle" tint="sand">
           <HandleEditor handle={handle} setHandle={setHandle}
