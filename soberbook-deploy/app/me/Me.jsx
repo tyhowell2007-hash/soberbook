@@ -17,7 +17,7 @@ import { dayCount, startsInDays } from '../../lib/milestones';
 import { cleanHandle } from '../../lib/first-run';
 /* The new profile controls. Split out of this file rather than added to
    it — see the note at the top of ProfileBits.jsx. */
-import { SponsorPair, PathPicker, ThemePicker, DayCountVisibility,
+import { SponsorPair, PathPicker, ThemePicker, NightSwitch, DayCountVisibility,
          HandleEditor, Eye } from './ProfileBits';
 import PhotoUpload from '../components/PhotoUpload';
 import DeleteAccount from './DeleteAccount';
@@ -1219,6 +1219,13 @@ export default function Me({ email, profile, posts, initialAvatarUrl,
                 It sits above sign-out for the same reason sign-out sits
                 last — this is a thing you decide about your phone, not
                 about your account. */}
+            {/* 🌙 ON THE READ VIEW, NOT BEHIND THE PENCIL — the mistake this
+                page has now made three times (sign-out on 23 Aug, the push
+                switch an hour after writing the note about sign-out, and
+                your people earlier tonight). Somebody who wants the screen
+                to stop burning at 2am should not have to go looking for a
+                settings panel to find that out. */}
+            <NightSwitch theme={theme} setTheme={setTheme} save={save} busy={busy} />
             <PushSwitch />
             {/* ⚠️ UNDER push, not above it. Push is the better experience when
                 it works; email is the one that works for everybody. Meet the
