@@ -1,6 +1,17 @@
 import './globals.css';
 import './wall.css';
 
+/* ⭐ THE NIGHT ROOM, and unlike theme-green.css this one IS safe in the
+   root layout. Every rule in it is scoped to [data-theme="black"], so
+   with no attribute on <html> the file matches nothing at all — the
+   scoping does the job theme-green had to do with its import location.
+
+   🔴 IMPORTED AFTER wall.css ON PURPOSE. It is an override layer and
+   loses to anything that comes later at equal specificity. */
+import './theme-black.css';
+import { serverClient } from '../lib/supabase-server';
+
+
 /* ⚠️ theme-green.css IS DELIBERATELY NOT IMPORTED HERE. DO NOT ADD IT BACK.
 
    Ty's call, Aug 15 evening: "The only grunge part is when they sign in
@@ -72,9 +83,43 @@ export const viewport = {
   viewportFit: 'cover',
 };
 
-export default function RootLayout({ children }) {
+/* 🔴 READ ON THE SERVER, AND THAT IS THE WHOLE POINT.
+
+   A theme flipped in the browser paints the cream page first and swaps
+   after hydration. On a phone in a dark room that is a white flash in
+   the face of somebody who chose black specifically so that wouldn't
+   happen — the feature failing at the one moment it exists for.
+
+   ⚠️ Fails soft, deliberately. A signed-out stranger, an expired
+   session or a database hiccup all end at `null`, which renders no
+   attribute and gives everybody the cream theme. The failure mode of a
+   theme lookup must never be a page that won't load.
+
+   ⚠️ Reads `theme` and nothing else. This runs on EVERY route in the
+   app, including the door, so it is the most-executed query here —
+   it has no business selecting a whole profile row. */
+async function chosenTheme() {
+  try {
+    const supabase = serverClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return null;
+    const { data } = await supabase
+      .from('profiles').select('theme').eq('id', user.id).maybeSingle();
+    return data?.theme || null;
+  } catch {
+    return null;
+  }
+}
+
+export default async function RootLayout({ children }) {
+  const theme = await chosenTheme();
   return (
-    <html lang="en">
+    /* ⚠️ Only 'black' is written out. `theme` already allows eight values
+       in the database and seven of them have no stylesheet — rendering
+       data-theme="sunset" would put an attribute on the page that
+       nothing answers, which is how a half-built feature starts looking
+       like a bug. When a theme gets a file, it gets added here. */
+    <html lang="en" data-theme={theme === 'black' ? 'black' : undefined}>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
