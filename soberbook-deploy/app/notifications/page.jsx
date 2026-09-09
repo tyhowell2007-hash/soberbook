@@ -64,7 +64,14 @@ export default async function NotificationsPage() {
        ⚠️ Character-for-character the 3 Sept stuck-highlight bug, one kind
        along. The destination and the reader both already existed; only
        the field connecting them was missing from this line. */
-    .select('id, kind, created_at, unread, post_id, thread_id, who, who_handle, about, room_slug')
+    /* ⚠️ `detail` ADDED 8 Sept, and the note above is exactly why it is
+       here rather than being remembered later. A 'friend' row is one of
+       two different events — a request arriving, or a request being
+       accepted — and `detail` is the only thing that distinguishes them.
+       Leave it out of this list and every friend row silently falls to
+       the request wording, which would tell somebody they had been asked
+       when in fact they had been answered. */
+    .select('id, kind, created_at, unread, post_id, thread_id, who, who_handle, about, room_slug, detail')
     .order('created_at', { ascending: false })
     .limit(100);
 
