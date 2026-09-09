@@ -1540,15 +1540,41 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
                     photo option. All three live in feed_posts, so there is
                     nothing for this markup to decide. It renders whatever
                     it was given, and what it was given is already safe. */}
-                {!p.is_anonymous && urlFor(p.display_avatar_photo) ? (
-                  <img className="pa pa-photo" src={urlFor(p.display_avatar_photo)}
-                       onError={() => reSign(p.display_avatar_photo)}
-                       alt="" aria-hidden="true" />
-                ) : (
-                  <span className="pa" aria-hidden="true">
-                    {p.is_anonymous ? '🤫' : (p.display_avatar || '🌱')}
-                  </span>
-                )}
+                {/* 🔴 THE FACE IS A DOOR NOW (8 Sept). Ty: *"you should be
+                    able to tap on the person's face or emoji and go
+                    directly to their page profile… the only way you can
+                    get to their profile now is if they post something at
+                    home in the feed."*
+
+                    ⚠️ THE GATE IS `p.author_handle`, THE SAME EXPRESSION
+                    who() ALREADY USES — not a new test of my own. An
+                    anonymous post has no handle, so its face stays inert
+                    for free, and if the anonymity rule ever moves, it
+                    moves in one place and both the name and the face
+                    follow it. A second condition that MEANT the same
+                    thing today is exactly how the two drift apart later.
+
+                    ⚠️ aria-hidden stays on the picture and the label goes
+                    on the link, or a screen reader announces a link with
+                    no name. */}
+                {(() => {
+                  const face = (!p.is_anonymous && urlFor(p.display_avatar_photo)) ? (
+                    <img className="pa pa-photo" src={urlFor(p.display_avatar_photo)}
+                         onError={() => reSign(p.display_avatar_photo)}
+                         alt="" aria-hidden="true" />
+                  ) : (
+                    <span className="pa" aria-hidden="true">
+                      {p.is_anonymous ? '🤫' : (p.display_avatar || '🌱')}
+                    </span>
+                  );
+                  if (!p.author_handle) return face;
+                  return (
+                    <Link href={`/u/${p.author_handle}`} className="palink"
+                          aria-label={`${p.display_name}’s page`}>
+                      {face}
+                    </Link>
+                  );
+                })()}
                 <span className="hw">
                   <span className="nm">
                     {who(p)}
