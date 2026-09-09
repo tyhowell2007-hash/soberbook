@@ -764,6 +764,47 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* ---- ☕ HELP KEEP THIS APP MOVING ----
+
+           🔴 IT IS ON THE LANDING PAGE FIRST, AND THAT IS THE WHOLE
+           DECISION. The people most able to give are not the members —
+           they are the family, the friends and the treatment staff who
+           arrive here from a flyer or a link. 243 members, most of them
+           early in recovery, a good number of them broke; asking the
+           person on day twelve for money is the version of this we are
+           not building.
+
+           ⚠️ NEVER IN THE FEED, AND NEVER ON /now. A tip jar inches from
+           somebody posting at 2am that they are struggling is a different
+           object entirely. This sits at the bottom, below the last
+           section, above the footer, and behaves the same for everybody —
+           no targeting, no repetition, no modal.
+
+           ⚠️ rel="noreferrer" IS NOT OPTIONAL HERE. It is the 23 Aug rule:
+           elsewhere a referrer is a statistic, but from Sober Book it
+           tells a third party's logs that the visitor came from a
+           recovery app. Same reason every outbound link on the wall
+           carries it.
+
+           Measured on --lp-cream #FFF8EC: heading --lp-ink 15.78, body
+           --lp-muted 5.42, and the button is white on --lp-go at 6.46.
+           ⚠️ --lp-tang, the landing orange, is 3.39 — under the 4.5 floor,
+           so it is a fill on this page and never text. */}
+      <section className="lp-coffee">
+        <div className="lp-wrap">
+          <p className="lp-cofT">Help keep this app moving</p>
+          <p className="lp-cofP">
+            Sober Book is free and it stays free. No ads, no algorithms,
+            and nobody sells anybody&apos;s information. It just costs a
+            little each month to keep the lights on.
+          </p>
+          <a className="lp-cofB" href="https://buymeacoffee.com/tyhowell07"
+             target="_blank" rel="noopener noreferrer">
+            ☕ Buy us a coffee
+          </a>
+        </div>
+      </section>
+
       <p className="lp-foot">
         Sober Book · a safe place to be yourself · all paths welcome
         {' · '}<a href="/privacy">privacy</a>
