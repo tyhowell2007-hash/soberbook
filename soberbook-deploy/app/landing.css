@@ -280,3 +280,33 @@
 .lp-sw:focus-visible{ outline:3px solid rgba(232,89,12,.45); outline-offset:2px; }
 .lp-anon-t{ font-size:13.5px; font-weight:700; }
 .lp-anon-s{ font-size:12px; color:var(--lp-muted); line-height:1.4; }
+
+/* =====================================================================
+   ☕ HELP KEEP THIS APP MOVING — the quiet ask, above the footer.
+
+   ⚠️ THREE NEW CLASSES, DECLARED HERE BEFORE THE MARKUP SHIPS. The naked
+   class has bitten this project repeatedly (.palink on 8 Sept, the eleven
+   from 5 Sept, .pbT earlier tonight). Styles first, markup second.
+
+   Measured on --lp-cream #FFF8EC:
+     .lp-cofT  --lp-ink   #2A1B0C   15.78
+     .lp-cofP  --lp-muted #7A6249    5.42
+     .lp-cofB  white on --lp-go      6.46
+   ⚠️ --lp-tang (#E8590C) measures 3.39 on cream and is NOT used for text
+   here — on this page it is a fill only.
+   ===================================================================== */
+.lp-coffee{ padding:34px 20px 6px; text-align:center; }
+.lp-cofT{
+  font-family:'Fraunces',Georgia,serif; font-style:italic;
+  font-size:20px; color:var(--lp-ink); margin:0 0 8px;
+}
+.lp-cofP{
+  font-size:14px; line-height:1.6; color:var(--lp-muted);
+  max-width:430px; margin:0 auto 16px;
+}
+.lp-cofB{
+  display:inline-block; background:var(--lp-go); color:#fff;
+  text-decoration:none; border-radius:7px; padding:11px 22px;
+  font-weight:700; font-size:15px; min-height:44px; line-height:22px;
+}
+.lp-cofB:hover{ background:#155A3E; }
