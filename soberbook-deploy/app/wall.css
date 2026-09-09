@@ -1037,18 +1037,46 @@ textarea:focus-visible{ outline:4px solid var(--x); outline-offset:3px; }
    ===================================================================== */
 
 /* one row of the inbox */
+/* ⚠️ position:relative added 8 Sept — it is what `.rowfill` below is
+   measured against. Without it the stretched link escapes to the nearest
+   positioned ancestor and covers the whole list. */
 .crow{ display:flex; gap:11px; align-items:center; padding:12px 13px;
-  border:3px solid var(--x); background:var(--paper2); margin-bottom:10px; }
+  border:3px solid var(--x); background:var(--paper2); margin-bottom:10px;
+  position:relative; }
+
+/* ---- one row, two destinations (8 Sept) ----
+   Ty: *"you should be able to click on their name, or on their face, and
+   go straight to their profile."* On a chat row and a member row the rest
+   of the row already meant something else — open the conversation — so
+   the row needed to do two things at once.
+
+   🔴 THE ONLY SAFE SHAPE IS A STRETCHED CONTROL UNDERNEATH. Nesting a
+   link inside the row's link (or inside its button) is invalid HTML and
+   browsers drop one of the two, unpredictably. Instead the row's own
+   action becomes an invisible absolutely-positioned control at z-index 0,
+   and the two things that belong to the PERSON sit above it.
+
+   ⚠️ The z-index pair is load-bearing, not decoration. Remove it and the
+   fill swallows the face and the name — and the row still looks and
+   behaves perfectly normally, which is exactly the kind of bug nobody
+   reports. */
+.rowfill{ position:absolute; inset:0; z-index:0;
+  background:none; border:0; padding:0; margin:0; cursor:pointer; }
+.rowfill[disabled]{ cursor:default; }
+.rowfill:focus-visible{ outline:4px solid var(--x); outline-offset:-4px; }
+.cavlink, .cnamelink{ position:relative; z-index:1; }
+.cnamelink{ text-decoration:none; color:inherit; }
+.cnamelink:hover{ text-decoration:underline; }
+.cnamelink:focus-visible{ outline:3px solid var(--x); outline-offset:2px; }
 .clink{ display:block; text-decoration:none; color:inherit; }
 .clink:focus-visible{ outline:4px solid var(--x); outline-offset:3px; }
 
-/* 8 Sept — the conversation link moved from wrapping the whole row to
-   wrapping only the name-and-preview column, so the face beside it can be
-   its own link to that person's page. ⚠️ These two declarations are not
-   decoration: .cwho used to be the flex child and carried them, and
-   without them here the preview text stops truncating and every row in
-   the inbox grows to fit the longest message. */
-.cwholink{ flex:1; min-width:0; }
+/* 8 Sept — SUPERSEDED THE SAME EVENING. `.cwholink` wrapped the
+   conversation link around only the name-and-preview column so the face
+   could be its own link. Then Ty asked for the NAME to go to the profile
+   too — and a name link inside the conversation link is the very nesting
+   that was being avoided. Gone; `.rowfill` above does the job.
+   ⚠️ `.cavlink` STAYS — it is still the face link on every row. */
 /* ⚠️ .cav is already 42px square and flex-shrink:0, so as a link it is a
    real tap target without any sizing of its own. It only needs the
    anchor defaults removed. */
@@ -1191,17 +1219,11 @@ textarea:focus-visible{ outline:4px solid var(--x); outline-offset:3px; }
 .drow{ width:100%; text-align:left; cursor:pointer; font:inherit; }
 .drow[disabled]{ opacity:.55; cursor:default; }
 
-/* 8 Sept — the member row stopped being one big <button> so the face
-   beside the text could be its own link to that person's page. `.crow`
-   keeps the border, padding and flex; this is the button that took over
-   the rest of the row.
-   ⚠️ flex:1 and min-width:0 are load-bearing — `.cwho` used to be the
-   direct flex child and carried them. Without them the "Quiet 19 days"
-   line stops truncating and every row grows to fit it. */
-.dwho{ flex:1; min-width:0; display:flex; align-items:center; gap:11px;
-  background:none; border:0; padding:0; margin:0; font:inherit; color:inherit;
-  text-align:left; cursor:pointer; }
-.dwho[disabled]{ opacity:.55; cursor:default; }
+/* 8 Sept — `.dwho` lived here for a few hours and is gone. It was the
+   button that took over the member row when the face came out of it; the
+   name coming out too left nothing for it to wrap. Deleted rather than
+   left orphaned — a class with rules and no markup is the mirror of the
+   naked-class bug from 5 Sept, and just as hard to spot later. */
 .dchip{
   display:inline-block; margin-left:6px; padding:2px 8px; border-radius:99px;
   font-family:'Courier Prime',monospace; font-size:10px; font-weight:700;
