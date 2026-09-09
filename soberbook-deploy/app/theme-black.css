@@ -99,7 +99,23 @@
    the card on the page (1.12).
    ===================================================================== */
 
-[data-theme="black"]{
+/* 🔴 `html[...]`, NOT `[data-theme="black"]` — AND THIS SHIPPED WRONG THE
+   FIRST TIME, caught on the live page rather than in the build.
+
+   theme-green.css declares these same variables on `:root`. Both
+   selectors have identical specificity (0,1,0), so the winner is decided
+   purely by SOURCE ORDER — and theme-green is imported by each route's
+   own layout, which loads AFTER the root layout's copy of this file.
+   theme-green won every variable.
+
+   ⭐ THE TELL WAS THAT IT HALF-WORKED: `.item` went dark (that rule is
+   (0,2,0) and beats theme-green's `.item` on specificity) while --paper
+   stayed cream. A theme that paints the cards and not the page is a
+   specificity problem, not a missing rule.
+
+   `html[data-theme="black"]` is (0,1,1) — one element plus one attribute
+   — which outranks `:root` no matter what order the files load in. */
+html[data-theme="black"]{
   /* The same vocabulary theme-green declares, in night values. Nothing
      new is invented — a rule that already said var(--paper) needs no
      edit to follow the theme. */
