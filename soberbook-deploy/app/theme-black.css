@@ -723,3 +723,43 @@ html[data-theme="black"] .mbadge{
    rgb and ignores the alpha sees opaque white and reports 1.06. The real
    background is 16% white over a dark card, and the text is legible.
    The checker was wrong, not the CSS. */
+
+/* =====================================================================
+   ☕ THE COFFEE BUTTON IN NIGHT — and this is the fourth time tonight
+   that one value was doing two jobs.
+
+   `.mecream .btn` fills with var(--cr-line), which is #111. On the cream
+   page that is a black button: correct. On the night page #0F1512 it
+   measures 1.02 against the background — the button SHAPE disappears
+   entirely, while the white text on it reads at 18.88.
+
+   🔴 A TEXT-ONLY CONTRAST AUDIT PASSES THIS. The words are legible; the
+   thing they sit on is invisible. That is why the check has to look at
+   fills against fills, not just type against its background — the
+   17 Aug pale-tag bug, the 2 Sept pill, the milestone badge, and now this.
+
+   ⚠️ FIXED HERE AND NOT BY REMAPPING --cr-line, deliberately. That
+   variable is ALSO every card border and box-shadow on /me; turning it
+   green would repaint the whole page to fix one button. Same reason --gd
+   stayed a fill: when one name does two jobs, change the job that is
+   wrong, not the name.
+
+   #1F7A55 measured: white on it 5.29, and the button reads as a shape
+   against the page at 3.50 — clearing both the 4.5 text floor and the
+   3:1 bar for a UI boundary.
+
+   ⚠️ KNOWN AND LEFT: --cr-page, --cr-ink and --cr-soft are still cream
+   values in Night. Every rule that USES them is overridden above, which
+   is why /me measures 0 failures — but a new me-cream rule written later
+   will inherit cream ink and nothing will warn you. Remapping them is the
+   proper fix and it is a bigger change than tonight deserves.
+   ===================================================================== */
+html[data-theme="black"] .mecream .btn,
+html[data-theme="black"] .mecream .sgo{
+  background:#1F7A55; border-color:#1F7A55; color:#fff;
+}
+html[data-theme="black"] .mecream .btn:hover,
+html[data-theme="black"] .mecream .sgo:hover{ background:#1A6647; color:#fff; }
+/* ⚠️ The hover goes DARKER, not lighter, and that is forced by the maths:
+   my first pick #25925F put white at 3.92 — a hover state that drops the
+   label under the floor the moment a thumb rests on it. #1A6647 is 6.92. */
