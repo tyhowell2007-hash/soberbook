@@ -559,7 +559,21 @@ export default function Room({ room, initial, meHandle, members, signed, spokenH
 
           return (
           <div key={m.id} className={'rmsg' + (m.is_mine ? ' mine' : '') + (m.pending ? ' pending' : '')}>
-            {!m.is_mine && <div className="roomwho">{m.display_name}</div>}
+            {/* 🔴 THE NAME OVER A MESSAGE LEADS SOMEWHERE (8 Sept).
+                ⚠️ `m.handle` IS NULL IN AN ANONYMOUS ROOM and that is the
+                whole gate — room_wall nulls it there by construction, so
+                the Kratom and Porch rooms keep their names unlinked
+                without this file knowing which rooms those are. A slug
+                list here would be a second copy of a rule the view
+                already owns, and the fourth anonymous room would ship
+                without it. */}
+            {!m.is_mine && (
+              <div className="roomwho">
+                {m.handle
+                  ? <Link href={`/u/${m.handle}`} className="wholink">{m.display_name}</Link>
+                  : m.display_name}
+              </div>
+            )}
             <div className="rline">
               <div className="rbub">
                 {pics.length > 0 && (
