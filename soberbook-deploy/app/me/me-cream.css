@@ -301,3 +301,106 @@
   font-size:15px; font-weight:600; color:var(--cr-ink);
   overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
 }
+
+/* =====================================================================
+   YOUR PEOPLE — the friends grid (8 Sept).
+
+   Ty picked this off two drawn options: *"A's tiles + B's green header."*
+   The bar is what stops the section floating on a page of pastel cards;
+   the tiles are what make it feel like a wall of people rather than a
+   list of rows.
+
+   ⭐ EVERY COLOUR BELOW WAS MEASURED BEFORE THIS COMMENT WAS WRITTEN.
+   Four unmeasured contrast figures went into comments on 5 Sept and all
+   four were wrong; three of my first picks for this card failed too and
+   are recorded here so nobody re-picks them:
+
+       white on the green bar   #FFFFFF on #1B6B4A   6.46  ✓
+       a name on the card       #1C2320 on #FFFFFF  16.02  ✓
+       "quiet 21 days"          #7A6A38 on #FFFFFF   5.32  ✓   (#8A7A45 was 4.24 ✗)
+       "3 days ago"             #63716A on #FFFFFF   5.12  ✓   (#8A8474 was 3.73 ✗)
+       "See all"                #1B6B4A on #FFFFFF   6.46  ✓
+       the initial on a tile    ≥ 7.70 on every tint       ✓
+       tile outline             #111 on white       18.88  ✓
+
+   🔴 AND THE ONE THAT MATTERS MOST, because it is the 17 Aug bug: a
+   PALE TILE ON A WHITE CARD IS FILL AGAINST FILL. Every tint measures
+   1.13–1.21 against the card — invisible on its own, exactly like the
+   pale-green tag that scored 1.00 and could not be seen. **The 1.5px
+   #111 outline is what makes the tile a shape**, not the fill. Take the
+   outline off and the grid dissolves into six floating letters.
+
+   ⚠️ So the tints carry NO information — they are there so a face is
+   recognisably the same person each visit. The only tile that means
+   something is the gold one, and it says it with a fill AND a heavier
+   darker edge (#8A6410, 4.73 on its own fill, 5.37 on the card), because
+   colour alone is not a signal somebody with colour-blind vision can read.
+   ===================================================================== */
+.mecream .ppwrap{ margin:0 0 18px; }
+.mecream .ppcard{
+  background:#fff; border:2px solid #111; border-radius:14px;
+  box-shadow:4px 4px 0 #111; overflow:hidden;
+}
+.mecream .pphead{
+  background:#1B6B4A; color:#fff; padding:12px 15px;
+  display:flex; align-items:center; justify-content:space-between;
+}
+.mecream .pptitle{ font-size:12.5px; letter-spacing:.14em; text-transform:uppercase; }
+.mecream .ppcount{ font-size:12.5px; letter-spacing:.14em; }
+
+/* ⚠️ Named, not numbered, when there is only one — "1 of them has been
+   quiet" is a sentence about a statistic. A person's name is a sentence
+   about a person, and this whole list exists to make you think of one. */
+.mecream .ppnote{
+  margin:0; padding:10px 15px; background:#FEFCF5;
+  border-bottom:1px solid #E7E0D0; font-size:12px; color:#7A6A38; line-height:1.5;
+}
+
+.mecream .ppgrid{
+  list-style:none; margin:0; padding:15px;
+  display:grid; grid-template-columns:repeat(3,1fr); gap:13px;
+}
+.mecream .ppitem{ margin:0; min-width:0; }
+.mecream .pplink{ display:block; text-decoration:none; color:inherit; }
+.mecream .pplink:focus-visible{ outline:3px solid #1B6B4A; outline-offset:3px; border-radius:12px; }
+
+.mecream .ppface{
+  display:flex; align-items:center; justify-content:center;
+  width:100%; aspect-ratio:1; border-radius:12px;
+  border:1.5px solid #111; font-size:24px; line-height:1;
+}
+/* The five tints. Stable per handle, meaningless by design. */
+.mecream .pp-green{ background:#E8F4ED; color:#0F3D2A; }
+.mecream .pp-lilac{ background:#EDE7F8; color:#3B2A63; }
+.mecream .pp-rose { background:#FBE7E7; color:#6B2626; }
+.mecream .pp-blue { background:#E4EFF8; color:#123A5B; }
+.mecream .pp-sand { background:#F3EDE2; color:#4A4234; }
+/* 🔴 The one tile that carries meaning. Heavier and darker on purpose —
+   see the note about colour-blind readers above. */
+.mecream .pp-quiet{ background:#FBF0D2; color:#4A3708; border:2.5px solid #8A6410; }
+
+.mecream .ppname{
+  display:block; margin-top:7px; font-size:12.5px; color:#1C2320; line-height:1.3;
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+}
+.mecream .ppwhen{ display:block; margin-top:1px; font-size:11px; color:#63716A; line-height:1.3; }
+.mecream .ppwhen.on{ color:#7A6A38; }
+
+.mecream .ppmore{ border-top:1px solid #E7E0D0; padding:11px 15px; text-align:center; }
+.mecream .ppall{
+  background:none; border:0; padding:6px 10px; margin:0; font:inherit;
+  font-size:12.5px; color:#1B6B4A; cursor:pointer; min-height:44px;
+}
+.mecream .ppall:focus-visible{ outline:3px solid #1B6B4A; outline-offset:2px; }
+
+/* ⚠️ The empty state carries NO count. 236 of 243 members have no
+   friends, so this is the common case, and "Your people · 0" on your own
+   page is a scoreboard telling you that you lost. Same refusal as the
+   open-room card and the room hearts. */
+.mecream .ppempty{ padding:14px 15px 16px; }
+.mecream .ppempty p{ margin:0 0 11px; font-size:13px; color:#63716A; line-height:1.6; }
+.mecream .ppfind{
+  display:inline-block; background:#1B6B4A; color:#fff; text-decoration:none;
+  font-size:13px; padding:10px 15px; border-radius:9px; min-height:44px;
+  line-height:24px; box-sizing:border-box;
+}
