@@ -102,6 +102,35 @@ export default function Friends({ initialFriends, initialRequests, everyone = []
   const rest    = friends.filter((f) => !f.never_talked && f.quiet_days < AWHILE);
   const soon    = friends.filter((f) => f.milestone_date);
 
+  /* ---- WHERE "Everybody here" GOES, and it depends on you ----
+
+     🔴 TWO OF TY'S OWN DECISIONS POINT OPPOSITE WAYS, and both are right
+     for the member each was made for.
+
+     29 Aug: *"make it community... it's such a little community right
+     now"* — the directory moved UP, because at eighteen members almost
+     nobody had a friend and "your people" was an empty heading with the
+     room buried under it.
+
+     8 Sept: your friends were measured 19,550px down a 20,072px page —
+     twenty-five screens past 238 strangers. Unreachable.
+
+     ⭐ Both hold, because they describe DIFFERENT MEMBERS. 236 of 243
+     have no friends at all: for them the directory IS the page, and
+     burying it would recreate exactly the 29 Aug problem. For the seven
+     who do, the directory is a wall between them and their own people.
+
+     ⚠️ So the order follows what you actually have, rather than one of us
+     being overruled. Nobody has to remember to change it back when the
+     numbers move — it changes itself, member by member. */
+  const directory = everyone.length > 0 ? (
+    <>
+      <h2 className="frsec">Everybody here</h2>
+      <Directory members={everyone} />
+    </>
+  ) : null;
+  const noFriendsYet = friends.length === 0;
+
   return (
     <div className="frwrap">
 
@@ -192,12 +221,7 @@ export default function Friends({ initialFriends, initialRequests, everyone = []
           when they are awake and alone. Every signal on these rows —
           "new here", "Posted today", the chip — comes from something the
           person chose to do in public. */}
-      {everyone.length > 0 && (
-        <>
-          <h2 className="frsec">Everybody here</h2>
-          <Directory members={everyone} />
-        </>
-      )}
+      {noFriendsYet && directory}
 
 
       {soon.length > 0 && (
@@ -241,6 +265,8 @@ export default function Friends({ initialFriends, initialRequests, everyone = []
           Sorted by who you haven’t talked to longest. Only you see this order.
         </p>
       )}
+
+      {!noFriendsYet && directory}
 
     </div>
   );
