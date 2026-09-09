@@ -44,12 +44,6 @@ import Directory from './Directory';
    Nothing was missing but the link.
    ===================================================================== */
 function Row({ t, href, children }) {
-  const inner = (
-    <div className="cwho">
-      <span className="cname">{t.other_name}</span>
-      <span className="clast">{t.last_body || 'No messages yet'}</span>
-    </div>
-  );
   return (
     <div className="crow">
       {t.other_handle ? (
@@ -60,9 +54,35 @@ function Row({ t, href, children }) {
       ) : (
         <div className="cav" aria-hidden="true">{t.other_avatar || '🙂'}</div>
       )}
-      {href ? (
-        <Link href={href} className="clink cwholink">{inner}</Link>
-      ) : inner}
+      <div className="cwho">
+        <span className="cname">
+          {/* 🔴 THE NAME GOES TO THEIR PAGE, NOT INTO THE CONVERSATION.
+              Ty, 8 Sept: *"you should be able to click on their name, or
+              on their face, and go straight to their profile."* */}
+          {t.other_handle
+            ? <Link href={`/u/${t.other_handle}`} className="cnamelink">{t.other_name}</Link>
+            : t.other_name}
+        </span>
+        <span className="clast">{t.last_body || 'No messages yet'}</span>
+      </div>
+      {/* ⭐ THE STRETCHED LINK. This renders nothing visible — `.rowfill`
+          is absolutely positioned across the whole row underneath the
+          face and the name, so tapping ANYWHERE ELSE still opens the
+          conversation exactly as it did before.
+
+          ⚠️ It is the only shape that gives a row two destinations
+          without nesting one interactive element inside another. Wrapping
+          the row in a <Link> and putting the name link inside it is
+          invalid HTML, and browsers resolve it by silently dropping one
+          of them — on the row a member taps a hundred times a week.
+
+          ⚠️ The face and the name carry `z-index:1` so they sit ABOVE this
+          fill. Without that pair of rules the fill swallows both and this
+          whole change does nothing, while looking completely correct. */}
+      {href && (
+        <Link href={href} className="rowfill"
+              aria-label={`Open your conversation with ${t.other_name}`} />
+      )}
       {children}
     </div>
   );
