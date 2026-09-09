@@ -56,6 +56,12 @@ import '../tourcard.css';
    ⚠️ A stylesheet nothing imports is a silent failure this app has hit
    twice; this line IS the feature working. */
 import '../openroom.css';
+/* Bring one person — the card that fires once, after somebody has
+   replied to a member. ⚠️ Its own small file for the same reason as the
+   six above, and ⚠️ a stylesheet nothing imports is a silent failure this
+   app has hit twice: this line IS the feature working. */
+import '../invite.css';
+
 import NavBar from '../components/NavBar';
 
 export default function WallLayout({ children }) {
