@@ -213,7 +213,13 @@ export default async function WallPage() {
      ⚠️ limit(1) and a boolean. There is no count here on purpose. */
   const { data: bellRows } = await supabase
     .from(assertReadable('my_notifications'))
-    .select('id').eq('unread', true).in('kind', ['reply', 'mention']).limit(1);
+    /* ⚠️ 'friend' ADDED 8 Sept. It belongs here for the same reason
+       'message' does not: the bell page shows a friend row in full —
+       who asked, and a link to their page — so opening it genuinely
+       answers the question the dot raised, and tapping it clears the
+       row. A kind that lights this dot must be one the bell can put
+       out; that is the 3 Sept rule, and 'friend' passes it. */
+    .select('id').eq('unread', true).in('kind', ['reply', 'mention', 'friend']).limit(1);
   const bell = !!(bellRows && bellRows.length);
 
   if (profile.sober_since) {
