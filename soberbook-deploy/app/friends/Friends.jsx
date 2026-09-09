@@ -105,14 +105,20 @@ export default function Friends({ initialFriends, initialRequests, everyone = []
   return (
     <div className="frwrap">
 
-      {/* ---- LEFT-OVER REQUESTS ONLY. 0087 removed the request gate, so
-           nothing new lands here — but 7 rows from before tonight are
-           still pending and Ty chose to leave them rather than connect
-           people retroactively. This renders them so they are not
-           stranded, and goes away on its own once they are answered. ---- */}
+      {/* ---- REQUESTS, LIVE AGAIN AS OF 0153 (8 Sept). ----
+           This heading used to read "before requests went away", because
+           0087 had made Add friend instant and one-sided and nothing new
+           ever landed here. Ty reversed that — *"I do want to see who
+           adds me. So have it act more like Facebook friend request"* —
+           so this list is current again, not a museum.
+
+           ⚠️ The copy had to change in the same breath as the database.
+           A heading that says requests are gone, sitting above a request
+           that arrived this morning, is the app contradicting itself in
+           the one place somebody is deciding whether to trust it. */}
       {reqs.length > 0 && (
         <>
-          <h2 className="frsec">Asked to be your friend — before requests went away</h2>
+          <h2 className="frsec">Asked to be your friend</h2>
           <ul className="frlist">
             {reqs.map((p) => (
               <li key={p.handle} className="frrowitem warm">
