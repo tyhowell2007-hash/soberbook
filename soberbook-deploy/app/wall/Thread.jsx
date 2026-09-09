@@ -1,6 +1,11 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+/* ⚠️ Added 8 Sept with the reply author link. esbuild parses one file at a
+   time and never resolves imports, so a <Link> used without this line
+   passes the parse check and crashes at runtime — three missing imports
+   got through exactly that way on 30 Aug. */
+import Link from 'next/link';
 import { browserClient } from '../../lib/supabase-browser';
 import { Body, Player } from '../components/Linked';
 import { useTagBox, useTaggablePeople, tellThemTheyWereTagged } from '../components/TagBox';
@@ -263,7 +268,26 @@ export default function Thread({ post, onClose, onCountChange }) {
           {rows !== null && rows.map((c) => (
             <div key={c.id} className={'reply' + (c.is_anonymous ? ' screened' : '')}>
               <div className="rwho">
-                {c.display_name}
+                {/* 🔴 A REPLY LEADS SOMEWHERE NOW (8 Sept, with 0154).
+                    Until tonight the person who answered you was plain
+                    text — and replies are where most of the talking in
+                    this app actually happens, so the busiest surface was
+                    the one with no way to the person on it.
+
+                    ⚠️ `author_handle` DID NOT EXIST on feed_comments until
+                    0154; the view returned author_id and no handle, so
+                    there was nothing here to build a link out of. The new
+                    column copies feed_posts' rule word for word rather
+                    than restating it.
+
+                    ⚠️ Anonymous replies fall through to plain text, which
+                    is the same behaviour as before — the handle is NULL
+                    by construction, not hidden by this markup. */}
+                {c.author_handle ? (
+                  <Link href={`/u/${c.author_handle}`} className="wholink">
+                    {c.display_name}
+                  </Link>
+                ) : c.display_name}
                 <span className="rwhen">
                   {ago(c.created_at)}
                   {/* is_mine, never author_id — the author sees their own
