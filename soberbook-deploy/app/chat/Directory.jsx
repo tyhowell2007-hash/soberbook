@@ -1,6 +1,10 @@
 'use client';
 
 import { useState } from 'react';
+/* ⚠️ Added 8 Sept with the face link. esbuild parses one file and never
+   resolves imports, so a <Link> with no import here would pass the build
+   and white-screen Chat and Community at runtime. */
+import Link from 'next/link';
 import { browserClient } from '../../lib/supabase-browser';
 import RowMenu from '../friends/RowMenu';
 
@@ -286,21 +290,43 @@ export default function Directory({ members }) {
              is placed over the row's right edge, so the row's own flex
              layout (from wall.css) is left completely untouched. */
           <div key={m.handle} className="rmenu-row">
-          <button className="crow drow" disabled={busy === m.handle}
-                  onClick={() => open(m.handle)}>
-            <div className="cav" aria-hidden="true">{m.display_avatar || '🙂'}</div>
-            <div className="cwho">
-              <span className="cname">
-                {m.display_name}
-                {chip && <span className={'dchip m-' + chip.t}>{chip.l}</span>}
-                {!chip && isNew && <span className="dchip new">new here</span>}
-              </span>
-              <span className="clast">{line(m)}</span>
-            </div>
-            {/* "Say hi" on somebody's first week is the whole point of the
-                chip — it turns a list into an instruction. */}
-            <span className="dgo">{busy === m.handle ? '…' : isNew ? 'Say hi' : 'Message'}</span>
-          </button>
+          {/* 🔴 THE FACE GOES TO THEIR PAGE, THE REST STILL OPENS A CHAT.
+              Ty, 8 Sept: *"at home, chat, and community, you should be
+              able to tap on the person's face or emoji and go directly to
+              their page profile"* — and this one component is BOTH the
+              chat member list and Community's "Everybody here", so it is
+              one change covering two screens.
+
+              ⚠️ THE ROW USED TO BE A SINGLE <button> AND COULD NOT STAY
+              ONE. An <a> inside a <button> is invalid HTML and taps land
+              unpredictably on it. So `.crow` — which owns the border, the
+              padding and the flex — became a plain <div>, and the button
+              shrank to cover only the text and the "Message" label. The
+              row looks identical; only what is clickable changed.
+
+              ⚠️ `.dwho` restores the `flex:1; min-width:0` that `.cwho`
+              was contributing as the direct flex child, or the long
+              "quiet 19 days" line stops truncating and the row grows. */}
+          <div className="crow drow">
+            <Link href={`/u/${m.handle}`} className="cav cavlink"
+                  aria-label={`${m.display_name}’s page`}>
+              <span aria-hidden="true">{m.display_avatar || '🙂'}</span>
+            </Link>
+            <button className="dwho" disabled={busy === m.handle}
+                    onClick={() => open(m.handle)}>
+              <div className="cwho">
+                <span className="cname">
+                  {m.display_name}
+                  {chip && <span className={'dchip m-' + chip.t}>{chip.l}</span>}
+                  {!chip && isNew && <span className="dchip new">new here</span>}
+                </span>
+                <span className="clast">{line(m)}</span>
+              </div>
+              {/* "Say hi" on somebody's first week is the whole point of the
+                  chip — it turns a list into an instruction. */}
+              <span className="dgo">{busy === m.handle ? '…' : isNew ? 'Say hi' : 'Message'}</span>
+            </button>
+          </div>
           {/* ⚠️ Not rendered on your own row — there is no version of
               blocking or reporting yourself that means anything, and an
               option that can only fail is worse than no option. */}
