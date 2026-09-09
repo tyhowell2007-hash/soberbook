@@ -286,60 +286,60 @@ html[data-theme="black"]{ background:#0B100D; }
 [data-theme="black"] .phserr{ color:#F4A6A6; }
 
 /* ---- me/me-cream.css ---- */
-[data-theme="black"] .mecream .bar{ background:#241E12; }
-[data-theme="black"] .mecream .count{ background:#0F1512; }
-[data-theme="black"] .mecream .deets, [data-theme="black"] .mecream .pcard, [data-theme="black"] .mecream .item, [data-theme="black"] .mecream .empty, [data-theme="black"] .mecream .facepick, [data-theme="black"] .mecream .facegrid{ background:#241E12; }
-[data-theme="black"] .mecream .msec{ background:#241E12; }
-[data-theme="black"] .mecream .msec[data-tint="acid"]{ background:#0F1512; }
-[data-theme="black"] .mecream .msec[data-tint="sand"]{ background:#241E12; }
-[data-theme="black"] .mecream .msec[data-tint="pink"]{ background:#2A1616; }
-[data-theme="black"] .mecream .msec[data-tint="sky"]{ background:#0F1512; }
-[data-theme="black"] .mecream .msec[data-tint="lilac"]{ background:#0F1512; }
-[data-theme="black"] .mecream .msec[data-tint="mint"]{ background:#1E2C25; }
-[data-theme="black"] .mecream .msec[data-tint="butter"]{ background:#241E12; }
-[data-theme="black"] .mecream .msec[data-tint="peach"]{ background:#1E2C25; }
-[data-theme="black"] .mecream .msec[data-tint="stone"]{ background:#241E12; }
-[data-theme="black"] .mecream .msec[data-tint="cream"]{ background:#241E12; }
-[data-theme="black"] .mecream input[type="text"], [data-theme="black"] .mecream input[type="url"], [data-theme="black"] .mecream input[type="date"], [data-theme="black"] .mecream input[type="search"], [data-theme="black"] .mecream textarea, [data-theme="black"] .mecream select{ background:#18211C; }
-[data-theme="black"] .mecream .btn.out.arm{ border-color:#F4A6A6; }
-[data-theme="black"] .mecream .pencil{ background:#18211C; }
-[data-theme="black"] .mecream .choice{ background:#18211C; }
-[data-theme="black"] .mecream .sbpill{ background:#18211C; }
-[data-theme="black"] .mecream .sbpill:hover{ background:#241E12; }
-[data-theme="black"] .mecream .msec[data-tint="butter"] .sqrow:nth-of-type(1){ background:#1E2C25; }
-[data-theme="black"] .mecream .msec[data-tint="butter"] .sqrow:nth-of-type(2){ background:#241E12; }
-[data-theme="black"] .mecream .msec[data-tint="butter"] .choice{ background:#0F1512; }
-[data-theme="black"] .mecream .face{ background:#18211C; }
-[data-theme="black"] .mecream .fpnow{ background:#18211C; }
-[data-theme="black"] .mecream .thChip{ background:#18211C; }
-[data-theme="black"] .mecream .eye{ background:#18211C; }
-[data-theme="black"] .mecream .eye.off{ background:#241E12; }
-[data-theme="black"] .mecream .eye.anon{ background:#241E12; border-color:#5E7A69; }
-[data-theme="black"] .mecream .eye.anon:hover{ background:#241E12; }
-[data-theme="black"] .mecream .pgrp-hid .sbpill.sel{ border-color:#5E7A69; }
-[data-theme="black"] .mecream .hits{ background:#18211C; }
-[data-theme="black"] .mecream .hits li + li .hit{ border-top:1px solid #E8C87A; }
-[data-theme="black"] .mecream .hit{ background:#18211C; }
-[data-theme="black"] .mecream .hit img{ background:#241E12; }
-[data-theme="black"] .mecream .picked{ background:#18211C; }
-[data-theme="black"] .mecream .picked img{ background:#241E12; }
-[data-theme="black"] .mecream .ppcard{ background:#18211C; border:2px solid #5E7A69; }
-[data-theme="black"] .mecream .ppnote{ background:#241E12; border-bottom:1px solid #E8C87A; color:#E8C87A; }
-[data-theme="black"] .mecream .pplink:focus-visible{ outline:3px solid #A8EDC3; }
-[data-theme="black"] .mecream .ppface{ border:1.5px solid #5E7A69; }
-[data-theme="black"] .mecream .pp-green{ background:#1E2C25; color:#A8EDC3; }
-[data-theme="black"] .mecream .pp-lilac{ background:#0F1512; color:#8FD9FF; }
-[data-theme="black"] .mecream .pp-rose{ background:#2A1616; color:#F4A6A6; }
-[data-theme="black"] .mecream .pp-blue{ background:#0F1512; color:#8FD9FF; }
-[data-theme="black"] .mecream .pp-sand{ background:#241E12; color:#E8C87A; }
-[data-theme="black"] .mecream .pp-quiet{ background:#241E12; color:#E8C87A; border:2.5px solid #E8C87A; }
-[data-theme="black"] .mecream .ppname{ color:#E8EFE9; }
-[data-theme="black"] .mecream .ppwhen{ color:#A8B8AE; }
-[data-theme="black"] .mecream .ppwhen.on{ color:#E8C87A; }
-[data-theme="black"] .mecream .ppmore{ border-top:1px solid #E8C87A; }
-[data-theme="black"] .mecream .ppall{ color:#A8EDC3; }
-[data-theme="black"] .mecream .ppall:focus-visible{ outline:3px solid #A8EDC3; }
-[data-theme="black"] .mecream .ppempty p{ color:#A8B8AE; }
+html[data-theme="black"] .mecream .bar{ background:#241E12; }
+html[data-theme="black"] .mecream .count{ background:#0F1512; }
+html[data-theme="black"] .mecream .deets, html[data-theme="black"] .mecream .pcard, html[data-theme="black"] .mecream .item, html[data-theme="black"] .mecream .empty, html[data-theme="black"] .mecream .facepick, html[data-theme="black"] .mecream .facegrid{ background:#241E12; }
+html[data-theme="black"] .mecream .msec{ background:#241E12; }
+html[data-theme="black"] .mecream .msec[data-tint="acid"]{ background:#0F1512; }
+html[data-theme="black"] .mecream .msec[data-tint="sand"]{ background:#241E12; }
+html[data-theme="black"] .mecream .msec[data-tint="pink"]{ background:#2A1616; }
+html[data-theme="black"] .mecream .msec[data-tint="sky"]{ background:#0F1512; }
+html[data-theme="black"] .mecream .msec[data-tint="lilac"]{ background:#0F1512; }
+html[data-theme="black"] .mecream .msec[data-tint="mint"]{ background:#1E2C25; }
+html[data-theme="black"] .mecream .msec[data-tint="butter"]{ background:#241E12; }
+html[data-theme="black"] .mecream .msec[data-tint="peach"]{ background:#1E2C25; }
+html[data-theme="black"] .mecream .msec[data-tint="stone"]{ background:#241E12; }
+html[data-theme="black"] .mecream .msec[data-tint="cream"]{ background:#241E12; }
+html[data-theme="black"] .mecream input[type="text"], html[data-theme="black"] .mecream input[type="url"], html[data-theme="black"] .mecream input[type="date"], html[data-theme="black"] .mecream input[type="search"], html[data-theme="black"] .mecream textarea, html[data-theme="black"] .mecream select{ background:#18211C; }
+html[data-theme="black"] .mecream .btn.out.arm{ border-color:#F4A6A6; }
+html[data-theme="black"] .mecream .pencil{ background:#18211C; }
+html[data-theme="black"] .mecream .choice{ background:#18211C; }
+html[data-theme="black"] .mecream .sbpill{ background:#18211C; }
+html[data-theme="black"] .mecream .sbpill:hover{ background:#241E12; }
+html[data-theme="black"] .mecream .msec[data-tint="butter"] .sqrow:nth-of-type(1){ background:#1E2C25; }
+html[data-theme="black"] .mecream .msec[data-tint="butter"] .sqrow:nth-of-type(2){ background:#241E12; }
+html[data-theme="black"] .mecream .msec[data-tint="butter"] .choice{ background:#0F1512; }
+html[data-theme="black"] .mecream .face{ background:#18211C; }
+html[data-theme="black"] .mecream .fpnow{ background:#18211C; }
+html[data-theme="black"] .mecream .thChip{ background:#18211C; }
+html[data-theme="black"] .mecream .eye{ background:#18211C; }
+html[data-theme="black"] .mecream .eye.off{ background:#241E12; }
+html[data-theme="black"] .mecream .eye.anon{ background:#241E12; border-color:#5E7A69; }
+html[data-theme="black"] .mecream .eye.anon:hover{ background:#241E12; }
+html[data-theme="black"] .mecream .pgrp-hid .sbpill.sel{ border-color:#5E7A69; }
+html[data-theme="black"] .mecream .hits{ background:#18211C; }
+html[data-theme="black"] .mecream .hits li + li .hit{ border-top:1px solid #E8C87A; }
+html[data-theme="black"] .mecream .hit{ background:#18211C; }
+html[data-theme="black"] .mecream .hit img{ background:#241E12; }
+html[data-theme="black"] .mecream .picked{ background:#18211C; }
+html[data-theme="black"] .mecream .picked img{ background:#241E12; }
+html[data-theme="black"] .mecream .ppcard{ background:#18211C; border:2px solid #5E7A69; }
+html[data-theme="black"] .mecream .ppnote{ background:#241E12; border-bottom:1px solid #E8C87A; color:#E8C87A; }
+html[data-theme="black"] .mecream .pplink:focus-visible{ outline:3px solid #A8EDC3; }
+html[data-theme="black"] .mecream .ppface{ border:1.5px solid #5E7A69; }
+html[data-theme="black"] .mecream .pp-green{ background:#1E2C25; color:#A8EDC3; }
+html[data-theme="black"] .mecream .pp-lilac{ background:#0F1512; color:#8FD9FF; }
+html[data-theme="black"] .mecream .pp-rose{ background:#2A1616; color:#F4A6A6; }
+html[data-theme="black"] .mecream .pp-blue{ background:#0F1512; color:#8FD9FF; }
+html[data-theme="black"] .mecream .pp-sand{ background:#241E12; color:#E8C87A; }
+html[data-theme="black"] .mecream .pp-quiet{ background:#241E12; color:#E8C87A; border:2.5px solid #E8C87A; }
+html[data-theme="black"] .mecream .ppname{ color:#E8EFE9; }
+html[data-theme="black"] .mecream .ppwhen{ color:#A8B8AE; }
+html[data-theme="black"] .mecream .ppwhen.on{ color:#E8C87A; }
+html[data-theme="black"] .mecream .ppmore{ border-top:1px solid #E8C87A; }
+html[data-theme="black"] .mecream .ppall{ color:#A8EDC3; }
+html[data-theme="black"] .mecream .ppall:focus-visible{ outline:3px solid #A8EDC3; }
+html[data-theme="black"] .mecream .ppempty p{ color:#A8B8AE; }
 
 /* ---- meetings.css ---- */
 [data-theme="black"] .mt-tag.closed{ background:#241E12; color:#E8EFE9; }
@@ -650,47 +650,55 @@ html[data-theme="black"]{ background:#0B100D; }
    ===================================================================== */
 
 /* the room itself */
-[data-theme="black"] .mecream{ background:var(--paper); color:var(--body); }
+html[data-theme="black"] .mecream{ background:var(--paper); color:var(--body); }
 
 /* ⚠️ THE CREAM INK. #2A1B0C is me-cream's body colour and it survived on
    eleven elements, every one of them now on a dark fill. */
-[data-theme="black"] .mecream .bar,
-[data-theme="black"] .mecream .cn,
-[data-theme="black"] .mecream .cl,
-[data-theme="black"] .mecream .mnext,
-[data-theme="black"] .mecream h2.sec,
-[data-theme="black"] .mecream h3,
-[data-theme="black"] .mecream .pencil,
-[data-theme="black"] .mecream .pushh,
-[data-theme="black"] .mecream .pushp,
-[data-theme="black"] .mecream .pushon,
-[data-theme="black"] .mecream strong,
-[data-theme="black"] .mecream .stitle{ color:var(--body); }
+html[data-theme="black"] .mecream .bar,
+html[data-theme="black"] .mecream .cn,
+html[data-theme="black"] .mecream .cl,
+html[data-theme="black"] .mecream .mnext,
+html[data-theme="black"] .mecream h2.sec,
+html[data-theme="black"] .mecream h3,
+html[data-theme="black"] .mecream .pencil,
+html[data-theme="black"] .mecream .pushh,
+html[data-theme="black"] .mecream .pushp,
+html[data-theme="black"] .mecream .pushon,
+html[data-theme="black"] .mecream strong,
+html[data-theme="black"] .mecream .stitle{ color:var(--body); }
 
 /* the quieter half */
-[data-theme="black"] .mecream .back,
-[data-theme="black"] .mecream .rt,
-[data-theme="black"] .mecream .tn,
-[data-theme="black"] .mecream .swho,
-[data-theme="black"] .mecream .sincerow,
-[data-theme="black"] .mecream .pdot,
-[data-theme="black"] .mecream .pbio,
-[data-theme="black"] .mecream .btn.out{ color:var(--soft); }
+html[data-theme="black"] .mecream .back,
+html[data-theme="black"] .mecream .rt,
+html[data-theme="black"] .mecream .tn,
+html[data-theme="black"] .mecream .swho,
+html[data-theme="black"] .mecream .sincerow,
+html[data-theme="black"] .mecream .pdot,
+html[data-theme="black"] .mecream .pbio,
+html[data-theme="black"] .mecream .btn.out{ color:var(--soft); }
 
 /* the day count and the total — pale-green tiles in cream */
-[data-theme="black"] .mecream .total,
-[data-theme="black"] .mecream .sleeve.big,
-[data-theme="black"] .mecream .sframe,
-[data-theme="black"] .mecream .sfoot{ background:var(--gl); border-color:var(--line); }
-[data-theme="black"] .mecream .tl,
-[data-theme="black"] .mecream .tn{ color:var(--gt); }
+html[data-theme="black"] .mecream .total,
+html[data-theme="black"] .mecream .sleeve.big,
+html[data-theme="black"] .mecream .sframe,
+html[data-theme="black"] .mecream .sfoot{ background:var(--gl); border-color:var(--line); }
+html[data-theme="black"] .mecream .tl,
+html[data-theme="black"] .mecream .tn{ color:var(--gt); }
 
 /* ⚠️ The reached milestone chip was #F2DFAE ON #F2DFAE — a 1.00 ratio,
    the gold tile painting its own text. In cream the two are different
    because the chip fill is pale and the ink is dark; inverted, both
    landed on the same value. */
-[data-theme="black"] .mecream .chip.on{ background:var(--gold-bg); color:var(--gold-ink); border-color:var(--gold); }
+html[data-theme="black"] .mecream .chip.on{ background:var(--gold-bg); color:var(--gold-ink); border-color:var(--gold); }
 
 /* The edit link under the date. It was reading --gd, which is now a fill. */
-[data-theme="black"] .mecream .sincelink{ color:var(--gm-t); }
-[data-theme="black"] .mecream .pn{ color:var(--body); }
+html[data-theme="black"] .mecream .sincelink{ color:var(--gm-t); }
+html[data-theme="black"] .mecream .pn{ color:var(--body); }
+
+/* ⚠️ .back and .rt sit in the MASTHEAD, not on the page, so --soft lands on
+   the green bar and measures 4.11 — under the 4.5 floor by a hair. This is
+   the fill-vs-page distinction again: the same class means "quiet" on the
+   page and "on a coloured bar" up top. #E8EFE9 on #17573C is 7.28 — and I typed 7.40 here before running it,
+   which is the one mistake this file's header is entirely about. */
+html[data-theme="black"] .mast .back,
+html[data-theme="black"] .mast .rt{ color:var(--body); }
