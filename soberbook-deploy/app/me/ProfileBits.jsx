@@ -339,6 +339,65 @@ export function PathPicker({ paths, setPaths, pathOther, setPathOther, savedOthe
 }
 
 /* ---------------------------------------------------------------------
+   NIGHT — the whole app in black, for your own eyes.
+
+   A member asked for it in the survey: "Maybe a black backlight option."
+   One in five things said on Sober Book is said between 10pm and 6am, so
+   this is not a decoration, it is the hours the app is actually for.
+
+   🔴 IT IS NOT THE SAME FEATURE AS ThemePicker BELOW, and they must not
+   be confused. ThemePicker dresses your PUBLIC page in one of eight
+   colours for other people to see — it is still unbuilt, still hidden,
+   and its hint even says "only your own page changes". This changes
+   nothing anybody else ever sees: it repaints the whole app, on your
+   screen, and no other member can tell.
+
+   ⚠️ THEY SHARE THE `theme` COLUMN, AND THAT IS A DEBT, NOT A DESIGN.
+   One column cannot mean both "my night mode" and "my public skin" —
+   that is the 0046 → 0049 drift waiting to happen. Night owns the
+   column today because Night is the thing that exists. 🔴 If the public
+   skins are ever built, they get their own column; do not add a ninth
+   value here and hope.
+
+   ⚠️ Two options, not eight. Seven of the eight values in THEMES have no
+   stylesheet, and app/layout.jsx only ever writes data-theme for
+   'black' — offering a member "Sunset" would be a control that does
+   nothing, which is the stale promise this codebase keeps finding.
+   --------------------------------------------------------------------- */
+export function NightSwitch({ theme, setTheme, save, busy }) {
+  const on = theme === 'black';
+  return (
+    /* ⚠️ .pushh and .pushp, NOT classes of my own. My first draft invented
+       .pbT and .pbD, which have zero rules in all 29 stylesheets — the
+       naked-class bug from 5 Sept, caught by counting before shipping
+       rather than by looking at the page. These two are already styled
+       and already sit inside .pushbox directly above. */
+    <div className="pushbox">
+      <h3 className="pushh">Night</h3>
+      <p className="pushp">
+        Turns the whole app dark on your screen &mdash; the wall, your page,
+        the rooms, all of it. Nobody else sees any difference.
+      </p>
+      <button type="button" className={'choice' + (on ? ' sel' : '')}
+              aria-pressed={on} disabled={busy}
+              onClick={() => {
+                const next = on ? 'cream' : 'black';
+                setTheme(next);
+                save({ theme: next },
+                     next === 'black' ? 'Night on.' : 'Back to cream.');
+              }}>
+        <span className="ct">{on ? '🌙 On' : '☕ Off'}</span>
+        <span className="cd">
+          {on
+            ? 'Dark everywhere. Tap to go back to cream.'
+            : 'Easier on your eyes late at night.'}
+        </span>
+      </button>
+    </div>
+  );
+}
+
+/* ---------------------------------------------------------------------
    THE THEMES
    🔴 A theme dresses the member's OWN page and nothing else. If colours
    travelled with their posts, an anonymous post would carry their
