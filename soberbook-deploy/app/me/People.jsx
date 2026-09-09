@@ -62,6 +62,19 @@ function quietWord(p) {
   return `quiet ${p.quiet_days} days`;
 }
 
+/* 🔴 THE NAME FALLS BACK TO THE HANDLE, and this was found live rather
+   than reasoned about: three of the first four tiles rendered a
+   ZERO-HEIGHT BLANK where the name goes. 186 of 197 members have never
+   set a display name, so `{p.display_name}` alone is empty for nearly
+   everybody — a grid of coloured squares with nothing under them.
+
+   ⚠️ Nothing errored and nothing looked broken from the code. An empty
+   string in JSX renders as nothing at all, exactly like the /admin tile
+   that went blank when a key was renamed. */
+function nameOf(p) {
+  return p.display_name || `@${p.handle}`;
+}
+
 const FIRST = 6;
 
 export default function People({ friends = [] }) {
@@ -105,7 +118,7 @@ export default function People({ friends = [] }) {
         {quiet.length > 0 && (
           <p className="ppnote">
             {quiet.length === 1
-              ? `${quiet[0].display_name} has been quiet a while.`
+              ? `${nameOf(quiet[0])} has been quiet a while.`
               : `${quiet.length} of them have been quiet a while.`}
           </p>
         )}
@@ -126,7 +139,7 @@ export default function People({ friends = [] }) {
                         aria-hidden="true">
                     {p.avatar || String(p.display_name || p.handle).slice(0, 1).toUpperCase()}
                   </span>
-                  <span className="ppname">{p.display_name}</span>
+                  <span className="ppname">{nameOf(p)}</span>
                   <span className={'ppwhen' + (isQuiet ? ' on' : '')}>
                     {isQuiet ? quietWord(p) : whenWord(p)}
                   </span>
