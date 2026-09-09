@@ -312,20 +312,37 @@ export default function Directory({ members }) {
                   aria-label={`${m.display_name}’s page`}>
               <span aria-hidden="true">{m.display_avatar || '🙂'}</span>
             </Link>
-            <button className="dwho" disabled={busy === m.handle}
-                    onClick={() => open(m.handle)}>
-              <div className="cwho">
-                <span className="cname">
-                  {m.display_name}
-                  {chip && <span className={'dchip m-' + chip.t}>{chip.l}</span>}
-                  {!chip && isNew && <span className="dchip new">new here</span>}
-                </span>
-                <span className="clast">{line(m)}</span>
-              </div>
-              {/* "Say hi" on somebody's first week is the whole point of the
-                  chip — it turns a list into an instruction. */}
-              <span className="dgo">{busy === m.handle ? '…' : isNew ? 'Say hi' : 'Message'}</span>
-            </button>
+            <div className="cwho">
+              <span className="cname">
+                {/* 🔴 THE NAME GOES TO THEIR PAGE. Ty, 8 Sept: *"you should
+                    be able to click on their name, or on their face, and go
+                    straight to their profile."* */}
+                <Link href={`/u/${m.handle}`} className="cnamelink">{m.display_name}</Link>
+                {chip && <span className={'dchip m-' + chip.t}>{chip.l}</span>}
+                {!chip && isNew && <span className="dchip new">new here</span>}
+              </span>
+              <span className="clast">{line(m)}</span>
+            </div>
+            {/* "Say hi" on somebody's first week is the whole point of the
+                chip — it turns a list into an instruction. */}
+            <span className="dgo">{busy === m.handle ? '…' : isNew ? 'Say hi' : 'Message'}</span>
+            {/* ⭐ THE STRETCHED BUTTON, and it replaces the one that used to
+                wrap this whole row. `.rowfill` covers the row invisibly
+                UNDERNEATH the face and the name, so tapping anywhere else
+                still opens a conversation — the row behaves exactly as it
+                did, minus the two spots that now belong to the person.
+
+                ⚠️ A <Link> inside a <button> is invalid HTML, so the name
+                could not simply be dropped into the old button. This is
+                the shape that gives one row two destinations without
+                nesting anything.
+
+                ⚠️ `aria-label` is not optional here — the button has no
+                text of its own, and without it a screen reader announces
+                an unlabelled control on every row in a 238-row list. */}
+            <button className="rowfill" disabled={busy === m.handle}
+                    onClick={() => open(m.handle)}
+                    aria-label={`Message ${m.display_name}`} />
           </div>
           {/* ⚠️ Not rendered on your own row — there is no version of
               blocking or reporting yourself that means anything, and an
