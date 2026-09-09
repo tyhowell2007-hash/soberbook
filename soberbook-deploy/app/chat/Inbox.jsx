@@ -23,14 +23,46 @@ import Directory from './Directory';
    trigger in 0016_chat.sql is what makes thirty impossible.
    ===================================================================== */
 
-function Row({ t, children }) {
+/* =====================================================================
+   🔴 THE FACE OPENS THEIR PAGE; THE REST OF THE ROW OPENS THE
+   CONVERSATION. Ty, 8 Sept: *"you should be able to tap on the person's
+   face or emoji and go directly to their page profile."*
+
+   ⚠️ THE OUTER LINK HAD TO MOVE INSIDE THIS COMPONENT TO DO IT. The
+   inbox used to wrap the whole row in a <Link> to the thread, and an
+   <a> inside an <a> is invalid HTML — browsers drop one of them, and
+   which one is not something to gamble a member's tap on. So `href` is
+   passed in and wraps ONLY the name-and-preview column; the face sits
+   beside it as a sibling, not a child.
+
+   ⚠️ `.clink` is `display:block` and `.crow` is the flex container, so
+   the link cannot simply move down a level — it takes `.cwholink`,
+   which restores the `flex:1; min-width:0` that `.cwho` was doing.
+   Without that the preview text stops truncating and the row grows.
+
+   ⭐ other_handle has been on chat_threads since chat shipped in August.
+   Nothing was missing but the link.
+   ===================================================================== */
+function Row({ t, href, children }) {
+  const inner = (
+    <div className="cwho">
+      <span className="cname">{t.other_name}</span>
+      <span className="clast">{t.last_body || 'No messages yet'}</span>
+    </div>
+  );
   return (
     <div className="crow">
-      <div className="cav" aria-hidden="true">{t.other_avatar || '🙂'}</div>
-      <div className="cwho">
-        <span className="cname">{t.other_name}</span>
-        <span className="clast">{t.last_body || 'No messages yet'}</span>
-      </div>
+      {t.other_handle ? (
+        <Link href={`/u/${t.other_handle}`} className="cav cavlink"
+              aria-label={`${t.other_name}’s page`}>
+          <span aria-hidden="true">{t.other_avatar || '🙂'}</span>
+        </Link>
+      ) : (
+        <div className="cav" aria-hidden="true">{t.other_avatar || '🙂'}</div>
+      )}
+      {href ? (
+        <Link href={href} className="clink cwholink">{inner}</Link>
+      ) : inner}
       {children}
     </div>
   );
@@ -228,13 +260,11 @@ export default function Inbox({ inbox, requests, members = [] }) {
       {shownTalking.length > 0 && (
         <div className="ib-grp">
           {shownTalking.map((t) => (
-            <Link key={t.id} href={`/chat/${t.id}`} className="clink">
-              <Row t={t}>
-                {Number(t.unread) > 0
-                  ? <span className="cdot" aria-label={`${t.unread} unread`}>{t.unread}</span>
-                  : null}
-              </Row>
-            </Link>
+            <Row key={t.id} t={t} href={`/chat/${t.id}`}>
+              {Number(t.unread) > 0
+                ? <span className="cdot" aria-label={`${t.unread} unread`}>{t.unread}</span>
+                : null}
+            </Row>
           ))}
         </div>
       )}
