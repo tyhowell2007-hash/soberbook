@@ -344,6 +344,19 @@ body{
 }
 .item.screened .pa{ background:#EFEAF8; }
 .item.mile .pa{ background:#FBF0D2; box-shadow:0 0 0 2px var(--gold); }
+
+/* 8 Sept — the face on a post is a link to that person's page now.
+   ⭐ `.item .pa` above is a DESCENDANT selector, so wrapping the face in
+   an anchor does not disturb a single one of its rules — the circle, the
+   36px, the screened and milestone variants all still match. This rule
+   only has to undo the anchor's own defaults and stop it stretching in
+   the flex row.
+   ⚠️ It exists at all because `.palink` would otherwise be a class name
+   with no rules anywhere — the same gap that left .songlink, .findlink
+   and eleven others rendering naked on 5 Sept. Write the style in the
+   same breath as the class, or nobody finds it until a member does. */
+.item .palink{ flex:none; display:block; text-decoration:none; color:inherit; }
+.item .palink:focus-visible{ outline:3px solid var(--gd); outline-offset:2px; }
 .item .hw{ min-width:0; display:flex; flex-direction:column; gap:1px; }
 .item .nm{ font-size:14.5px; line-height:1.2; }
 .item .mt{ font-size:11.5px; color:var(--soft); letter-spacing:0; text-transform:none; }
