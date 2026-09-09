@@ -1165,6 +1165,23 @@ export default function Me({ email, profile, posts, initialAvatarUrl,
               </p>
             )}
 
+            {/* 🔴 YOUR PEOPLE LIVES ON THE READ VIEW, AND I SHIPPED IT
+                BEHIND THE PENCIL FIRST. It went out inside the settings
+                panel — three steps deep, on a page that already carries
+                two written notes about doing exactly that (sign-out on
+                23 Aug, the push switch an hour after writing the note
+                about sign-out). The build was green and /me looked
+                perfect; the grid simply was not on it.
+
+                ⭐ Fourteenth "everything built except the way in", and
+                this one is worse than most because the component's OWN
+                comment is about a friends list nobody could reach.
+
+                ⚠️ It sits after your song and before the phone switches:
+                everything below this point is plumbing you decide about
+                your handset, and your people are content. */}
+            <People friends={friends} />
+
             {/* ---- the way out ----
                 🔴 Aug 23. Ty: "we need a log out on the site." It was
                 already built — behind the pencil, at the bottom of a long
@@ -1340,19 +1357,6 @@ export default function Me({ email, profile, posts, initialAvatarUrl,
 
           {/* ---- about you ---- */}
         </Section>
-
-        {/* 🔴 YOUR PEOPLE SITS DIRECTLY UNDER YOUR DATE, and both of those
-            positions were Ty's. The date is first because it is the number
-            you open this page to look at. This is second because it is the
-            only thing here that is about somebody other than you.
-
-            ⚠️ NOT a <Section>. Every other block on this page is a
-            collapsible settings card — a thing you open, change, and
-            close. This is content: it should already be showing when the
-            page loads, because a wall of your people behind a chevron is
-            the same mistake as the friends list at the bottom of the
-            Community page that nobody could reach. */}
-        <People friends={friends} />
 
         <Section title="🪪 Your handle" tint="sand">
           <HandleEditor handle={handle} setHandle={setHandle}
