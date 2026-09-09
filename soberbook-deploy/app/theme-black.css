@@ -1,0 +1,569 @@
+/* =====================================================================
+   THE NIGHT ROOM — Sober Book in black.
+
+   A member asked for it, in the survey, in five words:
+   "Maybe a black backlight option."
+
+   ⭐ WHY IT IS WORTH THE WORK, and it is not taste. One in five things
+   anybody says on Sober Book is said between 10pm and 6am, by 25
+   different people. (Measured 8 Sept over posts, replies, room messages
+   and DMs — and the first reading said 37% until I found that one bulk
+   send had faked an entire hour. Dropping any minute where one account
+   produced 5+ events gives the honest 20%.) A white screen at 2am is a
+   problem for the exact hours this app exists for.
+
+   ---------------------------------------------------------------------
+   ⚠️ THIS IS AN OVERRIDE LAYER, NOT A REWRITE — the same shape, and for
+   the same reasons, as theme-green.css overriding the grunge.
+
+   Nothing in the cream theme is touched. Every rule here is scoped to
+   [data-theme="black"], so with no attribute on <html> this file is
+   1,000 lines that match nothing at all. That buys the three things
+   theme-green's own header argues for:
+
+     1. ONE LINE TURNS IT OFF — delete the import in app/layout.jsx.
+     2. Nothing that already works can break. No markup, no logic, and
+        no existing rule is modified.
+     3. It reads as a diff of intent rather than a diff of 549 rules
+        scattered through 29 stylesheets.
+
+   🔴 IT IS IMPORTED IN THE ROOT LAYOUT, WHICH PAINTS THE DOOR TOO — and
+   that is safe here, unlike theme-green. The door (/login, /reset) is
+   met SIGNED OUT, and the attribute is only ever written for a member
+   who chose black, so there is no session to read and nothing to paint.
+   The scoping does the job that theme-green had to do with its import
+   location. ⚠️ door.css and landing.css were excluded from the
+   generator anyway, belt and braces.
+
+   ---------------------------------------------------------------------
+   ⭐ HOW THE BODY OF THIS FILE WAS BUILT, because it matters if anyone
+   ever has to change it.
+
+   The app carries 1,008 colour literals across 29 stylesheets — 220
+   distinct values, against only 31 CSS variables. Hand-converting 549
+   rules is how you miss one and leave a white card on a black page.
+
+   So it was GENERATED from the real stylesheets, mapping by PROPERTY
+   rather than by colour. The property is what disambiguates: #FFFFFF
+   appears 69 times as text and 68 times as a background, and inverting
+   it blindly would be a catastrophe. As a background it becomes the
+   dark card; as text it is left alone, because white text is already
+   correct on a dark surface.
+
+   The rest of the map is luminance plus hue family:
+     background, very light   → --paper2 / --paper
+     background, mid          → the pale tile
+     background, already dark → left alone (the green masthead stays)
+     text, near-black         → the light ink
+     text, mid grey           → the muted ink
+     text, already light      → left alone
+     any border               → the night line, or its own family's edge
+   Greens stay green, golds stay gold, danger stays red — the hue
+   carries meaning and only the lightness flips.
+
+   ---------------------------------------------------------------------
+   🔴 THE ONE THING THAT WOULD HAVE WRECKED IT, caught by measuring
+   before writing: IN THE DARK, EVERY FILL STOPS SEPARATING.
+
+   A card on the page measures 1.12. The pale-green tile on a card
+   measures 1.13. The gold tile on a card measures 1.00. All three are
+   invisible without an edge — which is character for character the
+   17 Aug pale-tag-on-a-pale-card bug and the 2 Sept anonymous pill.
+
+   ⚠️ So --line is load-bearing here in a way it never was in cream, and
+   it is NOT a subtle colour. My first pick, #2C3A32, measures 1.55
+   against the page — I would have shipped a screen of floating text.
+   #5E7A69 measures 3.93 on the page and 3.51 on a card, clearing the
+   3:1 bar for a UI boundary.
+
+   ⚠️ AND --line IS NOT A TEXT COLOUR — 3.51 on a card is under the 4.5
+   floor. Same rule --gm already carries in theme-green, for the same
+   reason: mid tones read as "dark enough" long after they have stopped
+   being readable. Anything that is TEXT uses --soft.
+
+   ---------------------------------------------------------------------
+   EVERY PAIR BELOW WAS MEASURED BEFORE THIS COMMENT WAS WRITTEN, which
+   is a rule this project earned the hard way — eight contrast figures
+   were typed into comments this month without being run, and at least
+   four of them were failures.
+
+     body on page      15.80      body on card       14.10
+     muted on page      8.92      muted on card       7.96
+     green on page     13.70      green on card      12.23
+     gold on card      10.19      gold ink on tile   12.56
+     deep green on pale tile      12.16
+     danger on card     8.52      link on card       10.63
+     line vs page       3.93      line vs card        3.51   (UI, 3:1 bar)
+
+   Controls that had to fail, and did: --line as text on a card (3.51),
+   the card on the page (1.12).
+   ===================================================================== */
+
+[data-theme="black"]{
+  /* The same vocabulary theme-green declares, in night values. Nothing
+     new is invented — a rule that already said var(--paper) needs no
+     edit to follow the theme. */
+  --paper:#0F1512;      /* the page */
+  --paper2:#18211C;     /* a card on it */
+  --body:#E8EFE9;       /* 14.10 on a card */
+  --soft:#A8B8AE;       /* 7.96 on a card — every timestamp and byline */
+  --line:#5E7A69;       /* ⚠️ AN EDGE, NEVER TEXT. See above. */
+  --x:#E8EFE9;          /* was the near-black ink; in the dark it IS the ink */
+
+  /* The greens. --gd was the masthead fill and is now the accent, because
+     a dark green on a dark page is not a colour, it is a smudge. */
+  --gd:#A8EDC3;         /* 12.23 on a card */
+  --gm:#5E7A69;         /* ⚠️ still DECORATION ONLY, same as in cream */
+  --gm-t:#A8EDC3;       /* the readable twin, for anything that is text */
+  --gl:#1E2C25;         /* the pale wash, inverted into a dark tile */
+  --gt:#CFF3DF;         /* 12.16 on that tile */
+
+  /* ⚠️ ACID IS REASSIGNED AGAIN, and for the third time the reason is
+     contrast rather than looks. In grunge it was #D6FF2E, a fill that
+     could never be text. theme-green made it a pale wash with deep green
+     on top. Here it is a dark tile with pale green on top — the same
+     inversion, so the 50 rules that reference it still land. */
+  --acid:#1E2C25;
+  --acid-ink:#CFF3DF;
+
+  /* Gold stays gold. It is the one non-green colour in the app and it
+     means exactly one thing: a milestone. */
+  --gold:#E8C87A;
+  --gold-lt:#F2DFAE;
+  --gold-bg:#241E12;
+  --gold-ink:#F2DFAE;   /* 12.56 on the gold tile */
+
+  --wear:none;
+  color-scheme:dark;    /* so form controls, scrollbars and the caret
+                           follow — without this the browser draws white
+                           dropdowns on a black page. */
+}
+
+html[data-theme="black"]{ background:#0B100D; }
+[data-theme="black"] body{
+  background:var(--paper); color:var(--body);
+  box-shadow:0 0 0 1px var(--line);
+}
+
+/* =====================================================================
+   GENERATED — the 328 rules that hardcoded a colour instead of using a
+   variable. ⚠️ Do not hand-edit below this line; regenerate instead, or
+   better, move the rule above it onto a variable so it stops needing to
+   be here at all.
+   ===================================================================== */
+
+/* ---- adcard.css ---- */
+[data-theme="black"] .ccbtn{ border:1.5px solid #A8EDC3; }
+
+/* ---- admin.css ---- */
+[data-theme="black"] .mq{ background:#18211C; }
+[data-theme="black"] .mq-kind.concern{ background:#241E12; border-color:#E8C87A; color:#E8C87A; }
+[data-theme="black"] .mq-susp{ border:1px solid #F4A6A6; background:#2A1616; color:#F4A6A6; }
+[data-theme="black"] .mq-988{ border:1px solid #E8C87A; background:#241E12; color:#E8C87A; }
+[data-theme="black"] .mq-acts .mq-danger{ border-color:#F4A6A6; color:#F4A6A6; }
+[data-theme="black"] .nm-since{ border:1px solid #5E7A69; }
+[data-theme="black"] .nm-cell{ background:#18211C; }
+[data-theme="black"] .nm-cell.warn .nm-note{ color:#E8C87A; }
+[data-theme="black"] .nm-promise{ background:#18211C; }
+[data-theme="black"] .nm-promise.warn .nm-pnote{ color:#E8C87A; }
+[data-theme="black"] .sndbox{ background:#18211C; border:1px solid var(--line, #5E7A69); }
+[data-theme="black"] .sndbox b{ color:var(--gd, #A8EDC3); }
+[data-theme="black"] .sndbox span{ color:var(--soft, #A8EDC3); }
+[data-theme="black"] .sndbox.bad b{ color:#F4A6A6; }
+
+/* ---- chat/inbox.css ---- */
+[data-theme="black"] .ib-count{ color:#A8EDC3; }
+[data-theme="black"] .ib-find{ background:#18211C; }
+
+/* ---- dropsheet.css ---- */
+[data-theme="black"] .casrec .asme.on{ background:#0F1512; border-color:#5E7A69; color:#E8EFE9; }
+[data-theme="black"] .ds{ border-top:4px solid #5E7A69; }
+[data-theme="black"] .ds-x{ color:#A8B8AE; }
+[data-theme="black"] .ds-lab{ color:#A8B8AE; }
+[data-theme="black"] .ds-in{ border:1px solid #5E7A69; }
+[data-theme="black"] .ds-in:focus-visible{ border-color:#5E7A69; }
+[data-theme="black"] .ds-seg button{ border:1px solid #5E7A69; color:#A8B8AE; }
+[data-theme="black"] .ds-seg button.on{ background:#0F1512; border-color:#5E7A69; color:#E8EFE9; }
+[data-theme="black"] .ds-pick{ border:1px dashed #5E7A69; }
+[data-theme="black"] .ds-note{ color:#A8B8AE; }
+[data-theme="black"] .ds-sign{ border-top:2px solid #5E7A69; }
+[data-theme="black"] .ds-siginput{ border-color:#5E7A69; }
+[data-theme="black"] .ds-go{ background:#0F1512; color:#E8EFE9; }
+[data-theme="black"] .ds-cancel{ border:1px solid #5E7A69; color:#A8B8AE; }
+[data-theme="black"] .ds-why{ color:#A8B8AE; }
+[data-theme="black"] .cchide button{ border:1px solid var(--line,#5E7A69); color:var(--soft,#A8B8AE); }
+[data-theme="black"] .cchide button:hover{ border-color:var(--x,#5E7A69); color:var(--x,#E8EFE9); }
+[data-theme="black"] .cc-gone{ border:1px dashed var(--line,#5E7A69); }
+[data-theme="black"] .ccgone{ color:var(--soft,#A8B8AE); }
+
+/* ---- emoji.css ---- */
+[data-theme="black"] .emp{ border:1px solid #E8C87A; background:#18211C; }
+[data-theme="black"] .emp-tabs{ border-bottom:1px solid #E8C87A; }
+[data-theme="black"] .emp-one:hover{ background:#241E12; }
+[data-theme="black"] .emp-one:focus-visible{ outline:2px solid #A8EDC3; }
+[data-theme="black"] .emp-green{ border-color:#A8EDC3; }
+[data-theme="black"] .emp-green .emp-tabs{ border-bottom-color:#A8EDC3; }
+[data-theme="black"] .emp-green .emp-one:focus-visible{ color:#A8EDC3; }
+
+/* ---- friends.css ---- */
+[data-theme="black"] .frsec.warm{ color:#E8C87A; }
+[data-theme="black"] .frrowitem{ background:#18211C; }
+[data-theme="black"] .frrowitem.warm{ background:#241E12; }
+[data-theme="black"] .frrowitem.gold{ background:#241E12; }
+[data-theme="black"] .frrowitem.warm .frwhen, [data-theme="black"] .frrowitem.gold .frwhen{ color:#E8C87A; }
+[data-theme="black"] .frsay{ background:#18211C; }
+[data-theme="black"] .frrowitem.warm .frsay{ color:#E8C87A; }
+[data-theme="black"] .roomcount{ color:#A8EDC3; }
+[data-theme="black"] .roomempty{ color:#A8EDC3; }
+[data-theme="black"] .remo{ border:1px solid #A8EDC3; }
+[data-theme="black"] .rin{ border:1px solid #A8EDC3; }
+[data-theme="black"] .rin::placeholder{ color:#A8EDC3; }
+[data-theme="black"] .rin:focus{ outline:2px solid #5E7A69; }
+[data-theme="black"] .rgo{ background:#1E2C25; color:#A8EDC3; }
+[data-theme="black"] .dchip.m-quiet{ background:#241E12; color:#E8C87A; border:1px solid #E8C87A; }
+[data-theme="black"] .rmsgdots{ color:#A8EDC3; }
+[data-theme="black"] .rmsgdots:focus-visible{ outline:2px solid #5E7A69; }
+[data-theme="black"] .rheart{ color:#A8EDC3; }
+[data-theme="black"] .rheart.on{ color:#F4A6A6; }
+[data-theme="black"] .rheart:focus-visible{ outline:2px solid #5E7A69; }
+[data-theme="black"] .rpic:focus-visible{ outline:2px solid #5E7A69; }
+[data-theme="black"] .rtray-one img{ border:1px solid #A8EDC3; }
+[data-theme="black"] .rtray-x{ border:1px solid #A8EDC3; }
+[data-theme="black"] .rpick{ border:1px solid #A8EDC3; }
+[data-theme="black"] .rbig-x{ background:#1E2C25; color:#A8EDC3; }
+[data-theme="black"] .rta{ border:2px solid #5E7A69; }
+[data-theme="black"] .rta:focus, [data-theme="black"] .redit .rta:focus{ outline:2px solid #5E7A69; }
+[data-theme="black"] .rcnt{ color:#A8EDC3; }
+[data-theme="black"] .lnk{ color:#A8EDC3; }
+[data-theme="black"] .rnudge{ border:1px dashed #A8EDC3; }
+[data-theme="black"] .rshade{ border:1px solid #5E7A69; }
+[data-theme="black"] .rtab{ border:1px solid #A8EDC3; }
+[data-theme="black"] .rtab.on{ border-color:#5E7A69; }
+[data-theme="black"] .rtab:focus-visible{ outline:2px solid #5E7A69; }
+[data-theme="black"] .roomhelp a{ border-bottom:1px solid #A8EDC3; }
+[data-theme="black"] .roomhelp a:hover{ border-bottom-color:#5E7A69; }
+
+/* ---- globals.css ---- */
+[data-theme="black"] input[type=text], [data-theme="black"] input[type=email], [data-theme="black"] input[type=password], [data-theme="black"] input[type=date]{ background:#241E12; }
+[data-theme="black"] input:focus{ background:#18211C; }
+[data-theme="black"] .err{ border:3px solid #F4A6A6; background:#0F1512; color:#F4A6A6; }
+[data-theme="black"] .legal{ color:#E8EFE9; }
+[data-theme="black"] .legal .upd{ color:#A8B8AE; }
+[data-theme="black"] .legal a{ color:#A8EDC3; }
+[data-theme="black"] .legal hr{ border-top:1px solid #5E7A69; }
+[data-theme="black"] .legal .fine{ color:#A8B8AE; }
+[data-theme="black"] .phserr{ color:#F4A6A6; }
+
+/* ---- me/me-cream.css ---- */
+[data-theme="black"] .mecream .bar{ background:#241E12; }
+[data-theme="black"] .mecream .count{ background:#0F1512; }
+[data-theme="black"] .mecream .deets, [data-theme="black"] .mecream .pcard, [data-theme="black"] .mecream .item, [data-theme="black"] .mecream .empty, [data-theme="black"] .mecream .facepick, [data-theme="black"] .mecream .facegrid{ background:#241E12; }
+[data-theme="black"] .mecream .msec{ background:#241E12; }
+[data-theme="black"] .mecream .msec[data-tint="acid"]{ background:#0F1512; }
+[data-theme="black"] .mecream .msec[data-tint="sand"]{ background:#241E12; }
+[data-theme="black"] .mecream .msec[data-tint="pink"]{ background:#2A1616; }
+[data-theme="black"] .mecream .msec[data-tint="sky"]{ background:#0F1512; }
+[data-theme="black"] .mecream .msec[data-tint="lilac"]{ background:#0F1512; }
+[data-theme="black"] .mecream .msec[data-tint="mint"]{ background:#1E2C25; }
+[data-theme="black"] .mecream .msec[data-tint="butter"]{ background:#241E12; }
+[data-theme="black"] .mecream .msec[data-tint="peach"]{ background:#1E2C25; }
+[data-theme="black"] .mecream .msec[data-tint="stone"]{ background:#241E12; }
+[data-theme="black"] .mecream .msec[data-tint="cream"]{ background:#241E12; }
+[data-theme="black"] .mecream input[type="text"], [data-theme="black"] .mecream input[type="url"], [data-theme="black"] .mecream input[type="date"], [data-theme="black"] .mecream input[type="search"], [data-theme="black"] .mecream textarea, [data-theme="black"] .mecream select{ background:#18211C; }
+[data-theme="black"] .mecream .btn.out.arm{ border-color:#F4A6A6; }
+[data-theme="black"] .mecream .pencil{ background:#18211C; }
+[data-theme="black"] .mecream .choice{ background:#18211C; }
+[data-theme="black"] .mecream .sbpill{ background:#18211C; }
+[data-theme="black"] .mecream .sbpill:hover{ background:#241E12; }
+[data-theme="black"] .mecream .msec[data-tint="butter"] .sqrow:nth-of-type(1){ background:#1E2C25; }
+[data-theme="black"] .mecream .msec[data-tint="butter"] .sqrow:nth-of-type(2){ background:#241E12; }
+[data-theme="black"] .mecream .msec[data-tint="butter"] .choice{ background:#0F1512; }
+[data-theme="black"] .mecream .face{ background:#18211C; }
+[data-theme="black"] .mecream .fpnow{ background:#18211C; }
+[data-theme="black"] .mecream .thChip{ background:#18211C; }
+[data-theme="black"] .mecream .eye{ background:#18211C; }
+[data-theme="black"] .mecream .eye.off{ background:#241E12; }
+[data-theme="black"] .mecream .eye.anon{ background:#241E12; border-color:#5E7A69; }
+[data-theme="black"] .mecream .eye.anon:hover{ background:#241E12; }
+[data-theme="black"] .mecream .pgrp-hid .sbpill.sel{ border-color:#5E7A69; }
+[data-theme="black"] .mecream .hits{ background:#18211C; }
+[data-theme="black"] .mecream .hits li + li .hit{ border-top:1px solid #E8C87A; }
+[data-theme="black"] .mecream .hit{ background:#18211C; }
+[data-theme="black"] .mecream .hit img{ background:#241E12; }
+[data-theme="black"] .mecream .picked{ background:#18211C; }
+[data-theme="black"] .mecream .picked img{ background:#241E12; }
+[data-theme="black"] .mecream .ppcard{ background:#18211C; border:2px solid #5E7A69; }
+[data-theme="black"] .mecream .ppnote{ background:#241E12; border-bottom:1px solid #E8C87A; color:#E8C87A; }
+[data-theme="black"] .mecream .pplink:focus-visible{ outline:3px solid #A8EDC3; }
+[data-theme="black"] .mecream .ppface{ border:1.5px solid #5E7A69; }
+[data-theme="black"] .mecream .pp-green{ background:#1E2C25; color:#A8EDC3; }
+[data-theme="black"] .mecream .pp-lilac{ background:#0F1512; color:#8FD9FF; }
+[data-theme="black"] .mecream .pp-rose{ background:#2A1616; color:#F4A6A6; }
+[data-theme="black"] .mecream .pp-blue{ background:#0F1512; color:#8FD9FF; }
+[data-theme="black"] .mecream .pp-sand{ background:#241E12; color:#E8C87A; }
+[data-theme="black"] .mecream .pp-quiet{ background:#241E12; color:#E8C87A; border:2.5px solid #E8C87A; }
+[data-theme="black"] .mecream .ppname{ color:#E8EFE9; }
+[data-theme="black"] .mecream .ppwhen{ color:#A8B8AE; }
+[data-theme="black"] .mecream .ppwhen.on{ color:#E8C87A; }
+[data-theme="black"] .mecream .ppmore{ border-top:1px solid #E8C87A; }
+[data-theme="black"] .mecream .ppall{ color:#A8EDC3; }
+[data-theme="black"] .mecream .ppall:focus-visible{ outline:3px solid #A8EDC3; }
+[data-theme="black"] .mecream .ppempty p{ color:#A8B8AE; }
+
+/* ---- meetings.css ---- */
+[data-theme="black"] .mt-tag.closed{ background:#241E12; color:#E8EFE9; }
+[data-theme="black"] .mt-tag.unk{ background:#0F1512; color:#E8EFE9; }
+[data-theme="black"] .mt-noacct.mt-warn{ color:#E8C87A; }
+[data-theme="black"] .mt-nownone{ background:#18211C; }
+[data-theme="black"] .mt-call{ background:#18211C; }
+[data-theme="black"] .mt-join.mt-join-early{ background:#18211C; }
+[data-theme="black"] .rmitem{ background:#18211C; }
+[data-theme="black"] .rmgo{ background:#18211C; }
+[data-theme="black"] .rmitem.first .rmgo{ border-color:#5E7A69; }
+[data-theme="black"] .rm-foot .btn.rm-end{ border-color:#F4A6A6; color:#F4A6A6; }
+
+/* ---- notifications.css ---- */
+[data-theme="black"] .ntfitem.fresh .ntfav{ background:#18211C; }
+
+/* ---- openroom.css ---- */
+[data-theme="black"] .orDot{ background:#1E2C25; }
+[data-theme="black"] .orcard.mine{ background:#241E12; border:1.5px solid #E8C87A; }
+[data-theme="black"] .orcard.mine:hover{ background:#241E12; }
+[data-theme="black"] .orcard.mine .orLive{ color:#E8C87A; }
+[data-theme="black"] .orcard.mine .orDot{ background:#241E12; }
+[data-theme="black"] .orcard.mine .orTtl, [data-theme="black"] .orcard.mine:hover .orTtl{ color:#E8EFE9; }
+[data-theme="black"] .orcard.mine .orWho{ color:#A8B8AE; }
+
+/* ---- photos.css ---- */
+[data-theme="black"] .composer .camera{ background:#18211C; }
+[data-theme="black"] .msec{ background:#18211C; }
+[data-theme="black"] .delbox{ border:2px solid #F4A6A6; background:#2A1616; }
+[data-theme="black"] .delh{ color:#F4A6A6; }
+[data-theme="black"] .delbox input[type=text]{ background:#18211C; }
+[data-theme="black"] .btn.del{ border-color:#F4A6A6; }
+[data-theme="black"] .btn.follow.on{ background:#18211C; }
+[data-theme="black"] .findbar input{ background:#18211C; }
+[data-theme="black"] .findrow{ background:#18211C; }
+[data-theme="black"] .frconfirm{ background:#18211C; }
+[data-theme="black"] .frconfirm .btn.danger{ border-color:#F4A6A6; color:#F4A6A6; }
+[data-theme="black"] .tagok{ color:#8FD9FF; }
+[data-theme="black"] .ccnoimg .ccflyerlink{ background:var(--card, #18211C); }
+[data-theme="black"] .ccpin .ccflyerlink{ border-left:3px solid var(--acid, #5E7A69); }
+
+/* ---- plan.css ---- */
+[data-theme="black"] .pn-err{ color:#F4A6A6; }
+
+/* ---- quiet.css ---- */
+[data-theme="black"] .hp-err{ color:#F4A6A6; background:#2A1616; }
+
+/* ---- readings.css ---- */
+[data-theme="black"] .rd-wrap, [data-theme="black"] .rd-one{ background:#241E12; color:#E8EFE9; }
+[data-theme="black"] .rd-kicker{ color:#E8EFE9; background:#0F1512; }
+[data-theme="black"] .rd-h1{ color:#E8EFE9; }
+[data-theme="black"] .rd-lede{ color:#E8EFE9; }
+[data-theme="black"] .rd-item{ background:#241E12; border:2px solid #5E7A69; }
+[data-theme="black"] .rd-item:hover{ background:#0F1512; }
+[data-theme="black"] .rd-item:focus-visible{ outline:3px solid #5E7A69; }
+[data-theme="black"] .rd-iref{ color:#E8EFE9; }
+[data-theme="black"] .rd-ititle{ color:#E8EFE9; }
+[data-theme="black"] .rd-iwho{ color:#E8EFE9; }
+[data-theme="black"] .rd-foot{ color:#E8EFE9; border-top:2px solid #5E7A69; }
+[data-theme="black"] .rd-out{ color:#E8EFE9; border-bottom:2px solid #5E7A69; }
+[data-theme="black"] .rd-back{ color:#E8EFE9; }
+[data-theme="black"] .rd-back:focus-visible{ outline:3px solid #5E7A69; }
+[data-theme="black"] .rd-ref{ color:#E8EFE9; background:#0F1512; }
+[data-theme="black"] .rd-title{ color:#E8EFE9; }
+[data-theme="black"] .rd-who{ color:#E8EFE9; }
+[data-theme="black"] .rd-passage{ border-left:4px solid #5E7A69; }
+[data-theme="black"] .rd-v{ color:#E8EFE9; }
+[data-theme="black"] .rd-vn{ color:#A8B8AE; }
+[data-theme="black"] .rd-nobody{ background:#0F1512; border:2px solid #5E7A69; }
+[data-theme="black"] .rd-nlabel{ color:#E8C87A; }
+[data-theme="black"] .rd-ntext{ color:#E8C87A; }
+[data-theme="black"] .rd-close{ color:#E8EFE9; }
+[data-theme="black"] .rd-src{ color:#A8B8AE; border-top:2px solid #5E7A69; }
+[data-theme="black"] .rd-done:focus-visible{ outline:3px solid #5E7A69; }
+
+/* ---- survey/survey.css ---- */
+[data-theme="black"] .sv-chip{ background:var(--paper2, #18211C); }
+[data-theme="black"] .sv-opt{ background:var(--paper2, #18211C); }
+[data-theme="black"] .sv-text{ background:var(--paper2, #18211C); }
+[data-theme="black"] .sv-err{ color:#F4A6A6; }
+
+/* ---- tagmenu.css ---- */
+[data-theme="black"] .atmenu{ background:#18211C; }
+[data-theme="black"] .atopt span{ color:#A8B8AE; }
+[data-theme="black"] .mention{ color:#8FD9FF; }
+[data-theme="black"] .athl{ border:1px solid #5E7A69; background:#0F1512; }
+[data-theme="black"] .athl b{ color:#8FD9FF; }
+[data-theme="black"] .athl span{ color:#8FD9FF; }
+[data-theme="black"] .athl:hover, [data-theme="black"] .athl:focus-visible{ background:#0F1512; }
+
+/* ---- theme-green.css ---- */
+[data-theme="black"] .mstone{ border:1px solid #E8C87A; }
+[data-theme="black"] .soff{ background:#18211C; }
+[data-theme="black"] .item{ background:#18211C; }
+[data-theme="black"] .item.poster{ background:#1E2C25; }
+[data-theme="black"] .item.screened{ background:#0F1512; border-color:#5E7A69; }
+[data-theme="black"] .item.mile{ border-color:#E8C87A; }
+[data-theme="black"] .coin{ background:radial-gradient(circle at 34% 30%,#241E12,#1E2C25 62%,#87887F); }
+[data-theme="black"] .composer{ background:#18211C; }
+[data-theme="black"] .composer .ctop input::placeholder{ color:#A8B8AE; }
+[data-theme="black"] .composer .asme.anon{ background:#0F1512; color:#8FD9FF; }
+[data-theme="black"] .item.screened .pa{ background:#0F1512; }
+[data-theme="black"] .item.mile .pa{ background:#241E12; }
+[data-theme="black"] .btn.out.arm{ border-color:#F4A6A6; }
+[data-theme="black"] .composer{ background:#18211C; }
+[data-theme="black"] .choice{ background:#18211C; }
+[data-theme="black"] .heart.on{ color:#F4A6A6; }
+[data-theme="black"] .anontoggle button.on{ background:#0F1512; color:#8FD9FF; border-color:#5E7A69; }
+[data-theme="black"] .facepick{ background:#18211C; }
+[data-theme="black"] .tabbar{ background:#18211C; }
+[data-theme="black"] .crow, [data-theme="black"] .creq{ background:#18211C; }
+[data-theme="black"] .cno{ background:#18211C; border-color:#A8EDC3; }
+[data-theme="black"] .bub{ background:#18211C; }
+[data-theme="black"] .cbar input{ border:1px solid #5E7A69; background:#18211C; }
+[data-theme="black"] .cbar input[disabled]{ background:#1E2C25; }
+[data-theme="black"] .cbar button{ background:#18211C; }
+[data-theme="black"] .idea{ background:#18211C; }
+[data-theme="black"] .drow{ background:#18211C; }
+[data-theme="black"] .dchip.new{ border-color:#5E7A69; }
+[data-theme="black"] .nots li{ background:#18211C; }
+[data-theme="black"] .item .ft .heart{ color:#F4A6A6; }
+[data-theme="black"] .item .ft .heart.on{ color:#F4A6A6; }
+[data-theme="black"] .count .mfill{ background:#18211C; }
+[data-theme="black"] .mdy select{ background:#18211C; }
+[data-theme="black"] .bundo{ background:#18211C; }
+[data-theme="black"] .bell .dot{ background:#241E12; }
+[data-theme="black"] .paskbtn.ghost{ background:#18211C; }
+[data-theme="black"] .rmenu-btn.danger{ color:#F4A6A6; }
+[data-theme="black"] .mtour{ border-top:1px solid var(--line, #5E7A69); }
+[data-theme="black"] .mtT{ color:var(--gt, #A8EDC3); }
+[data-theme="black"] .mtD{ color:var(--soft, #A8EDC3); }
+[data-theme="black"] .sqL{ color:var(--body, #A8EDC3); }
+[data-theme="black"] .sbpill{ border:2px solid var(--line, #5E7A69); background:#18211C; color:var(--body, #A8EDC3); }
+[data-theme="black"] .sbpill:hover{ border-color:var(--gd, #A8EDC3); }
+[data-theme="black"] .sbpill.sel{ border-color:var(--gd, #A8EDC3); }
+[data-theme="black"] .pgL{ color:var(--soft, #A8EDC3); }
+[data-theme="black"] .thChip{ border:2px solid var(--line, #5E7A69); background:#18211C; color:var(--body, #A8EDC3); }
+[data-theme="black"] .thChip.sel{ border-color:var(--gd, #A8EDC3); background:var(--gl, #1E2C25); }
+[data-theme="black"] .composer .ctop .cmedia{ color:#A8EDC3; }
+[data-theme="black"] .composer .ctop .cemo, [data-theme="black"] .replybar .remo, [data-theme="black"] .replybar .rpick{ background:#18211C; color:#A8EDC3; }
+[data-theme="black"] .gone{ background:#18211C; }
+[data-theme="black"] .gone .p{ color:#E8EFE9; }
+
+/* ---- tour.css ---- */
+[data-theme="black"] .tourpage{ background:var(--paper, #1E2C25); color:var(--body, #A8EDC3); }
+[data-theme="black"] .th{ color:var(--gd, #A8EDC3); }
+[data-theme="black"] .tsub{ color:var(--soft, #A8EDC3); }
+[data-theme="black"] .tsec{ color:var(--soft, #A8EDC3); }
+[data-theme="black"] .tcov{ color:#A8EDC3; }
+[data-theme="black"] .tcov::before{ color:var(--soft, #A8EDC3); }
+[data-theme="black"] .tchap{ color:var(--body, #A8EDC3); }
+[data-theme="black"] .tchap:hover{ background:#1E2C25; }
+[data-theme="black"] .tchap.tsel{ background:var(--gl, #1E2C25); }
+[data-theme="black"] .tct{ color:var(--soft, #A8EDC3); }
+[data-theme="black"] .tfine{ color:var(--soft, #A8EDC3); }
+[data-theme="black"] .tfine a{ color:var(--gt, #A8EDC3); }
+[data-theme="black"] .tfoot{ color:var(--soft, #A8EDC3); }
+
+/* ---- tourcard.css ---- */
+[data-theme="black"] .tourcard{ background:#18211C; border:2px solid var(--gt, #A8EDC3); }
+[data-theme="black"] .tcH{ color:var(--gd, #A8EDC3); }
+[data-theme="black"] .tcP{ color:var(--soft, #A8EDC3); }
+[data-theme="black"] .tcGo{ border:2px solid var(--gt, #A8EDC3); }
+[data-theme="black"] .tcNo{ background:#18211C; color:var(--soft, #A8EDC3); border:2px solid #5E7A69; }
+
+/* ---- wall.css ---- */
+[data-theme="black"] .item.poster{ background:#241E12; }
+[data-theme="black"] .item.screened{ background:#241E12; }
+[data-theme="black"] .composer input{ background:#241E12; }
+[data-theme="black"] .rerr{ border:3px solid #F4A6A6; background:#0F1512; color:#F4A6A6; }
+[data-theme="black"] .replybar input{ background:#241E12; }
+[data-theme="black"] .count .cl{ color:#E8C87A; }
+[data-theme="black"] .dr-now{ color:#F4A6A6; }
+[data-theme="black"] .dr-in{ border-left:1px solid #A8EDC3; }
+[data-theme="black"] .dr-ask{ border-left:1px solid #A8EDC3; }
+[data-theme="black"] .item.poster .heart{ color:#E8C87A; }
+[data-theme="black"] .item.poster .dots{ color:#E8C87A; }
+[data-theme="black"] .mrow.danger:hover{ background:#0F1512; border-color:#F4A6A6; }
+[data-theme="black"] .waiting{ color:#E8C87A; }
+[data-theme="black"] .soffer:hover{ background:#18211C; }
+[data-theme="black"] .sok{ color:#E8C87A; }
+[data-theme="black"] .mstone{ background:#241E12; }
+[data-theme="black"] .mstone-body p{ color:#E8C87A; }
+[data-theme="black"] .count .mnext{ color:#E8C87A; }
+[data-theme="black"] .facepick:hover{ background:#241E12; }
+[data-theme="black"] .cbar input{ background:#241E12; }
+[data-theme="black"] .dchip.m-copper{ background:#0F1512; color:#E8EFE9; border-color:#5E7A69; }
+[data-theme="black"] .dchip.m-bronze{ background:#241E12; color:#E8EFE9; border-color:#5E7A69; }
+[data-theme="black"] .dchip.m-silver{ background:#0F1512; color:#8FD9FF; border-color:#5E7A69; }
+[data-theme="black"] .dchip.m-gold{ background:#241E12; color:#E8C87A; border-color:#E8C87A; }
+[data-theme="black"] .dchip.m-platinum{ background:#0F1512; color:#8FD9FF; border-color:#5E7A69; }
+[data-theme="black"] .lk{ color:var(--gm-t,#A8EDC3); }
+[data-theme="black"] .plyb{ border:2px solid var(--gd,#A8EDC3); }
+[data-theme="black"] .plyb:hover{ background:var(--gl,#1E2C25); }
+[data-theme="black"] .plyl{ color:var(--gt,#A8EDC3); }
+[data-theme="black"] .ccplay:focus-visible{ outline:3px solid var(--gd,#A8EDC3); }
+[data-theme="black"] .cctri{ border-left:19px solid #5E7A69; }
+[data-theme="black"] .ccout:hover{ color:var(--gd,#A8EDC3); }
+[data-theme="black"] .ccout:focus-visible{ outline:3px solid var(--gd,#A8EDC3); }
+[data-theme="black"] .dp-artist{ color:#A8B8AE; }
+[data-theme="black"] .dp-clabel{ color:#A8B8AE; }
+[data-theme="black"] .dp-when{ color:#A8B8AE; }
+[data-theme="black"] .dp-play:focus-visible{ outline:3px solid #5E7A69; }
+[data-theme="black"] .dp-remind{ border-top:1px solid #5E7A69; }
+[data-theme="black"] .dp-remind[data-on="1"]{ color:#A8B8AE; }
+[data-theme="black"] .dp-only{ color:#E8EFE9; background:#0F1512; }
+[data-theme="black"] .dp-btn{ background:#0F1512; }
+[data-theme="black"] .dp-tri{ border-left:19px solid #5E7A69; }
+[data-theme="black"] .dp-link:focus-visible{ outline:3px solid #5E7A69; }
+[data-theme="black"] .cheart.on{ color:#F4A6A6; }
+[data-theme="black"] .cheartmine{ color:#F4A6A6; }
+/* =====================================================================
+   THE rgba() TAIL — hand-written, because the generator only reads hex.
+
+   🔴 53 rules colour something with rgba() and 31 of them use a DARK
+   value. Most are correct in the dark already — a scrim over a photo, a
+   veil behind a sheet, the wash under a menu are all meant to be dark
+   washes and stay exactly as they are.
+
+   ⚠️ THE ONES THAT BREAK ARE THE HAIRLINES. `rgba(0,0,0,.12)` on cream
+   is a quiet edge; on #0F1512 it is black on black — the border does not
+   soften, it DISAPPEARS. Eight rules draw a card, a menu or a tray that
+   way, and without this block each becomes floating text with no shape,
+   which is the same 1.12 fill-against-fill failure the header describes.
+
+   ⚠️ Hover and pressed states have the mirror problem: a black wash at
+   5% over a dark surface is no feedback at all. They flip to white at a
+   low alpha, which is what a dark UI does everywhere.
+   ===================================================================== */
+
+/* --- hairlines that would otherwise vanish --- */
+[data-theme="black"] .pushbox,
+[data-theme="black"] .editbox,
+[data-theme="black"] .ccnoimg .ccflyerlink,
+[data-theme="black"] .atmenu,
+[data-theme="black"] .atopt,
+[data-theme="black"] .item .tape,
+[data-theme="black"] .waiting,
+[data-theme="black"] .thDot{ border-color:var(--line); }
+
+/* --- feedback that has to be lighter, not darker --- */
+[data-theme="black"] .ntfx:hover,
+[data-theme="black"] .dmemo:hover,
+[data-theme="black"] .dmpick:hover,
+[data-theme="black"] .atopt.on,
+[data-theme="black"] .atopt:hover{ background:rgba(255,255,255,.07); }
+[data-theme="black"] .ntfx:active{ background:rgba(255,255,255,.12); }
+
+/* ⚠️ The empty frame a photo loads into. rgba(0,0,0,.06) on black is
+   nothing at all, so a picture that has not arrived yet leaves a hole
+   with no edges — and after the 5 Sept expiry bug, a photo that fails to
+   load needs to still read as a photo-shaped thing. */
+[data-theme="black"] .pgrid img{ background:var(--gl); }
+
+/* The blue tag pills. ⚠️ Blue is the one hue in the app that means
+   "system", never "person" — it stays blue, only lighter. */
+[data-theme="black"] .tagok{ background:rgba(143,217,255,.12); color:var(--link,#8FD9FF); }
+[data-theme="black"] .tagno{ background:rgba(255,255,255,.07); }
