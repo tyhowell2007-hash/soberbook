@@ -1042,6 +1042,19 @@ textarea:focus-visible{ outline:4px solid var(--x); outline-offset:3px; }
 .clink{ display:block; text-decoration:none; color:inherit; }
 .clink:focus-visible{ outline:4px solid var(--x); outline-offset:3px; }
 
+/* 8 Sept — the conversation link moved from wrapping the whole row to
+   wrapping only the name-and-preview column, so the face beside it can be
+   its own link to that person's page. ⚠️ These two declarations are not
+   decoration: .cwho used to be the flex child and carried them, and
+   without them here the preview text stops truncating and every row in
+   the inbox grows to fit the longest message. */
+.cwholink{ flex:1; min-width:0; }
+/* ⚠️ .cav is already 42px square and flex-shrink:0, so as a link it is a
+   real tap target without any sizing of its own. It only needs the
+   anchor defaults removed. */
+.cavlink{ text-decoration:none; color:inherit; }
+.cavlink:focus-visible{ outline:4px solid var(--x); outline-offset:3px; }
+
 .cav{ flex-shrink:0; width:42px; height:42px; display:flex; align-items:center;
   justify-content:center; font-size:21px; line-height:1;
   border:3px solid var(--x); background:var(--acid); }
@@ -1177,6 +1190,18 @@ textarea:focus-visible{ outline:4px solid var(--x); outline-offset:3px; }
    and only then knows where it's going */
 .drow{ width:100%; text-align:left; cursor:pointer; font:inherit; }
 .drow[disabled]{ opacity:.55; cursor:default; }
+
+/* 8 Sept — the member row stopped being one big <button> so the face
+   beside the text could be its own link to that person's page. `.crow`
+   keeps the border, padding and flex; this is the button that took over
+   the rest of the row.
+   ⚠️ flex:1 and min-width:0 are load-bearing — `.cwho` used to be the
+   direct flex child and carried them. Without them the "Quiet 19 days"
+   line stops truncating and every row grows to fit it. */
+.dwho{ flex:1; min-width:0; display:flex; align-items:center; gap:11px;
+  background:none; border:0; padding:0; margin:0; font:inherit; color:inherit;
+  text-align:left; cursor:pointer; }
+.dwho[disabled]{ opacity:.55; cursor:default; }
 .dchip{
   display:inline-block; margin-left:6px; padding:2px 8px; border-radius:99px;
   font-family:'Courier Prime',monospace; font-size:10px; font-weight:700;
