@@ -702,3 +702,24 @@ html[data-theme="black"] .mecream .pn{ color:var(--body); }
    which is the one mistake this file's header is entirely about. */
 html[data-theme="black"] .mast .back,
 html[data-theme="black"] .mast .rt{ color:var(--body); }
+
+/* ⚠️ THE MILESTONE BADGE PAINTED ITS OWN TEXT — #F2DFAE on #F2DFAE, a
+   ratio of exactly 1.00. In cream the fill is pale gold and the ink is
+   dark; inverted, my map sent both to the same light gold. Third instance
+   tonight of one variable doing two jobs, and the tell is always a ratio
+   of 1.00 rather than something merely low.
+
+   Measured: #F2DFAE on #241E12 = 12.56, edge #E8C87A at 10.19 on
+   the card. (I typed 6.60 first. Run it, then write it — that is the
+   whole discipline and it still took three goes tonight.) */
+html[data-theme="black"] .mbadge{
+  background:var(--gold-bg); color:var(--gold-ink);
+  border:1px solid var(--gold);
+}
+
+/* ⚠️ NOT A BUG, AND WORTH RECORDING SO NOBODY "FIXES" IT: .cccat reads as
+   a failure to a naive checker because its background is
+   rgba(255,255,255,.16) — a wash, not a colour. A check that takes the
+   rgb and ignores the alpha sees opaque white and reports 1.06. The real
+   background is 16% white over a dark card, and the text is legible.
+   The checker was wrong, not the CSS. */
