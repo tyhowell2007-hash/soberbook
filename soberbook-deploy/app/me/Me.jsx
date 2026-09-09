@@ -1250,10 +1250,70 @@ export default function Me({ email, profile, posts, initialAvatarUrl,
                 person goes when they are looking for the thing they
                 can't find. It is not in the nav, because six tabs is the
                 ceiling for that bar and it is written down in wall.css. */}
+            {/* ⭐ SAGE, AND IT SITS HERE BECAUSE THE FIRST VERSION DIDN'T.
+
+                I put this behind the pencil, three taps down inside the
+                Account section — while writing a comment in that very block
+                about how log-out sat three taps deep for weeks and Ty
+                himself couldn't find it. For a page whose entire job is "I
+                can't find the thing", being hard to find isn't ironic, it's
+                disqualifying.
+
+                ⚠️ It reuses .mtour deliberately rather than getting a new
+                class. Two cards of the same shape read as a pair — "ask a
+                quick question" and "watch the whole thing" — and a new
+                class would have meant new CSS in a fourth file for no
+                visual gain. The 5 Sept lesson: a class you invent is a
+                class that might not exist. This one provably does.
+
+                🔴 The label is in the card itself, not in small print
+                underneath. Wherever Sage appears it says what it is. */}
+            <Link href="/resources" className="mtour">
+              <span className="mtT">◆ Stuck? Ask Sage</span>
+              <span className="mtD">
+                A robot that knows how Sober Book works. Not a person — and it
+                can&apos;t see your posts, your messages or your date.
+              </span>
+            </Link>
+
             <Link href="/tour" className="mtour">
               <span className="mtT">📺 How all this works</span>
               <span className="mtD">A 3&frac12;-minute walkthrough of the whole app.</span>
             </Link>
+
+            {/* ---- ☕ HELP KEEP THIS APP MOVING ----
+
+                🔴 THE LANDING PAGE CARRIES THE SAME ASK, AND THAT ONE IS
+                THE PRIMARY. The people most able to give are the family,
+                friends and treatment staff who arrive from a flyer — not
+                the 243 people in recovery using this. This copy exists so
+                a member who WANTS to chip in has somewhere to do it, not
+                so anybody gets asked.
+
+                ⚠️ Which is why it is here, at the very bottom, under
+                everything, next to Sign out — and never in the feed and
+                never on /now. A tip jar beside somebody posting at 2am
+                that they are struggling is a different object entirely.
+
+                ⚠️ "Only if you're able" is load-bearing copy, not
+                politeness. A good number of people here are broke, in
+                treatment, or paying off the wreckage.
+
+                ⚠️ rel="noreferrer" is the 23 Aug rule — from Sober Book a
+                referrer tells a third party's logs that the visitor came
+                from a recovery app. */}
+            <div className="pushbox">
+              <h3 className="pushh">Help keep this app moving</h3>
+              <p className="pushp">
+                Sober Book is free and it stays free &mdash; no ads, nobody
+                selling your information. It costs a little each month to
+                run. Only if you&apos;re able; nothing here changes either way.
+              </p>
+              <a className="btn" href="https://buymeacoffee.com/tyhowell07"
+                 target="_blank" rel="noopener noreferrer">
+                ☕ Buy us a coffee
+              </a>
+            </div>
 
             <div className="meout">
               <button className={'btn out' + (confirmOut ? ' arm' : '')} type="button"
@@ -1887,27 +1947,10 @@ export default function Me({ email, profile, posts, initialAvatarUrl,
             </button>
           )}
 
-          {/* ⭐ THE DOOR TO THE HELP DESK, AND IT IS HERE ON PURPOSE.
-
-              The person who cannot find a control is standing on THIS
-              page hunting for it. Putting the "how do I…" page anywhere
-              else — the crisis page, the wall, a nav tab we don't have
-              room for — is the mistake this app has made twelve times:
-              building the thing and not the way in. Log-out sat three
-              taps deep for weeks and Ty himself couldn't find it.
-
-              ⚠️ It sits ABOVE sign-out and delete, because it is the
-              answer to "I'm stuck", and those two are what somebody
-              reaches for when being stuck stops being worth it. */}
-          {/* ⚠️ .mtour, NOT an invented class. The first draft of this line
-              used `.tourlink` — a name I assumed existed because /me links
-              to /tour. It exists in NO stylesheet, and it would have
-              shipped a naked unstyled link. Caught by the check, one
-              minute after writing a comment about that exact bug. Reusing
-              the class the /tour link on this same page already uses. */}
-          <Link href="/resources" className="mtour">
-            Stuck? Ask how something works ›
-          </Link>
+          {/* ⚠️ THE SAGE LINK USED TO BE HERE AND HAS MOVED UP TO THE READ
+              VIEW, beside the walkthrough card. It was behind the pencil,
+              which for a help page means nobody would ever have found it.
+              Do not put it back here. */}
 
           {/* ⚠️ Above delete, below sign-out. It renders NOTHING when you
               haven't blocked anybody, so for most members this section
