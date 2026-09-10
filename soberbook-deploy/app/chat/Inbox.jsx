@@ -182,7 +182,38 @@ export default function Inbox({ inbox, requests, members = [] }) {
      August and has been quiet since is still a conversation; using
      "who spoke last" would drop them out of the list the moment you had
      the final word, which is the opposite of what a chat list is for. */
-  const talking = inbox.filter((t) => t.they_ever_spoke);
+  /* 🔴 10 SEPT — CORRECTED, AND THE ARGUMENT ABOVE WAS RIGHT FOR EXACTLY
+     TWO DAYS. Nic Rossiter reported it: "when I message someone, it's not
+     showing where I messaged them."
+
+     He was right, and the numbers are worse than the report. Measured live
+     as him: 71 threads visible, TWO rows on screen, and 22 people he had
+     written to who appeared nowhere — because they hadn't answered yet.
+     Ty the same, larger: 209 threads, 25 shown, 184 hidden, including a
+     message he had sent that same afternoon.
+
+     ⭐ WHY THE FILTER EXISTED AND WHY IT STOPPED BEING NEEDED. It was
+     written the night 201 identical hellos went out, to stop 174 copies
+     of the same sentence burying the list. That was true that night. The
+     list is ordered by last_message_at, and those hellos were all sent on
+     4 Sept — 174 of the 184 hidden threads share that one date. Six days
+     later they sink on their own. The filter is no longer holding back
+     the hellos; it is holding back everything anyone has said since.
+
+     🔴 THE COST OF BEING WRONG HERE IS NOT COSMETIC. Somebody reaches
+     out, sees no trace of it, and concludes the message never sent. In a
+     room where reaching out is the hardest thing anybody does, an app
+     that appears to swallow it is the worst failure available to us.
+
+     ⚠️ So a thread earns a row once ANYBODY has spoken in it. Ordering is
+     untouched. `they_ever_spoke` still drives the preview and unread
+     treatment below — this only decides whether the row exists at all.
+
+     ⚠️ AND THE 3 SEPT LESSON STILL STANDS, it just points the other way
+     this time: people navigate a familiar list by shape and position, so
+     Ty's list going from 25 rows to 209 is a real change and he approved
+     it knowing that. His old hellos are at the bottom, by age. */
+  const talking = inbox.filter((t) => t.they_ever_spoke || t.last_body);
   const spoken = new Set(talking.map((t) => t.other_handle));
 
   const term = q.trim().toLowerCase();
