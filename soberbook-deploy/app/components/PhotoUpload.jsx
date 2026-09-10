@@ -5,7 +5,7 @@ import { browserClient } from '../../lib/supabase-browser';
 /* ⚠️ NAMED imports out of a plain lib module — shrink-video.js carries no
    'use client' directive on purpose, so this file's server-rendered
    siblings could import it too without the 5 Sept named-export trap. */
-import { canShrink, shrinkVideo, SHRINK_ABOVE_BYTES } from '../../lib/shrink-video';
+import { canShrink, shrinkVideo, probeVideo, planFor, SHRINK_ABOVE_BYTES } from '../../lib/shrink-video';
 
 /* =====================================================================
    PICK A PHOTO — now in three steps instead of one.
@@ -65,23 +65,67 @@ export default function PhotoUpload({
        what we are actually about to upload rather than what was picked.
        Getting that order wrong would refuse a file we were about to make
        perfectly acceptable. */
-    const looksVideo = /^video\//.test(file.type || '')
-      || /\.(mov|mp4|m4v)$/i.test(file.name || '');
-    if (looksVideo && file.size > SHRINK_ABOVE_BYTES && canShrink()) {
-      setBusy(true);
-      onBusy?.(true);
-      setStage('Shrinking… 0%');
-      /* ⚠️ Real time — two minutes of video takes two minutes. The
-         percentage is not decoration, it is the difference between
-         "working" and "frozen". */
-      const smaller = await shrinkVideo(file, {
-        onProgress: (p) => setStage(`Shrinking… ${Math.round(p * 100)}%`),
-      });
-      /* null means it declined — unsupported browser, decode failure, or
-         it would have come out bigger. The original carries on to the
-         size check, which will refuse it honestly if it must. */
-      if (smaller) file = smaller;
-      setStage('');
+    /* 🔴 10 SEPT — ASK THE FILE, DO NOT GUESS FROM ITS NAME.
+       This used to be
+         /^video\//.test(file.type) || /\.(mov|mp4|m4v)$/i.test(file.name)
+       and that guess is half of why Ty spent an evening on a record that
+       would not go up. finalize/route.js has said for weeks that Android
+       hands over `application/octet-stream` for perfectly good MP4s, so
+       the type cannot be trusted — and three extensions miss .mkv, .avi,
+       .webm and anything an editor names its own way. A file failing BOTH
+       tests skipped the shrinker entirely and hit the size wall at full
+       size, which on screen is indistinguishable from the shrinker
+       running and doing nothing. */
+    if (file.size > SHRINK_ABOVE_BYTES && canShrink()) {
+      setStage('Checking the file…');
+      const probe = await probeVideo(file);
+
+      if (probe.isVideo) {
+        /* ⚠️ The plan is computed BEFORE any work starts, so a video that
+           cannot fit is refused in a second rather than after ten minutes
+           of real-time encoding. Spending somebody's evening and THEN
+           telling them it was never going to work is the worst order to
+           do these two things in. */
+        const plan = planFor(probe.duration);
+        if (!plan.ok) {
+          setStage('');
+          setErr(
+            `That video can't be made small enough — ${plan.reason} minutes. ` +
+            `Trim it, or post a link to it instead.`
+          );
+          setBusy(false);
+          onBusy?.(false);
+          return;
+        }
+
+        setBusy(true);
+        onBusy?.(true);
+        setStage('Shrinking… 0%');
+        /* ⚠️ Real time — a six-minute video takes six minutes. The
+           percentage is not decoration, it is the difference between
+           "working" and "frozen". */
+        let why = '';
+        const smaller = await shrinkVideo(file, {
+          plan,
+          onProgress: (p) => setStage(`Shrinking… ${Math.round(p * 100)}%`),
+          onReason:   (r) => { why = r; },
+        });
+        setStage('');
+        if (smaller) {
+          file = smaller;
+        } else if (why) {
+          /* 🔴 SAY WHY. The old code took a silent null here and let the
+             original walk into the size check, which then named the
+             ORIGINAL size — so the member read "that file is 243MB" and
+             reasonably concluded nothing had happened. */
+          setErr(`That video couldn't be compressed — ${why}.`);
+          setBusy(false);
+          onBusy?.(false);
+          return;
+        }
+      } else {
+        setStage('');
+      }
     }
 
     /* ---- refuse it here, before the upload, not after ---------------
@@ -104,9 +148,16 @@ export default function PhotoUpload({
       const mb = (file.size / 1024 / 1024).toFixed(0);
       /* Says the real number and what to do instead. "Too big" on its own
          leaves somebody trimming a video by guesswork. */
+      /* ⚠️ It used to say "put it up on YouTube and paste the link".
+         Ty spent twenty minutes on that on 10 Sept and then said the
+         thing that ended it: he has no YouTube account. Naming ONE
+         service assumes an account somebody may not have and may not
+         want — and for a record, uploading it to Google first is a
+         strange thing to be told by the app you are trying to release
+         it on. The generic sentence is true for everybody. */
       setErr(
         `That file is ${mb}MB — the limit is 50MB. ` +
-        `For something longer, put it up on YouTube and paste the link instead.`
+        `Trim it, or host it somewhere and use the link instead.`
       );
       /* 🔴 RELEASE THE BUTTON. Ty, 10 Sept: "I'm trying to put up a record,
          and it won't let me do it again." He was right and it was ours.
