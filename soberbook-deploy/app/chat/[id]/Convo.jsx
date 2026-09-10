@@ -126,7 +126,39 @@ export default function Convo({ thread, initial }) {
      a person silently unable to speak. */
   const waiting = thread.state === 'sent';
 
-  useEffect(() => { foot.current?.scrollIntoView({ block: 'end' }); }, [msgs.length]);
+  /* 🔴 10 Sept — A CONVERSATION OPENED 170px SHORT OF THE BOTTOM, which put
+     the newest message 117px BEHIND the composer. Measured on the live app:
+     document.elementFromPoint at that message's centre returned the nav tab,
+     not the message. So the last thing somebody said to you was covered by
+     the box you answer in, and the only way out was to know to scroll down
+     in a conversation that already looked like it had ended.
+
+     ⭐ THE LAYOUT WAS NEVER WRONG. Scrolled to the true bottom, the last
+     bubble clears the composer by 53px — proven both ways before a line was
+     changed. Only the scroll was wrong.
+
+     THE CAUSE: ref={foot} sits ABOVE .convopad, and .convopad is the 76px
+     spacer whose entire job is clearing the fixed bar and the tab bar under
+     it. Aligning foot's end to the viewport bottom therefore stops one whole
+     spacer short, every time, by construction.
+
+     ⚠️ Scrolling the document to its real bottom is deterministic. Aligning
+     to an element is a guess about WHICH element, and that guess is what
+     broke. `foot` is left in place as a marker, but nothing scrolls to it.
+
+     ⚠️ And it runs three times — now, after paint, and again at 300ms —
+     because a photo that finishes loading after the first pass grows the
+     page underneath you and puts the newest message back under the box. */
+  useEffect(() => {
+    const toBottom = () => {
+      const se = document.scrollingElement || document.documentElement;
+      se.scrollTop = se.scrollHeight;
+    };
+    toBottom();
+    const raf = requestAnimationFrame(toBottom);
+    const late = setTimeout(toBottom, 300);
+    return () => { cancelAnimationFrame(raf); clearTimeout(late); };
+  }, [msgs.length]);
 
   useEffect(() => {
     const supabase = browserClient();
