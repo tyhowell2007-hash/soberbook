@@ -108,6 +108,30 @@ export default function PhotoUpload({
         `That file is ${mb}MB — the limit is 50MB. ` +
         `For something longer, put it up on YouTube and paste the link instead.`
       );
+      /* 🔴 RELEASE THE BUTTON. Ty, 10 Sept: "I'm trying to put up a record,
+         and it won't let me do it again." He was right and it was ours.
+
+         The shrink branch above sets busy BEFORE this check runs (correctly
+         — the check has to measure the shrunk file, not the picked one).
+         This early return then skipped the cleanup, because the only
+         setBusy(false) in the whole function lives in the `finally` of a
+         try block that starts BELOW here. So the button sat on "Working…",
+         disabled, forever, and onBusy left the parent's own button locked
+         with it. The only way out was a page reload.
+
+         ⭐ It could only ever hit somebody uploading a BIG VIDEO — which is
+         precisely the person the shrink was added for. A small file never
+         sets busy, so the same return was harmless, which is how this
+         survived the 8 Sept session that wrote the check and the one that
+         added the shrink.
+
+         ⚠️ A `return` between an acquire and its release is the bug, not
+         the missing line. If a third early exit is ever added here, it
+         needs these two lines too — or move the whole body inside the try
+         so `finally` owns the release for every path out. */
+      setBusy(false);
+      onBusy?.(false);
+      setStage('');
       return;
     }
 
