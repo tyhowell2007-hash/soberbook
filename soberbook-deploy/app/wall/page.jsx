@@ -9,6 +9,12 @@ import { fetchBroadcasts } from '../../lib/highlights';
 import Wall from './Wall';
 import FeedRefresh from '../components/FeedRefresh';
 import OpenRoom from './OpenRoom';
+/* 🌦️ What season are you in — the picker and the room's weather.
+   ⚠️ Default import only. Every export of a 'use client' module becomes
+   a client REFERENCE, so a named one lands on the server as a proxy and
+   throws — that took /wall down for every member on 2 Sept with a green
+   build. Anything both sides need lives in lib/seasons.js. */
+import Seasons from './Seasons';
 /* 🔴 pickRoom comes from lib/, NOT from OpenRoom.jsx. That file is
    'use client', and a named export of a client module arrives here as a
    client reference rather than a function — calling it threw a
@@ -32,7 +38,7 @@ export default async function WallPage() {
      on anonymous posts. Two different sources on purpose. */
   const { data: profile } = await supabase
     .from('profiles')
-    .select('handle, sober_since, display_name, avatar, milestones_answered, is_admin')
+    .select('handle, sober_since, display_name, avatar, milestones_answered, is_admin, season')
     .eq('id', user.id).maybeSingle();
   if (!profile) redirect('/welcome');
 
@@ -337,6 +343,14 @@ export default async function WallPage() {
           could then never appear. The component must always mount and
           decide for itself. */}
       <OpenRoom initial={openRoom} />
+      {/* 🔴 IN THE FEED, NOT IN SETTINGS. Ty asked for it here by name.
+          Thirteen times since August this app has built something and hidden
+          the way in — delete-your-post, the bell, the log out, the season
+          picker behind a pencil would have been the fourteenth.
+          ⚠️ No wrapper div. The card carries its own margin matching
+          .composer; a .pad around a component left a 110px empty band at
+          the top of Home on 2 Sept. */}
+      <Seasons initialSeason={profile.season || null} />
       {error
         ? <div className="pad"><div className="err">Couldn&apos;t load the wall: {error.message}</div></div>
         : <Wall
