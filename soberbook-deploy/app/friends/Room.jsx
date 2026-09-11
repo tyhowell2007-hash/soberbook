@@ -423,7 +423,26 @@ export default function Room({ room, initial, meHandle, members, signed, spokenH
          retry instead of picking six photos again. */
       setTray(tray);
       setVid(vid);                        // and their video
-      setErr('That didn’t send. Try again.');
+      /* 🔴 SB001 IS THE SCREEN (0151–0153), AND IT IS THE ONE ERROR WHOSE
+         OWN WORDS ARE WORTH SHOWING. Everything else that can fail here
+         says something a member cannot act on — "new row for relation
+         room_messages violates check constraint …" — so it keeps the
+         plain line.
+
+         ⚠️ But a screening refusal shown as "That didn't send. Try again."
+         is worse than unhelpful, it is FALSE: it did send, we refused it,
+         and retrying the identical words will fail forever. That is the
+         0046 greyed-out message box again — a rule enforced without ever
+         being stated.
+
+         ⚠️ The sentence comes from the DATABASE, never from a copy here.
+         screen_reason() is the only place that knows what is refused and
+         why, so this screen cannot drift into stating a rule we stopped
+         enforcing — the same reason the @highlight refusal is quoted
+         rather than rewritten. */
+      setErr(error.code === 'SB001'
+        ? error.message
+        : 'That didn’t send. Try again.');
     }
     setBusy(false);
   }
