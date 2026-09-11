@@ -11,6 +11,9 @@ import { play as playShared, release as releaseShared, element as sharedEl } fro
 /* ⚠️ THE SAME function the wall's server uses, so the two cannot drift —
    and it reads feed_drops, which is what withholds an unreleased file. */
 import { fetchDrops } from '../../lib/drops';
+/* ☁️ A record whose video lives on Cloudflare. Same tap-to-play restraint
+   as the Wall — nothing reaches Cloudflare until somebody asks. */
+import StreamVideo from './StreamVideo';
 
 /* =====================================================================
    A MEMBER'S RECORD, ON THE WALL. THE ONLY LOUD CARD HERE.
@@ -520,7 +523,22 @@ export default function DropCard({ drop, artUrl, mediaUrl }) {
   return (
     <article className="dp">
       <div className="dp-frame">
-        {on && mediaUrl ? (
+        {drop.stream_uid ? (
+          /* ☁️ 🔴 A CLOUDFLARE RECORD. It has no media_path and no signed
+             URL — the uid IS the location, and the player fetches its own
+             key on tap.
+
+             ⚠️ It sits FIRST because the branches below all reason about
+             `mediaUrl`, which is null here by construction. Left lower in
+             the chain a perfectly good record would fall through to the
+             "nothing to play" state, which is the 3 Sept dead-play-button
+             bug wearing new clothes.
+
+             ⚠️ feed_drops already withheld this before release_at, so by
+             the time it is non-null the countdown is genuinely over. The
+             exclusive is enforced in the view, not re-stated here. */
+          <StreamVideo uid={drop.stream_uid} label={drop.title} />
+        ) : on && mediaUrl ? (
           isVideo
             ? <video className="dp-media" src={mediaUrl} controls autoPlay playsInline />
             : <audio className="dp-audio" src={mediaUrl} controls autoPlay />
