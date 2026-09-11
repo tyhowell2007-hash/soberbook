@@ -66,7 +66,11 @@ export default function DropSheet({ defaultArtist = '', onClose, onDone }) {
   const [artist, setArtist] = useState(defaultArtist);
   const [title, setTitle]   = useState('');
   const [source, setSource] = useState('file');      // 'file' | 'link'
-  const [media, setMedia]   = useState(null);        // { path, kind }
+  /* ☁️ 11 Sept — { path, kind, streamUid }. A record whose video lives
+     on Cloudflare has NO path; `streamUid` is the whole location. The
+     shape had to grow rather than being swapped, because an audio
+     record still goes to our own bucket exactly as before. */
+  const [media, setMedia]   = useState(null);        // { path, kind, streamUid }
   const [art, setArt]       = useState(null);        // { path, preview }
   const [link, setLink]     = useState('');
   const [outYet, setOutYet] = useState('no');        // 'yes' | 'no'
@@ -87,7 +91,13 @@ export default function DropSheet({ defaultArtist = '', onClose, onDone }) {
   }, [onClose]);
 
   const signed = artist.trim().length > 0 && tidy(sign) === tidy(artist);
-  const hasSomething = source === 'file' ? !!media : link.trim().length > 8;
+  /* ⚠️ `!!media` already covers both roads — a Cloudflare record sets
+     media with a streamUid and no path, and this must NOT be tightened
+     to `media.path` or Set it up goes dead for exactly the uploads this
+     night was about. */
+  const hasSomething = source === 'file'
+    ? !!(media && (media.path || media.streamUid))
+    : link.trim().length > 8;
   const ready = artist.trim() && title.trim() && hasSomething && signed && !busy;
 
   function submit(e) {
@@ -103,7 +113,11 @@ export default function DropSheet({ defaultArtist = '', onClose, onDone }) {
       artist: artist.trim(),
       title: title.trim(),
       kind,
-      media_path: source === 'file' ? media.path : null,
+      media_path: source === 'file' ? (media.path || null) : null,
+      /* 🔴 0146 extended drop_has_something to accept this as the record
+         itself. Before that a Cloudflare-only drop was refused by the
+         database AFTER the whole upload — the worst possible moment. */
+      stream_uid: source === 'file' ? (media.streamUid || null) : null,
       external_url: source === 'link' ? link.trim() : null,
       art_path: art?.path || null,
       /* Already out → it opens now. ⚠️ And no window, because there is no
@@ -193,8 +207,15 @@ export default function DropSheet({ defaultArtist = '', onClose, onDone }) {
                            accept="video/*,audio/*,.mov,.mp4,.m4a,.mp3,.wav,.aac"
                            label={media ? '✓ ready' : 'Choose audio or video'}
                            onBusy={setBusy}
-                           onDone={(path, _preview, isVideo) => {
-                             setMedia({ path, kind: isVideo ? 'video' : 'audio' });
+                           /* ☁️ 🔴 THE RECORD SHEET IS WHERE TY ACTUALLY GOES.
+                              Three nights running he opened THIS sheet to put
+                              up a trailer, and the Cloudflare road was built
+                              on the Wall every time. Opting in here is the
+                              whole point of the 11 Sept work: a 243MB ProRes
+                              master can now be a RECORD, not just a post. */
+                           allowStream
+                           onDone={(path, _preview, isVideo, streamUid) => {
+                             setMedia({ path, kind: isVideo ? 'video' : 'audio', streamUid });
                              setErr('');
                            }} />
               {media && <span className="ds-note">{media.kind} · cleaned and stored</span>}
