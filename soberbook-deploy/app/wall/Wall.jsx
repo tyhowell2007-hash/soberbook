@@ -7,6 +7,7 @@ import { browserClient } from '../../lib/supabase-browser';
 import Thread from './Thread';
 import PostMenu from './PostMenu';
 import PhotoUpload from '../components/PhotoUpload';
+import StreamVideo from '../components/StreamVideo';
 import { Body, Player } from '../components/Linked';
 import EmojiPicker from '../friends/EmojiPicker';
 import { fetchPreviews, PREVIEW_COUNT } from '../../lib/previews';
@@ -853,7 +854,15 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
          that knows the shape the table expects. */
       const attached   = anon ? [] : media;
       const photoPaths = attached.filter((m) => !m.isVideo).map((m) => m.path);
-      const videoPath  = (attached.find((m) => m.isVideo) || {}).path || null;
+      const vid        = attached.find((m) => m.isVideo) || {};
+      const videoPath  = vid.path || null;
+      /* ☁️ 10 Sept — a video may now live on Cloudflare instead of in our
+         own bucket, and the two are mutually exclusive by construction:
+         PhotoUpload takes exactly one of the two roads per file and fills
+         in exactly one of these. 0144's CHECK refuses both at once, and
+         0144's CHECK also refuses either on an anonymous post — which is
+         why `attached` is already empty above when anon is true. */
+      const streamUid  = vid.streamUid || null;
       /* ⚠️ Anonymous forces the audience back to open, for the same
          belt-and-braces reason as the photo above — 0045 has a CHECK that
          refuses anonymous + friends-only outright, and this line is so a
@@ -894,7 +903,11 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
                      empty array: the constraint treats an empty array as
                      invalid, and "no photos" is genuinely absence. */
                   photo_urls: photoPaths.length ? photoPaths : null,
-                  video_url: videoPath });
+                  video_url: videoPath,
+                  /* ⚠️ 0144 granted INSERT **and** SELECT on this column
+                     together. Granting only one is the 0113 → 0114 outage:
+                     the write path looks fine while the read path dies. */
+                  stream_uid: streamUid });
       if (error) throw error;
 
       /* 🔴 THE DROP IS INSERTED SECOND, AND THE ORDER MATTERS. If this
@@ -1183,10 +1196,18 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
                             only one video per post, and letting somebody
                             choose a second means uploading a file we are
                             about to refuse. Cheaper to not offer it. */
-                         accept={canAddVideo ? 'image/*,video/mp4,video/quicktime' : 'image/*'}
+                         /* ☁️ 10 Sept — WIDENED FROM `video/mp4,video/quicktime`
+                            TO `video/*`. That narrow pair was the file
+                            picker refusing to even SHOW somebody their own
+                            work: an .mkv, an .avi, an .mxf, a ProRes export
+                            named anything unusual — all greyed out, with no
+                            message, which reads as "my file is broken".
+                            Cloudflare takes anything ffmpeg understands, so
+                            the picker no longer has to have an opinion. */
+                         accept={canAddVideo ? 'image/*,video/*' : 'image/*'}
                          label={media.length ? `+${media.length}` : '📷'}
                          onBusy={setUploading}
-                         onDone={(path, preview, isVideo) => {
+                         onDone={(path, preview, isVideo, streamUid) => {
                            setMedia((m) => {
                              /* ⚠️ Guard here as well as in the picker. The
                                 upload is async — two quick taps can both
@@ -1195,9 +1216,15 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
                                 raw constraint error. */
                              if (isVideo && m.some((x) => x.isVideo)) return m;
                              if (!isVideo && m.filter((x) => !x.isVideo).length >= MAX_PHOTOS) return m;
-                             return [...m, { path, preview, isVideo }];
+                             return [...m, { path, preview, isVideo, streamUid }];
                            });
-                           setFreshUrls((u) => ({ ...u, [path]: preview }));
+                           /* ⚠️ A Cloudflare video has NO path — it is not in
+                              our storage and there is nothing to sign. Writing
+                              `{ null: '' }` into freshUrls would put a literal
+                              "null" key in the map that urlFor() could later
+                              match against, which is the quiet kind of bug
+                              that shows up as somebody else's picture. */
+                           if (path) setFreshUrls((u) => ({ ...u, [path]: preview }));
                            setPostErr('');
                          }} />
           )}
@@ -1246,8 +1273,24 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
             mean losing nine good pictures to remove one bad one — and the
             bad one is usually the reason you looked. */}
         {media.map((m, i) => (
-          <div className="cphoto" key={m.path}>
-            {m.isVideo ? (
+          /* ⚠️ IDENTITY IS `path OR streamUid`. A Cloudflare video has no
+             path, so keying on `m.path` alone would give every one of them
+             the key `null` — React would reuse the wrong tile, and the ×
+             below (which removes by the same value) would take off the
+             wrong attachment. */
+          <div className="cphoto" key={m.path || m.streamUid}>
+            {m.isVideo && !m.preview ? (
+              /* ☁️ No local preview, and that is not a gap — the browser
+                 may be physically unable to draw a frame of this file
+                 (ProRes, DNxHD, anything an editor exports). Saying so is
+                 better than an empty black box that looks like a failure.
+                 The real thing is on Cloudflare and will play for
+                 everybody once it has finished encoding. */
+              <div className="cvidcloud">
+                <span className="cvidtick" aria-hidden="true">☁️</span>
+                <span>Video ready to post</span>
+              </div>
+            ) : m.isVideo ? (
               /* ⚠️ `controls` and nothing else. No autoplay on the preview —
                  this is the thing you are about to say to people, and it
                  should not start talking at you in a quiet room while
@@ -1278,7 +1321,8 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
                     /* ⚠️ Remove by PATH, not by index. Indexes shift the
                        moment anything else is removed, so a second tap on
                        a stale render would take off the wrong picture. */
-                    onClick={() => setMedia((s) => s.filter((x) => x.path !== m.path))}>×</button>
+                    onClick={() => setMedia((s) => s.filter(
+                      (x) => (x.path || x.streamUid) !== (m.path || m.streamUid)))}>×</button>
           </div>
         ))}
 
@@ -1755,6 +1799,23 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
                          preload="none" />
                 </div>
               )}
+
+              {/* ☁️ THE SAME RESTRAINT, A DIFFERENT HOUSE (0144/0145).
+
+                  A video that went to Cloudflare is played by their
+                  iframe — but only after a tap, for the reason above and
+                  one more: an iframe fires on RENDER, so mounting it here
+                  would tell a third party that this member's browser was
+                  on this page before a single frame played. That is the
+                  23 Aug rule about song embeds, and it matters more for a
+                  recovery app than it did for Spotify.
+
+                  ⚠️ The two are mutually exclusive on a row — 0144's CHECK
+                  sees to that — so this never renders alongside the one
+                  above. Both are listed anyway rather than an if/else,
+                  because an if/else would quietly hide the day that
+                  constraint is ever relaxed. */}
+              {p.stream_uid && <StreamVideo uid={p.stream_uid} />}
 
               {/* THE CHIP — the only gold in the app.
 
