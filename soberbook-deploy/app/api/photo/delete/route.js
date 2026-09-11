@@ -89,7 +89,7 @@ export async function POST(req) {
      person who wrote it, so "did I write this" cannot be answered by
      comparing ids on the client. */
   const { data: post } = await supabase
-    .from('feed_posts').select('id, is_mine, photo_url, photo_urls, video_url')
+    .from('feed_posts').select('id, is_mine, photo_url, photo_urls, video_url, stream_uid')
     .eq('id', postId).single();
 
   if (!post?.is_mine) {
@@ -196,6 +196,33 @@ export async function POST(req) {
 
   if (post.video_url) {
     await adminClient().storage.from('post-videos').remove([post.video_url]);
+  }
+
+  /* ☁️ 🔴 AND THE CLOUDFLARE COPY, BECAUSE NOTHING ELSE WILL EVER FIND IT.
+
+     referenced_media() and the orphan sweeper are the safety net for every
+     other file in this app, and they work by listing a BUCKET and diffing
+     it against known paths. A stream_uid is not a path and does not live
+     in a bucket, so it is invisible to both. 0063 taught this lesson from
+     the other direction — a sweeper that could not see the drops bucket
+     would have deleted every song on the wall — and this is the same
+     lesson arriving from a direction the sweeper cannot look in at all.
+
+     🔴 So if this line is ever removed, "delete my post" stops meaning
+     what it says: the video keeps existing on somebody else's servers,
+     playable by anyone we ever handed a token to, and we keep paying
+     storage on it forever.
+
+     ⚠️ It runs LAST and its failure does not fail the request. The post
+     row is already gone by here; throwing now would tell a member their
+     deletion failed when the thing they wanted gone is gone. A leftover
+     Cloudflare video is a bill, not a betrayal — but it is recorded as a
+     known gap either way. */
+  if (post.stream_uid) {
+    try {
+      const { streamReady, deleteVideo } = await import('../../../../lib/cloudflare-stream');
+      if (streamReady()) await deleteVideo(post.stream_uid);
+    } catch { /* see above — never let this fail the deletion */ }
   }
 
   return NextResponse.json({ ok: true });
