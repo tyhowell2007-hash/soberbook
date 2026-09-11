@@ -33,6 +33,25 @@ export default function PhotoUpload({
   disabled = false,
   onBusy,               // (bool) => void — lets the parent lock its Post button
   accept = 'image/*',   // photos only unless the caller says otherwise
+  /* ☁️ 🔴 OPT IN TO THE CLOUDFLARE ROAD, AND IT DEFAULTS TO OFF.
+
+     A Cloudflare video comes back with NO path — the file is not in our
+     storage and there is nothing to sign. `onDone(null, '', true, uid)`.
+     A caller that stores `path` and knows nothing about `streamUid` gets
+     a null where it expected a file, and silently breaks.
+
+     🔴 That is exactly what I did to the RECORD composer on 10 Sept.
+     DropSheet's accept list contains `video/*`, so the branch below
+     grabbed every record upload — and DropSheet's onDone is
+     `(path, _preview, isVideo)`, three arguments, no idea a fourth
+     exists. Ty hit it within minutes. Before that change a small video
+     in the record sheet worked fine; after it, none would have.
+
+     ⭐ So the road is now something a caller must ASK for by declaring it
+     can handle a path-less result. Defaulting to off means the next
+     composer somebody adds cannot be broken by forgetting about this —
+     it just keeps the old behaviour until it is wired on purpose. */
+  allowStream = false,
   /* ⚠️ For callers whose button is a fixed-size icon. The default shows
      the live stage — "Uploading…" — which is genuinely useful on a slow
      phone and completely wrong inside a 44px circle, where it overflows
@@ -91,7 +110,11 @@ export default function PhotoUpload({
        these bytes, Cloudflare can, and a wrong guess costs one polite
        refusal while a missed guess costs somebody their work.
        ================================================================ */
-    const videoAllowed = /video/i.test(accept);
+    /* ⚠️ `allowStream` FIRST, and it is not a tidy-up — see the note on the
+       prop. Without it this branch hijacks every composer whose accept
+       list happens to mention video, including ones that cannot read the
+       answer. */
+    const videoAllowed = allowStream && /video/i.test(accept);
     if (videoAllowed && looksLikeVideo(file)) {
       setBusy(true);
       onBusy?.(true);
