@@ -1204,6 +1204,11 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
                             message, which reads as "my file is broken".
                             Cloudflare takes anything ffmpeg understands, so
                             the picker no longer has to have an opinion. */
+                         /* ☁️ The Wall is the ONE composer wired for Cloudflare
+                            tonight: it reads the 4th onDone argument and writes
+                            stream_uid. Every other composer leaves this off and
+                            keeps the old road until it is wired on purpose. */
+                         allowStream
                          accept={canAddVideo ? 'image/*,video/*' : 'image/*'}
                          label={media.length ? `+${media.length}` : '📷'}
                          onBusy={setUploading}
