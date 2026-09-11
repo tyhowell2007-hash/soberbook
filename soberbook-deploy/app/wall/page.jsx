@@ -15,6 +15,9 @@ import OpenRoom from './OpenRoom';
    throws — that took /wall down for every member on 2 Sept with a green
    build. Anything both sides need lives in lib/seasons.js. */
 import Seasons from './Seasons';
+/* ⭕ The way in to your circle. ⚠️ Default import only — a named one
+   out of a 'use client' module lands on the server as a proxy and throws. */
+import CircleCard from './CircleCard';
 /* 🔴 pickRoom comes from lib/, NOT from OpenRoom.jsx. That file is
    'use client', and a named export of a client module arrives here as a
    client reference rather than a function — calling it threw a
@@ -351,6 +354,10 @@ export default async function WallPage() {
           .composer; a .pad around a component left a 110px empty band at
           the top of Home on 2 Sept. */}
       <Seasons initialSeason={profile.season || null} />
+      {/* 🔴 NOTICEABLE ON PURPOSE (Ty, 11 Sept). The dark slab is the only
+          non-white card on this feed, because a page nobody can find is the
+          bug this app has shipped thirteen times. */}
+      <CircleCard />
       {error
         ? <div className="pad"><div className="err">Couldn&apos;t load the wall: {error.message}</div></div>
         : <Wall
