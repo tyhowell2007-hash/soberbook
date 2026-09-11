@@ -232,6 +232,68 @@ export function milestoneToday(sinceISO, now = new Date()) {
   return all.find((mk) => mk.daysAway === 0) || null;
 }
 
+/* =====================================================================
+   WHAT DO WE CALL 1,096 DAYS?
+
+   `posts.milestone_days` stores an integer, and until now every surface
+   printed it raw: the badge said "🪙 1096 days" and the chip card said
+   "1096-day chip". Nobody in a room has ever said either of those
+   sentences. They say "three years".
+
+   ⚠️ THIS EXISTS SO THE LABEL IS WRITTEN ONCE. The badge on a post and
+   the medal on the celebration card must never disagree about what a
+   number is called — that is the 0046 → 0049 drift, which has bitten this
+   schema three times, and a milestone is exactly the place where two
+   different answers on the same screen would sting.
+
+   The day marks match EXACTLY, because they are exact: 30, 60, 90, 180
+   are the only day-counted marks that exist, and anything else with those
+   values would be a coincidence we do not want to dress up.
+
+   The years are recognised by arithmetic rather than by a lookup, because
+   milestones() builds them from the CALENDAR and a calendar year is 365
+   or 366 days depending on where the leap days fell. Both real rows in
+   the app were checked against this:
+
+     1096 → 3 years   (1096 / 365.25 = 3.0007)
+     2191 → 6 years   (2191 / 365.25 = 5.9986)
+
+   ⚠️ THE TOLERANCE IS ONE DAY AND THAT IS NOT ARBITRARY. Across every n,
+   a real anniversary lands within 0.75 of n × 365.25, so ±1 accepts every
+   true anniversary and nothing else — 500 days sits 135 days off the
+   nearest year and correctly falls through. A loose tolerance here would
+   quietly rename a number that isn't an anniversary, which is the one
+   mistake this function exists to prevent.
+
+   ⚠️ FALLS BACK TO "N days" rather than throwing or returning null. An
+   unexpected value should render as a plain honest number, not as a hole
+   in the middle of somebody's celebration. */
+export function markLabel(days) {
+  const n = Number(days);
+  if (!Number.isFinite(n) || n <= 0) return null;
+
+  const dayMark = DAY_MARKS.find((mk) => mk.days === n);
+  if (dayMark) return dayMark.full;
+
+  const years = Math.round(n / 365.25);
+  if (years >= 1 && years <= MAX_YEAR && Math.abs(n - years * 365.25) <= 1) {
+    return years === 1 ? '1 year' : years + ' years';
+  }
+
+  return n === 1 ? '1 day' : n.toLocaleString() + ' days';
+}
+
+/** The two halves of the same label, for the medal — a big number and a
+ *  small word under it. Built from markLabel so the engraving can never
+ *  say something different from the badge. */
+export function markParts(days) {
+  const full = markLabel(days);
+  if (!full) return null;
+  const sp = full.indexOf(' ');
+  return sp < 0 ? { num: full, unit: '' }
+                : { num: full.slice(0, sp), unit: full.slice(sp + 1) };
+}
+
 /* The chip row is capped so it stays one line on a phone: everything
    earned, plus the one being worked toward. Someone at 4,000 days does
    not need thirty grey circles trailing off the screen. */
