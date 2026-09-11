@@ -1,0 +1,162 @@
+/* ============================================================================
+   🏅 THE MILESTONE CELEBRATION — gold medal, confetti, full volume.
+
+   Ty, 11 Sept: "Put metals on there too because it's a big achievement to get
+   to a milestone." Then: "This has to be a celebration to the highest form."
+   Then: "make the years in gold color." Then: "add confetti in there as well.
+   This is a big celebration."
+
+   He said it four times because I kept drawing the tasteful version. It is
+   written down here so nobody sands it back down later: THE LOUDNESS IS THE
+   BRIEF. The medal and the headline both say the number, and that repetition
+   is deliberate — a real celebration repeats itself.
+
+   ⭐ ONE MEDAL FOR EVERY MILESTONE. Day one, thirty days, six years — same
+   gold, same ring, same diameter. Only the engraving changes. There is no
+   bronze tier and no locked tier, and that is the point: a ladder tells the
+   person on day four that they are at the bottom of it, and the rooms have
+   said for ninety years that the newcomer matters as much as anyone. The
+   fine line on the card says so out loud, so a member on day four reading
+   somebody else's six-year card knows theirs will be identical.
+
+   ✅ EVERY COLOUR MEASURED AGAINST THE REAL SURFACES BEFORE THIS FILE WAS
+   WRITTEN — not against a mockup, and not from memory. Four unmeasured
+   contrast figures went into comments in this project in a single day and all
+   four turned out to be wrong, so these were run first:
+
+     LIGHT — card is --gl #E8F4ED, medal face is --paper2 #FFFFFF
+       #854F0B  gold ink ....... 5.96 card  ·  6.73 medal   (text, floor 4.5)
+       #BA7517  gold ring ...... 3.29 card  ·  3.72 medal   (floor 3.0 — it is
+                                 a 5px ring and a 2px rule, a graphic, not type)
+       #256F4C  --gm-t, fine ... 5.38 card                  (text, floor 4.5)
+     DARK — card is --gl #1E2C25, medal face is --paper2 #18211C
+       #FAC775  gold ink ....... 9.35 card   ·  10.60 medal
+       #E8B75C  gold ring ...... 7.88 card   ·   8.92 medal
+       #A8EDC3  --gm-t, fine ... 10.79 card
+
+   ⚠️ THE MEDAL FACE IS --paper2 AND THE CARD IS --gl, IN BOTH THEMES, AND
+   THAT PAIRING IS LOAD-BEARING. In light, --paper2 is lighter than --gl; in
+   dark, --paper2 is DARKER than --gl. Either way the two differ, so the disc
+   reads as a disc. Setting the face to --gl in dark — which is what a
+   careless copy of the light rule produces — makes the medal vanish into the
+   card with only the ring left, and it fails the way the 17 Aug pale-tag bug
+   failed: fill against fill, invisible, and a text-only contrast audit walks
+   straight past it.
+
+   🔴 THE GOLDS THAT LOOK MOST LIKE GOLD ALL FAIL. Classic gold #C9A227
+   measures 2.42 on white; darkgoldenrod #B8860B measures 3.25. Neither can
+   carry a word or a number. That is why the medal runs TWO golds — a bright
+   one for the ring, judged as a graphic at a 3.0 floor, and a deep one for
+   every character, judged as text at 4.5. Do not "simplify" this to one
+   colour: the simplification is the bug.
+   ============================================================================ */
+
+.mscard{
+  position:relative;
+  overflow:hidden;        /* the confetti falls past the bottom edge and is
+                             clipped here rather than escaping onto the wall */
+  border:2px solid var(--gold-ring);
+  border-radius:12px;
+  background:var(--gl);
+  padding:22px 18px 20px;
+  margin:12px 0 4px;
+  text-align:center;
+}
+
+/* ⚠️ EVERYTHING REAL SITS IN HERE, ABOVE THE CONFETTI. Without a positioned
+   wrapper the medal and the headline share a stacking context with fourteen
+   absolutely-positioned squares, and paint order stops being predictable —
+   which on this card means a piece of confetti landing on top of the number.
+   The 8 Sept reply-menu bug is the same shape: a portal puts you in the right
+   stacking context, it does not tell you what is already standing there. */
+.msinner{ position:relative; z-index:1; }
+
+.mseyebrow{
+  display:flex; align-items:center; justify-content:center; gap:10px;
+  margin:0 0 16px;
+}
+.msrule{ display:block; width:34px; height:2px; background:var(--gold-ring); }
+.mseyebrow span{
+  font-size:12px; font-weight:700; letter-spacing:.1em;
+  color:var(--gold-ink);
+}
+
+.msmedal{
+  width:116px; height:116px; border-radius:50%;
+  background:var(--medal-face);
+  border:5px solid var(--gold-ring);
+  display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+  margin:0 auto 16px;
+}
+.msnum{
+  font-size:36px; font-weight:800; line-height:1;
+  color:var(--gold-ink);
+}
+.msunit{
+  font-size:13px; font-weight:600; letter-spacing:.04em;
+  color:var(--gold-ink); margin-top:2px;
+}
+
+.mshead{
+  font-size:28px; font-weight:800; line-height:1.15;
+  color:var(--gold-ink);
+  margin:0 0 8px;
+}
+.msfine{
+  font-size:13px; line-height:1.45;
+  color:var(--gm-t);
+  margin:0 auto; max-width:30ch;
+}
+
+/* ============================================================================
+   CONFETTI.
+
+   🔴 IT HOLDS STILL FOR ANYONE WHOSE DEVICE ASKS IT TO. prefers-reduced-motion
+   is switched on by people with vestibular disorders and migraine, and this
+   app gets opened at 2am by people who already feel terrible. Fourteen objects
+   tumbling down the screen is the wrong thing to force on them. The pieces
+   stay — the card still reads as a celebration — they simply stop moving.
+
+   ⚠️ Purely decorative: aria-hidden in the markup, and no contrast floor
+   applies because they never carry meaning on their own. The medal, the
+   headline and the number all say it in words first.
+
+   ⚠️ The animation is on the PIECE and the position/colour/delay are inline
+   per piece, because those are fourteen different values. A class per piece
+   would be fourteen classes describing one idea. */
+
+@keyframes msfall{
+  0%   { transform:translateY(-26px) rotate(0deg);   opacity:0; }
+  10%  { opacity:1; }
+  85%  { opacity:1; }
+  100% { transform:translateY(260px) rotate(430deg); opacity:0; }
+}
+
+.msbit{
+  position:absolute; top:0;
+  width:8px; height:12px;
+  border-radius:1px;
+  animation:msfall 3.6s linear infinite;
+}
+.msbit.round{ border-radius:50%; width:9px; height:9px; }
+
+@media (prefers-reduced-motion: reduce){
+  .msbit{ animation:none; opacity:.8; }
+}
+
+/* ---- the two golds and the medal face, and where they flip for night ----
+   ⚠️ A literal hex here would stay bright amber on a black screen at 2am,
+   which is the whole reason night mode was built as a variable layer rather
+   than a second stylesheet. All three are variables for that reason.
+   ⚠️ The dark theme's attribute is data-theme="black", NOT "dark". */
+:root{
+  --gold-ring:#BA7517;
+  --gold-ink:#854F0B;
+  --medal-face:#FFFFFF;
+}
+html[data-theme="black"]{
+  --gold-ring:#E8B75C;
+  --gold-ink:#FAC775;
+  --medal-face:#18211C;
+}
