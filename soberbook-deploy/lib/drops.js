@@ -24,9 +24,15 @@ import { assertReadable } from './supabase-browser';
    unreleased master's file path to every browser on the wall.
    ===================================================================== */
 
+/* 🔴 AN EXPLICIT COLUMN LIST IS A SECOND PLACE A COLUMN CAN FAIL TO EXIST.
+   0145's lesson is that a view which does not RETURN a column hides it from
+   the app; this is the same failure one layer up — feed_drops can return
+   stream_uid all it likes, and if it is not named here the card gets
+   undefined and silently renders the "nothing to play" state.
+   ⚠️ Anything added to feed_drops for a record must be added here too. */
 const COLUMNS =
   'post_id, artist, title, kind, art_path, release_at, exclusive_hours, ' +
-  'is_out, is_exclusive_now, exclusive_until, external_url, media_path';
+  'is_out, is_exclusive_now, exclusive_until, external_url, media_path, stream_uid';
 
 export async function fetchDrops(supabase, postIds) {
   if (!postIds || !postIds.length) return {};
