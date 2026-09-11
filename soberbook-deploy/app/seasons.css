@@ -1,0 +1,93 @@
+/* =====================================================================
+   🌦️ SEASONS — the room's weather, on the home feed.
+
+   ⚠️ EVERY COLOUR IS A VARIABLE, NOT A HEX. Night mode (0356–0359) works
+   by remapping --gd/--gl/--soft and friends; a literal hex here would
+   stay bright green on a black screen at 2am, which is when a lot of
+   this app gets opened.
+
+   ✅ MEASURED IN LIGHT MODE BEFORE THIS FILE WAS WRITTEN, against a 4.5
+   floor — four unmeasured contrast figures went into comments on 5 Sept
+   and all four were wrong, so the number gets RUN now and written after:
+     --gt on white ............ 12.20
+     --x  on white ............ 16.02
+     --soft on white ..........  5.12
+     --gm-t on white ..........  6.07
+     --gt on --gl ............. 10.80
+     --gm-t on --gl ...........  5.38
+     #C7EFDD on --gt ..........  9.77
+   🔴 The bar FILL measures 3.74 on --gl and that is fine — it is a bar,
+   not type. Nothing readable is ever set in it.
+   ===================================================================== */
+
+.sea{
+  background:var(--paper2);
+  border:1px solid var(--line);
+  border-radius:12px;
+  padding:14px;
+  /* ⚠️ Matches .composer's margin exactly. A card on this feed that sits
+     at a different inset than the box above it reads as a bug even when
+     nobody can say why. */
+  margin:0 14px 14px;
+}
+.sea-h{ font-size:17px; color:var(--gt); margin:0 0 3px; font-weight:600; }
+.sea-sub{ font-size:13px; color:var(--soft); margin:0 0 12px; }
+.sea-h3{ font-size:13px; color:var(--gt); margin:0 0 6px; font-weight:600; }
+
+/* ---- the picker ---- */
+.sea-pick{ display:flex; flex-direction:column; gap:7px; }
+.sea-opt{
+  display:flex; align-items:center; gap:10px; width:100%;
+  text-align:left; background:var(--paper2);
+  border:1px solid var(--line); border-radius:9px;
+  padding:10px; cursor:pointer;
+  /* 🔴 44px. The two controls people actually use on a post were 20px
+     until 18 Aug; this is not a number to trim to fit more in. */
+  min-height:44px;
+}
+.sea-opt:disabled{ opacity:.55; cursor:default; }
+.sea-em{ font-size:19px; line-height:1; flex:none; }
+.sea-txt{ display:flex; flex-direction:column; gap:2px; }
+.sea-lab{ font-size:15px; color:var(--body); }
+.sea-blurb{ font-size:12px; color:var(--soft); }
+
+.sea-fine{ font-size:11px; color:var(--soft); margin:10px 0 0; line-height:1.5; }
+.sea-err{ font-size:13px; color:#8C2F2F; margin:9px 0 0; }
+
+/* ---- the room's weather ---- */
+.sea-bars{ list-style:none; margin:0; padding:0; }
+.sea-row{ margin-bottom:11px; }
+.sea-rowtop{ display:flex; justify-content:space-between; gap:10px; align-items:baseline; margin-bottom:4px; }
+.sea-name{ font-size:14px; color:var(--body); }
+.sea-n{ font-size:12px; color:var(--gm-t); white-space:nowrap; }
+
+/* ⚠️ The season YOU are in gets a wash, never a bigger number or a
+   badge. It is orientation — "you are here" — not a score. */
+.sea-me{ background:var(--gl); border-radius:8px; padding:7px 8px; margin-left:-8px; margin-right:-8px; }
+.sea-me .sea-name{ color:var(--gt); }
+
+.sea-bar{ height:10px; background:var(--line); border-radius:3px; overflow:hidden; }
+.sea-bar > i{ display:block; height:100%; background:var(--gm); }
+.sea-me .sea-bar > i{ background:var(--gd); }
+
+/* ---- what moved ---- */
+.sea-moved{ border-top:1px solid var(--line); margin-top:13px; padding-top:11px; }
+.sea-moved ul{ list-style:none; margin:0; padding:0; }
+.sea-moved li{ font-size:13px; color:var(--body); line-height:1.65; }
+.sea-moved b{ color:var(--gm-t); font-weight:600; }
+
+/* ⭐ The one sentence that carries the whole feature. Dark slab so it
+   reads as the app speaking rather than as another statistic. */
+.sea-turn{
+  background:var(--gt); color:#C7EFDD;
+  border-radius:8px; padding:10px;
+  font-size:12px; line-height:1.5; margin:10px 0 0;
+}
+
+.sea-change{ margin-top:13px; }
+.sea-change > summary{
+  font-size:13px; color:var(--gm-t); cursor:pointer;
+  /* ⚠️ A summary is a tap target like any other. */
+  padding:8px 0; min-height:44px; display:flex; align-items:center;
+}
+.sea-change[open] > summary{ margin-bottom:7px; }

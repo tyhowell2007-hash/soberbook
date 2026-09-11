@@ -62,6 +62,13 @@ import '../openroom.css';
    app has hit twice: this line IS the feature working. */
 import '../invite.css';
 
+/* 🌦️ Seasons — the picker and the room's weather on Home. ⚠️ Its own
+   small file for the same reason as the seven above: wall.css is 71KB and
+   has already failed three uploads in a row at that size. ⚠️ A stylesheet
+   nothing imports is a silent failure this app has hit twice — this line
+   IS the feature working. */
+import '../seasons.css';
+
 import NavBar from '../components/NavBar';
 
 export default function WallLayout({ children }) {

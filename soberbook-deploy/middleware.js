@@ -35,7 +35,24 @@ export async function middleware(request) {
   const path = request.nextUrl.pathname;
   const tokenPath = path.startsWith('/auth') || path.startsWith('/reset');
 
-  if (host.endsWith('.vercel.app') && !tokenPath) {
+  /* 🔴 A BRANCH PREVIEW MUST NOT BE FORWARDED TO PRODUCTION.
+
+     This redirect was written on 23 Aug so old bookmarks and old flyer
+     links landing on soberbook.vercel.app reach the real address. It
+     matched EVERY *.vercel.app host, which quietly included every branch
+     preview Vercel builds — so opening a preview URL bounced straight to
+     soberbook.app and showed the LIVE app, looking for all the world like
+     the branch had changed nothing.
+
+     ⚠️ That is the worst possible failure shape: it is indistinguishable
+     from "the feature does not work". Found 11 Sept on the seasons branch.
+
+     Vercel names a branch preview `<project>-git-<branch>-<scope>` and a
+     production alias has no `-git-` in it, so one test separates them and
+     `soberbook.vercel.app` still forwards exactly as before. */
+  const isPreview = host.includes('-git-');
+
+  if (host.endsWith('.vercel.app') && !isPreview && !tokenPath) {
     const to = new URL(path + request.nextUrl.search, 'https://soberbook.app');
     return NextResponse.redirect(to, 307);
   }
