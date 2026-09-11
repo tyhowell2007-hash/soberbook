@@ -95,6 +95,72 @@ export async function directUploadUrl({ maxDurationSeconds = 720, creator } = {}
   return { uid: r.uid, uploadURL: r.uploadURL };
 }
 
+/* ---------------------------------------------------------------------
+   THE BIG-FILE ROAD (tus). Anything over 200MB MUST come this way —
+   Cloudflare's basic POST refuses it with a 413 after taking every byte.
+
+   ⚠️ NOTHING ABOUT THIS RESPONSE IS IN THE BODY. The upload URL is in the
+   `Location` header and the video id is in `stream-media-id`. Their docs
+   say plainly: do not parse the id out of the Location URL, read the
+   header. So cf() is no use here — it parses JSON — and this talks to
+   fetch directly.
+
+   ⚠️ `?direct_user=true` is what makes the returned URL usable by a
+   browser with no credentials. Without it the URL still comes back and
+   then refuses every chunk, which would look exactly like a broken app.
+   --------------------------------------------------------------------- */
+
+/* Upload-Metadata is `key <base64 value>` pairs, comma-joined, NO spaces
+   around the comma, and a key with no value is just the bare key. Getting
+   this shape wrong is silently ignored rather than refused — which is the
+   dangerous direction, because `requiresignedurls` would simply not
+   apply and the video would be public. */
+const meta = (pairs) => pairs
+  .map(([k, v]) => (v === undefined ? k : `${k} ${Buffer.from(String(v)).toString('base64')}`))
+  .join(',');
+
+export async function tusCreate({ size, name, creator, maxDurationSeconds = 720 }) {
+  const r = await fetch(`${API}/accounts/${ACCOUNT}/stream?direct_user=true`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${TOKEN}`,
+      'Tus-Resumable': '1.0.0',
+      'Upload-Length': String(size),
+      'Upload-Metadata': meta([
+        ['name', name],
+        /* 🔴 VALUELESS AND LOAD-BEARING. Its presence is the whole lock.
+           Drop it and every video over 200MB is viewable by anyone with
+           the id, while every smaller one stays private — a safety rule
+           that holds for the case you test and lapses for the one you
+           don't. */
+        ['requiresignedurls'],
+        ['allowedorigins', 'soberbook.app'],
+        /* ⭐ An ARBITRARY key lands in `meta`, which is exactly where
+           videoState() already looks for the creator. That keeps
+           /api/video/state working identically on both roads — the
+           readiness poll must not care which way the file came in. */
+        ['creator', creator],
+        ['maxDurationSeconds', String(maxDurationSeconds)],
+      ]),
+    },
+    cache: 'no-store',
+  });
+
+  if (!r.ok) {
+    /* ⚠️ An error here IS json; a success is headers and an empty body. */
+    let why = `HTTP ${r.status}`;
+    try { const j = await r.json(); why = j?.errors?.[0]?.message || why; } catch {}
+    throw new Error(why);
+  }
+
+  const uploadURL = r.headers.get('Location');
+  const uid = r.headers.get('stream-media-id');
+  if (!uploadURL || !uid) {
+    throw new Error('Cloudflare did not return an upload location');
+  }
+  return { uploadURL, uid };
+}
+
 /* Has it finished transcoding? A just-uploaded video is not playable for
    a few seconds to a few minutes depending on length. */
 export async function videoState(uid) {
