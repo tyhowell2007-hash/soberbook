@@ -6,6 +6,7 @@ import { browserClient } from '../../lib/supabase-browser';
    'use client' directive on purpose, so this file's server-rendered
    siblings could import it too without the 5 Sept named-export trap. */
 import { canShrink, shrinkVideo, probeVideo, planFor, SHRINK_ABOVE_BYTES } from '../../lib/shrink-video';
+import { looksLikeVideo, streamDoor, putToStream, waitReady } from '../../lib/stream-upload';
 
 /* =====================================================================
    PICK A PHOTO — now in three steps instead of one.
@@ -55,6 +56,83 @@ export default function PhotoUpload({
     if (!file) return;
 
     setErr('');
+
+    /* ================================================================
+       ☁️ A VIDEO GOES TO CLOUDFLARE. ALL OF THEM, WHATEVER THE FORMAT.
+
+       🔴 THIS IS THE FIX FOR 10 SEPT, and it is a road, not a patch.
+       Ty spent four hours on a 34-second trailer. It was ProRes LT —
+       243MB, 56 Mbps, PCM audio. NO BROWSER DECODES PRORES, so
+       probeVideo() below correctly answers "not a video", the shrinker
+       correctly stands aside, and the raw file correctly hits the 50MB
+       wall. Every piece of that behaved exactly as written and the
+       member still could not post his work.
+
+       Ty: "A lot of content creators are gonna use that format. We're
+       gonna have to adapt and be able to accept those in any other kind
+       of form of video that people give us. We are Soberbook. We do not
+       fail."
+
+       ⭐ So the browser stops being the thing that has to understand the
+       file. Cloudflare transcodes anything ffmpeg understands, bills by
+       DURATION rather than size — a 243MB ProRes clip costs exactly what
+       an 11MB mp4 of the same length costs — and ingress and encoding
+       are free. The 50MB ceiling, the eleven-minute shrinker ceiling and
+       the whole codec question all stop existing at once.
+
+       ⚠️ IT FALLS BACK RATHER THAN FAILING. streamDoor() returns null
+       when the account is not wired up, and everything below runs
+       exactly as it did yesterday. Nothing here can make the app worse
+       than it was; the worst case is that it is unchanged.
+
+       ⚠️ looksLikeVideo() guesses from the name, which this codebase
+       refuses to do everywhere else — and the inversion is deliberate.
+       See the long note in lib/stream-upload.js: the server cannot read
+       these bytes, Cloudflare can, and a wrong guess costs one polite
+       refusal while a missed guess costs somebody their work.
+       ================================================================ */
+    const videoAllowed = /video/i.test(accept);
+    if (videoAllowed && looksLikeVideo(file)) {
+      setBusy(true);
+      onBusy?.(true);
+      setStage('Getting ready…');
+      let door = null;
+      try {
+        door = await streamDoor();
+      } catch (e) {
+        setErr(e.message);
+        setBusy(false); onBusy?.(false); setStage('');
+        return;
+      }
+      if (door) {
+        try {
+          setStage('Uploading… 0%');
+          await putToStream(door.uploadURL, file, (p) =>
+            setStage(`Uploading… ${Math.round(p * 100)}%`));
+          /* ⚠️ We wait, but not forever. A long video encodes for
+             minutes and holding the composer hostage for that would be a
+             worse bug than the one this fixes — so if it is not ready in
+             time the post still goes up and the player says "still
+             processing" on the first tap. */
+          setStage('Processing…');
+          await waitReady(door.uid, { ms: 90_000 });
+          /* 🔴 No path and no preview: this file is not in our storage
+             and the browser may not even be able to draw a frame of it.
+             The fourth argument is the whole point. */
+          onDone(null, '', true, door.uid);
+        } catch (e2) {
+          setErr(`That video didn't go up — ${e2.message}.`);
+        } finally {
+          setBusy(false); onBusy?.(false); setStage('');
+        }
+        return;
+      }
+      /* No Cloudflare account yet — release and carry on down the old
+         road. ⚠️ Releasing here matters: the 10 Sept stuck-button bug was
+         exactly a `return` between an acquire and its release, and this
+         is a fall-THROUGH, which is the same hazard wearing a hat. */
+      setBusy(false); onBusy?.(false); setStage('');
+    }
 
     /* ---- shrink a phone video before anything else ------------------
        🔴 A two-minute iPhone 4K clip is 412MB. Without this the 50MB
@@ -125,6 +203,26 @@ export default function PhotoUpload({
         }
       } else {
         setStage('');
+        /* 🔴 THE THIRD SILENT PATH, CLOSED. Before this, a file the
+           browser could not decode fell straight through to the size
+           message below — so a ProRes master produced "That file is
+           243MB", which is true, useless, and sends somebody off to trim
+           a video that would still have failed at one second long.
+
+           ⚠️ Only reachable now when Cloudflare is not configured, since
+           the branch at the top of this function takes every video it
+           can. Kept anyway: this message is the honest answer whenever
+           the fallback road is the only road. */
+        if (looksLikeVideo(file)) {
+          setErr(
+            "This browser can't read that video — it's probably an editing " +
+            'format like ProRes or DNxHD. Export it as H.264 (an .mp4) and ' +
+            'it will go straight up.'
+          );
+          setBusy(false);
+          onBusy?.(false);
+          return;
+        }
       }
     }
 
