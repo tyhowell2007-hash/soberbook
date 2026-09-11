@@ -23,6 +23,8 @@ import PushAsk from '../components/PushAsk';
 import InviteAsk from './InviteAsk';
 import TourCard from '../components/TourCard';
 import Pledge from '../components/Pledge';
+import MilestoneCard from './MilestoneCard';
+import { markLabel } from '../../lib/milestones';
 
 function ago(iso) {
   const mins = Math.floor((Date.now() - new Date(iso).getTime()) / 60000);
@@ -1642,8 +1644,14 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
                 <span className="hw">
                   <span className="nm">
                     {who(p)}
+                    {/* ⚠️ markLabel, NEVER the raw integer. This used to read
+                        "🪙 1096 days" beside a card that now says "3 years" —
+                        two different names for one milestone, eight lines
+                        apart, on the one screen where that stings most. The
+                        label is written once in lib/milestones.js and both
+                        call it. */}
                     {p.milestone_days ? (
-                      <span className="mbadge">🪙 {p.milestone_days} days</span>
+                      <span className="mbadge">🪙 {markLabel(p.milestone_days)}</span>
                     ) : null}
                   </span>
                   <span className="mt">
@@ -1822,23 +1830,36 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
                   constraint is ever relaxed. */}
               {p.stream_uid && <StreamVideo uid={p.stream_uid} />}
 
-              {/* THE CHIP — the only gold in the app.
+              {/* 🏅 THE MILESTONE CELEBRATION — the only gold in the app.
 
                   It's the actual object: the thing people carry in a
                   pocket and turn over with a thumb. Nobody has ever
                   screenshotted a progress bar; people have photographed
                   that coin on a kitchen table for seventy years.
 
-                  ⚠️ This renders ONLY when milestone_days is set, and
-                  nothing sets it yet — sharing a milestone is a deliberate
-                  tap that hasn't been built. Which means: gold appears on
-                  this wall only because somebody chose to put it there.
-                  Never because the app noticed a date and announced it. */}
+                  ⚠️ IT RENDERS ONLY WHEN milestone_days IS SET, and the only
+                  thing that sets it is a deliberate tap — the app asks
+                  first and takes no for an answer (0015). So gold appears
+                  on this wall because somebody CHOSE to put it there, never
+                  because the app noticed a date and announced it.
+
+                  🔴 THE COMMENT THAT USED TO SIT HERE SAID "nothing sets it
+                  yet — sharing a milestone is a deliberate tap that hasn't
+                  been built." That was false: the ask ships above (see the
+                  milestone offer in this same file) and two posts already
+                  carry one. A note claiming a feature does not exist is the
+                  most expensive kind to get wrong, because it stops the next
+                  person looking — the same mistake as the "there is no
+                  /p/<post> route" line corrected on 1 Sept.
+
+                  ⚠️ POSITION IS THE DESIGN. It sits after the member's own
+                  words and media and BEFORE the reactions and the replies,
+                  so the order reads: they said it · here is the medal ·
+                  now answer them. Support and Strength are directly
+                  underneath, which is the ask — so this card deliberately
+                  carries no button and no second prompt of its own. */}
               {p.milestone_days ? (
-                <div className="chipcard">
-                  <span className="coin" aria-hidden="true">🦅</span>
-                  <span className="chiplbl">{p.milestone_days}-day chip</span>
-                </div>
+                <MilestoneCard days={p.milestone_days} />
               ) : null}
 
               {/* ---- THE CONVERSATION, ON THE WALL ----
