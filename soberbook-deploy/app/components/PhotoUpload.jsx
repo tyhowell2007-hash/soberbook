@@ -6,7 +6,8 @@ import { browserClient } from '../../lib/supabase-browser';
    'use client' directive on purpose, so this file's server-rendered
    siblings could import it too without the 5 Sept named-export trap. */
 import { canShrink, shrinkVideo, probeVideo, planFor, SHRINK_ABOVE_BYTES } from '../../lib/shrink-video';
-import { looksLikeVideo, streamDoor, putToStream, waitReady } from '../../lib/stream-upload';
+import { looksLikeVideo, streamDoor, putToStream, waitReady,
+         tusUpload, TUS_ABOVE_BYTES } from '../../lib/stream-upload';
 
 /* =====================================================================
    PICK A PHOTO — now in three steps instead of one.
@@ -119,19 +120,42 @@ export default function PhotoUpload({
       setBusy(true);
       onBusy?.(true);
       setStage('Getting ready…');
+
+      /* ☁️ 🔴 TWO ROADS, CHOSEN BY SIZE, AND THE BIG ONE IS NOT OPTIONAL.
+         Cloudflare's simple upload is capped at 200MB and only judges the
+         size after taking every byte — which is why Ty's 243MB trailer
+         reached 100% and then died with a 413, twice. Over the threshold
+         we use tus: chunked, resumable, and the only road their own docs
+         allow for a file that big. */
+      const big = file.size > TUS_ABOVE_BYTES;
+      const onPct = (p) => setStage(`Uploading… ${Math.round(p * 100)}%`);
+
       let door = null;
       try {
-        door = await streamDoor();
+        if (big) {
+          setStage('Uploading… 0%');
+          const uid = await tusUpload(file, onPct);
+          if (uid) {
+            setStage('Processing…');
+            await waitReady(uid, { ms: 90_000 });
+            onDone(null, '', true, uid);
+            setBusy(false); onBusy?.(false); setStage('');
+            return;
+          }
+          /* null means Cloudflare isn't configured — fall through to the
+             old road below, exactly as the small-file path does. */
+        } else {
+          door = await streamDoor();
+        }
       } catch (e) {
-        setErr(e.message);
+        setErr(`That video didn't go up — ${e.message}.`);
         setBusy(false); onBusy?.(false); setStage('');
         return;
       }
       if (door) {
         try {
           setStage('Uploading… 0%');
-          await putToStream(door.uploadURL, file, (p) =>
-            setStage(`Uploading… ${Math.round(p * 100)}%`));
+          await putToStream(door.uploadURL, file, onPct);
           /* ⚠️ We wait, but not forever. A long video encodes for
              minutes and holding the composer hostage for that would be a
              worse bug than the one this fixes — so if it is not ready in
