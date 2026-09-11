@@ -69,6 +69,15 @@ import '../invite.css';
    IS the feature working. */
 import '../seasons.css';
 
+/* 🏅 The milestone celebration card. ⚠️ A stylesheet nothing imports is a
+   silent failure this app has hit twice — /meetings drew .phserr naked for
+   weeks, and the emoji tray shipped unstyled. This one is Home-only for now:
+   the medal appears on a post, and a post only renders here. 🔴 If a
+   milestone post ever renders anywhere else — /p/[id] is the obvious one —
+   that route's layout needs this line too, or the card arrives as a stack of
+   unstyled text with fourteen invisible confetti divs in it. */
+import '../milestone.css';
+
 import NavBar from '../components/NavBar';
 
 export default function WallLayout({ children }) {
