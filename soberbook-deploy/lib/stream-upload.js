@@ -79,6 +79,92 @@ export function putToStream(uploadURL, file, onProgress) {
   });
 }
 
+/* =====================================================================
+   ☁️ THE BIG-FILE ROAD (tus), FOR ANYTHING OVER ~200MB.
+
+   🔴 Cloudflare's basic POST is capped at 200MB and judges the size only
+   AFTER receiving every byte — so an oversized file uploads to 100% and
+   then comes back 413. Ty watched that happen twice before I read the
+   right page. A progress bar that reaches the end and then fails reads as
+   "the app broke", not as "there is a rule".
+
+   ⭐ tus is also RESUMABLE, which is the bigger win on a phone: a dropped
+   connection picks up from the last completed chunk instead of starting
+   243MB over.
+
+   ⚠️ THEIR CHUNK RULES ARE STRICT AND SILENT IF YOU BREAK THEM:
+     · minimum 5,242,880 bytes
+     · maximum 209,715,200 bytes
+     · MUST be divisible by 256 KiB (262,144) — except the final chunk
+   50MB is 52,428,800 = exactly 200 × 256 KiB, which is also the size they
+   recommend for a reliable connection. Do not "tidy" this number.
+   ===================================================================== */
+const TUS_CHUNK = 52_428_800;          // 50MB — 200 × 256 KiB exactly
+
+/* 🔴 THE THRESHOLD IS DELIBERATELY BELOW THEIR 200MB CEILING. A file at
+   199MB would pass the cap and still be one enormous unresumable request
+   on a phone. 150MB keeps real headroom and sends the genuinely big ones
+   down the road built for them. Under this, the single POST is one round
+   trip and is already proven. */
+export const TUS_ABOVE_BYTES = 150 * 1024 * 1024;
+
+export async function tusUpload(file, onProgress) {
+  const r = await fetch('/api/video/tus', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ size: file.size, name: file.name || 'video' }),
+  });
+  if (r.status === 503) return null;                 // not configured — fall back
+  const d = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(d.error || "Couldn't start that upload.");
+
+  let offset = 0;
+  while (offset < file.size) {
+    const end = Math.min(offset + TUS_CHUNK, file.size);
+    const chunk = file.slice(offset, end);
+    const base = offset;
+
+    /* ⚠️ XHR again, not fetch — same reason as the small road: fetch still
+       reports no upload progress in any shipping browser, and on a 243MB
+       file that is minutes of a frozen-looking screen. Progress is the
+       base offset plus however much of THIS chunk has gone. */
+    const next = await new Promise((resolve, reject) => {
+      const x = new XMLHttpRequest();
+      x.open('PATCH', d.uploadURL, true);
+      x.setRequestHeader('Tus-Resumable', '1.0.0');
+      x.setRequestHeader('Upload-Offset', String(base));
+      x.setRequestHeader('Content-Type', 'application/offset+octet-stream');
+      x.upload.onprogress = (e) => {
+        if (e.lengthComputable && onProgress) {
+          onProgress(Math.min(1, (base + e.loaded) / file.size));
+        }
+      };
+      x.onload = () => {
+        if (x.status < 200 || x.status >= 300) {
+          return reject(new Error(`chunk refused (${x.status})`));
+        }
+        /* 🔴 TRUST THE SERVER'S OFFSET, NEVER OUR OWN ARITHMETIC. tus
+           lets the server accept a partial chunk, and if we assumed we
+           were at `end` we would skip the missing bytes and hand
+           Cloudflare a corrupt file that still "uploaded successfully".
+           A wrong file that arrives is worse than an upload that fails. */
+        const said = Number(x.getResponseHeader('Upload-Offset'));
+        resolve(Number.isFinite(said) ? said : end);
+      };
+      x.onerror = () => reject(new Error('the connection dropped'));
+      x.send(chunk);
+    });
+
+    /* ⚠️ A server that returns the SAME offset twice means no progress is
+       being made; without this the loop spins forever on a stuck upload
+       and the member watches a bar that never moves. */
+    if (next <= offset) throw new Error('the upload stalled');
+    offset = next;
+  }
+
+  return d.uid;
+}
+
 /* ⚠️ Transcoding is NOT instant and the member is standing there. We wait
    only long enough to be useful — past that the post can be made anyway
    and the player will say "still processing" on the first tap. Blocking
