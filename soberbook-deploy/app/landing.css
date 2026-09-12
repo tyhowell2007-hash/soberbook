@@ -343,6 +343,11 @@
 }
 .lp-whoTop2{ margin-top:2px; }
 .lp-whoN{ font-weight:700; color:var(--lp-ink); }
-.lp-whoTop a{ color:var(--lp-go); font-weight:700; text-decoration:none; }
+/* ⚠️ 44px, and it needs its own line to get there — see page.jsx. */
+.lp-whoMail{ margin-top:0; }
+.lp-whoTop a{
+  color:var(--lp-go); font-weight:700; text-decoration:none;
+  display:inline-block; min-height:44px; line-height:44px;
+}
 .lp-whoTop a:hover{ text-decoration:underline; }
 
