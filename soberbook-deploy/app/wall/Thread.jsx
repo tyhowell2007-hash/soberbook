@@ -422,7 +422,27 @@ export default function Thread({ post, onClose, onCountChange }) {
                            onBusy={setUpBusy}
                            onDone={(path, preview) => setTray((t) => [...t, { path, preview }])} />
             )}
-            <input ref={boxRef} value={text} {...tag.inputProps} maxLength={2000}
+            {/* 📝 12 Sept — THE REPLY BOX, same fix as the Wall composer.
+                This is the "join in" box, and it had the identical bug: an
+                <input> holding up to 2,000 characters, which does not wrap
+                — text scrolls sideways out of view and you cannot read
+                back what you wrote.
+                ⭐ Ty found it by testing HERE after the Wall was fixed, and
+                reported "it didn't work" — he was right, just about a
+                different box. The Wall was fine; this one was untouched.
+                ⚠️ onInput comes AFTER the {...tag.inputProps} spread on
+                purpose. The spread carries the @menu's own onChange and
+                onKeyDown; putting the grow on a DIFFERENT event means it
+                cannot clobber them or be clobbered by them.
+                ⚠️ height:'auto' before reading scrollHeight, or the box can
+                only ever get taller — scrollHeight of an already-tall box
+                includes the height we set last time. */}
+            <textarea ref={boxRef} value={text} {...tag.inputProps} maxLength={2000}
+                   rows={2} className="cbox"
+                   onInput={(e) => {
+                     e.target.style.height = 'auto';
+                     e.target.style.height = Math.min(e.target.scrollHeight, 260) + 'px';
+                   }}
                    aria-label="Write a reply"
                    placeholder={anon ? 'Nobody will see who wrote this…' : 'Say something… @ to tag'} />
             <button type="submit" disabled={busy || upBusy || (!text.trim() && tray.length === 0)}>
