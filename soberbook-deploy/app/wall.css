@@ -139,9 +139,19 @@
    15px when the member reported the bug, so either it regressed or
    that note was about a different box. Measured, not remembered.
 
-   ⚠️ max-height 150px (~6 lines) then it scrolls inside itself. The
-   composer is position:fixed at the bottom, so an uncapped box grows
-   UPWARD and eats the conversation it is replying to.
+   ⚠️ max-height 40vh — RAISED FROM 150px ON 12 SEPT, MEASURED.
+   🔴 150px was too tight and the measurement is why: a 178-character
+   post — three ordinary sentences — already overflowed, so the box
+   grew and the member STILL could not see what they had written.
+   That is the exact complaint this was built to fix, half-fixed.
+   Ty's words were "people wanna see what they're typing at all times".
+   40vh is ~12 lines on a phone, so a realistic post fits whole, and it
+   is a FRACTION of the screen rather than a fixed pixel count so it
+   scales with the device instead of being right on one and wrong on
+   every other.
+   ⚠️ It is still capped, and that is deliberate: the composer is
+   position:fixed at the bottom, so an uncapped box grows UPWARD and
+   eats the conversation. 40vh leaves 60% of the screen as feed.
    ⚠️ resize:none — the browser's drag handle would let somebody pull
    the box over the whole feed with no way back.
    Colours untouched: Ty's acid border and #F2EFE6 fill, measured at
@@ -150,7 +160,7 @@
   flex:1; border:3px solid var(--acid); background:#F2EFE6; padding:11px;
   font-family:'Courier Prime',monospace; font-size:16px; line-height:1.5;
   color:var(--x); outline:none; min-width:0;
-  resize:none; max-height:150px; overflow-y:auto; display:block;
+  resize:none; max-height:40vh; overflow-y:auto; display:block;
 }
 .cbox:focus-visible{ outline:3px solid var(--acid); outline-offset:2px; }
 /* ⚠️ The row is no longer a single line of equal-height controls, so the
