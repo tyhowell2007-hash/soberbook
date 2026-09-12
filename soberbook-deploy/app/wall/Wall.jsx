@@ -960,6 +960,10 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
         }
       }
       setText('');
+      /* ⚠️ The box is sized by inline style, so clearing the TEXT does not
+         clear the HEIGHT — without this, posting a six-line thought leaves
+         a six-line empty box sitting over the feed until reload. */
+      if (boxRef.current) boxRef.current.style.height = '';
       setRec(null);
       setRecDropped(false);
       setMedia([]);
@@ -1140,13 +1144,47 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
 
       <form className="composer" onSubmit={post}>
         <div className="ctop">
-          <input ref={boxRef} value={text} maxLength={5000}
+          {/* 📝 12 Sept — THIS WAS AN <input> UNTIL A MEMBER REPORTED IT.
+              "When you post in the news feed, you can't see any of the
+              text." Exactly right, and the cause was structural, not
+              colour: a single-line <input> carrying maxLength 5000. Text
+              in an input does not wrap — it scrolls sideways out of view,
+              so on a phone about 27 characters were visible and the rest
+              was gone. No wrap, no scrollback, no way to read your own
+              post before sending it.
+              ⭐ SIXTEENTH "everything built except the way in": posting,
+              tagging, photos and video all worked. The box was never
+              sized for a post.
+              ⚠️ ENTER NOW MAKES A NEWLINE, and that falls out of the tag
+              rather than needing code — inside a <form>, Enter on an
+              <input> submits, on a <textarea> it does not. The @menu's
+              Enter-to-pick is UNAFFECTED because that branch returns
+              early while options are open. Ty's call, told to him first:
+              you cannot write a paragraph if Enter fires the post.
+              ⚠️ Its own class, never `.composer textarea` — PhotoUpload
+              renders a file input inside this same form, and the Aug 16
+              `.composer` collision is why every selector here is narrow. */}
+          <textarea ref={boxRef} value={text} maxLength={5000} rows={3} className="cbox"
                  aria-label="Write something for the wall"
                  /* ⚠️ The caret is read on EVERY interaction, not just on
                     change. Tapping into the middle of what you already
                     wrote moves the caret without changing a character —
                     and the @menu has to follow the caret, not the text. */
-                 onChange={(e) => { setText(e.target.value); setCaret(e.target.selectionStart); setPick(0); }}
+                 /* ⚠️ The box grows to fit what you wrote, then STOPS at
+                    150px (~6 lines) and scrolls inside itself. Uncapped,
+                    a long post would push the feed off the top of the
+                    screen — the composer is position:fixed at the bottom,
+                    so it grows UPWARD over the conversation.
+                    ⚠️ height must be reset to 'auto' BEFORE reading
+                    scrollHeight, or the box can only ever get taller:
+                    scrollHeight of an already-tall box includes the
+                    height we set last time, so deleting text would never
+                    shrink it back. */
+                 onChange={(e) => {
+                   setText(e.target.value); setCaret(e.target.selectionStart); setPick(0);
+                   e.target.style.height = 'auto';
+                   e.target.style.height = Math.min(e.target.scrollHeight, 150) + 'px';
+                 }}
                  onKeyUp={(e) => setCaret(e.target.selectionStart)}
                  onClick={(e) => setCaret(e.target.selectionStart)}
                  onBlur={() => setTimeout(() => setCaret(-1), 150)}
