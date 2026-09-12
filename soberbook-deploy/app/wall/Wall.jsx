@@ -1180,10 +1180,21 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
                     scrollHeight of an already-tall box includes the
                     height we set last time, so deleting text would never
                     shrink it back. */
+                 /* 🔴 12 Sept — THE CAP IS NOT WRITTEN HERE, AND THAT IS THE
+                    WHOLE POINT. This used to say Math.min(scrollHeight, 150)
+                    while the stylesheet ALSO said max-height. Two copies of
+                    one rule, and the moment the CSS was raised to 40vh the
+                    box still stopped at 150 — because the JS, which sets the
+                    height, had never heard about it. Measured live: the CSS
+                    rule read 375.6px and the box was 150px.
+                    ⭐ The 0046 → 0049 lesson, in CSS this time: write the
+                    rule ONCE. The JS now asks for exactly the height the
+                    content needs, and `max-height` in wall.css is the only
+                    thing that says no. */
                  onChange={(e) => {
                    setText(e.target.value); setCaret(e.target.selectionStart); setPick(0);
                    e.target.style.height = 'auto';
-                   e.target.style.height = Math.min(e.target.scrollHeight, 150) + 'px';
+                   e.target.style.height = e.target.scrollHeight + 'px';
                  }}
                  onKeyUp={(e) => setCaret(e.target.selectionStart)}
                  onClick={(e) => setCaret(e.target.selectionStart)}

@@ -439,9 +439,14 @@ export default function Thread({ post, onClose, onCountChange }) {
                 includes the height we set last time. */}
             <textarea ref={boxRef} value={text} {...tag.inputProps} maxLength={2000}
                    rows={2} className="cbox"
+                   /* 🔴 NO CAP HERE — `max-height` in wall.css is the only
+                      place the ceiling is written. A number in both files is
+                      two copies of one rule, and they drift (proved the same
+                      night: the CSS said 375px, the JS said 150, the box
+                      obeyed the JS). */
                    onInput={(e) => {
                      e.target.style.height = 'auto';
-                     e.target.style.height = Math.min(e.target.scrollHeight, 260) + 'px';
+                     e.target.style.height = e.target.scrollHeight + 'px';
                    }}
                    aria-label="Write a reply"
                    placeholder={anon ? 'Nobody will see who wrote this…' : 'Say something… @ to tag'} />
