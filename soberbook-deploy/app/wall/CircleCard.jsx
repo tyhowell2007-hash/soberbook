@@ -47,8 +47,17 @@ export default function CircleCard() {
       <div className="cirq-top">
         <h2 className="cirq-h"><span aria-hidden="true">⭕</span> Your circle</h2>
       </div>
+      {/* ⚠️ A MIDDOT, NOT A FULL STOP. Both halves come from lib/circles.js
+          and both are lowercase, because in the room they each stand alone
+          in their own element where a capital would look shouted. Joining
+          them with "." produced a sentence starting in lower case —
+          "…the same week. nobody has said anything this week." — which
+          reads as a typo on the loudest card on Home.
+          ⭐ The room's own sub-line already joins its two facts with a
+          middot; this makes the card agree with it rather than inventing
+          a second way to punctuate the same pair. */}
       <p className="cirq-sub">
-        {whoLine(c)}. {aliveLine(c)}.
+        {whoLine(c)} &middot; {aliveLine(c)}
       </p>
       <span className="cirq-go">Go in &rsaquo;</span>
     </Link>
