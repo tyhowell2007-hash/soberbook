@@ -444,9 +444,16 @@ export default function Thread({ post, onClose, onCountChange }) {
                       two copies of one rule, and they drift (proved the same
                       night: the CSS said 375px, the JS said 150, the box
                       obeyed the JS). */
+                   /* ⚠️ The border is added back because box-sizing is
+                      border-box: `height` sets the outer box, scrollHeight
+                      reports the content, so without this the border clips
+                      the last line. Read from computed style, never a
+                      hardcoded 6. Same as the Wall composer. */
                    onInput={(e) => {
                      e.target.style.height = 'auto';
-                     e.target.style.height = e.target.scrollHeight + 'px';
+                     const bs = getComputedStyle(e.target);
+                     const edge = parseFloat(bs.borderTopWidth) + parseFloat(bs.borderBottomWidth);
+                     e.target.style.height = (e.target.scrollHeight + edge) + 'px';
                    }}
                    aria-label="Write a reply"
                    placeholder={anon ? 'Nobody will see who wrote this…' : 'Say something… @ to tag'} />

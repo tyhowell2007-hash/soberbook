@@ -1194,7 +1194,19 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
                  onChange={(e) => {
                    setText(e.target.value); setCaret(e.target.selectionStart); setPick(0);
                    e.target.style.height = 'auto';
-                   e.target.style.height = e.target.scrollHeight + 'px';
+                   /* 🔴 THE BORDER HAS TO BE ADDED BACK, AND IT IS NOT A
+                      FUDGE FACTOR. `box-sizing: border-box` means `height`
+                      sets the OUTER box, while `scrollHeight` reports the
+                      CONTENT height — so height = scrollHeight leaves the
+                      border eating into the text, and the last line stays
+                      clipped. Measured live: scrollHeight 262, clientHeight
+                      256, hidden by exactly 6px = the 3px acid border top
+                      and bottom. Read from computed style, never hardcoded,
+                      so changing the border in CSS cannot silently re-break
+                      this. */
+                   const bs = getComputedStyle(e.target);
+                   const edge = parseFloat(bs.borderTopWidth) + parseFloat(bs.borderBottomWidth);
+                   e.target.style.height = (e.target.scrollHeight + edge) + 'px';
                  }}
                  onKeyUp={(e) => setCaret(e.target.selectionStart)}
                  onClick={(e) => setCaret(e.target.selectionStart)}
