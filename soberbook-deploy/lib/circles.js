@@ -34,6 +34,32 @@ export function whoLine(c) {
    helps is how many spoke recently, because that is who might answer. */
 export function aliveLine(c) {
   if (!c) return '';
+
+  /* 🔴 A ROOM THAT NEVER STARTED IS NOT A ROOM THAT WENT QUIET, AND
+     spoke_this_week CANNOT TELL THEM APART — it is 0 for both.
+
+     On the day circles ship, all 29 of them have carried exactly zero
+     messages. Without this branch every member opens Home to "nobody has
+     said anything this week" — a sentence that describes people going
+     silent, printed over a room where nothing has happened yet. Nobody
+     is missing. It has not begun.
+
+     ⭐ Same rule as the open-room card, which refuses to print a zero
+     because broadcasting "nobody is here" to every home screen is how you
+     tell a whole room the place is dead. This one is worse if you get it
+     wrong, because a sentence reads as a judgement where a digit reads as
+     a count.
+
+     ⚠️ `ever_spoke` comes from my_circle() (0154) as an EXISTS, never a
+     count — the screen only needs to know whether the room has begun, and
+     "3 messages ever" on a card is a scoreboard.
+
+     ⚠️ This function is the ONE place the state is put into words, and
+     both the Home card and the room read it. Restating the branch in
+     either component is the 0046 → 0049 drift: the card would eventually
+     say one thing while the room said another about the same circle. */
+  if (!c.ever_spoke) return 'you could be the first to say something';
+
   const s = c.spoke_this_week || 0;
   if (s === 0) return 'nobody has said anything this week';
   if (s === 1) return 'one of you has spoken this week';
