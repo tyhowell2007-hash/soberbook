@@ -514,12 +514,27 @@ body{
 /* was #7FBBA1 — 2.93:1 on the green bar. Four percent short, which is
    exactly the shape of the --gm and --soft misses earlier in this file.
    #8CC4AC is 3.27:1. */
-.cbar input{ border:1px solid #8CC4AC; border-radius:11px; background:#fff;
+/* 🔴 12 Sept — `textarea` ADDED TO EVERY ONE OF THESE SELECTORS, AND THAT
+   IS THE WHOLE POINT OF THIS EDIT. The DM box became a <textarea> so it
+   can grow; these were TAG selectors, so the moment the tag changed they
+   would have stopped matching and the message box would have rendered
+   completely unstyled — no border, no radius, wrong font — with nothing
+   erroring anywhere. A tag-based selector is a silent dependency on the
+   markup, and this is the second time that family of bug has bitten this
+   app (the `.composer` collision, 16 Aug). */
+.cbar input, .cbar textarea{ border:1px solid #8CC4AC; border-radius:11px; background:#fff;
   /* ⚠️ 16px for the same reason as the composer — 15px still trips the
      iOS zoom-on-focus threshold, which is 16 and not 15. */
   font-family:'Archivo',system-ui,sans-serif; font-size:16px; color:var(--body); }
-.cbar input::placeholder{ color:var(--soft); }
-.cbar input[disabled]{ background:#EDF3F0; color:var(--soft); }
+.cbar input::placeholder, .cbar textarea::placeholder{ color:var(--soft); }
+.cbar input[disabled], .cbar textarea[disabled]{ background:#EDF3F0; color:var(--soft); }
+/* ⚠️ 40vh, matching the Wall and the room — a fraction of the screen, not
+   a pixel count, so it scales with the device. resize:none because the
+   drag handle would let somebody pull the box over the whole conversation
+   with no way back. line-height is explicit: a textarea does not inherit
+   the comfortable default an input gets. */
+.cbar textarea{ resize:none; max-height:40vh; overflow-y:auto;
+  line-height:1.45; display:block; padding:11px 12px; }
 .cbar button{ background:#fff; color:var(--gt); border-radius:11px;
   font-family:'Archivo',system-ui,sans-serif; font-weight:700; font-size:14px;
   text-transform:none; letter-spacing:0; }

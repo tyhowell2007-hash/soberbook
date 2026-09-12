@@ -243,6 +243,21 @@
   border:1px solid #2A4A38; background:#1A3227; color:#EAF6EF;
   font-size:16px;   /* ⚠️ 16px or iOS zooms the whole page on focus */
   font-family:inherit;
+  /* 📝 12 Sept — it is a <textarea> now so it can GROW, because an
+     <input> does not wrap and 2,000 characters were scrolling sideways
+     out of view. Colours, radius and border are untouched — the room
+     keeps its own skin, only the behaviour is shared with the Wall.
+     ⚠️ max-height 40vh, matching the Wall: a fraction of the screen, so
+     it scales with the device instead of being right on one phone and
+     wrong on every other. The room composer sits at the bottom, so an
+     uncapped box would grow up over the conversation.
+     ⚠️ resize:none — the browser's drag handle would let somebody pull
+     the box over the whole room with no way back.
+     ⚠️ line-height set explicitly: a textarea does not inherit the
+     comfortable default an input gets, and without it the first line
+     sits tight against the top edge. */
+  resize:none; max-height:40vh; overflow-y:auto;
+  line-height:1.45; display:block;
 }
 .rin::placeholder{ color:#7FBFA0; }
 
