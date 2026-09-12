@@ -860,11 +860,31 @@ export default function Room({ room, initial, meHandle, members, signed, spokenH
             else setTray((t) => [...t, { path, preview }]);
           }}
         />
-        <input
+        {/* 📝 12 Sept — GROWING BOX, same fix as the Wall and the reply
+            sheet. Was an <input> holding 2,000 characters; text in an
+            input does not wrap, it scrolls sideways out of view, so you
+            could not read back what you had written.
+            ⚠️ IT KEEPS `.rin` AND ALL ITS STYLING. The Wall's `.cbox` is
+            cream with an acid border — correct there, wrong in a dark
+            green room. Only the BEHAVIOUR is shared, never the skin.
+            ⚠️ onInput, not onChange — {...tag.inputProps} owns onChange
+            for the @menu, and a different event cannot clobber it.
+            ⚠️ The border is added back because box-sizing is border-box:
+            `height` sets the outer box while scrollHeight reports the
+            content, so without it the last line stays clipped. Read from
+            computed style so changing the border cannot re-break it. */}
+        <textarea
           ref={inputRef}
           className="rin"
+          rows={1}
           value={body}
           {...tag.inputProps}
+          onInput={(e) => {
+            e.target.style.height = 'auto';
+            const bs = getComputedStyle(e.target);
+            const edge = parseFloat(bs.borderTopWidth) + parseFloat(bs.borderBottomWidth);
+            e.target.style.height = (e.target.scrollHeight + edge) + 'px';
+          }}
           placeholder="Say something… @ to tag"
           maxLength={2000}
           aria-label="Say something in The Front Room"
