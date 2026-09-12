@@ -677,6 +677,56 @@ export default function Landing() {
         </div>
       </div>
 
+      {/* WHO BUILT THIS — 11 Sept. Ty: "people might be looking at this
+          thing and wondering how to contact whoever built it."
+
+          🔴 IT SITS DIRECTLY UNDER THE FORM AND ABOVE THE TILES, AND
+          THE POSITION IS THE WHOLE ARGUMENT. Ty: "maybe put the box up
+          top so people can see it." Right instinct — a block above the
+          footer is read by almost nobody. But ABOVE the form is the
+          29 Aug bug rebuilt by hand: this page was 3,808px with "Sign
+          in" at 1,029px, and the fix was to stop making people scroll
+          past things to reach the box they came for. So it goes as
+          high as it can go without moving the form one pixel down.
+          ⚠️ Anything added to this page later gets the same test: does
+          it push the form? If yes, it goes below the tiles.
+
+          ⚠️ THE NAMES ARE NOT A LIST THAT NEEDS THREE ROWS TO READ
+          RIGHT. The sentence says "people", so one row is true today
+          and three rows are true the day the other two say yes —
+          adding them is two lines and no rewrite. Nic and Kenneth are
+          deliberately ABSENT until each has agreed to be named: being
+          on this page discloses something about a man, and that is his
+          call, not ours. Same rule that refused to name members in the
+          5 Sept marketing emails.
+
+          ⚠️ mailto, not a form. A form is a thing we would have to
+          maintain and could silently break; the address already works
+          and is already promised on /privacy and /rules. */}
+      <section className="lp-who">
+        <div className="lp-wrap">
+          <div className="lp-whoCard">
+            <p className="lp-whoT">Who built this</p>
+            <p className="lp-whoP">
+              Sober Book was built by people in recovery, in Ohio. Not a
+              company that spotted a market — people who needed this and
+              found it didn&apos;t exist.
+            </p>
+            <div className="lp-whoList">
+              <p className="lp-whoRow">
+                <span className="lp-whoN">Ty Howell</span>
+                <span className="lp-whoR"> — founder</span>
+              </p>
+            </div>
+            <p className="lp-whoM">
+              Something wrong, or just want to talk?{' '}
+              <a href="mailto:hello@soberbook.app">hello@soberbook.app</a>
+              {' — '}a real person reads it.
+            </p>
+          </div>
+        </div>
+      </section>
+
       {/* ---------- what's actually in here ---------- */}
       <section className="lp-sec">
         <div className="lp-wrap">
