@@ -436,15 +436,29 @@ export default function Landing() {
               the hero cost about 40px and are read by everybody.
               🔴 THE FORM DOES NOT MOVE FOR THIS. 29 Aug: "Sign in" at
               1,029px behind the whole sign-up form. Measure, do not eyeball.
-              ⚠️ Nic and Kenneth are ABSENT until each agrees to be named
-              — being on this page discloses something about a man, and
-              that is his call. Adding them is one line. */}
+              🔴 EVERY NAME HERE CAME FROM TY, TYPED OUT, ONE AT A TIME.
+              Nothing on this line was looked up, inferred from a handle,
+              or completed from a first name. Being named on a recovery
+              app's front page says something about a man in public, so
+              the only acceptable source for it is him or the man himself
+              — never a lookup. If a name ever needs changing, ask; do not
+              reconstruct it.
+
+              ⚠️ The address gets its own line so it can carry a 44px tap
+              target. Inline in a 13px paragraph it is about 21px, which
+              is the 18 Aug post-footer bug: the one control anybody
+              actually needs, too small to hit. */}
           <p className="lp-whoTop">
             Built by people in recovery, in Ohio.
           </p>
           <p className="lp-whoTop lp-whoTop2">
-            <span className="lp-whoN">Ty Howell</span>, founder
+            <span className="lp-whoN">Ty Howell</span>, founder and CEO
             {' · '}
+            <span className="lp-whoN">Nic Rossiter</span>, cofounder
+            {' · '}
+            <span className="lp-whoN">Kenneth Kerns</span>, cofounder
+          </p>
+          <p className="lp-whoTop lp-whoMail">
             <a href="mailto:hello@soberbook.app">hello@soberbook.app</a>
           </p>
 
