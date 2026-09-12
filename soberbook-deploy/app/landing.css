@@ -312,95 +312,37 @@
 .lp-cofB:hover{ background:#155A3E; }
 
 /* =====================================================================
-   WHO BUILT THIS — the names and the way to reach them, 11 Sept.
+   WHO BUILT THIS — two lines of lettering in the hero, 11 Sept.
 
-   Ty: "people might be looking at this thing and wondering how to
-   contact whoever built it." He was right and the gap was total:
-   hello@soberbook.app already appears on /privacy, /rules,
-   /delete-account and /resources — every page you only reach AFTER you
-   are inside. The one page a stranger actually lands on named nobody
-   and offered no address at all.
+   Ty: "put who built this on here and the email address on how to find
+   them", then "maybe put the box up top so people can see it", then
+   "we don't need the whole box, we just need lettering on it."
 
-   ⭐ WHY IT IS A BLOCK AND NOT A FOOTER LINE. Sober Sidekick raised
-   $11.4M and sells relapse prediction to health insurers. "Three people
-   in recovery, in Ohio" is the one claim they cannot buy — so this is
-   positioning, not a contact detail, and a grey 12.5px footer line is
-   where positioning goes to die.
+   ⭐ THE BOXED VERSION SHIPPED FIRST AND THE MEASUREMENT KILLED IT. A
+   card under the form sat at y=3536px on the live page — four phone
+   screens down, because the sign-up form is tall. Correct in order,
+   useless in practice. Two lines up here cost about 40px.
 
-   🔴 NO TOWN, DELIBERATELY. Ty asked for findability and the obvious
-   next field is Cadiz. Three names plus a town of 3,000 identifies
-   these men to anyone who cares to look, and two of them have not yet
-   said they want to be found. The email is the contact channel; it
-   reaches the same person without publishing where he sleeps.
+   🔴 THE FORM IS NOT ALLOWED TO MOVE FOR THIS. The 29 Aug bug was
+   "Sign in" at 1,029px behind the entire sign-up form. Anything added
+   to the hero gets MEASURED against that, never eyeballed.
 
-   🔴 NO "LLC" AND NO COPYRIGHT LINE YET. Ohio has not approved the
-   formation filing — proven 11 Sept against the state's own register
-   ("Sober Book" 0 results, control "Sober" 239). Printing "Sober Book
-   LLC" on a live page before the entity exists is a legal claim we do
-   not have, and it is the same family as "verified, real people" and
-   the drop card that said "Sober Book first". The line goes in the day
-   the certificate comes back, not before.
-
-   Measured on --lp-paper #fff, floor 4.5:
-     .lp-whoT  --lp-ink   #2A1B0C   16.66
-     .lp-whoP  --lp-muted #7A6249    5.72
-     .lp-whoN  --lp-ink   #2A1B0C   16.66
-     .lp-whoR  --lp-muted #7A6249    5.72
-     .lp-whoM a  --lp-go  #1B6B4A    6.46
-   ⚠️ Every one of these was RUN before this comment was written. Four
-   figures were typed from memory on 5 Sept and all four were wrong.
-   ⚠️ --lp-tang is 3.39 on cream and is a fill here, never text.
-   ===================================================================== */
-/* THE ONE LINE IN THE HERO — 11 Sept, after Ty photographed his screen
-   and said "I wanted on that page". The card below the form was correct
-   in ORDER and useless in PRACTICE: measured on the live page it sat at
-   y=3536px, four phone screens down, because the sign-up form is tall.
-
-   ⭐ This is the compromise that costs nothing. One 13px line between the
-   pills and the doors: a stranger gets the name and the address inside
-   the first screen, and the sign-in toggle moves about 24px, not 230.
-   🔴 THE FORM IS NOT ALLOWED TO MOVE FOR THIS. The 29 Aug bug was "Sign
-   in" at 1,029px behind the whole sign-up form; anything added up here
-   gets measured against that, not eyeballed.
-   ⚠️ It repeats the address that is also in .lp-whoM below. Two PLACES,
-   one FACT — acceptable, and unlike 0046 there is no rule being restated,
-   just a mailto. If the address ever changes, grep 'hello@soberbook.app'
-   and expect several hits across /privacy, /rules and /delete-account.
+   ⚠️ Plain text, not a fourth pill and not a card. A pill is a claim
+   about the product; this is a claim about us.
 
    Measured on --lp-cream #FFF8EC, floor 4.5:
      .lp-whoTop    --lp-muted #7A6249   5.42
-     .lp-whoTop a  --lp-go    #1B6B4A   6.12  */
+     .lp-whoTop a  --lp-go    #1B6B4A   6.12
+     .lp-whoN      --lp-ink   #2A1B0C  15.78
+   ⚠️ Run before this comment was written. Four figures were typed from
+   memory on 5 Sept and all four were wrong.
+   ===================================================================== */
 .lp-whoTop{
   font-size:13px; line-height:1.6; color:var(--lp-muted);
   margin:14px auto 0; max-width:440px;
 }
+.lp-whoTop2{ margin-top:2px; }
+.lp-whoN{ font-weight:700; color:var(--lp-ink); }
 .lp-whoTop a{ color:var(--lp-go); font-weight:700; text-decoration:none; }
 .lp-whoTop a:hover{ text-decoration:underline; }
 
-.lp-who{ padding:34px 20px 0; }
-.lp-whoCard{
-  background:var(--lp-paper); border:1px solid var(--lp-line);
-  border-radius:10px; padding:22px 24px; max-width:520px; margin:0 auto;
-}
-.lp-whoT{
-  font-family:'Fraunces',Georgia,serif; font-style:italic;
-  font-size:20px; color:var(--lp-ink); margin:0 0 8px;
-}
-.lp-whoP{ font-size:14px; line-height:1.6; color:var(--lp-muted); margin:0 0 16px; }
-.lp-whoList{ border-top:1px solid var(--lp-line); padding-top:14px; margin:0 0 14px; }
-.lp-whoRow{ font-size:15px; margin:0 0 5px; }
-.lp-whoRow:last-child{ margin-bottom:0; }
-.lp-whoN{ font-weight:700; color:var(--lp-ink); }
-.lp-whoR{ color:var(--lp-muted); }
-.lp-whoM{
-  font-size:14px; line-height:1.6; color:var(--lp-muted);
-  border-top:1px solid var(--lp-line); padding-top:14px; margin:0;
-}
-/* ⚠️ 44px tap target on the one address in the app a stranger can use.
-   The 18 Aug post-footer lesson: the control people actually need was
-   20px and nobody had measured it. */
-.lp-whoM a{
-  color:var(--lp-go); font-weight:700; text-decoration:none;
-  display:inline-block; min-height:44px; line-height:44px;
-}
-.lp-whoM a:hover{ text-decoration:underline; }
