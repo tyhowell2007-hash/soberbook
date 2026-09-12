@@ -157,7 +157,12 @@
    Colours untouched: Ty's acid border and #F2EFE6 fill, measured at
    16.02:1 for the text on 5 Sept and still correct. */
 .cbox{
-  flex:1; border:3px solid var(--acid); background:#F2EFE6; padding:11px;
+  /* 🔴 `var(--boxfill)`, NEVER a hardcoded cream. Ty on 12 Sept: "in dark
+     mode I go to comment on a post, I can't see what I am typing." The
+     ink is `var(--x)` and flips with the theme; the fill did not, so in
+     the dark it was near-white on cream — MEASURED 1.02:1. Both halves of
+     a contrast pair have to move together or neither should. */
+  flex:1; border:3px solid var(--acid); background:var(--boxfill); padding:11px;
   font-family:'Courier Prime',monospace; font-size:16px; line-height:1.5;
   color:var(--x); outline:none; min-width:0;
   resize:none; max-height:40vh; overflow-y:auto; display:block;

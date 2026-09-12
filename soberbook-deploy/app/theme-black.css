@@ -125,6 +125,13 @@ html[data-theme="black"]{
   --soft:#A8B8AE;       /* 7.96 on a card — every timestamp and byline */
   --line:#5E7A69;       /* ⚠️ AN EDGE, NEVER TEXT. See above. */
   --x:#E8EFE9;          /* was the near-black ink; in the dark it IS the ink */
+  /* 📝 12 Sept — the typing-box fill in the dark. #241E12 is the value the
+     old per-selector overrides used, so nothing looks different; it is
+     just stated ONCE now instead of five times.
+     MEASURED: ink #E8EFE9 on this = 14.14 · placeholder #A8B8AE = 7.98 ·
+     acid border #C6F24E = 12.77. Light theme: #0A0A09 on #F2EFE6 = 17.23.
+     Floor 4.5 for text, 3.0 for a 3px border. */
+  --boxfill:#241E12;
 
   /* The greens. --gd was the masthead fill and is now the accent, because
      a dark green on a dark page is not a colour, it is a smudge. */
@@ -439,7 +446,7 @@ html[data-theme="black"] .mecream .ppempty p{ color:#A8B8AE; }
 [data-theme="black"] .item.mile{ border-color:#E8C87A; }
 [data-theme="black"] .coin{ background:radial-gradient(circle at 34% 30%,#241E12,#1E2C25 62%,#87887F); }
 [data-theme="black"] .composer{ background:#18211C; }
-[data-theme="black"] .composer .ctop input::placeholder{ color:#A8B8AE; }
+[data-theme="black"] .composer .ctop input::placeholder, [data-theme="black"] .composer .ctop textarea::placeholder{ color:#A8B8AE; }
 [data-theme="black"] .composer .asme.anon{ background:#0F1512; color:#8FD9FF; }
 [data-theme="black"] .item.screened .pa{ background:#0F1512; }
 [data-theme="black"] .item.mile .pa{ background:#241E12; }
@@ -453,8 +460,8 @@ html[data-theme="black"] .mecream .ppempty p{ color:#A8B8AE; }
 [data-theme="black"] .crow, [data-theme="black"] .creq{ background:#18211C; }
 [data-theme="black"] .cno{ background:#18211C; border-color:#A8EDC3; }
 [data-theme="black"] .bub{ background:#18211C; }
-[data-theme="black"] .cbar input{ border:1px solid #5E7A69; background:#18211C; }
-[data-theme="black"] .cbar input[disabled]{ background:#1E2C25; }
+[data-theme="black"] .cbar input, [data-theme="black"] .cbar textarea{ border:1px solid #5E7A69; background:#18211C; }
+[data-theme="black"] .cbar input[disabled], [data-theme="black"] .cbar textarea[disabled]{ background:#1E2C25; }
 [data-theme="black"] .cbar button{ background:#18211C; }
 [data-theme="black"] .idea{ background:#18211C; }
 [data-theme="black"] .drow{ background:#18211C; }
@@ -525,7 +532,7 @@ html[data-theme="black"] .mecream .ppempty p{ color:#A8B8AE; }
 [data-theme="black"] .mstone-body p{ color:#E8C87A; }
 [data-theme="black"] .count .mnext{ color:#E8C87A; }
 [data-theme="black"] .facepick:hover{ background:#241E12; }
-[data-theme="black"] .cbar input{ background:#241E12; }
+[data-theme="black"] .cbar input, [data-theme="black"] .cbar textarea{ background:#241E12; }
 [data-theme="black"] .dchip.m-copper{ background:#0F1512; color:#E8EFE9; border-color:#5E7A69; }
 [data-theme="black"] .dchip.m-bronze{ background:#241E12; color:#E8EFE9; border-color:#5E7A69; }
 [data-theme="black"] .dchip.m-silver{ background:#0F1512; color:#8FD9FF; border-color:#5E7A69; }

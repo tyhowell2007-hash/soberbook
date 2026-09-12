@@ -7,6 +7,16 @@
    ===================================================================== */
 :root{
   --x:#0A0A09;
+  /* 📝 12 Sept — THE FILL BEHIND EVERY TYPING BOX, as a variable.
+     It was hardcoded #F2EFE6 in five places with a separate
+     [data-theme="black"] override sitting beside each one. Renaming the
+     boxes from <input> to <textarea> orphaned every one of those
+     overrides at once — the fill stayed cream while the ink flipped to
+     near-white, and the reply box measured 1.02:1. Invisible.
+     🔴 A colour that must change with the theme is a VARIABLE. A second
+     rule in a second file that re-states it is a thing that can silently
+     stop matching, and this is the bug it caused. */
+  --boxfill:#F2EFE6;
   --paper:#F2F0E9;
   --paper2:#FFFFFF;
   --body:#26251F;
