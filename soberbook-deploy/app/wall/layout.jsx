@@ -67,6 +67,10 @@ import '../invite.css';
    has already failed three uploads in a row at that size. ⚠️ A stylesheet
    nothing imports is a silent failure this app has hit twice — this line
    IS the feature working. */
+/* ⭕ The circle card on Home. ⚠️ The CARD lives on /wall while the ROOM
+   lives on /circle, so BOTH layouts import this — /meetings rendered
+   .phserr for weeks without photos.css for exactly this reason. */
+import '../circle.css';
 import '../seasons.css';
 
 /* 🏅 The milestone celebration card. ⚠️ A stylesheet nothing imports is a

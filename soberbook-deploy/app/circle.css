@@ -1,0 +1,93 @@
+/* =====================================================================
+   ⭕ CIRCLES — the feed card, and the room itself.
+
+   ⚠️ EVERY COLOUR IS A VARIABLE. Night mode (0356–0359) remaps
+   --gd/--gl/--soft; a literal hex stays bright green on a black screen
+   at 2am, which is when a lot of this app gets opened.
+
+   ✅ MEASURED BEFORE THIS FILE WAS WRITTEN, 4.5 floor:
+     --gt on white ......... 12.20      #C7EFDD on --gd ....... 5.18
+     --soft on white .......  5.12      white on --gd ......... 6.46
+     --gm-t on white .......  6.07      --gm-t on --gl ........ 5.38
+     --x on --gl ........... 14.19      #C7EFDD on --gt ....... 9.77
+   🔴 #9FC9B3 on --gd measures 3.53 and is NOT USED anywhere below. It
+   was the obvious choice for the card's sub-line and it fails.
+   ===================================================================== */
+
+/* ---------------------------------------------------------------------
+   THE CARD ON HOME.
+   🔴 IT IS THE DARK SLAB, and that is the whole point of tonight's note
+   from Ty: "make it noticeable so people can see it." Home is a white
+   feed of white cards; another white card is invisible by the second
+   scroll. This app has built thirteen things nobody could find, so the
+   way IN gets the loudest surface on the page.
+   ⚠️ It is dark to be FOUND, not to be urgent — no red, no badge, no
+   count of unread. A circle is not a notification.
+   --------------------------------------------------------------------- */
+.cirq{
+  display:block; text-decoration:none;
+  background:var(--gd); border-radius:12px; padding:14px;
+  /* Matches .composer exactly. A card at a different inset than the box
+     above it reads as a bug even when nobody can say why. */
+  margin:0 14px 14px;
+}
+.cirq-top{ display:flex; align-items:center; gap:8px; margin-bottom:6px; }
+.cirq-h{ font-size:17px; color:#FFFFFF; font-weight:600; margin:0; }
+.cirq-sub{ font-size:13px; color:#C7EFDD; margin:0 0 10px; line-height:1.5; }
+.cirq-go{
+  display:inline-flex; align-items:center; gap:6px;
+  background:var(--paper2); color:var(--gt);
+  border-radius:8px; padding:9px 14px; font-size:14px; font-weight:600;
+  /* 🔴 44px. Not a number to trim. */
+  min-height:44px; box-sizing:border-box;
+}
+
+/* ---------------------------------------------------------------------
+   THE ROOM.
+   --------------------------------------------------------------------- */
+.cir{ padding-bottom:8px; }
+.cir-h{ font-size:22px; color:var(--gt); margin:0 0 4px; font-weight:600; }
+.cir-sub{ font-size:13px; color:var(--soft); margin:0 0 12px; line-height:1.5; }
+
+.cir-strip{
+  background:var(--gl); border-radius:8px; padding:9px 11px; margin-bottom:14px;
+}
+.cir-alive{ font-size:13px; color:var(--gm-t); }
+
+.cir-wall{ list-style:none; margin:0 0 14px; padding:0; }
+.cir-msg{
+  background:var(--gl); border-radius:10px; padding:10px 12px; margin-bottom:8px;
+}
+/* ⚠️ Your own message is the DARK one — the inverse of the big rooms,
+   where yours is tinted and theirs is plain. In a room of nine the thing
+   you scan for is other people, so theirs gets the readable pale card. */
+.cir-mine{ background:var(--gt); }
+.cir-who{ display:block; font-size:12px; color:var(--gm-t); margin-bottom:4px; }
+.cir-mine .cir-who{ color:#C7EFDD; }
+.cir-body{ display:block; font-size:16px; color:var(--body); line-height:1.55; white-space:pre-wrap; }
+.cir-mine .cir-body{ color:#C7EFDD; }
+
+/* 🔴 NOT "no messages yet". That is a description of a dead room, and an
+   empty room reads as "this place is dead" louder than no room at all. */
+.cir-empty{
+  font-size:15px; color:var(--soft); line-height:1.6;
+  background:var(--paper2); border:1px dashed var(--line);
+  border-radius:10px; padding:14px;
+}
+
+.cir-form{ display:flex; gap:8px; }
+.cir-box{
+  flex:1; border:1px solid var(--line); border-radius:10px;
+  padding:11px 12px; background:var(--paper2); color:var(--body);
+  /* ⚠️ 16px, NEVER smaller — anything under 16px makes iOS zoom the whole
+     page on focus. The Wall composer was 13.5px until 5 Sept. */
+  font-size:16px; min-height:44px;
+}
+.cir-send{
+  background:var(--gd); color:#FFFFFF; border:0; border-radius:10px;
+  padding:0 18px; font-size:15px; font-weight:600; min-height:44px; cursor:pointer;
+}
+.cir-send:disabled{ opacity:.5; cursor:default; }
+
+.cir-err{ font-size:13px; color:#8C2F2F; margin:9px 0 0; }
+.cir-fine{ font-size:12px; color:var(--soft); margin:14px 0 0; line-height:1.55; }
