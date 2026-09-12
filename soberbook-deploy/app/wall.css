@@ -124,11 +124,39 @@
   background:var(--x); padding:11px 12px; display:flex; gap:9px; z-index:50;
   border-top:4px solid var(--x);
 }
-.composer input{
+/* 📝 12 Sept — THE BOX YOU TYPE A POST INTO.
+   A member reported you cannot see your own text. It was an <input>:
+   single-line, no wrap, text scrolling sideways out of view under a
+   5,000-character limit. Now a textarea that grows with what you wrote.
+
+   ⚠️ `.cbox`, NOT `.composer textarea` — PhotoUpload renders a file
+   input inside this same form and broad descendant selectors here are
+   exactly the Aug 16 `.composer` collision that cost an evening.
+
+   🔴 font-size is 16px and MUST NOT GO BELOW IT. Under 16px, iOS zooms
+   the entire page on focus — every single tap, in the box everybody
+   uses first. The 5 Sept note claimed this was already 16px; it was
+   15px when the member reported the bug, so either it regressed or
+   that note was about a different box. Measured, not remembered.
+
+   ⚠️ max-height 150px (~6 lines) then it scrolls inside itself. The
+   composer is position:fixed at the bottom, so an uncapped box grows
+   UPWARD and eats the conversation it is replying to.
+   ⚠️ resize:none — the browser's drag handle would let somebody pull
+   the box over the whole feed with no way back.
+   Colours untouched: Ty's acid border and #F2EFE6 fill, measured at
+   16.02:1 for the text on 5 Sept and still correct. */
+.cbox{
   flex:1; border:3px solid var(--acid); background:#F2EFE6; padding:11px;
-  font-family:'Courier Prime',monospace; font-size:15px; color:var(--x); outline:none; min-width:0;
+  font-family:'Courier Prime',monospace; font-size:16px; line-height:1.5;
+  color:var(--x); outline:none; min-width:0;
+  resize:none; max-height:150px; overflow-y:auto; display:block;
 }
-.composer input:focus-visible{ outline:3px solid var(--acid); outline-offset:2px; }
+.cbox:focus-visible{ outline:3px solid var(--acid); outline-offset:2px; }
+/* ⚠️ The row is no longer a single line of equal-height controls, so the
+   camera, emoji and POST buttons sit at the BOTTOM of a tall box rather
+   than floating in the middle of it. */
+.composer{ align-items:flex-end; }
 .composer button{
   background:var(--acid); color:var(--acid-ink); border:none; padding:11px 15px;
   font-family:'Anton',Impact,sans-serif; font-size:16px; text-transform:uppercase;
@@ -352,6 +380,16 @@ ul.mine li > *{ position:relative; z-index:1; }
    marks which one is urgent. */
 .dr-now{ color:#8A2B2B; }
 .dr-in { color:var(--gt); border-left:1px solid #6B8F7C; }
+
+/* The third door, added 8 Sept. ⚠️ IDENTICAL to .dr-in on purpose —
+   var(--gt) on the bar's --gl measures 10.80, already proven by the door
+   beside it. A help desk is an ordinary door, not an urgent one, so it
+   must NOT borrow the clay that marks "Right now"; the only thing
+   distinguishing it is the ◆ in the label, which is the mark Sage wears
+   on every surface. Three unmeasured contrast numbers went into comments
+   this week and two of them were under the floor — the safest new colour
+   is no new colour at all. */
+.dr-ask{ color:var(--gt); border-left:1px solid #6B8F7C; }
 
 .dr:hover{ text-decoration:underline; text-underline-offset:3px; }
 .dr:focus-visible{ outline:3px solid var(--gd); outline-offset:-3px; }
@@ -1071,15 +1109,13 @@ textarea:focus-visible{ outline:4px solid var(--x); outline-offset:3px; }
 .clink{ display:block; text-decoration:none; color:inherit; }
 .clink:focus-visible{ outline:4px solid var(--x); outline-offset:3px; }
 
-/* 8 Sept — SUPERSEDED THE SAME EVENING. `.cwholink` wrapped the
-   conversation link around only the name-and-preview column so the face
-   could be its own link. Then Ty asked for the NAME to go to the profile
-   too — and a name link inside the conversation link is the very nesting
-   that was being avoided. Gone; `.rowfill` above does the job.
-   ⚠️ `.cavlink` STAYS — it is still the face link on every row. */
-/* ⚠️ .cav is already 42px square and flex-shrink:0, so as a link it is a
-   real tap target without any sizing of its own. It only needs the
-   anchor defaults removed. */
+/* 8 Sept — SUPERSEDED THE SAME EVENING, and the note is left because the
+   reason matters. `.cwholink` wrapped the conversation link around only
+   the name-and-preview column so the face could be its own link. Then Ty
+   asked for the NAME to go to the profile too — and a name link inside
+   the conversation link is the nesting this was avoiding in the first
+   place. Both are gone; `.rowfill` above does the job instead.
+   ⚠️ `.cavlink` STAYS. It is still the face link on every row. */
 .cavlink{ text-decoration:none; color:inherit; }
 .cavlink:focus-visible{ outline:4px solid var(--x); outline-offset:3px; }
 
@@ -1221,9 +1257,10 @@ textarea:focus-visible{ outline:4px solid var(--x); outline-offset:3px; }
 
 /* 8 Sept — `.dwho` lived here for a few hours and is gone. It was the
    button that took over the member row when the face came out of it; the
-   name coming out too left nothing for it to wrap. Deleted rather than
-   left orphaned — a class with rules and no markup is the mirror of the
-   naked-class bug from 5 Sept, and just as hard to spot later. */
+   name coming out too left nothing for it to wrap, and `.rowfill` covers
+   the row now. Deleted rather than left orphaned — a class with rules and
+   no markup is the mirror of the naked-class bug from 5 Sept, and just as
+   hard to spot later. */
 .dchip{
   display:inline-block; margin-left:6px; padding:2px 8px; border-radius:99px;
   font-family:'Courier Prime',monospace; font-size:10px; font-weight:700;
