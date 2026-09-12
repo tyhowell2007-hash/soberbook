@@ -419,7 +419,25 @@ export default function Convo({ thread, initial }) {
             else setTray((t) => [...t, { path, preview }]);
           }}
         />
-        <input ref={inputRef} value={body} {...tag.inputProps}
+        {/* 📝 12 Sept — GROWING BOX, the fourth and last composer. Was an
+            <input> carrying 5,000 characters — the biggest cap in the app
+            in a box that showed one line. Text in an input does not wrap;
+            it scrolls sideways out of view.
+            ⚠️ NO `.cbox` HERE EITHER — this bar is white on green and the
+            Wall's box is cream on acid. Behaviour shared, skin never.
+            ⚠️ `.cbar input` in theme-green.css is a TAG selector, so it
+            stops matching the moment this becomes a textarea. That rule
+            is widened in the same commit — a tag-based selector is a
+            silent dependency and changing the tag breaks it with no error.
+            ⚠️ onInput, so the @menu's own onChange in tag.inputProps is
+            untouched. Border added back for box-sizing: border-box. */}
+        <textarea ref={inputRef} value={body} {...tag.inputProps} rows={1}
+               onInput={(e) => {
+                 e.target.style.height = 'auto';
+                 const bs = getComputedStyle(e.target);
+                 const edge = parseFloat(bs.borderTopWidth) + parseFloat(bs.borderBottomWidth);
+                 e.target.style.height = (e.target.scrollHeight + edge) + 'px';
+               }}
                maxLength={5000} placeholder={waiting ? 'Waiting on a reply…' : 'Write a message… @ to tag'}
                aria-label="Message" disabled={waiting} />
         {/* ⚠️ A picture alone is enough to enable Send (0128) — but never
