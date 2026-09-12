@@ -424,6 +424,30 @@ export default function Landing() {
             <span className="lp-pill lp-p3">🌱 Free, and the doors are open</span>
           </div>
 
+          {/* WHO BUILT THIS — 11 Sept. Ty: "put who built this on here and
+              the email address on how to find them", then "we don't need
+              the whole box, we just need lettering on it."
+
+              ⚠️ NOT A FOURTH PILL. A pill is a claim about the product;
+              this is a claim about us, and in that row it reads as a
+              feature. ⚠️ NOT A CARD EITHER — the boxed version shipped
+              first and sat at y=3536px, four screens below the fold,
+              because the sign-up form is tall. Two lines of lettering in
+              the hero cost about 40px and are read by everybody.
+              🔴 THE FORM DOES NOT MOVE FOR THIS. 29 Aug: "Sign in" at
+              1,029px behind the whole sign-up form. Measure, do not eyeball.
+              ⚠️ Nic and Kenneth are ABSENT until each agrees to be named
+              — being on this page discloses something about a man, and
+              that is his call. Adding them is one line. */}
+          <p className="lp-whoTop">
+            Built by people in recovery, in Ohio.
+          </p>
+          <p className="lp-whoTop lp-whoTop2">
+            <span className="lp-whoN">Ty Howell</span>, founder
+            {' · '}
+            <a href="mailto:hello@soberbook.app">hello@soberbook.app</a>
+          </p>
+
           {/* ⚠️ Hidden while the "check your email" panel is up. That panel
               only appears when confirmation is ON and there is genuinely
               mail on the way; offering a Sign in tab at that moment invites
@@ -676,56 +700,6 @@ export default function Landing() {
           </div>
         </div>
       </div>
-
-      {/* WHO BUILT THIS — 11 Sept. Ty: "people might be looking at this
-          thing and wondering how to contact whoever built it."
-
-          🔴 IT SITS DIRECTLY UNDER THE FORM AND ABOVE THE TILES, AND
-          THE POSITION IS THE WHOLE ARGUMENT. Ty: "maybe put the box up
-          top so people can see it." Right instinct — a block above the
-          footer is read by almost nobody. But ABOVE the form is the
-          29 Aug bug rebuilt by hand: this page was 3,808px with "Sign
-          in" at 1,029px, and the fix was to stop making people scroll
-          past things to reach the box they came for. So it goes as
-          high as it can go without moving the form one pixel down.
-          ⚠️ Anything added to this page later gets the same test: does
-          it push the form? If yes, it goes below the tiles.
-
-          ⚠️ THE NAMES ARE NOT A LIST THAT NEEDS THREE ROWS TO READ
-          RIGHT. The sentence says "people", so one row is true today
-          and three rows are true the day the other two say yes —
-          adding them is two lines and no rewrite. Nic and Kenneth are
-          deliberately ABSENT until each has agreed to be named: being
-          on this page discloses something about a man, and that is his
-          call, not ours. Same rule that refused to name members in the
-          5 Sept marketing emails.
-
-          ⚠️ mailto, not a form. A form is a thing we would have to
-          maintain and could silently break; the address already works
-          and is already promised on /privacy and /rules. */}
-      <section className="lp-who">
-        <div className="lp-wrap">
-          <div className="lp-whoCard">
-            <p className="lp-whoT">Who built this</p>
-            <p className="lp-whoP">
-              Sober Book was built by people in recovery, in Ohio. Not a
-              company that spotted a market — people who needed this and
-              found it didn&apos;t exist.
-            </p>
-            <div className="lp-whoList">
-              <p className="lp-whoRow">
-                <span className="lp-whoN">Ty Howell</span>
-                <span className="lp-whoR"> — founder</span>
-              </p>
-            </div>
-            <p className="lp-whoM">
-              Something wrong, or just want to talk?{' '}
-              <a href="mailto:hello@soberbook.app">hello@soberbook.app</a>
-              {' — '}a real person reads it.
-            </p>
-          </div>
-        </div>
-      </section>
 
       {/* ---------- what's actually in here ---------- */}
       <section className="lp-sec">
