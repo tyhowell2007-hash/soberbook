@@ -133,6 +133,19 @@ html[data-theme="black"]{
      Floor 4.5 for text, 3.0 for a 3px border. */
   --boxfill:#241E12;
 
+  /* 📝 13 Sept — the slab in the dark. See globals.css for what went wrong.
+     In the light theme a slab works by being much darker than a cream card;
+     here the card is ALREADY dark (--paper2 #18211C), so the fill alone
+     cannot carry it — #164034 against that card is 1.43, which is a smudge.
+     🔴 The BORDER is what makes the slab a slab in this theme. Do not drop
+     it to "clean up", and do not try to solve it by making the fill lighter:
+     past about #1E4A3B the pale ink starts failing the 4.5 floor.
+     MEASURED: ink #DFF6EA on #164034 = 10.19 · edge #6FB294 on the card
+     = 6.65 · fill vs card = 1.43. Floor 4.5 text, 3.0 for a 1px edge. */
+  --slab:#164034;
+  --slab-ink:#DFF6EA;
+  --slab-edge:#6FB294;
+
   /* The greens. --gd was the masthead fill and is now the accent, because
      a dark green on a dark page is not a colour, it is a smudge. */
   /* 🔴 --gd IS A FILL, NOT A TEXT COLOUR, AND GETTING THAT BACKWARDS IS
