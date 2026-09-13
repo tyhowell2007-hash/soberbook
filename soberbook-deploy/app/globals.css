@@ -17,6 +17,24 @@
      rule in a second file that re-states it is a thing that can silently
      stop matching, and this is the bug it caused. */
   --boxfill:#F2EFE6;
+
+  /* 🔴 13 Sept — THE SAME BUG AS --boxfill, ONE DAY LATER, WEARING IT THE
+     OTHER WAY ROUND. `.sea-turn` and `.cir-mine` set their BACKGROUND to
+     var(--gt) — a TEXT variable, dark #0F3D2A in the light theme and pale
+     #CFF3DF in the dark — and hardcoded the ink at #C7EFDD. So in the dark
+     the fill flipped pale, the ink did not, and the sentence carrying the
+     whole seasons feature measured 1.04:1. Ty found it, again.
+     ⭐ A SLAB IS A CONTRAST PAIR: fill and ink are one decision and belong
+     to one pair of variables. Never build a slab out of a text colour.
+     MEASURED — light: ink on slab 9.77. Dark: 10.19, edge 6.65 on the card.
+     ⚠️ --slab-edge is the slab's own colour in the light theme, so the
+     border is invisible there and the box model is identical in both. It
+     earns its keep in the dark, where slab-vs-card is only 1.43 — fill
+     against fill, the 17 Aug pale-tag bug, and an edge is what solves it. */
+  --slab:#0F3D2A;
+  --slab-ink:#C7EFDD;
+  --slab-edge:#0F3D2A;
+
   --paper:#F2F0E9;
   --paper2:#FFFFFF;
   --body:#26251F;
