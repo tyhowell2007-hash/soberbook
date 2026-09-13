@@ -89,7 +89,8 @@
   display:inline-block; background:var(--gd); color:#fff;
   padding:9px 18px; border-radius:10px; font-size:14px; text-decoration:none;
 }
-.mt-join:hover{ background:var(--gt); }
+/* --slab, not --gt — white on --gt is 1.2 in the dark theme. 12.2 / 11.56. */
+.mt-join:hover{ background:var(--slab); }
 .mt-phone{ font-size:12px; color:var(--soft); }
 
 /* =====================================================================
