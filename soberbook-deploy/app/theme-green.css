@@ -292,7 +292,26 @@ body{
   border:1px solid var(--line); border-radius:13px; background:#fff;
   box-shadow:none;
 }
-.composer .ctop{ display:flex; align-items:center; gap:9px; }
+.composer .ctop{ display:flex; flex-wrap:wrap; align-items:center; gap:9px; }
+/* 12 Sept - THE TEXT BOX GETS ITS OWN ROW, AND THIS IS THE BUG FIX.
+   Ty's phone showed the composer with the box collapsed to about three
+   characters wide, text wrapping one syllable per line.
+   THE CAUSE: .ctop is a single-line flex row built when the box was an
+   <input>. On 12 Sept it became a <textarea>, and the row also holds the
+   media button, the emoji button, POST, and - when an upload fails - an
+   error string. .cbox carries min-width:0, which means "you may shrink to
+   nothing", so it gave every pixel to its neighbours. Fine on a laptop,
+   unusable on a phone.
+   Same family as the Aug 16 .composer collision and the 12 Sept
+   .cbar input tag selector: a row that worked until something else was
+   added to it.
+   flex-basis:100% makes the box take the whole first line; the controls
+   wrap underneath. Nothing added to this row later can squeeze it again,
+   which is the actual fix - not the width, the RULE. */
+.composer .ctop .cbox{ flex:1 1 100%; min-width:0; }
+/* The failure message drops BELOW the controls instead of standing in the
+   row stealing width. It is the thing that tipped the box over. */
+.composer .ctop .phserr{ flex-basis:100%; margin:7px 0 0; }
 .composer .ctop input{
   flex:1; min-width:0; border:0; outline:0; background:transparent;
   /* 🔴 16px, NOT 13.5px. Ty, 5 Sept: "a lot of those type boxes, you can
@@ -533,8 +552,25 @@ body{
    drag handle would let somebody pull the box over the whole conversation
    with no way back. line-height is explicit: a textarea does not inherit
    the comfortable default an input gets. */
-.cbar textarea{ resize:none; max-height:40vh; overflow-y:auto;
+/* 12 SEPT (later) - RAISED FROM 40vh, same call as the room composer and
+   for the same reason. Ty: "make sure this is in every form of
+   communication in the app."
+   100vh - 190px, NOT uncapped. This bar is pinned to the bottom of the
+   conversation, so the box grows upward - uncapped, a long message carries
+   Send off the top of the screen and there is no way to post it. The
+   Wall's box is uncapped because theme-green puts that one in normal flow
+   at the top, where growth pushes the page down instead.
+   The number is "the screen minus the send row and the nav", not a
+   fraction somebody liked the look of. ~26 lines against 40vh's ~12. */
+.cbar textarea{ resize:none; max-height:calc(100vh - 190px); overflow-y:auto;
   line-height:1.45; display:block; padding:11px 12px; }
+/* 12 Sept - THE SAME PROTECTION THE ROOM ALREADY HAD, AND CHAT DID NOT.
+   friends.css has carried .rbar .phserr{ flex-basis:100% } since the room
+   shipped, which is the only reason the room composer never collapsed. The
+   Wall had no such rule and its box was crushed to three characters wide on
+   a phone today. Chat was the third bar with the same shape and nothing
+   holding it. Fixed before it was reported rather than after. */
+.cbar .phserr{ flex-basis:100%; margin:7px 2px 0; }
 .cbar button{ background:#fff; color:var(--gt); border-radius:11px;
   font-family:'Archivo',system-ui,sans-serif; font-weight:700; font-size:14px;
   text-transform:none; letter-spacing:0; }
