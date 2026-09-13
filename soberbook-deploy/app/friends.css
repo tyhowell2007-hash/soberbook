@@ -247,16 +247,27 @@
      <input> does not wrap and 2,000 characters were scrolling sideways
      out of view. Colours, radius and border are untouched — the room
      keeps its own skin, only the behaviour is shared with the Wall.
-     ⚠️ max-height 40vh, matching the Wall: a fraction of the screen, so
-     it scales with the device instead of being right on one phone and
-     wrong on every other. The room composer sits at the bottom, so an
-     uncapped box would grow up over the conversation.
+     🔴 12 SEPT (later) — RAISED FROM 40vh. Ty: "make sure when you type
+     something out, you can see all the sentences... even if they're
+     extremely long", and then: "make sure this is in every form of
+     communication in the app."
+     ⭐ BUT NOT UNCAPPED, AND THE REASON IS THE SEND BUTTON. The Wall's
+     box has no cap at all because theme-green puts that composer in
+     normal flow at the TOP of the feed — it grows downward and the page
+     scrolls. This one is pinned to the BOTTOM: an uncapped box grows
+     UPWARD, and past full height it carries Send off the top of the
+     screen. That is the 29 Aug bug exactly — the ⋯ sheet whose Cancel
+     sat 39px under the tab bar, the way out unreachable.
+     ⚠️ So the cap is `100vh - 190px`, which is not a taste number: it is
+     "everything except the send row and the nav". ~26 lines on a phone
+     against 40vh's ~12, so a genuinely long message is visible whole,
+     and the control that sends it can never be pushed off.
      ⚠️ resize:none — the browser's drag handle would let somebody pull
      the box over the whole room with no way back.
      ⚠️ line-height set explicitly: a textarea does not inherit the
      comfortable default an input gets, and without it the first line
      sits tight against the top edge. */
-  resize:none; max-height:40vh; overflow-y:auto;
+  resize:none; max-height:calc(100vh - 190px); overflow-y:auto;
   line-height:1.45; display:block;
 }
 .rin::placeholder{ color:#7FBFA0; }
