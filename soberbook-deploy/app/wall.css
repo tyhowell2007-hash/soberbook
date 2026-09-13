@@ -139,7 +139,21 @@
    15px when the member reported the bug, so either it regressed or
    that note was about a different box. Measured, not remembered.
 
-   ⚠️ max-height 40vh — RAISED FROM 150px ON 12 SEPT, MEASURED.
+   🔴 12 SEPT (later) — THE CAP IS GONE ENTIRELY. Ty: "make sure when you
+   type something out, you can see all the sentences... even if they're
+   extremely long."
+   ⭐ AND IT WAS ALWAYS DEFENDING A LAYOUT NOBODY SEES. The cap existed
+   because `.composer` here is position:fixed at the bottom, so a growing
+   box eats the conversation upward. But theme-green.css re-declares
+   `.composer{ position:static }` and puts it at the TOP of the feed in
+   normal flow — and theme-green is what every signed-in member loads.
+   An uncapped box in normal flow just pushes the feed down and the page
+   scrolls, which is the ordinary behaviour of a page.
+   ⚠️ overflow-y is HIDDEN, not auto, and that is the point: the box is
+   always exactly as tall as its content, so there is nothing to scroll
+   INSIDE it. An inner scrollbar is how the last sentence goes missing.
+   ⚠️ THE OLD NOTE, kept because it explains the fixed-position trap:
+   max-height 40vh — RAISED FROM 150px ON 12 SEPT, MEASURED.
    🔴 150px was too tight and the measurement is why: a 178-character
    post — three ordinary sentences — already overflowed, so the box
    grew and the member STILL could not see what they had written.
@@ -165,7 +179,7 @@
   flex:1; border:3px solid var(--acid); background:var(--boxfill); padding:11px;
   font-family:'Courier Prime',monospace; font-size:16px; line-height:1.5;
   color:var(--x); outline:none; min-width:0;
-  resize:none; max-height:40vh; overflow-y:auto; display:block;
+  resize:none; overflow-y:hidden; display:block;
 }
 .cbox:focus-visible{ outline:3px solid var(--acid); outline-offset:2px; }
 /* ⚠️ The row is no longer a single line of equal-height controls, so the
