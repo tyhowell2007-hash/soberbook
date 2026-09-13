@@ -1273,7 +1273,18 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
                             keeps the old road until it is wired on purpose. */
                          allowStream
                          accept={canAddVideo ? 'image/*,video/*' : 'image/*'}
-                         label={media.length ? `+${media.length}` : '📷'}
+                         /* 12 Sept - THE WORDS MOVED INSIDE THE BUTTON.
+                            Ty: "we just need one box for media that takes
+                            care of videos and pictures." It already WAS one
+                            picker, but the words lived in a separate span
+                            sitting beside the icon, so it read as two
+                            controls - and that span was one of the things
+                            crushing the text box on a phone.
+                            The sentence is KEPT, not dropped: video has worked
+                            since 18 Aug and the 5 Sept finding was that nobody
+                            knew, which is why the caption exists at all. One
+                            control, still saying what it takes. */
+                         label={media.length ? `+${media.length}` : '📷 Photo or video'}
                          onBusy={setUploading}
                          onDone={(path, preview, isVideo, streamUid) => {
                            setMedia((m) => {
@@ -1313,9 +1324,6 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
               the tray below shows exactly what you picked, and a hint
               that keeps telling you what you have already done is
               wallpaper. */}
-          {!anon && !rec && media.length === 0 && (
-            <span className="cmedia">photo or<br />video</span>
-          )}
           {/* 🙂 Ty, 5 Sept: emoji in every box. The rooms and chat have had
               this since August; the Wall — the box most people type in
               first — never did.
