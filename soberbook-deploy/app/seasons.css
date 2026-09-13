@@ -76,10 +76,18 @@
 .sea-moved li{ font-size:13px; color:var(--body); line-height:1.65; }
 .sea-moved b{ color:var(--gm-t); font-weight:600; }
 
-/* ⭐ The one sentence that carries the whole feature. Dark slab so it
-   reads as the app speaking rather than as another statistic. */
+/* ⭐ The one sentence that carries the whole feature. A slab so it reads
+   as the app speaking rather than as another statistic.
+   🔴 13 Sept — this used to be `background:var(--gt); color:#C7EFDD`, and
+   --gt is a TEXT colour that flips pale in the dark theme while the ink
+   did not. MEASURED 1.04:1 — Ty photographed it and said "you can't see
+   what you're typing in that box." It is not a box; it is this sentence,
+   and with the words invisible a pale rounded rect is exactly what an
+   empty input looks like. Fixing the contrast fixes the misreading too.
+   ⚠️ Use the --slab pair. Never a text variable as a background. */
 .sea-turn{
-  background:var(--gt); color:#C7EFDD;
+  background:var(--slab); color:var(--slab-ink);
+  border:1px solid var(--slab-edge);
   border-radius:8px; padding:10px;
   font-size:12px; line-height:1.5; margin:10px 0 0;
 }
