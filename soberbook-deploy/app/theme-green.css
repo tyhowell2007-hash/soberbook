@@ -550,11 +550,6 @@ body{
   font-family:'Archivo',system-ui,sans-serif; font-size:16px; color:var(--body); }
 .cbar input::placeholder, .cbar textarea::placeholder{ color:var(--soft); }
 .cbar input[disabled], .cbar textarea[disabled]{ background:#EDF3F0; color:var(--soft); }
-/* ⚠️ 40vh, matching the Wall and the room — a fraction of the screen, not
-   a pixel count, so it scales with the device. resize:none because the
-   drag handle would let somebody pull the box over the whole conversation
-   with no way back. line-height is explicit: a textarea does not inherit
-   the comfortable default an input gets. */
 /* 12 SEPT (later) - RAISED FROM 40vh, same call as the room composer and
    for the same reason. Ty: "make sure this is in every form of
    communication in the app."
