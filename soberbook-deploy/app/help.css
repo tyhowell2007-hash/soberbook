@@ -71,7 +71,11 @@
   font-family:'Courier Prime',monospace;
   font-size:19px; letter-spacing:.06em;
 }
-.hptel:active{ background:var(--gt); }
+/* 🔴 --slab, not --gt. This is the crisis phone button and the press state
+   is the half-second somebody sees while they are already shaking — the ink
+   is #F4FBF7 and on --gt in the dark theme that measured 1.14, so the number
+   vanished under the thumb at exactly the wrong moment. 11.61 / 11.0. */
+.hptel:active{ background:var(--slab); }
 
 /* ⚠️ The domain is always visible, never hidden behind a friendly label.
    In a field where treatment centres pay for referrals, an unlabelled
