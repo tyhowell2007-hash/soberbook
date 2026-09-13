@@ -404,7 +404,10 @@ body{
    ⚠️ I first reported this as invisible AT REST. That was wrong — I had
    measured with the cursor still on the button after clicking. At rest
    it is white on #1b6b4a, 6.46. Say which STATE a measurement was taken in. */
-.btn:hover, .sgo:hover{ background:var(--gt); color:#fff; }
+/* 🔴 13 Sept — was var(--gt), a TEXT colour. White on it in the dark theme
+   measured 1.2. --slab is a dark-green FILL in BOTH themes, so the press
+   state stays dark wherever you are: light 12.2, dark 11.56. MEASURED. */
+.btn:hover, .sgo:hover{ background:var(--slab); color:#fff; }
 .btn.ghost{ background:transparent; color:var(--gd); border:1.5px solid var(--line); }
 .btn.out{ background:transparent; color:var(--soft); border:1.5px solid var(--line); }
 .btn.out.arm{ background:#B3261E; color:#fff; border-color:#B3261E; }
@@ -1178,7 +1181,9 @@ body{
 }
 .paskbtn:last-child{ margin-bottom:0; }
 .paskbtn.go{ background:var(--gd); color:#F4FBF7; border:0; }
-.paskbtn.go:active{ background:var(--gt); }
+/* --slab, not --gt: the ink above is #F4FBF7 and --gt goes pale in the
+   dark, which measured 1.14. Now light 11.61, dark 11.0. MEASURED. */
+.paskbtn.go:active{ background:var(--slab); }
 .paskbtn.go:disabled{ opacity:.7; }
 /* --gm at 2px, not --line: a 1px --line border measures 1.21 against a
    white card — the invisible-edge trap from 17 Aug. --gm is 4.02. */
