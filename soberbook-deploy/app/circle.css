@@ -61,11 +61,19 @@
 /* ⚠️ Your own message is the DARK one — the inverse of the big rooms,
    where yours is tinted and theirs is plain. In a room of nine the thing
    you scan for is other people, so theirs gets the readable pale card. */
-.cir-mine{ background:var(--gt); }
+/* 🔴 13 Sept — this carried the IDENTICAL bug to `.sea-turn` and was found
+   by grepping for the pattern rather than by waiting for it to be seen:
+   `background:var(--gt)` (a text colour, pale in the dark theme) under a
+   hardcoded pale ink. Computed 1.04:1 in the dark — your own message would
+   have been a blank card. ⚠️ It was LATENT, not visible, because nobody
+   has posted in a circle yet, so nothing rendered .cir-mine. Fixed in the
+   same commit as the seasons one; shipping one and leaving its twin is how
+   the same bug gets reported twice. */
+.cir-mine{ background:var(--slab); border:1px solid var(--slab-edge); }
 .cir-who{ display:block; font-size:12px; color:var(--gm-t); margin-bottom:4px; }
-.cir-mine .cir-who{ color:#C7EFDD; }
+.cir-mine .cir-who{ color:var(--slab-ink); }
 .cir-body{ display:block; font-size:16px; color:var(--body); line-height:1.55; white-space:pre-wrap; }
-.cir-mine .cir-body{ color:#C7EFDD; }
+.cir-mine .cir-body{ color:var(--slab-ink); }
 
 /* 🔴 NOT "no messages yet". That is a description of a dead room, and an
    empty room reads as "this place is dead" louder than no room at all. */
