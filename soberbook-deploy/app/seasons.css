@@ -85,11 +85,16 @@
    and with the words invisible a pale rounded rect is exactly what an
    empty input looks like. Fixing the contrast fixes the misreading too.
    ⚠️ Use the --slab pair. Never a text variable as a background. */
+/* ⚠️ 14 Sept — MARGIN FLIPPED, and it is not cosmetic. This used to be
+   `margin:10px 0 0` because it was the LAST thing in the card; at the top
+   that same rule leaves it welded to the subhead above and floating free
+   of the bars below. Nic asked for it up here, so the spacing has to move
+   with it. Top margin stays small — it follows its own heading. */
 .sea-turn{
   background:var(--slab); color:var(--slab-ink);
   border:1px solid var(--slab-edge);
   border-radius:8px; padding:10px;
-  font-size:12px; line-height:1.5; margin:10px 0 0;
+  font-size:12px; line-height:1.5; margin:4px 0 13px;
 }
 
 .sea-change{ margin-top:13px; }
