@@ -97,6 +97,25 @@ export default function Seasons({ initialSeason = null }) {
         {chosen ? <>You&rsquo;re in {chosen.emoji} {chosen.label}</> : 'tonight'}
       </p>
 
+      {/* ⭐ 14 Sept — THIS MOVED UP HERE FROM THE BOTTOM, at Nic's ask:
+          "that should be at the top of the feature since that's how you
+          learn about what it is and how it works." He is right — it was
+          the last thing on the card, so the only person who ever read it
+          was somebody who had already scrolled past the thing it explains.
+          ⚠️ It now carries BOTH halves of "what this is" — the turn and
+          the how-to — in one paragraph. `.sea-fine` on the not-picked-yet
+          screen is deliberately left alone: there it sits directly under
+          the buttons it describes, which is already the right place.
+          🔴 The cost, recorded because it is real: "Seasons turn" used to
+          sit UNDER the movement list, where the list was its evidence.
+          Up here it is a claim made before the proof. Ty took that trade
+          knowingly. If it ever reads as a slogan, split it back — the
+          explainer stays top, "Seasons turn" goes back under the list. */}
+      <p className="sea-turn">
+        Seasons turn. Everybody here has been through one. Pick the one that
+        fits &mdash; change it any time, and nobody is told when you do.
+      </p>
+
       <ul className="sea-bars">
         {list.map((s) => {
           /* ⚠️ The bar is scaled against the BIGGEST season, not against
@@ -124,18 +143,47 @@ export default function Seasons({ initialSeason = null }) {
         <div className="sea-moved">
           <h3 className="sea-h3">This month</h3>
           <ul>
+            {/* 🔴 14 Sept — NIC FOUND THIS AND IT IS NOT A RENDERING FAULT.
+                He said "it seems to be missing some text in certain lines",
+                and the old shape was:
+
+                  {left  > 0 ? <b>{left}</b> left {emoji} {label} : null}
+                  {both      ? ' · ' : null}
+                  {joined> 0 ? <b>{joined}</b> moved in : null}
+
+                THE SEASON WAS ONLY EVER NAMED INSIDE THE `left` BRANCH.
+                So a season nobody left this month rendered as a bare
+                "7 moved in" — moved in to WHAT. Measured live the day he
+                reported it: 2 of 5 lines had no season on them at all.
+
+                ⭐ It looks intermittent because it IS intermittent — it
+                depends entirely on whether anybody happened to leave that
+                season this month, so it moves around as the data does.
+                That is why it reads as "certain lines" rather than as a
+                broken feature, and why nobody caught it for three days.
+
+                ⚠️ MY FIRST HYPOTHESIS WAS WRONG AND IS RECORDED SO NOBODY
+                REPEATS IT: I assumed invisible text, because 13 Sept was
+                exactly that (`.sea-turn` at 1.04:1). Measured all thirteen
+                text pairs in this card in both themes first — the worst is
+                5.12 and every one passes. Contrast was never the problem.
+                Measure before believing the shape of the last bug.
+
+                ✅ Ty picked "season first, always" off a mockup. The season
+                is now the SUBJECT of every line instead of a detail that
+                only appears when somebody leaves, so the line cannot lose
+                its noun no matter what the numbers do. It also reads as a
+                column, which matches the bars directly above it. */}
             {moves.map((m) => (
               <li key={m.slug}>
-                {m.left > 0 ? <><b>{m.left}</b> left {m.emoji} {m.label}</> : null}
-                {m.left > 0 && m.joined > 0 ? <> · </> : null}
+                <span aria-hidden="true">{m.emoji}</span> {m.label}
+                {' — '}
+                {m.left > 0 ? <><b>{m.left}</b> left</> : null}
+                {m.left > 0 && m.joined > 0 ? <>, </> : null}
                 {m.joined > 0 ? <><b>{m.joined}</b> moved in</> : null}
               </li>
             ))}
           </ul>
-          {/* ⭐ The whole argument of the feature in one sentence. A season
-              is temporary; this is the evidence, taken from the room's own
-              record rather than from a slogan on a coin. */}
-          <p className="sea-turn">Seasons turn. Everybody here has been through one.</p>
         </div>
       ) : null}
 
