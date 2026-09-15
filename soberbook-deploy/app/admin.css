@@ -214,3 +214,110 @@
 .sndbox b { display: block; font-size: 26px; color: var(--gd, #1d3b2a); }
 .sndbox span { display: block; margin-top: 2px; font-size: 12px; color: var(--soft, #5f7a6a); }
 .sndbox.bad b { color: #a3452d; }
+
+/* =====================================================================
+   TRAFFIC (.tv*) - 15 Sept 2026. Ty: "make me a new traffic viewer...
+   how many we get per day... live as well... and how many total we have
+   in the whole app."
+
+   EVERY CLASS IS PREFIXED tv-. admin.css is loaded alongside
+   theme-green.css and photos.css on every /admin route, and the Aug 16
+   .composer collision is what that rule is for.
+
+   MEASURED BEFORE THIS BLOCK WAS WRITTEN (floor 4.5 text / 3.0 graphic):
+     ink    #E8F3EA on #16201A ..... 14.69
+     muted  #8FA894 on #16201A ...... 6.53
+     dim    #7A9280 on #121A14 ...... 5.28
+     acid   #C6F24E on #16201A ..... 12.91
+     bar    #5C8A68 on #121A14 ...... 4.47
+     today  #C6F24E on #121A14 ..... 13.70
+     border #5E7A66 on #121A14 ...... 3.76
+     stale  #E8B75C on #16201A ...... 9.05
+   Control: #C6F24E on #D9F58A = 1.07, so the function can fail.
+
+   THE BORDER IS LOAD-BEARING. The card fill measures 1.06 against the
+   panel - fill against fill, the 17 Aug pale-tag bug. Without a visible
+   edge the cards do not exist. Do not darken it to "tidy" it.
+
+   HARDCODED COLOURS, NOT var(--acid), ON PURPOSE: --acid is remapped in
+   theme-black, so a variable would turn this panel a different colour at
+   night and every measured pair above would stop being true.
+   ===================================================================== */
+.tvwrap{
+  background:#121A14; color:#E8F3EA; min-height:100vh;
+  padding:20px 16px 90px; font-family:inherit;
+}
+.tvhead{
+  display:flex; align-items:baseline; justify-content:space-between;
+  gap:12px; border-bottom:2px solid #C6F24E; padding-bottom:10px;
+}
+.tvtitle{
+  font-family:'Anton',Impact,sans-serif; font-size:19px;
+  letter-spacing:.06em; color:#C6F24E;
+}
+.tvback{
+  font-family:'Courier Prime',monospace; font-size:11px;
+  letter-spacing:.08em; color:#8FA894; text-decoration:none;
+}
+.tvstamp{
+  margin:12px 0 18px; font-size:12px; line-height:1.5; color:#7A9280;
+}
+/* Amber, never red. Nothing has gone wrong with the app - the reading is
+   just old, and red would say "your app is broken" when it is not. */
+.tvstamp.tvbad{ color:#E8B75C; }
+.tvnote{ margin-top:16px; font-size:13px; color:#8FA894; }
+
+.tvcards{ display:flex; gap:10px; flex-wrap:wrap; margin-bottom:20px; }
+.tvcard{
+  flex:1; min-width:118px; background:#16201A;
+  border:1px solid #5E7A66; border-radius:9px; padding:11px 13px;
+}
+.tvcard b{ display:block; font-size:26px; line-height:1; font-weight:700; }
+.tvcard span{
+  display:block; margin-top:5px; font-family:'Courier Prime',monospace;
+  font-size:10.5px; letter-spacing:.09em; color:#8FA894;
+}
+.tvcard.tvhero b{ color:#C6F24E; }
+
+.tvlabel{
+  font-family:'Courier Prime',monospace; font-size:11px;
+  letter-spacing:.08em; color:#8FA894; margin-bottom:7px;
+}
+.tvchart{
+  display:flex; align-items:flex-end; gap:3px; height:120px;
+  background:#121A14; border:1px solid #5E7A66; border-radius:9px;
+  padding:10px;
+}
+.tvchart i, .tvspark i{ flex:1; background:#5C8A68; border-radius:2px 2px 0 0; }
+/* Today is the bar you came to look at, so it is the brand acid and
+   nothing else on the chart is. */
+.tvchart i.tvnow, .tvspark i.tvnow{ background:#C6F24E; }
+.tvaxis{
+  display:flex; justify-content:space-between; gap:8px;
+  font-size:10.5px; color:#7A9280; margin:6px 0 20px;
+}
+.tvaxis .tvtoday{ color:#C6F24E; }
+
+.tvrows{ display:flex; flex-direction:column; gap:9px; }
+.tvrow{
+  display:grid; grid-template-columns:92px 1fr 66px 86px;
+  gap:10px; align-items:center; font-size:12.5px;
+}
+.tvrow > span{ color:#E8F3EA; }
+.tvspark{ display:flex; align-items:flex-end; gap:2px; height:24px; }
+.tvrow em{ font-style:normal; text-align:right; font-weight:600; }
+.tvrow u{
+  text-decoration:none; text-align:right;
+  font-family:'Courier Prime',monospace; font-size:11px; color:#8FA894;
+}
+.tvfoot{
+  margin-top:20px; padding-top:12px; border-top:1px solid #5E7A66;
+  font-size:11px; line-height:1.55; color:#7A9280;
+}
+/* A phone is the screen this actually gets read on. Below 460 the four
+   summary cards stop being cards and start being slivers. */
+@media (max-width:460px){
+  .tvcard{ min-width:calc(50% - 5px); }
+  .tvrow{ grid-template-columns:76px 1fr 54px; }
+  .tvrow u{ display:none; }
+}
