@@ -389,6 +389,17 @@ export default function Room({ room, initial, meHandle, members, signed, spokenH
     if (paths.length) addUrls(local);
     setMsgs((m) => [...m, mine]);
     setBody('');
+    /* ⚠️ 14 Sept — THE BOX IS SIZED BY INLINE STYLE, so clearing the TEXT
+       does not clear the HEIGHT. Only the onInput handler ever writes
+       style.height, and setBody('') does not fire onInput — so without
+       this line, sending a six-line message leaves a six-line EMPTY
+       composer sitting over the room until reload.
+       ⭐ Wall.jsx has carried exactly this line since 12 Sept; the room
+       and the DM were both written from the same pattern and both missed
+       it. Nic reported it in the DM. Fixing one and leaving its twin is
+       how the same bug gets reported twice (the .cir-mine lesson, 13
+       Sept), so both go in the same commit. */
+    if (inputRef.current) inputRef.current.style.height = '';
     setTray([]);
     setVid(null);
     setShowNudge(false);   // they've spoken; the invitation has done its job
