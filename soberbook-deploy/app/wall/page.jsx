@@ -142,15 +142,30 @@ export default async function WallPage() {
      tidiness — without it the two newest pins come back in both lists and
      mix.js would place the same poster twice. */
   const [{ data: clips }, { data: pinned }] = await Promise.all([
+    /* 🔴 EVERY COLUMN THE CARD READS HAS TO BE NAMED HERE, TWICE.
+
+       The dose band shipped, the view returned `dose`, ContentCard read
+       `item.dose` — and nothing appeared on the wall, because these two
+       explicit select lists never asked for it. Nothing errored: a missing
+       key in JS is `undefined`, and `undefined` renders as nothing. That is
+       0086 exactly, where a migration quietly dropped two columns the
+       Community row rendered and every milestone chip silently stopped
+       appearing.
+
+       ⚠️ AND IT IS TWO LISTS, NOT ONE. They were split on 3 Sept so pins
+       could escape the 60-row recency window; adding a column to one of
+       them and not the other would make the same feature work on ordinary
+       cards and not on pinned ones, which is the worse version of this bug
+       because it looks intermittent. */
     supabase
       .from('feed_content')
-      .select('id, title, url, embed_id, thumb_path, published_at, source_label, category, source_id, event_at, place, pinned_at')
+      .select('id, title, url, embed_id, thumb_path, published_at, source_label, category, source_id, event_at, place, pinned_at, dose')
       .is('pinned_at', null)
       .order('published_at', { ascending: false })
       .limit(60),
     supabase
       .from('feed_content')
-      .select('id, title, url, embed_id, thumb_path, published_at, source_label, category, source_id, event_at, place, pinned_at')
+      .select('id, title, url, embed_id, thumb_path, published_at, source_label, category, source_id, event_at, place, pinned_at, dose')
       .not('pinned_at', 'is', null)
       .order('pinned_at', { ascending: false }),
   ]);
