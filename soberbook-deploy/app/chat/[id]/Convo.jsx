@@ -155,6 +155,10 @@ export default function Convo({ thread, initial }) {
      page underneath you and puts the newest message back under the box. */
   useEffect(() => {
     const toBottom = () => {
+      /* ⚠️ Size the spacer BEFORE scrolling, never after. Scrolling to a
+         bottom that is about to move is how the newest message ends up
+         behind the composer by exactly the amount the pad was wrong. */
+      fitPad();
       const se = document.scrollingElement || document.documentElement;
       se.scrollTop = se.scrollHeight;
     };
@@ -212,30 +216,50 @@ export default function Convo({ thread, initial }) {
 
      ⚠️ No ResizeObserver loop: this writes the PAD's height, and the pad
      is not inside the dock, so the dock cannot resize in response. */
-  useEffect(() => {
+  /* 🔴 DELIBERATELY NOT ONLY A ResizeObserver, AND THE REASON IS A CHECK
+     THAT COULD NOT FIRE. Trying to verify the first version, neither the
+     app's observer NOR a fresh one created by hand fired at all — because
+     `document.hidden` was true, and a hidden tab produces no frames, so
+     no ResizeObserver callback and no requestAnimationFrame are ever
+     delivered. (Four separate times in this project a backgrounded tab
+     has been mistaken for a broken feature.) ⭐ That is only a testing
+     problem, but it pointed at a real one: making the layout depend on a
+     callback that the browser is free to withhold means the pad can sit
+     stale, and nothing says so.
+
+     So `fitPad` is called DIRECTLY at the two moments that actually
+     matter — a message arriving, and the box growing under your fingers —
+     and the observer is kept only as a backstop for everything else (a
+     photo staged into the tray, an error line appearing, the keyboard
+     opening). Direct calls run synchronously in the event that caused
+     them, so they work in any tab state and can be measured. */
+  function fitPad() {
     const dock = dockRef.current;
     const pad = padRef.current;
-    if (!dock || !pad || typeof ResizeObserver === 'undefined') return;
+    const conv = document.querySelector('.convo');
+    if (!dock || !pad || !conv) return;
     const GAP = 12;
     const se = document.scrollingElement || document.documentElement;
-    const fit = () => {
-      const conv = document.querySelector('.convo');
-      const nav = document.querySelector('.navpad');
-      if (!conv) return;
-      const d = dock.getBoundingClientRect();
-      const belowDock = window.innerHeight - d.bottom;
-      const navH = nav ? nav.getBoundingClientRect().height : 0;
-      const convPad = parseFloat(getComputedStyle(conv).paddingBottom) || 0;
-      const want = Math.max(0, Math.ceil(d.height + (belowDock - navH) + GAP - convPad));
-      const wasAtBottom = se.scrollHeight - se.clientHeight - se.scrollTop < 60;
-      if (want !== pad.offsetHeight) pad.style.height = want + 'px';
-      if (wasAtBottom) se.scrollTop = se.scrollHeight;
-    };
-    fit();
-    const ro = new ResizeObserver(fit);
-    ro.observe(dock);
-    window.addEventListener('resize', fit);
-    return () => { ro.disconnect(); window.removeEventListener('resize', fit); };
+    const nav = document.querySelector('.navpad');
+    const d = dock.getBoundingClientRect();
+    const belowDock = window.innerHeight - d.bottom;
+    const navH = nav ? nav.getBoundingClientRect().height : 0;
+    const convPad = parseFloat(getComputedStyle(conv).paddingBottom) || 0;
+    const want = Math.max(0, Math.ceil(d.height + (belowDock - navH) + GAP - convPad));
+    const wasAtBottom = se.scrollHeight - se.clientHeight - se.scrollTop < 60;
+    if (want !== pad.offsetHeight) pad.style.height = want + 'px';
+    if (wasAtBottom) se.scrollTop = se.scrollHeight;
+  }
+
+  useEffect(() => {
+    fitPad();
+    if (typeof ResizeObserver === 'undefined' || !dockRef.current) return;
+    const ro = new ResizeObserver(() => fitPad());
+    ro.observe(dockRef.current);
+    const onResize = () => fitPad();
+    window.addEventListener('resize', onResize);
+    return () => { ro.disconnect(); window.removeEventListener('resize', onResize); };
+    /* eslint-disable-next-line */
   }, []);
 
   useEffect(() => {
@@ -529,6 +553,11 @@ export default function Convo({ thread, initial }) {
                  const bs = getComputedStyle(e.target);
                  const edge = parseFloat(bs.borderTopWidth) + parseFloat(bs.borderBottomWidth);
                  e.target.style.height = (e.target.scrollHeight + edge) + 'px';
+                 /* ⚠️ The box just changed size, so the space reserved for
+                    it is now wrong. Correcting it here — in the same event
+                    — is what keeps the newest message visible WHILE you
+                    type, not only after you send. */
+                 fitPad();
                }}
                maxLength={5000} placeholder={waiting ? 'Waiting on a reply…' : 'Write a message… @ to tag'}
                aria-label="Message" disabled={waiting} />
