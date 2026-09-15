@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { browserClient } from '../../lib/supabase-browser';
 
 /* =====================================================================
@@ -342,6 +343,27 @@ export default function Pledge() {
         </div>
       )}
       {s.reviewed && <p className="pl-done-rev">🌙 Logged for tonight.</p>}
+
+      {/* ---- THE DOORWAY TO YOUR 10TH STEP ----
+          🔴 THE EVENING REVIEW ABOVE WAS NOT TOUCHED, and that was Ty's
+          call off three options. 47 people have used "How was today?" and
+          it is three taps; replacing it with ten questions would have
+          been the 3 Sept inbox mistake again — people navigate a familiar
+          surface by SHAPE AND POSITION, and reorganising something they
+          already use is not a neutral improvement. So the review stays
+          exactly as it is and this is one tap deeper.
+
+          ⚠️ IT IS ALWAYS HERE, NOT TIME-GATED, AND THAT IS A DELIBERATE
+          DEVIATION FROM WHAT I FIRST DREW. A link that appears at 6pm and
+          vanishes at midnight is a control you never learn exists — the
+          same argument that kept the anonymous eye visible rather than
+          hidden on 2 Sept. One permanent line beats a smarter one nobody
+          can find twice.
+
+          ⚠️ On the DONE card only. The ask state is the morning screen;
+          an inventory link over "One more day" at 6am is the wrong
+          sentence at the wrong hour. */}
+      <Link href="/tenth" className="tenth-door">◆ Your 10th step ›</Link>
 
       {/* ⭐ THE ONLY THING ANYBODY ELSE TOUCHES: A COUNT. No names, no
           handles, no ranking, and no member's number ever sits next to
