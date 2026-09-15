@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { browserClient } from '../../lib/supabase-browser';
 import { makeHandles, createProfile, cleanHandle } from '../../lib/first-run';
+import { isIosApp } from '../../lib/is-ios-app';
 import DatePick from '../components/DatePick';
 
 /* =====================================================================
@@ -132,6 +133,12 @@ export default function Landing() {
   const [upHandle, setUpHandle] = useState('');
   const [mine, setMine]         = useState(false);  // did they type it themselves?
   useEffect(() => { setUpHandle(makeHandles(1)[0]); }, []);
+
+  /* Apple 3.1.1 — see the comment above the coffee section. Starts true so the
+     server renders WITHOUT the donation block and the browser reveals it only
+     once it has confirmed this is not the iPhone app. */
+  const [iosApp, setIosApp] = useState(true);
+  useEffect(() => { setIosApp(isIosApp()); }, []);
 
   /* =====================================================================
      🔴 SOMEBODY ARRIVING HERE ON A PASSWORD-RESET LINK GETS SENT TO /reset.
@@ -828,6 +835,17 @@ export default function Landing() {
            --lp-muted 5.42, and the button is white on --lp-go at 6.46.
            ⚠️ --lp-tang, the landing orange, is 3.39 — under the 4.5 floor,
            so it is a fill on this page and never text. */}
+      {/* 🔴 HIDDEN INSIDE THE iPHONE APP — Apple Guideline 3.1.1: donations,
+          "including those which are merely to tip the developers", must go
+          through in-app purchase. A for-profit LLC cannot take them any other
+          way. Web and Android are untouched. See lib/is-ios-app.js.
+
+          ⚠️ It starts HIDDEN and is revealed after mount, not the other way
+          round. Defaulting to shown would flash the button at an App Review
+          engineer for one frame, which is the single reader this rule exists
+          for. It costs everyone else nothing: this block is below the fold on
+          both surfaces. */}
+      {!iosApp && (
       <section className="lp-coffee">
         <div className="lp-wrap">
           <p className="lp-cofT">Help keep this app moving</p>
@@ -842,6 +860,7 @@ export default function Landing() {
           </a>
         </div>
       </section>
+      )}
 
       <p className="lp-foot">
         Sober Book · a safe place to be yourself · all paths welcome
