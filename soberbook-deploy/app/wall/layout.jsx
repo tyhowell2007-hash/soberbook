@@ -51,6 +51,12 @@ import '../pledge.css';
    one layout was missing one import. ⚠️ Its own small file rather than a
    block in wall.css — see the note at its head. */
 import '../gratitude.css';
+/* 🔴 IMPORTED FOR EXACTLY ONE RULE: .tenth-door, the link on the pledge
+   card. The 10th step CARD never renders on Home — only its doorway does.
+   ⚠️ Deleting this line does not break anything visibly; it strips the
+   styling off one link and leaves it looking like plain text, which is
+   the silent-failure shape /meetings had for weeks with .phserr. */
+import '../tenth.css';
 import '../replymenu.css';
 /* The walkthrough card at the top of Home. ⚠️ Its own small file for the
    same reason as the four above — appending it to wall.css took that file
