@@ -44,6 +44,13 @@ import '../adcard.css';
 import '../pledge.css';
 /* The ⋯ on a reply. Only the wall opens a thread, so only this layout
    needs it. ⚠️ Its own file rather than wall.css — see the note at its head. */
+/* One good thing — the gratitude card, directly under the pledge. Also
+   imported by app/gratitude/layout.jsx, which renders the same card above
+   the shared wall. ⚠️ BOTH layouts need this line: the CARD lives here and
+   the WALL lives there, and /meetings drew .phserr naked for weeks because
+   one layout was missing one import. ⚠️ Its own small file rather than a
+   block in wall.css — see the note at its head. */
+import '../gratitude.css';
 import '../replymenu.css';
 /* The walkthrough card at the top of Home. ⚠️ Its own small file for the
    same reason as the four above — appending it to wall.css took that file
