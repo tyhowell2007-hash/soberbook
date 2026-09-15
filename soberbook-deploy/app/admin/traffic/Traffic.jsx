@@ -94,8 +94,15 @@ export default function Traffic() {
   useEffect(() => {
     let alive = true;
 
-    async function tick() {
-      if (document.hidden) return;
+    /* 🔴 THE FIRST READ IS NOT GATED ON VISIBILITY, AND THE INTERVAL IS.
+       Caught on the live page: opened in a BACKGROUND tab, `document.hidden`
+       is already true at mount, so a visibility check inside the first call
+       skips it and the page sits on "Reading…" — which looks exactly like
+       broken, on the one screen whose entire job is telling you whether
+       something is broken. The visibilitychange listener does rescue it,
+       but only once you look, and by then you have already formed a view.
+       So: read once unconditionally, and only let the REPEAT be polite. */
+    async function read() {
       try {
         const r = await fetch('/api/admin/traffic', { cache: 'no-store' });
         if (!r.ok) throw new Error(String(r.status));
@@ -112,9 +119,11 @@ export default function Traffic() {
       }
     }
 
-    tick();
+    const tick = () => { if (!document.hidden) read(); };
+
+    read();
     const timer = setInterval(tick, EVERY_MS);
-    const wake = () => { if (!document.hidden) tick(); };
+    const wake = () => { if (!document.hidden) read(); };
     document.addEventListener('visibilitychange', wake);
     return () => {
       alive = false;
