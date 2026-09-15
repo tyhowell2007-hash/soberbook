@@ -48,6 +48,41 @@ import { useRouter } from 'next/navigation';
    tap. Curating it ourselves makes that more of an obligation, not less.
    ===================================================================== */
 
+/* =====================================================================
+   THE NAMED SEGMENTS.  15 Sept 2026.
+
+   Ty named the recovery shelf himself. He asked for the rest to be
+   "Daily Dose of Internet" — and that is a real channel with 20.7M
+   subscribers which is ALSO one of our own sources, 20 clips deep in
+   this same feed. Putting it over a Zach King or Ryan George video
+   credits their work to a channel that did not make it, sitting beside
+   that channel's actual clips. Same family as the drop card that said
+   "Sober Book first" over a released song: the app does not make a claim
+   on somebody else's behalf. He picked the replacement.
+
+   ⭐ THE WORDING LIVES HERE AND THE KEY LIVES IN THE DATABASE, so a
+   segment can be renamed tomorrow without orphaning a single row — the
+   same split as the tenth step's question keys.
+
+   🔴 AND THE KEY IS SET PER SOURCE, NOT DERIVED FROM `category`. Dopey
+   Podcast is filed `comedy`, is the biggest source in the app at 64
+   items, and is the flagship recovery show. Computing the dose from the
+   category would have printed "Daily dose of not thinking about it"
+   across episodes about somebody's overdose. `comedy` was a harmless
+   quiet chip until the moment that field started deciding a sentence a
+   member reads.
+
+   ⚠️ A source with no dose gets no band. Kratom Real Talk and Joe Rogan
+   are on that path on purpose — `talk` rather than `recovery` was itself
+   a deliberate filing, because calling kratom advocacy "recovery" is the
+   app claiming something about somebody else's recovery, and "not
+   thinking about it" is no better over a video about a person who was
+   harmed. */
+const DOSE = {
+  recovery: 'Daily dose of recovery',
+  break:    'Daily dose of not thinking about it',
+};
+
 const CHIP = {
   comedy:   'comedy',
   music:    'music',
@@ -287,6 +322,7 @@ export default function ContentCard({ item, thumbBase, canHide = false, pinned =
           ⚠️ NEW CLASS NAMES ON PURPOSE. .ccmeta/.ccsrc/.cccat are SHARED
           with the poster cards above (lines ~170 and ~186). Restyling them
           for the shelf would repaint every org poster on the wall. */}
+      {DOSE[item.dose] && <p className="ccdose">{DOSE[item.dose]}</p>}
       <div className="ccshelf">
         <span className="shsrc">{item.source_label}</span>
         <span className="shcat">{CHIP[item.category] || item.category}</span>
