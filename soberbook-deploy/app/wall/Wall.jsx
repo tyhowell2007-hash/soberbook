@@ -23,6 +23,7 @@ import PushAsk from '../components/PushAsk';
 import InviteAsk from './InviteAsk';
 import TourCard from '../components/TourCard';
 import Pledge from '../components/Pledge';
+import Gratitude from '../components/Gratitude';
 import MilestoneCard from './MilestoneCard';
 import { markLabel } from '../../lib/milestones';
 
@@ -1109,6 +1110,24 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
           version of it — see Pledge.jsx. A card that stays after it's
           done is just furniture between you and the room. */}
       <Pledge />
+
+      {/* ---- ONE GOOD THING ----
+          🔴 DIRECTLY UNDER THE PLEDGE, AND NEVER ABOVE IT. Ty: "we want to
+          keep the check-in pledge, but also add gratitude." The pledge is
+          the thing 55+ members already open this app to do; anything that
+          pushes it down the screen is taking from the one feature that is
+          working to pay for a new one.
+
+          ⭐ ONE COMPONENT, TWO MOUNTS — the same file renders on
+          /gratitude. Not a copy. A rule restated in two places drifts; a
+          component rendered in two places cannot, because there is only
+          one of it (0046 -> 0047 -> 0049).
+
+          ⚠️ It returns null until the server answers, so it cannot flash
+          the ask at somebody who already wrote this morning — and once
+          they have, it becomes a two-line record rather than more
+          furniture between them and the room. */}
+      <Gratitude />
 
       {/* ---- THE COMPOSER, MOVED TO THE TOP ----
           It used to sit under the wall. Two reasons it belongs here:
