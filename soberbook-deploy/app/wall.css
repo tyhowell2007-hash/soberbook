@@ -1534,6 +1534,44 @@ textarea:focus-visible{ outline:4px solid var(--x); outline-offset:3px; }
   letter-spacing:.12em; text-transform:uppercase; color:#2C3A24;
 }
 
+/* =====================================================================
+   THE DOSE BAND (.ccdose) — 15 Sept. Ty: "for the recovery videos … we
+   will call it Daily Dose of Recovery."
+
+   ⚠️ IT SITS ABOVE THE SHELF RATHER THAN ON IT. The name is 35
+   characters at its longest; measured against the real 492px shelf it
+   wraps to two lines and shoves the source sideways, and the source is
+   the one thing on this card that has to be legible before a tap.
+
+   🔴 BOTH DOSES WEAR THE SAME BAND. Colour ranks things whether you mean
+   it to or not — the paths poster had to force eight programs to equal
+   luminance for exactly this reason. A brighter band on recovery would
+   say the funny one is the lesser card, and the funny ones are on the
+   wall because 163 of 268 members have never posted and the page has to
+   be worth opening. Same plate, same acid, different words.
+
+   ⚠️ A source with no dose renders NO band at all — not an empty strip.
+   Kratom Real Talk and Joe Rogan are on that path deliberately.
+
+   ✅ MEASURED BEFORE THIS COMMENT WAS WRITTEN:
+     acid  #C6F24E on plate #2C3A24 ......... 9.33
+     plate #2C3A24 against the acid shelf ... 9.33
+     plate #2C3A24 against the card paper .. 10.90
+   Control: #C6F24E on #D9F58A returns 1.07, so the function can fail.
+
+   ⚠️ #2C3A24 is not a new colour — it is the shelf's own category ink,
+   so the band is built out of something this card already owns. And the
+   acid is hardcoded for the same reason it is on the shelf: --acid is
+   remapped in theme-black and the pair above would stop being true. */
+.ccdose{
+  margin:0;
+  padding:5px 13px;
+  background:#2C3A24;
+  color:#C6F24E;
+  font-family:'Courier Prime',monospace; font-size:11px; font-weight:700;
+  letter-spacing:.12em; text-transform:uppercase;
+}
+
 .ccframe{ position:relative; width:100%; aspect-ratio:16/9; background:#0B0F0D; }
 .ccif{ position:absolute; inset:0; width:100%; height:100%; border:0; display:block; }
 
