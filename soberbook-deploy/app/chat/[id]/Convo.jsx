@@ -181,13 +181,26 @@ export default function Convo({ thread, initial }) {
      document.elementFromPoint at its centre returned `.cbar`, not the
      bubble, which is the same proof the 10 Sept scroll bug was caught by.
 
-     ⭐ THE FORMULA IS MEASURED, NOT PICKED. F is how much of the viewport
-     the fixed furniture eats; `belowPad` is everything the document
-     already reserves under the last message APART from this pad (the
-     .convo padding and the nav spacer) — read at runtime, so nothing
-     here has to know those exist or what they are. Sanity check: at rest
-     it computes 76px, the exact value that was hand-tuned into the CSS.
-     The difference is that it now moves when the bar does.
+     🔴🔴 MY FIRST VERSION OF THIS WAS WRONG AND IT SHIPPED FOR ABOUT TEN
+     MINUTES. It derived the answer from `se.scrollHeight`, and
+     scrollHeight is CLAMPED TO THE VIEWPORT — on a short conversation it
+     equals clientHeight, so the "space already reserved below the last
+     message" came out enormous and the pad collapsed to 0. Measured live:
+     the newest bubble went from 21px of clearance to 55px BEHIND the
+     composer. ⭐ The fix I wrote was worse than the bug I was fixing, and
+     the only reason that is a ten-minute story instead of a three-day one
+     is that the page was measured after deploying instead of reasoned
+     about. A formula that is right on a long page and wrong on a short one
+     is not a formula, it is a coincidence with good manners.
+
+     ⭐ THE REAL FORMULA IS STRUCTURAL, AND IT NEVER ASKS HOW TALL THE PAGE
+     IS. Reserve the dock's own height, plus whatever sits between the dock
+     and the bottom of the screen that the nav spacer does NOT already
+     cover (that difference is the iPhone home-indicator inset), plus the
+     gap, minus the padding .convo already carries. Four live reads, no
+     constants except GAP. Sanity check: at rest it computes exactly 76px —
+     the value that had been hand-tuned into the CSS — and unlike that 76
+     it now moves when the bar does.
 
      ⚠️ GAP is the only constant, and it is a deliberate visual gap
      between the newest message and the box you answer in — not a fudge
@@ -206,12 +219,15 @@ export default function Convo({ thread, initial }) {
     const GAP = 12;
     const se = document.scrollingElement || document.documentElement;
     const fit = () => {
-      if (!foot.current) return;
+      const conv = document.querySelector('.convo');
+      const nav = document.querySelector('.navpad');
+      if (!conv) return;
+      const d = dock.getBoundingClientRect();
+      const belowDock = window.innerHeight - d.bottom;
+      const navH = nav ? nav.getBoundingClientRect().height : 0;
+      const convPad = parseFloat(getComputedStyle(conv).paddingBottom) || 0;
+      const want = Math.max(0, Math.ceil(d.height + (belowDock - navH) + GAP - convPad));
       const wasAtBottom = se.scrollHeight - se.clientHeight - se.scrollTop < 60;
-      const footBottomDoc = foot.current.getBoundingClientRect().bottom + window.scrollY;
-      const belowPad = se.scrollHeight - footBottomDoc - pad.offsetHeight;
-      const F = window.innerHeight - dock.getBoundingClientRect().top;
-      const want = Math.max(0, Math.ceil(F - belowPad + GAP));
       if (want !== pad.offsetHeight) pad.style.height = want + 'px';
       if (wasAtBottom) se.scrollTop = se.scrollHeight;
     };
