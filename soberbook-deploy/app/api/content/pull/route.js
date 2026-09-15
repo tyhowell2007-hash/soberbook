@@ -2,7 +2,8 @@ import { NextResponse } from 'next/server';
 import sharp from 'sharp';
 import { serverClient } from '../../../../lib/supabase-server';
 import { adminClient } from '../../../../lib/supabase-admin';
-import { parseFeed } from '../../../../lib/feeds';
+import { parseFeed, thumbCandidates } from '../../../../lib/feeds';
+import { storeThumb } from '../../../../lib/content-thumb';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -51,7 +52,6 @@ export const maxDuration = 300;
    ===================================================================== */
 
 const MAX_PER_SOURCE = 12;   // newest N per feed per pull; the wall isn't a firehose
-const THUMB_W = 480;
 
 async function fetchText(url) {
   const r = await fetch(url, {
@@ -66,28 +66,10 @@ async function fetchText(url) {
   return r.text();
 }
 
-/* Fetch a thumbnail, re-encode, store it, return the path. Returns null on
-   any failure — ⚠️ deliberately soft. An item with no picture is a worse
-   card; an item that never appears because its picture 404'd is a missing
-   episode. The text is the point. */
-async function storeThumb(admin, srcId, extId, url) {
-  if (!url) return null;
-  try {
-    const r = await fetch(url, { cache: 'no-store', signal: AbortSignal.timeout(15000) });
-    if (!r.ok) return null;
-    const buf = Buffer.from(await r.arrayBuffer());
-    const webp = await sharp(buf).rotate().resize(THUMB_W, null, { withoutEnlargement: true })
-      .webp({ quality: 78 }).toBuffer();
-    /* ⚠️ NEVER add .withMetadata() here, for the same reason it is banned
-       in the photo pipeline: it puts back everything the re-encode just
-       removed. */
-    const path = `${srcId}/${extId}.webp`;
-    const { error } = await admin.storage.from('content-thumbs')
-      .upload(path, webp, { contentType: 'image/webp', upsert: true });
-    if (error) return null;
-    return path;
-  } catch { return null; }
-}
+/* ⚠️ storeThumb used to live in this file AND in the other content
+   route, in two copies that had already drifted. It is one module now
+   (lib/content-thumb.js) — a fallback chain maintained in two files is a
+   fallback chain that will be correct in one of them. */
 
 async function handle(request, write) {
   /* Ty only. ⚠️ 404, not 403 — same as /admin and the sweeper. A 403
@@ -134,7 +116,7 @@ async function handle(request, write) {
         line.added++;
         if (!write) continue;
 
-        const thumb = await storeThumb(admin, s.id, it.external_id, it.thumb_url);
+        const thumb = await storeThumb(admin, sharp, s.id, it.external_id, thumbCandidates(it));
         const { error } = await admin.from('content_items').insert({
           source_id: s.id,
           external_id: it.external_id,
