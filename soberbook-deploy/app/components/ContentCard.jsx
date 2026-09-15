@@ -265,6 +265,33 @@ export default function ContentCard({ item, thumbBase, canHide = false, pinned =
 
   return (
     <article className="cc">
+      {/* ⚠️ THE SHELF, 15 Sept. Ty: "let's put it in a better box."
+
+          🔴 THIS OVERRULES A RULE WRITTEN IN THIS FILE'S CSS ON 23 AUG,
+          and the rule is left in wall.css with this note beside it rather
+          than quietly deleted. The premium pass said "no acid edge — this
+          card must stay quieter than a member's post." Ty asked for a
+          better box a SECOND time a month later, which is the evidence
+          that the quiet version did not land. He picked the acid shelf off
+          a drawing that showed it sitting between two real posts.
+
+          ⭐ AND IT FIXES SOMETHING THE QUIET VERSION COULD NOT. The source
+          name used to sit on top of the thumbnail in white type. We do not
+          choose these thumbnails — the scrim makes that survivable, not
+          safe. In a room where treatment centres pay for referrals,
+          somebody has to see whose voice this is BEFORE they tap, and a
+          name laid over a stranger's picture is the one element that can
+          be swallowed by an image nobody reviewed. On the shelf it is
+          legible by construction: measured 13.46 against the acid.
+
+          ⚠️ NEW CLASS NAMES ON PURPOSE. .ccmeta/.ccsrc/.cccat are SHARED
+          with the poster cards above (lines ~170 and ~186). Restyling them
+          for the shelf would repaint every org poster on the wall. */}
+      <div className="ccshelf">
+        <span className="shsrc">{item.source_label}</span>
+        <span className="shcat">{CHIP[item.category] || item.category}</span>
+      </div>
+
       <div className="ccframe">
         {on && item.embed_id ? (
           <iframe
@@ -296,10 +323,10 @@ export default function ContentCard({ item, thumbBase, canHide = false, pinned =
                 to choose the thumbnail. */}
             <span className="ccscrim" aria-hidden="true" />
 
-            <span className="ccmeta">
-              <span className="ccsrc">{item.source_label}</span>
-              <span className="cccat">{CHIP[item.category] || item.category}</span>
-            </span>
+            {/* ⚠️ The byline used to live here, over the picture. It is on
+                the shelf above the frame now — see the note at the top of
+                this card. The aria-label on this button still names the
+                source, so nothing was lost for a screen reader. */}
 
             <span className="ccbtn" aria-hidden="true"><span className="cctri" /></span>
 
