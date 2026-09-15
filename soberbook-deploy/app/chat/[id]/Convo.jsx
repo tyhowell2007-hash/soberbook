@@ -40,6 +40,10 @@ export default function Convo({ thread, initial }) {
   const [err, setErr] = useState('');
   const foot = useRef(null);
   const inputRef = useRef(null);
+  /* 14 Sept — the spacer now measures the thing it clears. See the note on
+     the effect below; these two are what make that possible. */
+  const dockRef = useRef(null);
+  const padRef = useRef(null);
 
   /* Photos staged but not sent yet, and the signed links for photos
      already in the conversation. */
@@ -160,6 +164,64 @@ export default function Convo({ thread, initial }) {
     return () => { cancelAnimationFrame(raf); clearTimeout(late); };
   }, [msgs.length]);
 
+  /* 🔴 14 SEPT — .convopad WAS A NUMBER WRITTEN DOWN, AND IT WAS THE
+     SAME MISTAKE THIS FILE'S OWN STYLESHEET WAS BUILT TO DELETE.
+
+     app/convo.css says of the old inbox.css rule: "68px is the bar's
+     height WRITTEN DOWN. That number moves with the font size, the
+     safe-area inset and whether the error line is showing. It is the
+     exact failure the dock exists to remove." Then `.convopad{height:76px}`
+     sat one file away doing precisely that, for the same bar.
+
+     MEASURED ON THE LIVE PAGE before this was written:
+       composer at rest .... furniture 158px, page reserves 170px → 12px spare
+       three lines typed ... furniture 232px, page reserves 170px → 62px SHORT
+       six lines typed ..... furniture 322px, page reserves 170px → 152px SHORT
+     At three lines the newest bubble was fully behind the composer —
+     document.elementFromPoint at its centre returned `.cbar`, not the
+     bubble, which is the same proof the 10 Sept scroll bug was caught by.
+
+     ⭐ THE FORMULA IS MEASURED, NOT PICKED. F is how much of the viewport
+     the fixed furniture eats; `belowPad` is everything the document
+     already reserves under the last message APART from this pad (the
+     .convo padding and the nav spacer) — read at runtime, so nothing
+     here has to know those exist or what they are. Sanity check: at rest
+     it computes 76px, the exact value that was hand-tuned into the CSS.
+     The difference is that it now moves when the bar does.
+
+     ⚠️ GAP is the only constant, and it is a deliberate visual gap
+     between the newest message and the box you answer in — not a fudge
+     factor covering a measurement.
+
+     ⚠️ Re-pins to the bottom ONLY if you were already there. Growing the
+     pad while somebody is scrolled up reading history and yanking them
+     to the end would be a worse bug than the one this fixes.
+
+     ⚠️ No ResizeObserver loop: this writes the PAD's height, and the pad
+     is not inside the dock, so the dock cannot resize in response. */
+  useEffect(() => {
+    const dock = dockRef.current;
+    const pad = padRef.current;
+    if (!dock || !pad || typeof ResizeObserver === 'undefined') return;
+    const GAP = 12;
+    const se = document.scrollingElement || document.documentElement;
+    const fit = () => {
+      if (!foot.current) return;
+      const wasAtBottom = se.scrollHeight - se.clientHeight - se.scrollTop < 60;
+      const footBottomDoc = foot.current.getBoundingClientRect().bottom + window.scrollY;
+      const belowPad = se.scrollHeight - footBottomDoc - pad.offsetHeight;
+      const F = window.innerHeight - dock.getBoundingClientRect().top;
+      const want = Math.max(0, Math.ceil(F - belowPad + GAP));
+      if (want !== pad.offsetHeight) pad.style.height = want + 'px';
+      if (wasAtBottom) se.scrollTop = se.scrollHeight;
+    };
+    fit();
+    const ro = new ResizeObserver(fit);
+    ro.observe(dock);
+    window.addEventListener('resize', fit);
+    return () => { ro.disconnect(); window.removeEventListener('resize', fit); };
+  }, []);
+
   useEffect(() => {
     const supabase = browserClient();
     let alive = true;
@@ -223,7 +285,17 @@ export default function Convo({ thread, initial }) {
        know, and rewording it here would risk saying more. */
     if (error) { setErr(error.message.replace(/^.*?:\s*/, '')); return; }
 
-    setBody(''); setTray([]); setVid(null);
+    /* ⚠️ 14 Sept — THE HEIGHT, NOT JUST THE TEXT. The box is sized by an
+       inline style written only by onInput, and setBody('') does not fire
+       onInput — so before this line, sending a three-line message left a
+       three-line EMPTY composer standing over the conversation, and the
+       bubble you had just sent was behind it. That is Nic's report:
+       "you have to scroll up to see that first message you sent."
+       ⭐ Wall.jsx has had this line since 12 Sept. This file and Room.jsx
+       were written from the same pattern and both missed it. */
+    setBody('');
+    if (inputRef.current) inputRef.current.style.height = '';
+    setTray([]); setVid(null);
     const { data } = await supabase.from('chat_messages')
       .select('*').eq('thread_id', thread.id)
       .order('created_at', { ascending: true }).limit(200);
@@ -332,8 +404,12 @@ export default function Convo({ thread, initial }) {
 
       {err && <div className="pad"><div className="err">{err}</div></div>}
 
-      {/* clears the fixed bar AND the tab bar under it */}
-      <div className="convopad" aria-hidden="true" />
+      {/* Clears the fixed bar AND the tab bar under it. ⚠️ The 76px in
+          wall.css is now only the STARTING height — the effect above
+          measures the real dock and rewrites it, so a grown composer, a
+          staged photo tray or an error line can no longer park the
+          newest message behind the box you answer in. */}
+      <div className="convopad" ref={padRef} aria-hidden="true" />
 
       {/* Staged photos, above the bar, with a way to take one back out.
           ⚠️ Removing from the tray does NOT delete the uploaded file — it
@@ -356,7 +432,7 @@ export default function Convo({ thread, initial }) {
           and whether the error line is showing, and every one of those
           silently slides a panel over the bar or opens a gap. A
           container cannot drift out of sync with its own contents. */}
-      <div className="dmdock">
+      <div className="dmdock" ref={dockRef}>
 
       <EmojiPicker open={emoji} onClose={() => setEmoji(false)} onPick={insertEmoji} />
 
