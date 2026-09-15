@@ -227,6 +227,17 @@ export default function Thread({ post, onClose, onCountChange }) {
       }
 
       setText('');
+      /* ⚠️ 14 Sept — THE HEIGHT, NOT JUST THE TEXT. The box is sized by an
+         inline style written only by onInput, and setText('') does not fire
+         onInput — so before this line, answering somebody with four lines
+         left a four-line EMPTY reply box standing over the thread, pushing
+         the reply you had just written off the screen.
+         ⭐ FOURTH AND LAST OF THE GROWING COMPOSERS. Wall.jsx has had this
+         since 12 Sept; the room, the DM and this one were all written from
+         the same pattern and all three missed it. Nic reported it in the
+         DM. Fixing one and leaving its twins is how the same bug gets
+         reported three more times. */
+      if (boxRef.current) boxRef.current.style.height = '';
       setTray([]);
       await load();
       onCountChange && onCountChange(post.id);
