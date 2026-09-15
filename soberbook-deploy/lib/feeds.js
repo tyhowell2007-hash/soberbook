@@ -142,3 +142,57 @@ export function youtubeFeedUrl(channelId) {
   if (!/^UC[A-Za-z0-9_-]{22}$/.test(channelId || '')) return null;
   return `https://www.youtube.com/feeds/videos.xml?channel_id=${channelId}`;
 }
+
+/* =====================================================================
+   WHICH PICTURE TO ASK FOR, BEST FIRST.  15 Sept 2026.
+
+   Ty: "the videos that are on the app need a different box." Measured on
+   the live wall before anything was written, and the box was not the
+   problem: the frame is 492x277 — exactly 16:9 — with object-fit:cover,
+   which is correct. The picture inside it was the one the feed hands us,
+   YouTube's hqdefault, at 480x360.
+
+   ⭐ AND 480x360 IS A LIE. hqdefault pads a widescreen video with black
+   bars to make a 4:3 file: measured on a real live item, 45px top and
+   45px bottom, leaving 480x270 of actual picture. So the card was drawing
+   480x270 across 492 CSS px on a 2x screen that wants 984 — about a
+   quarter of the pixels it was painting. That is the softness, and no CSS
+   fixes it, because the detail was never in the file.
+
+   ⚠️ It is not even consistent. One live source (Kratom Real Talk,
+   VTfLQ0wcz24) has NO bars — a genuine 4:3 frame — so `cover` in a 16:9
+   box crops a quarter of that video off the top and bottom, which on a
+   talking head is a forehead and a chin.
+
+   ✅ maxresdefault came back 1280x720 for all ten live video ids tested,
+   INCLUDING the 4:3 one — YouTube crops to 16:9 itself. So asking for
+   maxres quadruples the detail AND takes the crop to zero.
+
+   🔴 THE FALLBACK IS NOT OPTIONAL, AND ITS FAILURE MODE IS NASTY.
+   maxresdefault does not exist for every video. Proven with a control:
+   jNQXAC9IVRw ("Me at the zoo", 2005) returns 404 on maxresdefault and a
+   real 480x360 on hqdefault. ⚠️ But the 404 body is a 1,097-byte grey
+   120x90 JPEG — a perfectly valid image — so an <img> tag renders it
+   happily and never fires onerror. Anything that tests this with an image
+   element instead of a status code sees a picture and believes it.
+
+   ⚠️ The id is matched STRICTLY at 11 characters. This builds a URL out
+   of a string that arrived from a remote feed; a loose match is how that
+   becomes somebody else's URL.
+   ===================================================================== */
+const YT_VARIANTS = ['maxresdefault', 'sddefault', 'hqdefault'];
+
+export function thumbCandidates(item = {}) {
+  const out = [];
+  if (/^[A-Za-z0-9_-]{11}$/.test(item.embed_id || '')) {
+    for (const v of YT_VARIANTS) {
+      out.push(`https://i.ytimg.com/vi/${item.embed_id}/${v}.jpg`);
+    }
+  }
+  /* The feed's own <media:thumbnail> last. For a podcast it is the only
+     entry; for YouTube it is hqdefault again and therefore harmless — but
+     it is the thing that keeps this correct if a future kind has no
+     predictable URL scheme at all. */
+  if (item.thumb_url) out.push(item.thumb_url);
+  return [...new Set(out)];
+}
