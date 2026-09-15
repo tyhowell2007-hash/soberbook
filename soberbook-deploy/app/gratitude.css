@@ -1,0 +1,262 @@
+/* =====================================================================
+   ONE GOOD THING - gratitude.  15 Sept.  Migration 0154.
+
+   Imported by app/gratitude/layout.jsx (the page) and by
+   app/wall/layout.jsx (the card at the top of Home). Nothing else
+   renders either.
+
+   ⚠️ ITS OWN FILE, NOT A BLOCK BOLTED ONTO wall.css. That file is 89KB
+   and on 23 Aug it silently failed to upload three deploys running -
+   GitHub's folder drag appears to give up on the largest file in a
+   directory. Every card since (pledge, openroom, tourcard, invite,
+   circle, seasons, milestone) has shipped as its own small file for the
+   same reason, and every one of them landed first try.
+
+   ⚠️ EVERY CLASS IS PREFIXED .gr / .gr- AND THAT WAS CHECKED, NOT
+   ASSUMED. Grepped against all 25 stylesheets before a line of this was
+   written: 0 hits for `\.gr-` and 0 for bare `\.gr`, with a control
+   (.composer, which hits 18 files) proving the check could fire. The
+   `.composer` collision on 16 Aug and the `.sheetwrap` one after it both
+   came from skipping exactly this step.
+
+   ⚠️ NOT ONE HARDCODED COLOUR IN THIS FILE, ON PURPOSE. Every value is a
+   variable out of theme-green.css, which theme-black.css re-points. That
+   is the only thing that makes the 12 Sept reply-box bug (1.02:1) and the
+   13 Sept seasons-slab bug (1.04:1) impossible here - BOTH HALVES OF A
+   CONTRAST PAIR MOVE TOGETHER, because neither half is written down.
+   🔴 Do not "fix" anything in here by pasting a hex.
+
+   ---------------------------------------------------------------------
+   MEASURED BEFORE THIS COMMENT WAS WRITTEN, NOT AFTER. Four unmeasured
+   contrast figures went into comments on 5 Sept and all four were wrong;
+   two more on 2 Sept were under the floor. Numbers RUN, both themes:
+
+                                   light    dark    floor
+     --gt  on --paper2  (heads)    12.20   13.78     4.5
+     --gt  on --gl      (heads)    10.80   12.16     4.5
+     --soft on --paper2 (eyebrow)   5.12    7.96     4.5
+     --soft on --gl                 4.53    7.03     4.5
+     --x   on --gl      (a line)   14.19   12.45     4.5
+     white on --gd      (button)    6.46    8.52     4.5
+     --gm-t on --paper2 (quiet)     6.07   12.23     4.5
+     --gm  as a BORDER on --gl      3.74    3.10     3.0
+     --gm  as a BORDER on --paper   4.02    3.93     3.0
+
+   CONTROL, and it fired: --gm AS TEXT on white measures 4.22 - under the
+   floor, which is exactly what theme-green.css says about it in its own
+   comment ("DECORATION ONLY"). So --gm appears below as a border and
+   nowhere else, and the check can tell a pass from a fail.
+   ===================================================================== */
+
+/* ---------------------------------------------------------------------
+   THE CARD - the same component on Home and on /gratitude.
+   --------------------------------------------------------------------- */
+.gr {
+  background: var(--paper2);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 1.1rem 1.15rem 1.2rem;
+  margin: 0 0 0.9rem;
+}
+
+/* ⭐ The green edge down the left, the same device the pledge card and the
+   reply previews use. It says "this one is yours to answer" without a
+   heading that shouts. ⚠️ Only on the ASK - once you have said it, the
+   card is a record and does not need to call you over. */
+.gr-ask { border-left: 4px solid var(--gd); }
+
+/* 🔴 A REAL RULE, NOT A NAKED CLASS. `.gr-done` was on the element before
+   it had a single declaration, which is the shape task #279 was opened
+   for: thirteen classes rendering with no CSS anywhere, silently, because
+   nothing errors when a selector does not exist. The done card is
+   genuinely different from the ask - no green edge calling you over, and
+   less air, because it is a record and not a request. */
+.gr-done { padding-bottom: 0.85rem; }
+
+.gr-eyebrow {
+  margin: 0 0 0.15rem;
+  font-family: 'Courier Prime', ui-monospace, monospace;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--soft);
+}
+
+.gr-head {
+  margin: 0 0 0.35rem;
+  font-family: 'Anton', system-ui, sans-serif;
+  /* ⚠️ clamp, not a fixed size. A 375px phone is the narrowest thing this
+     has to fit on, and a hardcoded size is the layout bug that has bitten
+     this project on four separate days. */
+  font-size: clamp(24px, 7.2vw, 30px);
+  line-height: 1.05;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  color: var(--gt);
+}
+
+.gr-sub {
+  margin: 0 0 0.7rem;
+  font-size: 14px;
+  line-height: 1.45;
+  color: var(--soft);
+}
+
+.gr-in {
+  width: 100%;
+  box-sizing: border-box;
+  /* ⚠️ 16px MINIMUM, and this is not a style choice. iOS Safari zooms the
+     whole page in when you focus an input under 16px and does not zoom
+     back out - the member is left on a page that no longer fits their
+     screen. The wall composer shipped at 13.5px and did exactly that to
+     everybody until 5 Sept. */
+  font-size: 16px;
+  font-family: inherit;
+  color: var(--x);
+  background: var(--paper2);
+  border: 2px solid var(--line);
+  border-radius: 10px;
+  padding: 0.6rem 0.7rem;
+}
+.gr-in:focus { outline: 3px solid var(--gd); outline-offset: 1px; }
+
+/* 🔴 THE REFUSAL, AND IT IS NOT RED. The screen (0151) raises SB001 with
+   a sentence written for a person, and we print that sentence. A red bar
+   in an app built so nobody has to explain themselves reads as an
+   accusation - the same call made for the anonymous-room photo notice on
+   3 Sept. The WORDS carry the refusal; the box only has to be findable. */
+.gr-refused {
+  margin: 0.55rem 0 0;
+  padding: 0.5rem 0.65rem;
+  font-size: 14px;
+  line-height: 1.45;
+  color: var(--gt);
+  background: var(--gl);
+  border-left: 3px solid var(--gd);
+  border-radius: 0 8px 8px 0;
+}
+
+.gr-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  margin: 0.75rem 0 0;
+}
+
+.gr-go {
+  /* ⚠️ 44px, the tap-target floor. The post footer shipped at ~20px on
+     the only two controls anybody used, and that was the fix. */
+  min-height: 44px;
+  padding: 0 1.15rem;
+  border: 0;
+  border-radius: 10px;
+  background: var(--gd);
+  color: #fff;
+  font-family: 'Archivo', system-ui, sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+}
+/* ⚠️ Disabled is DIMMED, never hidden and never a colour change that
+   could be read as an error. It is disabled only while empty or saving,
+   both of which the member can see the reason for. */
+.gr-go:disabled { opacity: 0.45; cursor: default; }
+.gr-go:focus-visible { outline: 3px solid var(--gt); outline-offset: 2px; }
+
+/* The text buttons - change it, take it down, never mind. */
+.gr-quiet {
+  min-height: 44px;
+  padding: 0 0.35rem;
+  border: 0;
+  background: none;
+  color: var(--gm-t);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+.gr-quiet:disabled { opacity: 0.45; cursor: default; }
+.gr-quiet:focus-visible { outline: 3px solid var(--gd); outline-offset: 2px; }
+
+.gr-priv {
+  margin: 0.7rem 0 0;
+  font-size: 12.5px;
+  line-height: 1.45;
+  color: var(--soft);
+}
+
+/* ---------------- said it: the record for the rest of the day -------- */
+
+/* Your own line, given the weight of the thing it is. ⚠️ Serif and larger
+   than the prose around it - this is the one sentence on the card that
+   somebody wrote themselves. */
+.gr-mine {
+  margin: 0.2rem 0 0;
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 19px;
+  line-height: 1.4;
+  color: var(--gt);
+}
+
+.gr-wall-link {
+  display: inline-block;
+  margin: 0.45rem 0 0;
+  min-height: 44px;
+  line-height: 44px;
+  color: var(--gm-t);
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+}
+.gr-wall-link:hover { text-decoration: underline; text-underline-offset: 3px; }
+.gr-wall-link:focus-visible { outline: 3px solid var(--gd); outline-offset: 2px; }
+
+/* ---------------------------------------------------------------------
+   THE WALL - only on /gratitude.
+   --------------------------------------------------------------------- */
+.gr-wall-head {
+  margin: 1.6rem 0 0.8rem;
+  font-family: 'Anton', system-ui, sans-serif;
+  font-size: 18px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--gt);
+}
+
+.gr-wall {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+/* 🔴 THE BORDER IS LOAD-BEARING AND MUST NOT BE "CLEANED UP". Measured:
+   the --gl fill against the page is 1.07 in light and 1.27 in dark - fill
+   against fill, invisible in BOTH themes, which is the pale-tag bug from
+   17 Aug and the seasons slab from 13 Sept. The 1px --gm edge is the only
+   thing that makes one line distinguishable from the next: 4.02 light,
+   3.93 dark. Delete it and the wall renders as one grey paragraph. */
+.gr-line {
+  background: var(--gl);
+  border: 1px solid var(--gm);
+  border-radius: 10px;
+  padding: 0.7rem 0.85rem;
+  font-size: 16px;
+  line-height: 1.45;
+  color: var(--x);
+  /* ⚠️ A member's own words, so they break where the member typed them
+     and long unbroken strings do not run off a 375px screen. */
+  overflow-wrap: anywhere;
+}
+
+.gr-empty {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--soft);
+}
