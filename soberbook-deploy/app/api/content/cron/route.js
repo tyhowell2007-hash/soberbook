@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { adminClient } from '../../../../lib/supabase-admin';
-import { parseFeed } from '../../../../lib/feeds';
+import { parseFeed, thumbCandidates } from '../../../../lib/feeds';
+import { storeThumb } from '../../../../lib/content-thumb';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -52,7 +53,6 @@ export const maxDuration = 300;
 
 const MIN_GAP_HOURS = 6;
 const MAX_PER_SOURCE = 12;
-const THUMB_W = 480;
 
 async function fetchText(url) {
   const r = await fetch(url, {
@@ -64,31 +64,10 @@ async function fetchText(url) {
   return r.text();
 }
 
-/* Fetch a thumbnail, re-encode, store it in OUR bucket. Returns null on
-   any failure — an item with no picture is a worse card; an item that
-   never appears because its picture 404'd is a missing episode.
-
-   🔴 The whole reason this exists rather than storing YouTube's URL: an
-   <img> pointing at i.ytimg.com makes every member's browser call Google
-   on every wall load, announcing they're on a recovery app before they've
-   tapped anything. */
-async function storeThumb(admin, sharp, srcId, extId, url) {
-  if (!url) return null;
-  try {
-    const r = await fetch(url, { cache: 'no-store', signal: AbortSignal.timeout(15000) });
-    if (!r.ok) return null;
-    const buf = Buffer.from(await r.arrayBuffer());
-    const webp = await sharp(buf).rotate()
-      .resize(THUMB_W, null, { withoutEnlargement: true })
-      .webp({ quality: 78 }).toBuffer();
-    /* ⚠️ NEVER add .withMetadata() — it puts back everything the
-       re-encode just removed. Same rule as the photo pipeline. */
-    const path = `${srcId}/${extId}.webp`;
-    const { error } = await admin.storage.from('content-thumbs')
-      .upload(path, webp, { contentType: 'image/webp', upsert: true });
-    return error ? null : path;
-  } catch { return null; }
-}
+/* ⚠️ storeThumb used to live in this file AND in the other content
+   route, in two copies that had already drifted. It is one module now
+   (lib/content-thumb.js) — a fallback chain maintained in two files is a
+   fallback chain that will be correct in one of them. */
 
 export async function GET() {
   const admin = adminClient();
@@ -153,7 +132,7 @@ export async function GET() {
 
       for (const it of items) {
         if (known.has(it.external_id)) continue;
-        const thumb = await storeThumb(admin, sharp, s.id, it.external_id, it.thumb_url);
+        const thumb = await storeThumb(admin, sharp, s.id, it.external_id, thumbCandidates(it));
         const { error } = await admin.from('content_items').insert({
           source_id: s.id,
           external_id: it.external_id,
