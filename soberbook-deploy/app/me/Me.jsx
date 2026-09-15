@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { browserClient } from '../../lib/supabase-browser';
 import { plainError } from '../../lib/plain-error';
+import { isIosApp } from '../../lib/is-ios-app';
 import People from './People';
 import SongPicker from './SongPicker';
 import SongPlayer from '../components/SongPlayer';
@@ -126,6 +127,12 @@ export default function Me({ email, profile, posts, initialAvatarUrl,
      button. Same call the drops and edit paths already learned. */
   const [pend, setPend] = useState(pendingTags);
   const [pendBusy, setPendBusy] = useState('');
+
+  /* Apple 3.1.1 — see the comment above the coffee box. Starts true so the
+     donation block is never in the server-rendered HTML; the browser reveals
+     it only after confirming this is not the iPhone app. */
+  const [iosApp, setIosApp] = useState(true);
+  useEffect(() => { setIosApp(isIosApp()); }, []);
   const router = useRouter();
   const supabase = browserClient();
 
@@ -1302,6 +1309,12 @@ export default function Me({ email, profile, posts, initialAvatarUrl,
                 ⚠️ rel="noreferrer" is the 23 Aug rule — from Sober Book a
                 referrer tells a third party's logs that the visitor came
                 from a recovery app. */}
+            {/* 🔴 HIDDEN INSIDE THE iPHONE APP — Apple Guideline 3.1.1: a
+                donation, "including those which are merely to tip the
+                developers", must go through in-app purchase. Sober Book LLC is
+                for-profit, so it cannot take one any other way. Web and Android
+                are untouched. See lib/is-ios-app.js. */}
+            {!iosApp && (
             <div className="pushbox">
               <h3 className="pushh">Help keep this app moving</h3>
               <p className="pushp">
@@ -1314,6 +1327,7 @@ export default function Me({ email, profile, posts, initialAvatarUrl,
                 ☕ Buy us a coffee
               </a>
             </div>
+            )}
 
             <div className="meout">
               <button className={'btn out' + (confirmOut ? ' arm' : '')} type="button"
