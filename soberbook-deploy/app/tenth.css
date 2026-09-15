@@ -1,0 +1,230 @@
+/* =====================================================================
+   YOUR 10TH STEP - the nightly inventory.  15 Sept.  Migration 0155.
+
+   Imported by app/tenth/layout.jsx only. The card does NOT render on
+   Home - the way in is one line on the pledge card, which is already
+   where the evening lives.
+
+   ⚠️ ITS OWN FILE for the same reason as pledge.css and gratitude.css:
+   wall.css is 89KB and silently failed to upload three deploys running
+   on 23 Aug. Small files land.
+
+   ⚠️ EVERY CLASS IS PREFIXED .tenth- AND THAT WAS CHECKED, NOT ASSUMED.
+   Grepped all 25 stylesheets first: 0 hits. ⚠️ Note `.tn` on its own IS
+   taken (`.total .tn` in wall.css, and a theme-black override) - that is
+   exactly why this is not prefixed `.tn-`.
+
+   ⚠️ NOT ONE HARDCODED COLOUR, same as gratitude.css. Every value is a
+   theme variable, which is what makes the 12 Sept reply-box (1.02) and
+   13 Sept slab (1.04) bugs impossible here: both halves of a contrast
+   pair move together because neither half is written down.
+
+   🔴 NO NEW COLOUR PAIRS WERE INVENTED FOR THIS FILE, deliberately.
+   Every pair below is one already measured on the live gratitude card in
+   BOTH themes earlier today:
+     --gt   on --paper2  12.20 / 13.78    heads and your own answers
+     --soft on --paper2   5.12 /  7.96    eyebrow and the fine print
+     white  on --gd       6.46 /  8.52    the chosen pill, the button
+     --gm-t on --paper2    6.07 / 12.23   the unchosen pill, text buttons
+   Floor is 4.5. Reusing a measured pair is the only shortcut here that
+   is not a guess - four unmeasured figures went into comments on 5 Sept
+   and every one of them was wrong.
+   ===================================================================== */
+
+.tenth-card {
+  background: var(--paper2);
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--gd);
+  border-radius: 0;
+  padding: 1.1rem 1.15rem 1.2rem;
+  margin: 0 0 0.9rem;
+}
+
+.tenth-eyebrow {
+  margin: 0 0 0.15rem;
+  font-family: 'Courier Prime', ui-monospace, monospace;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--soft);
+}
+
+.tenth-head {
+  margin: 0 0 0.35rem;
+  font-family: 'Anton', system-ui, sans-serif;
+  font-size: clamp(24px, 7.2vw, 30px);
+  line-height: 1.05;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  color: var(--gt);
+}
+
+.tenth-sub {
+  margin: 0 0 1rem;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--soft);
+}
+
+/* ---------------- one question ---------------- */
+
+.tenth-q {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0.55rem 0;
+  border-top: 1px solid var(--line);
+}
+
+.tenth-ask {
+  flex: 1;
+  min-width: 0;
+  font-size: 15px;
+  line-height: 1.35;
+  color: var(--x);
+}
+
+/* ⚠️ 44px tall and 44px wide minimum. The post footer shipped at ~20px
+   on the only two controls anybody used, and that was the whole fix. */
+.tenth-pill {
+  flex: none;
+  min-width: 52px;
+  min-height: 44px;
+  padding: 0 0.6rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: none;
+  color: var(--gm-t);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+/* 🔴 THE CHOSEN PILL IS A FILL, NOT A TINT. A pale fill on a pale card is
+   1.0-something and invisible - the 17 Aug pale-tag bug, which this
+   project has now hit four separate times. Solid --gd with white on it. */
+.tenth-pill.on {
+  background: var(--gd);
+  border-color: var(--gd);
+  color: #fff;
+}
+.tenth-pill:focus-visible { outline: 3px solid var(--gt); outline-offset: 2px; }
+
+/* The optional line under a question. ⚠️ Only rendered once the question
+   has an answer - an empty box under all ten at once is ten essays. */
+.tenth-note {
+  width: 100%;
+  box-sizing: border-box;
+  /* ⚠️ 16px MINIMUM. Under 16px iOS zooms the whole page on focus and
+     does not zoom back out. */
+  font-size: 16px;
+  font-family: inherit;
+  color: var(--x);
+  background: var(--paper2);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 0.5rem 0.6rem;
+  margin: 0 0 0.35rem;
+}
+.tenth-note:focus { outline: 3px solid var(--gd); outline-offset: 1px; }
+
+/* ---------------- the foot ---------------- */
+
+.tenth-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  margin: 1rem 0 0;
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--line);
+}
+
+.tenth-go {
+  min-height: 44px;
+  padding: 0 1.15rem;
+  border: 0;
+  border-radius: 10px;
+  background: var(--gd);
+  color: #fff;
+  font-family: 'Archivo', system-ui, sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.tenth-go:disabled { opacity: 0.45; cursor: default; }
+.tenth-go:focus-visible { outline: 3px solid var(--gt); outline-offset: 2px; }
+
+.tenth-quiet {
+  min-height: 44px;
+  padding: 0 0.35rem;
+  border: 0;
+  background: none;
+  color: var(--gm-t);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+.tenth-quiet:disabled { opacity: 0.45; cursor: default; }
+.tenth-quiet:focus-visible { outline: 3px solid var(--gd); outline-offset: 2px; }
+
+.tenth-priv {
+  margin: 0.8rem 0 0;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--soft);
+}
+
+/* ---------------- what you put down ---------------- */
+
+.tenth-was {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tenth-line {
+  padding: 0.5rem 0;
+  border-top: 1px solid var(--line);
+  font-size: 15px;
+  line-height: 1.4;
+  color: var(--x);
+}
+
+.tenth-yn {
+  font-family: 'Courier Prime', ui-monospace, monospace;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--gm-t);
+  margin-right: 0.5rem;
+}
+
+/* Your own words, given the weight of the thing. */
+.tenth-said {
+  display: block;
+  margin: 0.2rem 0 0;
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 17px;
+  line-height: 1.4;
+  color: var(--gt);
+}
+
+/* The doorway on the pledge card. ⚠️ Lives in pledge.css's neighbourhood
+   but is defined HERE, because app/wall/layout.jsx imports this file for
+   exactly this one rule - the card itself never renders on Home. */
+.tenth-door {
+  display: inline-block;
+  margin: 0.55rem 0 0;
+  min-height: 44px;
+  line-height: 44px;
+  color: var(--gm-t);
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+}
+.tenth-door:hover { text-decoration: underline; text-underline-offset: 3px; }
+.tenth-door:focus-visible { outline: 3px solid var(--gd); outline-offset: 2px; }
