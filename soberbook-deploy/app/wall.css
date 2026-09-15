@@ -1488,6 +1488,52 @@ textarea:focus-visible{ outline:4px solid var(--x); outline-offset:3px; }
   -webkit-tap-highlight-color:transparent;
 }
 
+/* =====================================================================
+   THE SHELF (.ccshelf) — 15 Sept. Ty: "let's put it in a better box."
+
+   🔴 THIS OVERRULES "no acid edge" IN THE PREMIUM-PASS NOTE ABOVE, and
+   that note is deliberately left standing so the history is readable.
+   Ty asked for a better box a second time, a month after the premium
+   pass. Asking twice is the evidence that quiet did not work. He chose
+   this off a drawing that showed it between two real posts.
+
+   ⭐ What it actually fixes, which the quiet version could not: the
+   source name used to be white type ON the thumbnail. We do not choose
+   those thumbnails. The scrim made that survivable, never safe — and
+   "somebody has to see whose voice this is before they tap" is the whole
+   reason the byline exists. On the shelf it cannot be swallowed.
+
+   ⚠️ THE ACID IS HARDCODED, NOT var(--acid), AND THAT IS ON PURPOSE.
+   --acid is remapped in theme-black (it falls back to #5E7A69 there), so
+   a variable would quietly turn this strip grey-green at night and the
+   measured pair below would stop being true. The strip is a brand mark,
+   identical in both themes, like the medal on a milestone card.
+
+   ✅ MEASURED BEFORE THIS COMMENT WAS WRITTEN, because four unmeasured
+   figures went into this codebase wrong in a single day:
+     #1A1A18 on #C6F24E .......... 13.46
+     #2C3A24 on #C6F24E ........... 9.33
+   Control: #C6F24E on #D9F58A returns 1.07, so the function can fail.
+   ===================================================================== */
+.ccshelf{
+  display:flex; align-items:center; gap:10px;
+  padding:7px 13px;
+  background:#C6F24E;
+}
+.shsrc{
+  font-family:'Anton',Impact,sans-serif; font-size:12.5px; letter-spacing:.09em;
+  text-transform:uppercase; color:#1A1A18;
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap; min-width:0;
+}
+/* ⚠️ 11px, not the 9.5px this used to be over the picture. Under 11 is
+   below the legibility floor, and this is the line that tells somebody
+   what kind of thing they are about to watch. */
+.shcat{
+  flex:none; margin-left:auto;
+  font-family:'Courier Prime',monospace; font-size:11px; font-weight:700;
+  letter-spacing:.12em; text-transform:uppercase; color:#2C3A24;
+}
+
 .ccframe{ position:relative; width:100%; aspect-ratio:16/9; background:#0B0F0D; }
 .ccif{ position:absolute; inset:0; width:100%; height:100%; border:0; display:block; }
 
@@ -1568,10 +1614,15 @@ textarea:focus-visible{ outline:4px solid var(--x); outline-offset:3px; }
 }
 /* ⭐ Still says out loud that nothing has loaded. Quieter than before —
    it's a promise, not a warning, and it shouldn't shout over the title. */
+/* ⚠️ 11px, was 9.5px since August. Below 11 is under the legibility
+   floor, and this line is the one that explains why the card is not
+   playing yet — the person most likely to need it is the person who
+   cannot read 9.5px type. ⚠️ .ccflyer overrides this to 12px in
+   photos.css for the poster cards; that rule still wins and is correct. */
 .ccnote{
   position:absolute; left:14px; bottom:10px;
-  font-family:'Courier Prime',monospace; font-size:9.5px; letter-spacing:.07em;
-  color:rgba(255,255,255,.66);
+  font-family:'Courier Prime',monospace; font-size:11px; letter-spacing:.07em;
+  color:rgba(255,255,255,.72);
 }
 
 .ccbelow{
