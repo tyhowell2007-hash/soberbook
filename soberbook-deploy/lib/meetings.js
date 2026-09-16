@@ -291,7 +291,29 @@ function telFrom(phone, note) {
      doesn't fail politely, it calls a stranger. */
   if (num.length === 10) num = '1' + num;
 
-  let out = '+' + num;
+  /* 🔴🔴 `tel:` IS NOT DECORATION — IT IS THE WHOLE THING, AND IT WAS
+     MISSING FROM 20 AUG TO 16 SEPT. This function built a perfect dial
+     string — "+16465588656,,558544927#,,247247#" — and handed it to
+     List.jsx, which put it straight into href. A browser reads an href
+     with no scheme as a RELATIVE PATH, so tapping "Call in" navigated to
+     soberbook.app/+16465588656,,... and dialled nothing. No error, no
+     broken-link styling, a button that looks perfect and does nothing.
+
+     ⭐ It was found the night Ty was standing at the exact wall this
+     button exists to walk past: a member asked her circle if anyone was
+     joining a meeting, he said yes, and Zoom asked them both to sign in.
+     The escape hatch had never worked.
+
+     ⚠️ The 20 Aug note recorded the DIAL STRING and the scheme was lost
+     between the note and the code. Same family as every unmeasured
+     contrast figure: the value was right and never checked in place.
+
+     ⚠️ The scheme belongs HERE, not at the call site — this function's
+     job is to produce a dial URL, and a bare number returned from it is
+     a loaded gun for the next person who renders it. /help, /now and
+     /support all build their own `tel:` correctly; this was the only
+     one that didn't. */
+  let out = 'tel:+' + num;
 
   /* The meeting id, if the feed put one in the phone string or the note.
      9-11 digits is the Zoom id shape. */
