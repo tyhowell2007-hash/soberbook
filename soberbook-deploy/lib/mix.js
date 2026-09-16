@@ -239,6 +239,42 @@ export function mixFeed(posts = [], content = [], { every = EVERY, lonelyId = nu
     posts = posts.filter((p) => !celebIds.has(p.id));
   }
 
+  /* 📌 AN AD IS A POST NOW, SO IT CAN BE HEARTED AND REPLIED TO — 16 Sept.
+     Ty, three times: "I want people to be able to like it and comment on
+     them."
+
+     ⭐ NOTHING ABOUT WHERE ADS SIT CHANGES. The pin placement below is
+     untouched: newest opens the feed, the rest are spread one every four
+     posts, rule 1 still holds them back off the unanswered post. All that
+     changes is what gets EMITTED at those positions — a post row carrying
+     the poster, instead of a bare card. The post brings hearts, replies,
+     reporting and the ⋯ menu with it for free, which is the whole reason
+     an ad was made a post rather than growing a second likes table
+     (0164, and the drop pattern from 0058 before it).
+
+     🔴 THEY ARE PULLED OUT OF THE POST STREAM FIRST, exactly like the
+     celebrations above. An ad post is a real row in `posts`, so without
+     this it would render twice — once in its pinned position and again in
+     its chronological place — and the reader would rightly call that a
+     bug. Removed, never copied. */
+  const adByItem = new Map();
+  for (const p of posts) if (p.content_item_id) adByItem.set(p.content_item_id, p);
+  if (adByItem.size) posts = posts.filter((p) => !p.content_item_id);
+
+  /* An ad row is a POST row that happens to carry an item. Everything that
+     used to ask `type === 'content'` has to keep treating it as a card —
+     see isCard() below — or rule 3 stops seeing ads and starts stacking
+     two adverts together. */
+  const pinRow = (item, pinned = true) => {
+    const ad = adByItem.get(item.id);
+    return ad
+      ? { type: 'post', post: ad, item, pinned }
+      : { type: 'content', item, pinned };
+  };
+  /* ⚠️ `row.item` is the tell, not `row.type`. A post row with an item on it
+     is an advert and counts as a card for spacing; an ordinary post is not. */
+  const isCard = (row) => !!row && (row.type === 'content' || !!row.item);
+
   /* Taken out of the pool first so they can't also appear further down. */
   const pins = pickPins(content);
   const pinIds = new Set(pins.map((p) => p.id));
@@ -298,7 +334,7 @@ export function mixFeed(posts = [], content = [], { every = EVERY, lonelyId = nu
   const [leadPin, ...restPins] = pins;
   const pinsGoFirst = pins.length && !(posts[0] && posts[0].id === lonelyId);
   if (pinsGoFirst) {
-    out.push({ type: 'content', item: leadPin, pinned: true });
+    out.push(pinRow(leadPin));
   }
 
   /* How many posts between the remaining pins. ⚠️ Deliberately WIDER than
@@ -322,7 +358,7 @@ export function mixFeed(posts = [], content = [], { every = EVERY, lonelyId = nu
        top of it. ⚠️ Also guarded so it can't land on a second post if the
        wall is somehow empty above. */
     if (pins.length && !pinsGoFirst && i === 0) {
-      out.push({ type: 'content', item: leadPin, pinned: true });
+      out.push(pinRow(leadPin));
     }
     sincePost++;
     sincePin++;
@@ -338,8 +374,8 @@ export function mixFeed(posts = [], content = [], { every = EVERY, lonelyId = nu
        somewhere less visible. */
     if (pinQueue.length && sincePin >= PIN_EVERY) {
       const next = posts[i + 1];
-      if (!(next && next.id === lonelyId) && out[out.length - 1]?.type !== 'content') {
-        out.push({ type: 'content', item: pinQueue.shift(), pinned: true });
+      if (!(next && next.id === lonelyId) && !isCard(out[out.length - 1])) {
+        out.push(pinRow(pinQueue.shift()));
         sincePin = 0;
       }
     }
@@ -353,7 +389,7 @@ export function mixFeed(posts = [], content = [], { every = EVERY, lonelyId = nu
 
     /* RULE 3 — belt and braces. If the previous entry is already a card,
        don't add another, whatever the ratio says. */
-    if (out[out.length - 1]?.type === 'content') continue;
+    if (isCard(out[out.length - 1])) continue;
 
     out.push({ type: 'content', item: queue.shift() });
     sincePost = 0;
@@ -382,7 +418,7 @@ export function mixFeed(posts = [], content = [], { every = EVERY, lonelyId = nu
      onto a card, but it is NOT honoured between the flushed pins
      themselves. At that point the wall has run out of posts to separate
      them with, and the alternative is not showing them at all. */
-  for (const p of pinQueue) out.push({ type: 'content', item: p, pinned: true });
+  for (const p of pinQueue) out.push(pinRow(p));
 
   return out;
 }
