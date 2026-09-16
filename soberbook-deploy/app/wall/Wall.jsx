@@ -75,6 +75,13 @@ function loneliest(list) {
   const now = Date.now();
   const waiting = list.filter(
     (p) => !p.milestone_days
+        /* 🔴 AN ADVERT IS NEVER THE LONELY POST (0164). Without this line an
+           ad with no replies after two hours gets promoted by the one
+           mechanic this wall has — "nobody's answered this one yet" printed
+           over a poster. That sentence exists for a person who wrote
+           something hard and heard nothing back, and spending it on a
+           business is the single most grotesque thing this file could do. */
+        && !p.content_item_id
         && p.comment_count === 0
         && now - new Date(p.created_at).getTime() > TWO_HOURS
   );
@@ -92,6 +99,11 @@ function loneliest(list) {
    second one out loud, and only to other people. */
 function unanswered(p) {
   return !p.milestone_days
+    /* 🔴 And never an advert — same reason as loneliest() above (0164).
+       The two are separate questions and BOTH have to be guarded: one
+       chooses the promoted post, this one prints the sentence. Guarding
+       only one leaves the wall silently saying it about an ad. */
+    && !p.content_item_id
     && p.comment_count === 0
     && Date.now() - new Date(p.created_at).getTime() > TWO_HOURS;
 }
@@ -1669,6 +1681,12 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
                                 pinned={!!row.pinned} />;
           }
           const p = row.post;
+          /* 📌 AN AD ARRIVES AS A POST ROW CARRYING ITS ITEM (0164). The
+             mixer decides WHERE it sits — this only decides what is drawn
+             inside it. Everything else on the article below (header, ⋯,
+             reactions, replies) is the ordinary post chrome, untouched,
+             which is the entire reason an ad was made a post. */
+          const adItem = row.item || null;
           const w = weight(p, p.id === lonelyId);
           return (
             <article
@@ -1778,16 +1796,27 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
                 />
               )}
 
+              {/* 📌 THE AD ITSELF. Same move as the drop above: the card IS
+                  the post, so the body is suppressed rather than stacked on
+                  top of it. ⚠️ `pinned` is passed from the mixer, never read
+                  off item.pinned_at — several items are pinned and only one
+                  opens the feed; reading the column here would be a second
+                  implementation of that choice (0046 → 0049 → 0072). */}
+              {adItem && (
+                <ContentCard item={adItem} thumbBase={thumbBase}
+                             canHide={canHide} pinned={!!row.pinned} />
+              )}
+
               {/* A photo-only post has an empty body. Rendering the empty
                   paragraph anyway leaves a blank gap above the picture that
                   looks like text failed to load. */}
-              {p.body && !recs[p.id] ? <p className="bd"><Body text={p.body} tags={tags[p.id]} hl={didBroadcast.has(p.id)} /></p> : null}
+              {p.body && !recs[p.id] && !adItem ? <p className="bd"><Body text={p.body} tags={tags[p.id]} hl={didBroadcast.has(p.id)} /></p> : null}
 
               {/* ⭐ Aug 23. A member posted his music and the link came out
                   as plain text you had to copy and leave for. It plays
                   here now. ⚠️ Nothing loads until somebody taps — see
                   components/Linked.jsx. */}
-              {p.body && !recs[p.id] ? <Player text={p.body} /> : null}
+              {p.body && !recs[p.id] && !adItem ? <Player text={p.body} /> : null}
 
               {/* ---- who's tagged (0067) ----
                   ⚠️ "with" rather than "tagged": the word tagged belongs
