@@ -58,6 +58,53 @@ export const EVERY = 4;      // one card per this many posts
    by construction rather than by luck. */
 export const MAX_PER_SOURCE = 3;
 
+/* =====================================================================
+   🎉 THE CELEBRATION RIDES AT THE TOP.
+
+   Ty, 16 Sept: "I want this to come up automatically every time somebody is
+   celebrating a milestone in their life. I don't want to be the one
+   presenting it. It comes up by itself."
+
+   ⭐ THE PROBLEM IT SOLVES, MEASURED: Kenny's six-year post was FORTY-EIGHT
+   POSTS DOWN the wall by the time anybody looked. The celebration had been
+   built, it rendered perfectly, and it was three screens past where anyone
+   scrolls — which is the oldest failure in this project wearing a party hat.
+   A milestone is the one post with an expiry date on its meaning: answering
+   it a week late is not the same act.
+
+   🔴 IT IS NOT A PIN AND MUST NEVER BECOME ONE. A pin is Ty choosing that an
+   organisation should be seen. This is the app noticing a PERSON, and the
+   only thing that puts it here is that the member tapped "Share it" on their
+   own milestone. There is no hand-set column, no admin screen, and nothing
+   Ty has to do — that is the whole request.
+
+   ⚠️ TWENTY-FOUR HOURS, THEN IT SETTLES. It doesn't vanish; it stops being
+   floated and sits in the feed at the moment it was actually written, which
+   is where it belongs the next day. A celebration still at the top on
+   Thursday is furniture, and worse, it makes Thursday's person share the
+   spotlight with Tuesday's.
+
+   ⚠️ THREE AT MOST, NEWEST FIRST — and that number is measured, not picked.
+   Across the next twelve weeks there are 86 milestones, about 7 a week, and
+   23 days carry two or more; 25 October carries FIVE. On a five-milestone
+   day an uncapped rule would open the wall with five medals and push every
+   human sentence below the fold. Three is where a run of gold still reads as
+   a good day rather than as a takeover.
+
+   🔴 THE ONES OVER THE CAP ARE NOT DROPPED — they stay in the feed in their
+   ordinary chronological place, because they are posts somebody wrote, not
+   cards the feed chose. Nothing disappears; it just doesn't float. */
+export const CELEBRATION_HOURS = 24;
+export const MAX_CELEBRATIONS = 3;
+
+export function pickCelebrations(posts = [], now = Date.now()) {
+  const cutoff = now - CELEBRATION_HOURS * 3600 * 1000;
+  return posts
+    .filter((p) => p.milestone_days && new Date(p.created_at).getTime() >= cutoff)
+    .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+    .slice(0, MAX_CELEBRATIONS);
+}
+
 /* Round-robin by source, newest first within each. */
 export function fairOrder(items = []) {
   const bySource = new Map();
@@ -149,6 +196,22 @@ export function pickPin(content = []) {
 }
 
 export function mixFeed(posts = [], content = [], { every = EVERY, lonelyId = null } = {}) {
+  /* 🎉 THE CELEBRATIONS COME OUT OF THE POST STREAM FIRST.
+
+     ⚠️ Removed, not copied. Leaving them in place would put the same medal
+     at the top of the wall and again forty posts down — the reader's own
+     eyes would call that a bug, and they would be right.
+
+     ⚠️ They are placed ABOVE the lead pin. A pin is an advert somebody paid
+     attention to; this is a person. If the two ever compete for the opening
+     slot the person wins, and that ordering is not an accident of where
+     these lines sit. */
+  const celebrations = pickCelebrations(posts);
+  if (celebrations.length) {
+    const celebIds = new Set(celebrations.map((p) => p.id));
+    posts = posts.filter((p) => !celebIds.has(p.id));
+  }
+
   /* Taken out of the pool first so they can't also appear further down. */
   const pins = pickPins(content);
   const pinIds = new Set(pins.map((p) => p.id));
@@ -187,6 +250,24 @@ export function mixFeed(posts = [], content = [], { every = EVERY, lonelyId = nu
      ⚠️ Newest first is unchanged: pickPins() already sorts by pinned_at
      descending, so the one Ty pinned most recently is the one that opens
      the wall, and the older ones fall through the feed in order. */
+  /* 🔴 RULE 1 APPLIES TO THE CELEBRATION TOO, AND IT WAS THE HARDEST CALL
+     IN THIS FILE.
+
+     Rule 1 says nothing sits directly above the post the wall has promoted
+     for going unanswered. A medal is the most cheerful thing this app can
+     draw, and dropping it on top of somebody who wrote at 3am and got no
+     reply is the exact moment the only mechanic this app has is working —
+     so the celebration waits one place, the same way the pin does.
+
+     ⭐ It costs the celebrant almost nothing: second on the wall instead of
+     first. It saves the other person from scrolling past a party to find
+     out nobody answered them. That trade is not close. */
+  const celebsGoFirst =
+    celebrations.length && !(posts[0] && posts[0].id === lonelyId);
+  if (celebsGoFirst) {
+    for (const c of celebrations) out.push({ type: 'post', post: c, celebrated: true });
+  }
+
   const [leadPin, ...restPins] = pins;
   const pinsGoFirst = pins.length && !(posts[0] && posts[0].id === lonelyId);
   if (pinsGoFirst) {
@@ -203,6 +284,13 @@ export function mixFeed(posts = [], content = [], { every = EVERY, lonelyId = nu
 
   for (let i = 0; i < posts.length; i++) {
     out.push({ type: 'post', post: posts[i] });
+    /* 🎉 The displaced celebration, placed after the promoted post rather
+       than on top of it — and still ahead of the displaced pin, so the
+       person/advert ordering survives being bumped. */
+    if (celebrations.length && !celebsGoFirst && i === 0) {
+      for (const c of celebrations) out.push({ type: 'post', post: c, celebrated: true });
+    }
+
     /* The displaced stack, placed after the promoted post rather than on
        top of it. ⚠️ Also guarded so it can't land on a second post if the
        wall is somehow empty above. */
