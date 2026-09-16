@@ -211,8 +211,21 @@ export async function middleware(request) {
 
      ⚠️ It opens nothing. Like /delete-account it is a static document with
      no form and no route behind it. */
+  /* 🔴 /support IS OPEN, ADDED 15 SEPT, AND IT IS REQUIRED — NOT A
+     CONVENIENCE. Both stores demand a Support URL reachable WITHOUT the
+     app and WITHOUT an account, and Apple opens it during review.
+
+     ⚠️ THE PEOPLE WHO NEED IT MOST ARE THE ONES WITH NO SESSION. It is
+     the page for somebody locked out of their account — bouncing them
+     to the password box they already can't get past is the exact dead
+     end it exists to prevent. Third time this shape has bitten us
+     (/tour, /survey, now this), and every time it LOOKED fine because
+     it was tested while signed in. Test it signed out or don't test it.
+
+     🔴 THIS OPENS NOTHING. Static document, no form, no button, no
+     route behind it — same as /rules and /delete-account. */
   const open = ['/login', '/auth', '/reset', '/privacy', '/tour', '/survey',
-                '/delete-account', '/rules',
+                '/delete-account', '/rules', '/support',
                 '/api/push/send',
                 '/api/content/cron', '/api/email/notify', '/api/unsub', '/unsub'];
   const isOpen = open.some((p) => request.nextUrl.pathname.startsWith(p));
