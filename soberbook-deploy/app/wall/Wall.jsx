@@ -1946,8 +1946,31 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
                   now answer them. Support and Strength are directly
                   underneath, which is the ask — so this card deliberately
                   carries no button and no second prompt of its own. */}
+              {/* 🎉 16 SEPT — THE CARD NOW CARRIES WHOSE DAY IT IS.
+
+                  It floats to the top of the wall the day somebody accepts
+                  their milestone (pickCelebrations in lib/mix.js), and at
+                  the top of a feed the post header is no longer doing the
+                  work of saying who: a reader arriving at a medal above
+                  everything else needs the name ON it.
+
+                  ⚠️ display_avatar, NEVER display_avatar_photo. A signed
+                  photo URL dies after an hour and this is the first thing
+                  on the page, so a stale one would be the first broken
+                  image anybody sees — the 5 Sept expiry bug, landing in
+                  the worst possible spot. The emoji cannot expire.
+
+                  ⚠️ A milestone post is never anonymous (0015 refuses it in
+                  answerMilestone), so display_name here is always a real
+                  handle or display name — there is no alias case to
+                  handle, and adding a branch for one would be a rule this
+                  file invents that the database already forbids. */}
               {p.milestone_days ? (
-                <MilestoneCard days={p.milestone_days} />
+                <MilestoneCard
+                  days={p.milestone_days}
+                  name={p.display_name}
+                  face={p.display_avatar}
+                />
               ) : null}
 
               {/* ---- THE CONVERSATION, ON THE WALL ----
