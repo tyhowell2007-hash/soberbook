@@ -158,10 +158,59 @@ export default function MilestoneCard({ days, name, face }) {
             real one repeats itself. */}
         <p className="mshead">{parts.num} {parts.unit}.</p>
 
+        {/* 🎉 THE CONGRATULATION, 16 Sept. Ty: "just put congratulations to
+            Kenny Kearns on six years of sobriety."
+
+            ⚠️ IT ONLY APPEARS WITH A NAME, and that is the same condition as
+            the face row above. With no name this card is mounted inside a
+            post whose header already says who — congratulating somebody two
+            lines under their own byline reads like the app talking to itself.
+
+            ⚠️ IT SAYS WHAT THE DM SAYS. `milestone_words()` in 0161 sends
+            "Congrats on 6 years of sobriety!!!" as a private message on the
+            day; this is the public half of the same sentence, so a member who
+            gets both does not get two different framings of their own
+            milestone eight hours apart.
+
+            🔴 THE NAME IS WHATEVER THE FEED RESOLVED — the member's own
+            display name, never a real name we hold elsewhere. Ty asked for
+            "Kenny Kearns" and was shown the cost: a surname is not in this
+            app anywhere a member put it, and publishing one to 316 people
+            alongside the fact somebody is in recovery is a disclosure they
+            did not make. He chose the display name. Do not "improve" this by
+            reaching for a fuller name from any other source. */}
+        {name ? (
+          <p className="mscongrats">
+            Congratulations to {name} on{' '}
+            {[parts.num, parts.unit].filter(Boolean).join(' ')} of sobriety.
+          </p>
+        ) : null}
+
         <p className="msfine">
           Everybody here gets the same medal — day one or six years.
           That&apos;s on purpose.
         </p>
+
+        {/* 🔴 STOP THE CONFETTI — Ty, 16 Sept: "loop it until he stops it."
+
+            ⭐ IT IS A CHECKBOX AND A CSS RULE, NOT A HOOK, AND THAT IS THE
+            WHOLE REASON IT CAN EXIST HERE. This file has no 'use client' and
+            no state on purpose, so it can also render on /p/[id] as a server
+            component — the header at the top of this file says so, and says
+            that the moment it grows a hook that stops being true. A label
+            wrapping its own input needs no id (so three cards on one wall
+            cannot collide), and `.mscard:has(.msstopbox:checked)` freezes
+            that card's pieces and nobody else's.
+
+            ⚠️ IT IS NOT THE SAME THING AS prefers-reduced-motion, which is
+            already handled in milestone.css and is a standing instruction
+            from the device. This is for the person who simply wants it to
+            stop — and on a card that loops forever at the top of the wall,
+            not offering that is how a celebration turns into a nuisance. */}
+        <label className="msstop">
+          <input type="checkbox" className="msstopbox" />
+          <span>stop the confetti</span>
+        </label>
       </div>
     </div>
   );
