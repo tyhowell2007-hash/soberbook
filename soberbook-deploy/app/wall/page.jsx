@@ -80,7 +80,7 @@ export default async function WallPage() {
      the cap of three out of the feed entirely — and the standing rule is that
      an over-cap milestone still sits in the wall where its author wrote it.
      It is a post somebody made, not a card the feed conjured. */
-  const [{ data: recent, error }, { data: milestonePosts }] = await Promise.all([
+  const [{ data: recent, error }, { data: milestonePosts }, { data: adPosts }] = await Promise.all([
     supabase
       .from(assertReadable('feed_posts'))
       .select('*')
@@ -92,6 +92,18 @@ export default async function WallPage() {
       .not('milestone_days', 'is', null)
       .order('created_at', { ascending: false })
       .limit(MAX_CELEBRATIONS),
+    /* 📌 And the ad posts, for the same reason as the milestones above
+       (0164). An ad is pinned, so it is meant to be seen long after it
+       slides out of the newest-60 window — and if it is not in the array
+       the mixer cannot emit it, so the card would silently revert to a
+       plain content row with no hearts and no replies on it. That is the
+       3 Sept pin bug in a new costume. */
+    supabase
+      .from(assertReadable('feed_posts'))
+      .select('*')
+      .not('content_item_id', 'is', null)
+      .order('created_at', { ascending: false })
+      .limit(40),
   ]);
 
   /* ⚠️ Dedupe by id, keeping feed order. A milestone inside the last 60
@@ -100,7 +112,7 @@ export default async function WallPage() {
   const posts = (() => {
     const seen = new Set();
     const out = [];
-    for (const p of [...(recent || []), ...(milestonePosts || [])]) {
+    for (const p of [...(recent || []), ...(milestonePosts || []), ...(adPosts || [])]) {
       if (p && !seen.has(p.id)) {
         seen.add(p.id);
         out.push(p);
