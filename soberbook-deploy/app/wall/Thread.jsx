@@ -14,6 +14,28 @@ import PhotoUpload from '../components/PhotoUpload';
 import EmojiPicker from '../friends/EmojiPicker';
 import ReplyMenu from './ReplyMenu';
 import Shot from '../components/Shot';
+/* 🏅 ADDED 16 SEPT, AND THE REASON IS KENNY'S SIX YEARS.
+
+   The celebration shipped on 11 Sept to Wall.jsx and to Wall.jsx only. This
+   file — which renders BOTH the reply sheet on the wall AND the whole of
+   /p/[id], the destination of every reply and mention notification — had its
+   own idea about milestones: it printed `🏅 2191 days` where the author's
+   NAME goes, and drew no card at all.
+
+   🔴 SO THE ONE PLACE A MILESTONE POST IS MOST LIKELY TO BE OPENED WAS THE
+   ONE PLACE IT LOOKED WORST. You tap "Nic replied to your post", you land
+   here, and your six years is a raw integer standing where your name should
+   be. MilestoneCard's own header anticipated this exact route in writing —
+   "if a server surface ever wants to render a milestone (a post's own page
+   at /p/[id], say) this can go there untouched" — and then nobody wired it.
+
+   ⚠️ THIS IS THE 0046 → 0049 DRIFT, AND THE 11 SEPT NOTE CLAIMED IT WAS
+   ALREADY SOLVED: "markLabel()/markParts() are the ONE source and both
+   surfaces call them." True of the two surfaces inside Wall.jsx. False here,
+   and false in Friends.jsx, which carried a THIRD copy doing days/365. A
+   claim that a rule is written once has to be checked against every file
+   that renders it, not against the two you were looking at. */
+import MilestoneCard from './MilestoneCard';
 
 /* A post, opened.
    ==========================================================================
@@ -254,15 +276,34 @@ export default function Thread({ post, onClose, onCountChange }) {
 
       <div className="thread">
         <div className="threadbar">
-          <span className="tt">
-            {post.milestone_days ? `🏅 ${post.milestone_days} days` : post.display_name}
-          </span>
+          {/* ⚠️ THE NAME, ALWAYS. This used to be replaced by the day count
+              on a milestone post, which took Kenny's name off his own six
+              years. The milestone belongs in the card below, where there is
+              room to celebrate it; the bar's job is to say whose post this
+              is. An anonymous post already arrives here with display_name set
+              to its alias, so this line needs no branch. */}
+          <span className="tt">{post.display_name}</span>
           <button className="x" onClick={onClose} aria-label="Close">✕</button>
         </div>
 
         <div className="threadbody">
           <p className="orig"><Body text={post.body} tags={people} /></p>
           <Player text={post.body} />
+
+          {/* 🏅 THE SAME CARD THE WALL DRAWS, not a second version of it.
+
+              ⚠️ It renders only when milestone_days is set, and that number
+              is only ever written by a deliberate tap (0015 — the app asks
+              first and takes no for an answer). So the presence of the
+              number IS the consent, here exactly as on the wall. Nothing in
+              this file looks at a date and nothing here should start to.
+
+              ⚠️ ORDER MATTERS: under the words, above the timestamp. The
+              post is what the person said; the medal is the app answering
+              it. Putting the card first would make the app's decoration
+              louder than their sentence. */}
+          {post.milestone_days ? <MilestoneCard days={post.milestone_days} /> : null}
+
           <div className="origmeta">
             {ago(post.created_at)}{post.is_anonymous ? ' · anonymous' : ''}
           </div>
