@@ -865,6 +865,12 @@ export default function Landing() {
       <p className="lp-foot">
         Sober Book · a safe place to be yourself · all paths welcome
         {' · '}<a href="/privacy">privacy</a>
+        {/* ⚠️ /support IS THE WAY IN, AND IT IS HERE FOR ONE REASON:
+            the person who most needs it is SIGNED OUT. Locked out of the
+            account, reset link stale, no idea who to write to — and this is
+            the only page they can reach. A support page nobody can find is
+            the fourteenth "everything built except the way in". */}
+        {' · '}<a href="/support">support</a>
       </p>
     </div>
   );
