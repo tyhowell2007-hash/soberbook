@@ -10,6 +10,14 @@ import { browserClient } from '../../lib/supabase-browser';
    stylesheet needing the right layout applies to per-route sheets,
    and this one isn't.) */
 import Directory from '../chat/Directory';
+/* 🏅 ADDED 16 SEPT. This file was the THIRD copy of "what do we call N
+   days" — it did Math.round(days / 365) inline, with its own guess at
+   when to add an 's'. 365 rather than 365.25 happens to survive to about
+   year fifty, so it was never wrong on screen; that is luck, not a rule.
+   What actually mattered was that the Coming-up row and the badge on the
+   post could print two different words for one milestone. markLabel is
+   the one answer. */
+import { markLabel } from '../../lib/milestones';
 
 /* =====================================================================
    YOUR PEOPLE — sorted by silence.
@@ -235,9 +243,11 @@ export default function Friends({ initialFriends, initialRequests, everyone = []
                   <span className="frmeta">
                     <span className="frname">{p.display_name}</span>
                     <span className="frwhen">
-                      {p.milestone_days >= 365
-                        ? `${Math.round(p.milestone_days / 365)} year${p.milestone_days >= 730 ? 's' : ''}`
-                        : `${p.milestone_days} days`}
+                      {/* ⚠️ markLabel, never local arithmetic. It already
+                          falls back to a plain "N days" for anything that
+                          isn't a real mark, so there is no second branch to
+                          keep in step with the first. */}
+                      {markLabel(p.milestone_days) || `${p.milestone_days} days`}
                       {' '}on {new Date(p.milestone_date + 'T12:00:00')
                         .toLocaleDateString('en-US', { weekday: 'long' })}
                     </span>
