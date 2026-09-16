@@ -17,6 +17,10 @@ import { fetchBroadcasts } from '../../lib/highlights';
 import { buildIndex, findMentions, activeQuery, suggest, saysHighlight } from '../../lib/mentions';
 import { mixFeed } from '../../lib/mix';
 import ContentCard from '../components/ContentCard';
+/* 🔴 The wall's post list is fetched in ONE place now — see lib/feed-posts.js.
+   These three client re-fetches used to be plain limit(60) queries, which
+   silently threw away the celebrations and the ads on the first refresh. */
+import { fetchFeedPosts } from '../../lib/feed-posts';
 import DropCard from '../components/DropCard';
 import DropSheet from './DropSheet';
 import PushAsk from '../components/PushAsk';
@@ -668,8 +672,7 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
   // their post and moves it to whoever has been waiting next longest.
   // The layout is the promise.
   async function refresh() {
-    const { data } = await supabase
-      .from('feed_posts').select('*').order('created_at', { ascending: false }).limit(60);
+    const { posts: data } = await fetchFeedPosts(supabase);
     if (data) {
       setPosts(data);
       setOpen((o) => (o ? data.find((p) => p.id === o.id) || o : o));
@@ -814,8 +817,7 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
         });
         if (error) throw error;
 
-        const { data } = await supabase
-          .from('feed_posts').select('*').order('created_at', { ascending: false }).limit(60);
+        const { posts: data } = await fetchFeedPosts(supabase);
         setPosts(data || []);
       }
 
@@ -983,8 +985,7 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
       setPhotoDropped(false);
       setAudience('open');
       // re-read through the VIEW, never the base table
-      const { data } = await supabase
-        .from('feed_posts').select('*').order('created_at', { ascending: false }).limit(60);
+      const { posts: data } = await fetchFeedPosts(supabase);
       setPosts(data || []);
       /* ⚠️ The record has to be re-read HERE, in the same breath as the
          posts. router.refresh() also refetches it, eventually — and
