@@ -78,29 +78,56 @@ export const MAX_PER_SOURCE = 3;
    own milestone. There is no hand-set column, no admin screen, and nothing
    Ty has to do — that is the whole request.
 
-   ⚠️ TWENTY-FOUR HOURS, THEN IT SETTLES. It doesn't vanish; it stops being
-   floated and sits in the feed at the moment it was actually written, which
-   is where it belongs the next day. A celebration still at the top on
-   Thursday is furniture, and worse, it makes Thursday's person share the
-   spotlight with Tuesday's.
+   🔴 THERE IS NO EXPIRY, AND THAT IS TY'S CALL, MADE 16 SEPT WITH THE COST
+   IN FRONT OF HIM: "we're going to leave those cards up there because I think
+   it's a great way to start a conversation and to celebrate something very
+   important… anytime somebody hits a milestone, we have to celebrate this
+   exact way."
+
+   ⚠️ THIS REPLACES A 24-HOUR WINDOW, AND THE OLD NUMBER WAS WRONG ON
+   ARITHMETIC, NOT PRINCIPLE. It was written from the worry that a card still
+   at the top on Thursday is furniture — true in an app where milestones
+   arrive daily. They do not. TWO milestone posts exist in this app's entire
+   life, six weeks apart, because the offer only fires if you happen to open
+   the app on the exact day (see 0161). At that rate a 24-hour window put a
+   medal on the wall roughly one day in nine, and almost every member would
+   have gone their whole time here without once seeing that this exists.
+
+   ⭐ SO THE CAP IS NOW THE ONLY LIMIT, AND IT IS DOING ALL THE WORK. With no
+   expiry the top of the wall carries the three most recent milestones, and
+   they turn over as new ones land rather than on a clock. Nothing is ever
+   hand-placed and nothing is ever taken down by a person — the same rule
+   that put a card up is the only thing that moves it.
+
+   🔴 THE COST, RECORDED SO NOBODY THINKS IT WAS MISSED: three cards is real
+   estate, roughly two phone screens of gold before the first human sentence
+   on a full day. Rule 1 below still protects the unanswered post, so nobody
+   scrolls past a party to find out nobody answered them — but if the wall
+   ever feels top-heavy, MAX_CELEBRATIONS is the number to move, not the
+   expiry. Putting a clock back on it takes the feature back to invisible.
 
    ⚠️ THREE AT MOST, NEWEST FIRST — and that number is measured, not picked.
    Across the next twelve weeks there are 86 milestones, about 7 a week, and
    23 days carry two or more; 25 October carries FIVE. On a five-milestone
    day an uncapped rule would open the wall with five medals and push every
-   human sentence below the fold. Three is where a run of gold still reads as
-   a good day rather than as a takeover.
+   human sentence below the fold.
 
    🔴 THE ONES OVER THE CAP ARE NOT DROPPED — they stay in the feed in their
    ordinary chronological place, because they are posts somebody wrote, not
-   cards the feed chose. Nothing disappears; it just doesn't float. */
-export const CELEBRATION_HOURS = 24;
+   cards the feed chose. Nothing disappears; it just doesn't float.
+
+   🔴 AND THE FEED WINDOW IS WHAT MAKES "no expiry" A LIE IF NOBODY GUARDS IT.
+   `app/wall/page.jsx` reads the newest 60 posts. A milestone that falls off
+   the bottom of that window cannot be floated by this function, because it
+   is not in the array — so the card would go dark on a timer nobody set,
+   which is the 3 Sept pin bug. page.jsx fetches milestone posts in their own
+   query for exactly this reason. If that second query is ever "tidied away",
+   this comment is the thing that was true and stopped being true. */
 export const MAX_CELEBRATIONS = 3;
 
-export function pickCelebrations(posts = [], now = Date.now()) {
-  const cutoff = now - CELEBRATION_HOURS * 3600 * 1000;
+export function pickCelebrations(posts = []) {
   return posts
-    .filter((p) => p.milestone_days && new Date(p.created_at).getTime() >= cutoff)
+    .filter((p) => p.milestone_days)
     .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
     .slice(0, MAX_CELEBRATIONS);
 }
