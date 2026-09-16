@@ -98,6 +98,42 @@
   color:var(--gold-ink); margin-top:2px;
 }
 
+/* 🎉 WHOSE DAY IT IS — 16 Sept, when the card started floating to the top of
+   everybody's wall instead of sitting under its own author's name.
+
+   ✅ MEASURED BEFORE THIS COMMENT WAS WRITTEN, on the real surfaces:
+     the name, var(--x) on the card var(--gl)
+       light  #1C2320 on #E8F4ED ... 14.19      (text, floor 4.5)
+       dark   #E8EFE9 on #1E2C25 ... 12.45
+     the face ring, var(--gold-ring) on var(--paper2)
+       light  #BA7517 on #FFFFFF ...  3.72      (a 2px ring — a graphic,
+       dark   #E8B75C on #18211C ...  8.92       floor 3.0, same call as
+                                                 the 5px medal ring above)
+     control, #E8F4ED on #FFFFFF ...  1.13      — the check can fail.
+
+   ⚠️ THE NAME IS var(--x), NOT GOLD. Everything else on this card is gold
+   because the gold IS the celebration; the person's name is the one piece of
+   information on it that has to be read rather than admired, and gold ink at
+   17px on a pale wash is the weakest type here. It is also the only line that
+   must survive somebody skimming past at speed. */
+.mswho{
+  display:flex; align-items:center; justify-content:center;
+  gap:9px; margin:0 0 14px;
+}
+.mswho .pa{
+  width:36px; height:36px; border-radius:50%;
+  background:var(--medal-face);
+  border:2px solid var(--gold-ring);
+  display:flex; align-items:center; justify-content:center;
+  font-size:18px; line-height:1; flex:none;
+}
+.mswho b{
+  font-size:17px; font-weight:800; color:var(--x);
+  /* ⚠️ A long display name must not shove the face off the card. It wraps
+     rather than overflowing, and the flex row stays centred either way. */
+  min-width:0; overflow-wrap:anywhere;
+}
+
 .mshead{
   font-size:28px; font-weight:800; line-height:1.15;
   color:var(--gold-ink);
