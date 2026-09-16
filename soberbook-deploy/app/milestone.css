@@ -139,10 +139,64 @@
   color:var(--gold-ink);
   margin:0 0 8px;
 }
+/* 🎉 THE CONGRATULATION — 16 Sept. Ty: "just put congratulations to Kenny
+   on six years of sobriety."
+
+   ✅ NO NEW COLOUR WAS INVENTED HERE, AND THAT IS DELIBERATE. It is
+   var(--gold-ink) on var(--gl) — the identical pair the headline above
+   already uses, measured at the top of this file and re-run before this
+   comment was written: 5.96 light, 9.35 dark, floor 4.5, control 1.13.
+   Seven contrast figures have been typed into comments in this project
+   before being run and two of them were failures; reusing a measured pair
+   is the cheapest way not to be the eighth.
+
+   ⚠️ Sized between the headline (28px) and the fine print (13px) on
+   purpose. It is the sentence a member is meant to read and answer — the
+   headline is the shout, this is the room speaking. */
+.mscongrats{
+  font-size:16px; font-weight:700; line-height:1.45;
+  color:var(--gold-ink);
+  margin:0 auto 10px; max-width:30ch;
+}
+
 .msfine{
   font-size:13px; line-height:1.45;
   color:var(--gm-t);
   margin:0 auto; max-width:30ch;
+}
+
+/* 🔴 STOP THE CONFETTI. Ty, 16 Sept: "loop it until he stops it."
+
+   ⭐ NO JAVASCRIPT AND NO STATE — a checkbox and a :has() rule. That is not
+   cleverness for its own sake: MilestoneCard.jsx has no 'use client' and no
+   hooks on purpose so it can also render on /p/[id] as a server component,
+   and a React state toggle would quietly end that. The label WRAPS its own
+   input so there is no id to collide when three cards sit on one wall.
+
+   ⚠️ :has() is scoped to .mscard, so stopping one card's confetti does not
+   freeze the other two. A bare `.msbit` rule would.
+
+   ⚠️ 44px tap target, matching every other control in the app. A 13px line
+   of text is not a button on a phone.
+
+   ✅ MEASURED, not recalled: var(--gm-t) on var(--gl) is 5.38 light and
+   10.79 dark, the same pair .msfine uses. Floor 4.5.
+
+   ⚠️ The native checkbox is left visible rather than hidden behind a styled
+   span. It is reachable by keyboard and announced by a screen reader for
+   free, and a celebration card is the wrong place to get clever with a
+   control somebody might actually need. */
+.msstop{
+  display:flex; align-items:center; justify-content:center; gap:7px;
+  min-height:44px; margin:6px 0 0;
+  font-size:13px; color:var(--gm-t);
+  cursor:pointer;
+}
+.msstop input{ width:14px; height:14px; margin:0; cursor:pointer; }
+
+.mscard:has(.msstopbox:checked) .msbit{
+  animation:none;
+  opacity:.45;
 }
 
 /* ============================================================================
