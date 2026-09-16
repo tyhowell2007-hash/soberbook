@@ -23,6 +23,13 @@ import CircleCard from './CircleCard';
    client reference rather than a function — calling it threw a
    server-side exception on every wall load. See lib/open-room.js. */
 import { pickRoom } from '../../lib/open-room';
+/* 🎉 The cap, imported rather than restated. The second query below fetches
+   exactly as many milestone posts as the feed can ever float — and if that
+   number changes, it changes in ONE place. A literal 3 here is the 0046 →
+   0049 drift: a rule written twice, where the second copy goes stale.
+   ⚠️ A NAMED import is safe because lib/mix.js is not a 'use client' module
+   (checked, not assumed — that is the 2 Sept bug that took /wall down). */
+import { MAX_CELEBRATIONS } from '../../lib/mix';
 
 export const dynamic = 'force-dynamic';
 
@@ -45,13 +52,62 @@ export default async function WallPage() {
     .eq('id', user.id).maybeSingle();
   if (!profile) redirect('/welcome');
 
-  // RULE 1: reads go through the view. assertReadable() makes the rule
-  // visible here as well as enforced in the database.
-  const { data: posts, error } = await supabase
-    .from(assertReadable('feed_posts'))
-    .select('*')
-    .order('created_at', { ascending: false })
-    .limit(60);
+  /* RULE 1: reads go through the view. assertReadable() makes the rule
+     visible here as well as enforced in the database.
+
+     🔴 TWO QUERIES, AND THE SECOND ONE IS NOT AN OPTIMISATION — IT IS THE
+     ONLY THING THAT MAKES "the celebration stays up" TRUE. Ty, 16 Sept:
+     "we're going to leave those cards up there… anytime somebody hits a
+     milestone, we have to celebrate this exact way."
+
+     The feed window is the newest 60 posts, which at current traffic is
+     about a week. A milestone card floats because `pickCelebrations` finds
+     the post in this array — so with one query, "it stays at the top
+     forever" would silently mean "until it falls off the bottom of 60", and
+     it would go dark on a timer nobody set. Kenny's six-year post was
+     already at position 48 when this was written: it had about two days
+     left before the card vanished with no error and no way to notice.
+
+     ⭐ THIS IS THE 3 SEPT PIN BUG, ARRIVING FROM A NEW DIRECTION. The org
+     posters went dark for a week for exactly this reason — a recency window
+     and a hand-placed item cannot share a query, because the thing that
+     posts twelve times a week always wins. A milestone is not hand-placed,
+     but it is chosen by a RULE rather than by recency, and that is the same
+     collision.
+
+     ⚠️ The milestone query is NOT excluded from the main one, and the merge
+     dedupes by id instead. Excluding them would drop any milestone post over
+     the cap of three out of the feed entirely — and the standing rule is that
+     an over-cap milestone still sits in the wall where its author wrote it.
+     It is a post somebody made, not a card the feed conjured. */
+  const [{ data: recent, error }, { data: milestonePosts }] = await Promise.all([
+    supabase
+      .from(assertReadable('feed_posts'))
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(60),
+    supabase
+      .from(assertReadable('feed_posts'))
+      .select('*')
+      .not('milestone_days', 'is', null)
+      .order('created_at', { ascending: false })
+      .limit(MAX_CELEBRATIONS),
+  ]);
+
+  /* ⚠️ Dedupe by id, keeping feed order. A milestone inside the last 60
+     appears in both lists, and rendering somebody's medal twice on one
+     screen is worse than not floating it at all. */
+  const posts = (() => {
+    const seen = new Set();
+    const out = [];
+    for (const p of [...(recent || []), ...(milestonePosts || [])]) {
+      if (p && !seen.has(p.id)) {
+        seen.add(p.id);
+        out.push(p);
+      }
+    }
+    return out;
+  })();
 
   /* Every photo on the page signed in ONE round trip, before render.
      ⚠️ Done here on the server rather than in the browser on purpose: a
