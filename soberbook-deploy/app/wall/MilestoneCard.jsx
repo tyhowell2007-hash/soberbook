@@ -65,7 +65,29 @@ const BITS = [
   { l: '97%', d: '1.6s',  t: '3.8s', c: 'var(--gold-ink)',  r: '' },
 ];
 
-export default function MilestoneCard({ days }) {
+/* 🎉 `name` AND `face` ADDED 16 SEPT. Ty: "I want this to come up automatically
+   every time somebody is celebrating a milestone in their life. I don't want to
+   be the one presenting it. It comes up by itself."
+
+   ⭐ WHAT CHANGED IS WHO THE CARD IS FOR. It used to sit under its own author's
+   name in the post header, so the card itself never needed to say who — the
+   header had already said it two lines up. Now the card floats to the TOP of
+   everybody's wall (see pickCelebrations in lib/mix.js), and at the top of a
+   feed a medal with no name on it is a medal belonging to nobody.
+
+   ⚠️ BOTH ARE OPTIONAL AND THE CARD RENDERS WITHOUT THEM. It is still mounted
+   inside a post on /p/[id] and in the reply sheet, where the header is right
+   there and repeating the name would be noise. Passing nothing is a supported
+   state, not a bug to defend against.
+
+   🔴 THERE IS NO CONSENT DECISION IN THIS FILE AND THERE MUST NOT BE ONE.
+   `milestone_days` is only ever written by a deliberate tap (0015 — the app
+   asks first and takes no for an answer), so the presence of the number IS the
+   permission, exactly as it was before. Ty was shown the version that announces
+   every milestone without asking and chose to keep the ask: a public day count
+   is what `[C] Building for Women.md` calls the sharpest risk in the app, and
+   "somebody — 30 days" broadcast to 316 people is that signal precisely. */
+export default function MilestoneCard({ days, name, face }) {
   const parts = markParts(days);
 
   /* A milestone we cannot name is not a milestone we celebrate quietly with a
@@ -99,6 +121,28 @@ export default function MilestoneCard({ days }) {
           <span>MILESTONE</span>
           <span className="msrule" aria-hidden="true" />
         </div>
+
+        {/* 🎉 WHOSE DAY IT IS — above the medal, never below it.
+
+            ⚠️ THE ORDER IS THE POINT. Name first, then the number. The other
+            way round the card announces a quantity and then discloses who it
+            belongs to, which is how a leaderboard reads. This reads like
+            somebody being introduced.
+
+            ⚠️ The face is whatever the feed already resolved — the emoji, or
+            the default 🌱. It is NOT the photo avatar: a signed photo URL
+            expires in an hour and this card is the first thing on the wall,
+            so a dead image would be the first thing anybody sees. The emoji
+            never expires. (See the 5 Sept expiry bug.)
+
+            ⚠️ aria-hidden on the face, and the NAME carries the meaning — a
+            screen reader saying "seedling Kenny K" is worse than "Kenny K". */}
+        {name ? (
+          <div className="mswho">
+            <span className="pa" aria-hidden="true">{face || '🌱'}</span>
+            <b>{name}</b>
+          </div>
+        ) : null}
 
         {/* THE MEDAL. Same gold, same 116px, day one to six years — the
             engraving is the only thing that changes. See milestone.css for
