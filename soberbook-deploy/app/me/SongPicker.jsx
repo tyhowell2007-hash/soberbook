@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef } from 'react';
-import { youtubeId as ytId } from '../../lib/links';
+import { youtubeId as ytId, spotifyTrackId as spId } from '../../lib/links';
 
 /* Pick your song in two steps: type a name, tap a result.
 
@@ -51,6 +51,16 @@ const SEARCH = 'https://itunes.apple.com/search';
    one, which is the entire point on this app. */
 const LOOKUP = 'https://itunes.apple.com/lookup';
 
+/* ⭐ SPOTIFY, WITHOUT A KEY. Their Web API is shut to an app this size —
+   Development Mode allows FIVE authorised users and the quota that lifts
+   it wants 250,000 monthly actives — so the search above stays Apple's.
+   But oembed is open to anyone, answers `access-control-allow-origin: *`
+   and hands back a title and a sleeve for a link somebody already has.
+   That is the whole Spotify road, and it needs no secret to walk it.
+
+   ⚠️ It cannot SEARCH. It only ever describes a link you give it. */
+const OEMBED = 'https://open.spotify.com/oembed';
+
 /* Names compared with the punctuation and case thrown away, because
    "JORDAN CRUZ", "Jordan Cruz" and "jordan-cruz" are one person. */
 const bare = (s) => (s || '').toLowerCase().replace(/[^a-z0-9]/g, '');
@@ -71,6 +81,9 @@ export default function SongPicker({ value, onPick, disabled }) {
   const [err, setErr] = useState('');
   const [ytText, setYtText] = useState('');
   const [ytErr, setYtErr] = useState('');
+  const [spText, setSpText] = useState('');
+  const [spErr, setSpErr] = useState('');
+  const [spBusy, setSpBusy] = useState(false);
 
   /* ⚠️ THE SEARCH NOW MAKES UP TO FOUR REQUESTS PER KEYSTROKE-BURST and
      they do not come back in the order they left. The debounce below
@@ -185,6 +198,56 @@ export default function SongPicker({ value, onPick, disabled }) {
     onPick({ ...value, anthem_youtube: id });
   }
 
+  /* THE SPOTIFY FIELD.
+
+     ⚠️ The id alone is enough to PLAY the song. Everything after it here
+     is only so that somebody who pasted a link WITHOUT searching first
+     still ends up with a title and a sleeve — which is the artist, every
+     time. So the oembed call is allowed to fail quietly: a song that
+     plays under the word "Untitled" beats a refusal. */
+  async function onSp(text) {
+    setSpText(text);
+    if (!text.trim()) {
+      setSpErr('');
+      onPick({ ...value, anthem_spotify: null });
+      return;
+    }
+    const id = spId(text);
+    if (!id) {
+      setSpErr('That doesn\u2019t look like a Spotify track link. In Spotify, tap the \u22ef on the song \u2192 Share \u2192 Copy link.');
+      return;
+    }
+    setSpErr('');
+
+    const next = { ...value, anthem_spotify: id };
+
+    if (!value?.anthem_url) {
+      next.anthem_url = `https://open.spotify.com/track/${id}`;
+      setSpBusy(true);
+      try {
+        const r = await fetch(`${OEMBED}?url=${encodeURIComponent(next.anthem_url)}`);
+        if (r.ok) {
+          const d = await r.json();
+          /* ⚠️ 120 is the database's own cap on anthem_title. Trimming
+             here rather than letting the save bounce means the limit is
+             felt as a shorter title, not as a red error on a field the
+             member never typed into. */
+          if (d.title) next.anthem_title = String(d.title).slice(0, 120);
+          /* ⚠️ oembed gives NO artist as its own field — only the track
+             title — so a Spotify-only pick reads "Song" where an Apple
+             pick reads "Song \u2014 Artist". Worth knowing before somebody
+             files it as a bug. */
+          if (d.thumbnail_url) next.anthem_art = d.thumbnail_url;
+        }
+      } catch {
+        /* Deliberately silent. See the note at the head of this function. */
+      }
+      setSpBusy(false);
+    }
+
+    onPick(next);
+  }
+
   function choose(t) {
     setYtText(''); setYtErr('');
     onPick({
@@ -274,6 +337,27 @@ export default function SongPicker({ value, onPick, disabled }) {
           {ytErr && <div className="err">{ytErr}</div>}
           {value.anthem_youtube && !ytErr && (
             <div className="ok">Got it — visitors will hear the whole song.</div>
+          )}
+
+          {/* ---- or Spotify ---- */}
+          <label htmlFor="sp" style={{ marginTop: 16 }}>
+            Paste the Spotify link {value.anthem_spotify ? '' : '(optional)'}
+          </label>
+          <input
+            id="sp" type="text" disabled={disabled}
+            autoComplete="off" spellCheck={false}
+            placeholder="https://open.spotify.com/track/…"
+            value={spText}
+            onChange={(e) => onSp(e.target.value)}
+          />
+          <p className="hint">
+            {spBusy ? 'Reading it…' : 'If it\u2019s your own music, this is the one to use.'}
+            {' '}Visitors signed in to Spotify hear the whole song; everyone else
+            gets a preview. Nothing loads from Spotify until somebody taps play.
+          </p>
+          {spErr && <div className="err">{spErr}</div>}
+          {value.anthem_spotify && !spErr && (
+            <div className="ok">Got it — your page will play it from Spotify.</div>
           )}
         </>
       )}
