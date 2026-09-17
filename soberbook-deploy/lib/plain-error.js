@@ -74,6 +74,7 @@ const BY_CONSTRAINT = {
      knew how to say is lost by centralising. */
   anthem_url_shape:         'That link isn\u2019t one we can play. Use a share link from Spotify, YouTube or Apple Music \u2014 it should start with https://',
   anthem_youtube_shape:     'That doesn\u2019t look like a YouTube link we can read.',
+  anthem_spotify_shape:     'That doesn\u2019t look like a Spotify track link we can read.',
   handle_shape:             'Handles can use letters, numbers and underscores, three characters or more.',
   lifetime_days_sane:       'That number looks too big to be right.',
   comments_body_check:      'A reply needs at least one character, and up to 2,000.',
