@@ -162,6 +162,7 @@ export default function Me({ email, profile, posts, initialAvatarUrl,
     anthem_art: profile.anthem_art || null,
     anthem_preview: profile.anthem_preview || null,
     anthem_youtube: profile.anthem_youtube || null,
+    anthem_spotify: profile.anthem_spotify || null,
   });
   const [auto, setAuto] = useState(!!profile.autoplay_songs);
   const [note, setNote] = useState('');       // the one status line, shared
@@ -1902,7 +1903,13 @@ export default function Me({ email, profile, posts, initialAvatarUrl,
 
           <button className="btn" type="button"
                   disabled={busy || song.anthem_url === (profile.anthem_url || null)
-                            && song.anthem_youtube === (profile.anthem_youtube || null)}
+                            && song.anthem_youtube === (profile.anthem_youtube || null)
+                            /* ⚠️ Without this line Save stays greyed out for
+                               somebody who changed ONLY their Spotify link —
+                               the button is the thing that tells them the edit
+                               counted, so a stale comparison reads as "it
+                               didn't take". */
+                            && song.anthem_spotify === (profile.anthem_spotify || null)}
                   onClick={() => save(song, song.anthem_url
                     ? 'Song saved. It\u2019s on your page now.' : 'Song removed.')}>
             {busy ? 'Saving…' : 'Save song'}
@@ -1912,7 +1919,7 @@ export default function Me({ email, profile, posts, initialAvatarUrl,
             <button className="nvm" type="button" disabled={busy}
                     onClick={() => setSong({ anthem_url: null, anthem_title: null,
                                              anthem_art: null, anthem_preview: null,
-                                             anthem_youtube: null })}>
+                                             anthem_youtube: null, anthem_spotify: null })}>
               take my song off my page
             </button>
           )}
