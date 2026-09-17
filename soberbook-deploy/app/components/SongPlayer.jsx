@@ -77,7 +77,12 @@ export default function SongPlayer({ song, whose, big = false, autoplay = false 
   const [, bump] = useState(0);          // re-render when the floor changes
 
   const canPreview = !!song?.anthem_preview;
-  const canFull    = !!song?.anthem_youtube;
+  /* ⚠️ EITHER ROAD COUNTS. Spotify came second, so the temptation is to
+     leave this reading anthem_youtube and add a separate branch further
+     down — which renders the chip for a YouTube song and hides it for a
+     Spotify one, so the whole feature is invisible to exactly the people
+     it was built for. One question, asked once. */
+  const canFull    = !!(song?.anthem_spotify || song?.anthem_youtube);
 
   /* wireUp() used to live here, building an AudioContext per instance.
      Deleted rather than left alongside — lib/song-audio.js is now the only
@@ -331,7 +336,32 @@ export default function SongPlayer({ song, whose, big = false, autoplay = false 
             iframe loads the instant the page does, so merely LOOKING at
             a profile would announce this browser to Google before a note
             played. On a recovery app that is not an acceptable default. */}
-        {stage === 'full' && (
+        {stage === 'full' && (song.anthem_spotify ? (
+          /* SPOTIFY'S EMBED. ⚠️ Same rule as the YouTube one above and it
+             matters MORE here: one plain request to Spotify's oembed came
+             back setting `sp_t` and `sp_landing` cookies, so an iframe
+             mounted on page load would announce every visitor to a
+             profile before a note played. It is only ever built after a
+             tap, which is what `stage === 'full'` means.
+
+             ⚠️ NO autoplay flag, and that is not an oversight: Spotify
+             ignores one from a cross-origin frame, so asking for it only
+             promises something we cannot deliver. The tap that opened
+             this frame is the tap; the play button inside it is theirs.
+
+             ⭐ Reuses .sfull rather than earning a class of its own — the
+             embed reflows to whatever box it is given, and a new class
+             here is a new rule that check-css-coverage would have to be
+             told about on five routes. */
+          <iframe
+            className="sfull"
+            src={`https://open.spotify.com/embed/track/${song.anthem_spotify}`}
+            title={title}
+            allow="encrypted-media; clipboard-write; picture-in-picture"
+            loading="lazy"
+            referrerPolicy="strict-origin-when-cross-origin"
+          />
+        ) : (
           <iframe
             className="sfull"
             src={`https://www.youtube-nocookie.com/embed/${song.anthem_youtube}?autoplay=1&rel=0&modestbranding=1&playsinline=1`}
@@ -340,7 +370,7 @@ export default function SongPlayer({ song, whose, big = false, autoplay = false 
             allowFullScreen
             referrerPolicy="strict-origin-when-cross-origin"
           />
-        )}
+        ))}
 
         {stage !== 'full' && (
           <>
