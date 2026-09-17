@@ -16,6 +16,19 @@
    shipped on Aug 19 with no way out of it. */
 import '../theme-green.css';
 import '../pledge.css';
+/* 🔴 IMPORTED FOR EXACTLY ONE RULE: .tenth-door, the 10th-step doorway on
+   the pledge card — and /checkin renders <Pledge />, so it needs this line
+   just as much as app/wall/layout.jsx does.
+
+   It shipped without it. The link was still there and still worked; it
+   simply had no rule, so it rendered as plain text and lost
+   `min-height: 44px`, which on a phone means the tap target shrank to the
+   height of one line of type. Nothing errored, nothing looked broken
+   enough to report — the exact silent-failure shape .phserr had on
+   /meetings for weeks, and the shape the note in wall/layout.jsx warns
+   about in capitals. Found by check-css-coverage.py, which is the only
+   reason anybody found it at all. */
+import '../tenth.css';
 import NavBar from '../components/NavBar';
 
 export default function CheckinLayout({ children }) {
