@@ -27,6 +27,43 @@ import { youtubeId as ytId } from '../../lib/links';
    like the right trade, but it IS a trade and the UI says so. */
 const SEARCH = 'https://itunes.apple.com/search';
 
+/* 🔴 THE SECOND ENDPOINT, AND THE WHOLE REASON THIS FILE CHANGED.
+
+   Jordan Cruz, 16 Sept: "it's the player that isn't pulling mine up for
+   some reason idk why." He was right, and it was ours.
+
+   `search?term=…&entity=song` matches the words against SONG TITLES as
+   well as artist names, then ranks by popularity. Typing "Jordan Cruz"
+   returned, in order: a DIFFERENT artist of the same name, a children's
+   record, and three copies of a band's song that is literally TITLED
+   "Jordan Cruz". Six slots, none of them his — while his own thirteen
+   tracks sat one lookup away.
+
+   ⚠️ `attribute=artistTerm` IS NOT THE FIX, and it is the obvious thing
+   to reach for. Tried at limit=25: still no sign of him, because the
+   fuzzy match spends the slots on Jordan Critz and friends. Verified
+   against the live API before this was written, not assumed.
+
+   ⭐ What DOES work is asking a narrower question. `entity=musicArtist`
+   returns ARTISTS, and there he is, first. Then /lookup with his artist
+   id returns his catalogue exactly — no ranking, no guessing, no ceiling.
+   An unsigned artist with fifty listeners resolves the same as a famous
+   one, which is the entire point on this app. */
+const LOOKUP = 'https://itunes.apple.com/lookup';
+
+/* Names compared with the punctuation and case thrown away, because
+   "JORDAN CRUZ", "Jordan Cruz" and "jordan-cruz" are one person. */
+const bare = (s) => (s || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+
+/* ⚠️ DELIBERATELY EXACT, not "contains". A loose test would treat
+   somebody typing one word — "jordan" — as naming an artist and bury the
+   song they were actually looking for under a stranger's back catalogue.
+   The bar for hijacking the results list is that they typed the name. */
+function namedArtist(artistName, typed) {
+  const a = bare(artistName);
+  return a.length > 2 && a === bare(typed);
+}
+
 export default function SongPicker({ value, onPick, disabled }) {
   const [q, setQ] = useState('');
   const [hits, setHits] = useState(null);   // null = haven't searched yet
@@ -34,6 +71,14 @@ export default function SongPicker({ value, onPick, disabled }) {
   const [err, setErr] = useState('');
   const [ytText, setYtText] = useState('');
   const [ytErr, setYtErr] = useState('');
+
+  /* ⚠️ THE SEARCH NOW MAKES UP TO FOUR REQUESTS PER KEYSTROKE-BURST and
+     they do not come back in the order they left. The debounce below
+     stops nine searches firing; it does NOT stop the answer to "jord"
+     landing after the answer to "jordan cruz" and overwriting it. This
+     counter is what does: every run takes a ticket, and a run that is no
+     longer the newest throws its own answer away. */
+  const seq = useRef(0);
 
   /* A ready-made YouTube search for the exact song they just picked, so
      "find the link" is one tap and a copy rather than a hunt. */
@@ -54,19 +99,61 @@ export default function SongPicker({ value, onPick, disabled }) {
     if (text.trim().length < 2) { setHits(null); return; }
 
     timer.current = setTimeout(async () => {
+      const mine = ++seq.current;
       setBusy(true);
       try {
-        const url = `${SEARCH}?term=${encodeURIComponent(text.trim())}`
-                  + `&entity=song&limit=6`;
-        const r = await fetch(url);
-        if (!r.ok) throw new Error('search is not answering right now');
-        const data = await r.json();
-        setHits(data.results || []);
+        const typed = text.trim();
+        const term  = encodeURIComponent(typed);
+
+        /* Both questions at once. The song search is the one that has to
+           work; the artist search is a bonus and is never allowed to
+           fail the whole thing. */
+        const [songRes, artistRes] = await Promise.all([
+          fetch(`${SEARCH}?term=${term}&entity=song&limit=12`),
+          fetch(`${SEARCH}?term=${term}&entity=musicArtist&limit=5`),
+        ]);
+        if (!songRes.ok) throw new Error('search is not answering right now');
+        const songs = (await songRes.json()).results || [];
+
+        /* ⚠️ TWO artists, not one. There are THREE people called Jordan
+           Cruz on Apple Music and a name is not a key. Taking only the
+           top one would quietly pick a stranger for somebody whose
+           namesake happens to rank higher. */
+        let owned = [];
+        if (artistRes.ok) {
+          const named = ((await artistRes.json()).results || [])
+            .filter((a) => namedArtist(a.artistName, typed))
+            .slice(0, 2);
+
+          owned = (await Promise.all(named.map((a) =>
+            fetch(`${LOOKUP}?id=${a.artistId}&entity=song&limit=25`)
+              .then((r) => (r.ok ? r.json() : { results: [] }))
+              /* lookup answers with the ARTIST first and the tracks
+                 after, so the wrapperType check is not optional — an
+                 artist row has no trackName and renders as a blank. */
+              .then((d) => (d.results || []).filter((x) => x.wrapperType === 'track'))
+              .catch(() => [])
+          ))).flat();
+        }
+
+        if (mine !== seq.current) return;   // a newer keystroke won
+
+        /* Their own songs first, then everything else, and no track
+           twice. ⚠️ The dedupe is REQUIRED, not tidiness: the same
+           record legitimately arrives from both roads, and React pairs
+           it with a duplicate key and drops one at random. */
+        const seen = new Set();
+        setHits([...owned, ...songs].filter((t) => {
+          if (!t.trackId || seen.has(t.trackId)) return false;
+          seen.add(t.trackId);
+          return true;
+        }));
       } catch (e) {
+        if (mine !== seq.current) return;
         setErr('Couldn’t reach the music search. You can still paste a link below.');
         setHits(null);
       } finally {
-        setBusy(false);
+        if (mine === seq.current) setBusy(false);
       }
     }, 350);
   }
@@ -131,7 +218,7 @@ export default function SongPicker({ value, onPick, disabled }) {
       {err && <div className="err">{err}</div>}
 
       {hits && hits.length === 0 && (
-        <p className="hint">Nothing found. Try the artist&apos;s name too.</p>
+        <p className="hint">Nothing found. Check the spelling, or paste a link below.</p>
       )}
 
       {hits && hits.length > 0 && (
