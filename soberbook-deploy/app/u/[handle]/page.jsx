@@ -66,6 +66,7 @@ export default async function ProfilePage({ params }) {
     .from(assertReadable('public_profiles'))
     .select('handle, display_name, display_avatar, display_avatar_photo, day_count, ' +
             'anthem_url, anthem_title, anthem_art, anthem_preview, anthem_youtube, ' +
+            'anthem_spotify, ' +
             'is_mine, joined_at, total_days, ' +
             'bio, location, programs, interests, sponsor_open, ' +
             'sponsor_has, sponsor_looking, friends, friend_state')
@@ -84,6 +85,11 @@ export default async function ProfilePage({ params }) {
     anthem_art: p.anthem_art,
     anthem_preview: p.anthem_preview,
     anthem_youtube: p.anthem_youtube,
+    /* ⚠️ Added to BOTH lists. The select above decides what the view
+       hands over; this object decides what the player is given. Adding
+       it to one and not the other is a song that plays for its owner and
+       nobody else. */
+    anthem_spotify: p.anthem_spotify,
   } : null;
 
   const joined = new Date(p.joined_at).toLocaleDateString('en-US',
