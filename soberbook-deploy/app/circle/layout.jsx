@@ -10,6 +10,12 @@ import '../photos.css';
    ⚠️ A stylesheet nothing imports is a silent failure this app has hit
    twice — this line IS the feature working. */
 import '../circle.css';
+/* 🎲 The Would You Rather card renders inside this route and nowhere else
+   yet. ⚠️ A stylesheet nothing imports is a silent failure this app has
+   hit three times — /checkin lost its 10th-step styles exactly this way
+   on 17 Sept — so this line IS the feature working. check-css-coverage.py
+   is what catches it if it goes. */
+import '../wyr.css';
 
 import NavBar from '../components/NavBar';
 

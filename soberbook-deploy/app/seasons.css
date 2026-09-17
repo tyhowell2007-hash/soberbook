@@ -66,9 +66,29 @@
 .sea-me{ background:var(--gl); border-radius:8px; padding:7px 8px; margin-left:-8px; margin-right:-8px; }
 .sea-me .sea-name{ color:var(--gt); }
 
+/* 🔴 17 Sept — THE BAR WAS INVISIBLE IN THE DARK THEME AND HAD BEEN SINCE
+   IT SHIPPED. Found while picking a meter colour for the Would You Rather
+   card, not from a report — it is the kind of bug only somebody in night
+   mode ever sees, and nobody in night mode knows what the bar is supposed
+   to look like.
+
+   theme-black.css sets `--gm:#5E7A69` AND `--line:#5E7A69` — the same
+   value. So the fill and its own track were the identical colour and the
+   bar rendered as one flat block carrying no proportion at all. MEASURED
+   1.00:1. The `.sea-me` override was no better: --gd on --line is 1.81,
+   under the 3:1 floor for a graphic.
+
+   ⚠️ --gm-t, the readable twin, is the only green defined to work in both
+   themes. MEASURED against the track: light 4.79, dark 3.49 — both clear
+   the 3:1 bar. (--gm as shipped: light 3.33, dark 1.00.)
+
+   🔴 The `.sea-me` line is DELETED rather than recoloured. The two fills
+   that would distinguish your row measure 1.13 against each other at
+   night, so it could not have done its job anyway — and the row already
+   carries a wash and its own name colour, which is what says "you are
+   here". A bar is not where that belongs. */
 .sea-bar{ height:10px; background:var(--line); border-radius:3px; overflow:hidden; }
-.sea-bar > i{ display:block; height:100%; background:var(--gm); }
-.sea-me .sea-bar > i{ background:var(--gd); }
+.sea-bar > i{ display:block; height:100%; background:var(--gm-t); }
 
 /* ---- what moved ---- */
 .sea-moved{ border-top:1px solid var(--line); margin-top:13px; padding-top:11px; }

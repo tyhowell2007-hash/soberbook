@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { browserClient } from '../../lib/supabase-browser';
 import { fetchCircle, whoLine, aliveLine, weekLine } from '../../lib/circles';
+import WouldYouRather from '../components/WouldYouRather';
 
 /* =====================================================================
    ⭕ YOUR CIRCLE.
@@ -84,6 +85,15 @@ export default function Circle() {
       <div className="cir-strip">
         <span className="cir-alive">{aliveLine(c)}</span>
       </div>
+
+      {/* 🎲 TODAY'S QUESTION, ABOVE THE WALL AND ABOVE THE COMPOSER.
+          ⭐ It is first on purpose. The wall's empty state is a good
+          sentence but it still asks a member to write to eight strangers
+          as their first act; this asks for one tap and then hands them a
+          number worth answering. 🔴 It renders NOTHING when there is no
+          question, so on a day with no prompt this screen is exactly the
+          screen it was before. */}
+      <WouldYouRather />
 
       <ul className="cir-wall">
         {data.messages.length === 0 ? (
