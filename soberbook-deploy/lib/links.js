@@ -72,6 +72,46 @@ export function youtubeId(raw) {
   return /^[A-Za-z0-9_-]{11}$/.test(v) ? v : null;
 }
 
+/* THE 22 CHARACTERS THAT ARE A SPOTIFY TRACK, AND NOTHING ELSE.
+
+   ⚠️ Lives HERE rather than in SongPicker for the 0046 → 0049 reason
+   that is written at the top of ytId's old home: two copies of a
+   hostname check is how one of them quietly stops matching a domain the
+   other one blocks. The wall and the profile ask the same question, so
+   they ask it in the same place.
+
+   WHY THE ID AND NOT THE LINK: the answer goes into an iframe's src. A
+   URL somebody pasted is a string that decides where the browser goes;
+   22 characters from a fixed alphabet can only ever be a track. Narrow
+   it before you trust it.
+
+   ⚠️ TRACKS ONLY. An album or a playlist is a fine thing to post on the
+   wall and is NOT "your song" — a profile that plays a 40-minute record
+   is a different feature nobody asked for.
+
+   ⚠️ The `/intl-xx/` segment is real: Spotify's own share sheet emits
+   open.spotify.com/intl-de/track/ID abroad, and a pattern anchored at
+   the start of the path rejects exactly the people who are not in the
+   US. */
+export function spotifyTrackId(raw) {
+  const s = String(raw || '').trim();
+  if (!s) return null;
+
+  /* The desktop app's "Copy Spotify URI" gives this shape, not a URL. */
+  const uri = s.match(/^spotify:track:([A-Za-z0-9]{22})$/);
+  if (uri) return uri[1];
+
+  let u;
+  try { u = new URL(s); } catch { return null; }
+  /* Same hostname discipline as youtubeId: a look-alike domain must not
+     be able to hand us an id we then embed. */
+  if (u.protocol !== 'https:') return null;
+  if (!/(^|\.)spotify\.com$/.test(u.hostname)) return null;
+
+  const m = u.pathname.match(/(?:^|\/)track\/([A-Za-z0-9]{22})(?:$|\/)/);
+  return m ? m[1] : null;
+}
+
 /* Spotify: /track/ID, /album/ID, /playlist/ID, /episode/ID */
 function spotifyEmbed(u) {
   let x; try { x = new URL(u); } catch { return null; }
