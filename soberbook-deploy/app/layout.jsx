@@ -11,7 +11,6 @@ import './wall.css';
 import './theme-black.css';
 import { serverClient } from '../lib/supabase-server';
 
-
 /* ⚠️ theme-green.css IS DELIBERATELY NOT IMPORTED HERE. DO NOT ADD IT BACK.
 
    Ty's call, Aug 15 evening: "The only grunge part is when they sign in
@@ -38,6 +37,12 @@ import RegisterSW from './components/RegisterSW';
    Mounting it under /u would be too late to be worth having. It renders
    nothing and paints nothing, so it doesn't touch the door/room split. */
 import AudioUnlock from './components/AudioUnlock';
+/* ⭐ EVERYTHING ELSE — the drawer. Mounted here and nowhere else: all 24
+   mastheads in this app are written by their own pages, and 14 already
+   put a back arrow in the right-hand slot, so a per-page button would
+   have collided on most of the app AND been 24 chances to miss one.
+   Renders nothing when signed out, so the grunge door is untouched. */
+import MastMenu from './components/MastMenu';
 
 export const metadata = {
   title: 'Sober Book',
@@ -98,28 +103,38 @@ export const viewport = {
    ⚠️ Reads `theme` and nothing else. This runs on EVERY route in the
    app, including the door, so it is the most-executed query here —
    it has no business selecting a whole profile row. */
-async function chosenTheme() {
+/* ⚠️ RETURNS TWO THINGS NOW, FROM THE ONE LOOKUP IT ALREADY DID. The
+   drawer needs to know whether anybody is signed in, and this function
+   was already asking. A second getUser() here would have run on every
+   route in the app — see NavBar's note on one row, not three queries. */
+async function chosenThemeAndUser() {
   try {
     const supabase = serverClient();
     const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return null;
+    if (!user) return { theme: null, signedIn: false };
     const { data } = await supabase
       .from('profiles').select('theme').eq('id', user.id).maybeSingle();
-    return data?.theme || null;
+    return { theme: data?.theme || null, signedIn: true };
   } catch {
-    return null;
+    /* Fails soft, same as before: no theme, and no menu rather than a
+       menu over a page that may not have loaded. */
+    return { theme: null, signedIn: false };
   }
 }
 
 export default async function RootLayout({ children }) {
-  const theme = await chosenTheme();
+  const { theme, signedIn } = await chosenThemeAndUser();
   return (
     /* ⚠️ Only 'black' is written out. `theme` already allows eight values
        in the database and seven of them have no stylesheet — rendering
        data-theme="sunset" would put an attribute on the page that
        nothing answers, which is how a half-built feature starts looking
        like a bug. When a theme gets a file, it gets added here. */
-    <html lang="en" data-theme={theme === 'black' ? 'black' : undefined}>
+    /* ⚠️ data-menu is what pads the masthead across for a button it does
+       not contain (globals.css). Absent when signed out, so the door's
+       wordmark stays exactly where it is. */
+    <html lang="en" data-theme={theme === 'black' ? 'black' : undefined}
+          data-menu={signedIn ? 'on' : undefined}>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
@@ -171,6 +186,7 @@ export default async function RootLayout({ children }) {
         {children}
         {/* Registers the service worker after the page has loaded. Renders
             nothing. Without it Chrome will not offer to install the app. */}
+        <MastMenu on={signedIn} />
         <RegisterSW />
         {/* Blesses the shared audio element on the first tap, so profile
             songs can start on their own afterwards. See lib/song-audio.js
