@@ -278,8 +278,20 @@ input:focus-visible{ outline:4px solid var(--acid); outline-offset:0; box-shadow
    untouched. 15px of the 59 is .mast's own padding. */
 html[data-menu="on"] .mast{ padding-left:59px; }
 
+/* 🔴 ANCHORED TO THE APP COLUMN, NOT THE WINDOW.
+   `position:fixed; left:0` put this 201px out in the page margin on a
+   desktop window — white on near-white, invisible. This is .tabbar's
+   own centring, so the button and the masthead can never disagree about
+   where the left edge is. Height 0 and pointer-events:none so the dock
+   itself can never swallow a tap meant for the page. */
+.mm-dock{
+  position:fixed; top:0; left:0; right:0; z-index:50;
+  max-width:520px; margin:0 auto; height:0;
+  pointer-events:none;
+}
 .mm-btn{
-  position:fixed; top:0; left:0; z-index:50;
+  position:absolute; top:0; left:0;
+  pointer-events:auto;
   width:52px; height:52px; display:flex; align-items:center; justify-content:center;
   background:transparent; border:0; padding:0; cursor:pointer;
   color:#fff;            /* on --gd / --x, both dark: 8.5:1 and 15.9:1 */

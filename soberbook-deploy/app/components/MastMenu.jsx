@@ -127,6 +127,25 @@ export default function MastMenu({ on = false }) {
 
   return (
     <>
+      {/* 🔴 THE DOCK, AND WHY IT EXISTS.
+
+          The first version pinned the button with `position:fixed; left:0`
+          — the VIEWPORT's left edge. But this app is a centred 520px
+          column, so on any desktop window the button landed out in the
+          pale margin: measured 201px to the left of the masthead, a white
+          icon on near-white paper. Invisible, and unclickable where it
+          mattered.
+
+          ⚠️ It passed every check I ran because I checked that the button
+          EXISTED and that the masthead had padding — never where the
+          button actually was. On a phone (≤520px) it happens to land
+          right, which is why it looked fine.
+
+          This dock is the same centring .tabbar uses (fixed, left:0,
+          right:0, max-width:520px, margin:0 auto), so the button is
+          anchored to the APP, not the window, and the two can never
+          disagree. It has no height and no pointer events of its own. */}
+      <div className="mm-dock" aria-hidden="false">
       <button
         ref={btn}
         type="button"
@@ -143,6 +162,7 @@ export default function MastMenu({ on = false }) {
             : <path d="M4 7h16M4 12h16M4 17h16" />}
         </svg>
       </button>
+      </div>
 
       {open && (
         <>
