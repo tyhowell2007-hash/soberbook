@@ -289,13 +289,25 @@ html[data-menu="on"] .mast{ padding-left:59px; }
   max-width:520px; margin:0 auto; height:0;
   pointer-events:none;
 }
+/* ⭐ WHITE, AND HEAVY ENOUGH TO SEE. Ty's note after it shipped: it has
+   to stick out. White on the green masthead measures 6.46:1 in the light
+   theme and 8.52:1 in the dark — the same pair the masthead's own
+   wordmark and the meetings Join button already use. The strokes are 2.5
+   and the icon 24px so it reads as a control at arm's length, on a phone,
+   in bad light.
+
+   ⚠️ NOT green-on-green. A green icon on --gd would be 1.0:1 — the exact
+   invisible-fill mistake the seasons bar made for a month. If this ever
+   needs to sit on a pale surface instead, the fix is a --gd FILL behind
+   a white icon, never a green icon. */
 .mm-btn{
   position:absolute; top:0; left:0;
   pointer-events:auto;
   width:52px; height:52px; display:flex; align-items:center; justify-content:center;
   background:transparent; border:0; padding:0; cursor:pointer;
-  color:#fff;            /* on --gd / --x, both dark: 8.5:1 and 15.9:1 */
+  color:#fff;
 }
+.mm-btn:active{ background:rgba(255,255,255,.16); border-radius:12px; }
 .mm-btn:focus-visible{ outline:3px solid #fff; outline-offset:-5px; border-radius:12px; }
 
 /* A real <button>, so it is focusable and announced — not a div. */
@@ -305,8 +317,31 @@ html[data-menu="on"] .mast{ padding-left:59px; }
   border:0; padding:0; margin:0; cursor:pointer;
 }
 
+/* 🔴 THE SAME BUG AS THE DOCK, ONE LAYER DOWN — CAUGHT IN THE
+   PROTOTYPE ON 18 SEPT, BEFORE IT SHIPPED.
+
+   The panel was `position:fixed; right:0`, and that is the WINDOW's right
+   edge. On a 1400px desktop window the app column sits at 440–960, so the
+   drawer would have opened at 1098–1400: a 302px slab standing out in the
+   page margin, not attached to the app it belongs to. It looked fine on a
+   phone for the identical reason the dock bug did — at ≤520px the window
+   edge and the column edge are the same edge.
+
+   ⚠️ FIXED THE SAME WAY, DELIBERATELY. .mm-cage is .mm-dock's centring
+   (fixed, left:0, right:0, max-width:520px, margin:0 auto), so anything
+   pinned to the app's edges is pinned to the APP. A third thing that needs
+   an edge gets a cage too; it does not get a third trick.
+
+   ⚠️ THE SCRIM STAYS FULL-VIEWPORT on purpose. A tap anywhere outside
+   the drawer should close it, margin included. */
+.mm-cage{
+  position:fixed; inset:0; z-index:100;
+  max-width:520px; margin:0 auto;
+  pointer-events:none;
+}
 .mm-panel{
-  position:fixed; top:0; right:0; bottom:0; z-index:100;
+  position:absolute; top:0; right:0; bottom:0;
+  pointer-events:auto;
   width:302px; max-width:84vw;
   background:var(--paper); color:var(--body);
   box-shadow:-12px 0 28px rgba(15,61,42,.18);
@@ -346,3 +381,28 @@ html[data-menu="on"] .mast{ padding-left:59px; }
 }
 .mm-row:hover{ background:var(--gl); color:var(--gt); }
 .mm-row:focus-visible{ outline:3px solid var(--gd); outline-offset:-3px; }
+
+/* ---- Dr. Labor's Recovery Map, at the top of the drawer -------------- */
+/* ⚠️ A FILL, so it reads as the one thing this menu is pointing at, and
+   so it cannot be mistaken for another row in the list. --gt text on --gl
+   measures 10.80 light / 12.16 dark. The border is --gm, which is an EDGE
+   and never text (4.02 / 3.93 against the page). */
+.mm-feature{
+  display:block; margin:12px 12px 6px; padding:13px 14px;
+  background:var(--gl); border:1px solid var(--gm); border-radius:13px;
+  text-decoration:none; color:var(--gt);
+}
+.mm-feature:hover{ background:var(--acid); }
+.mm-feature:focus-visible{ outline:3px solid var(--gd); outline-offset:2px; }
+.mm-feat-t{
+  display:block; font-family:'Archivo',system-ui,sans-serif;
+  font-weight:700; font-size:15px; line-height:1.3; margin-bottom:4px;
+}
+.mm-feat-s{ display:block; font-size:12.5px; line-height:1.45; }
+/* Her own site. --gm-t, not --gm: this is TEXT (5.78 light / 13.70 dark
+   on --paper). */
+.mm-ext{
+  display:block; margin:0 12px 6px; padding:8px 2px; min-height:44px;
+  box-sizing:border-box; font-size:12.5px; color:var(--gm-t); text-decoration:none;
+}
+.mm-ext:hover{ text-decoration:underline; }

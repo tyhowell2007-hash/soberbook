@@ -155,8 +155,8 @@ export default function MastMenu({ on = false }) {
         aria-controls="mm-panel"
         onClick={() => setOpen((v) => !v)}
       >
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-             strokeWidth="2.2" strokeLinecap="round" aria-hidden="true">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             strokeWidth="2.5" strokeLinecap="round" aria-hidden="true">
           {open
             ? <path d="M6 6l12 12M18 6L6 18" />
             : <path d="M4 7h16M4 12h16M4 17h16" />}
@@ -171,6 +171,11 @@ export default function MastMenu({ on = false }) {
           <button type="button" className="mm-scrim" aria-label="Close menu"
                   onClick={() => setOpen(false)} />
 
+          {/* ⚠️ THE CAGE, not the panel, is what carries the position.
+              A panel pinned to `right:0` is pinned to the WINDOW, and on a
+              desktop that is 138px past the right edge of the app column.
+              Same centring as .mm-dock, same reason. */}
+          <div className="mm-cage">
           <div id="mm-panel" ref={panel} className="mm-panel"
                role="dialog" aria-modal="true" aria-label="Everything else">
             <div className="mm-head">
@@ -185,6 +190,36 @@ export default function MastMenu({ on = false }) {
             </div>
 
             <nav className="mm-list" aria-label="Everything else">
+
+              {/* ⭐ DR. LABOR'S RECOVERY MAP, FIRST AND BY NAME.
+
+                  She gave RecoveryMap to Sober Book in Sept 2026 and asked
+                  for it to live inside the app, so the big row goes to OUR
+                  copy — /find-care, all 19,490 of her records, searchable,
+                  no paid placement possible. Ty's call that her name leads
+                  it; she recovers out loud and agreed to it.
+
+                  ⚠️ IT CLAIMS SHE BUILT THE DIRECTORY, NOT THAT SHE
+                  ENDORSES SOBER BOOK. Same rule /help states: the app does
+                  not make claims on somebody else's behalf. If she gives a
+                  quote, it goes here in her words.
+
+                  ⚠️ rel="noreferrer" on the outbound link, same as every
+                  outbound link on /help. Elsewhere a referrer is a
+                  statistic; here it would tell her server's logs that the
+                  visitor arrived from a recovery app. */}
+              <Link href="/find-care" className="mm-feature">
+                <span className="mm-feat-t">Dr. Labor&rsquo;s Recovery Map</span>
+                <span className="mm-feat-s">
+                  19,490 places to get help — treatment, detox and sober living,
+                  searchable by state and town. Nobody paid to be on it.
+                </span>
+              </Link>
+              <a className="mm-ext" href="https://myrecoverymap.org"
+                 target="_blank" rel="noreferrer noopener">
+                myrecoverymap.org ↗
+              </a>
+
               {GROUPS.map((g) => (
                 <div key={g.head}>
                   <h2 className="mm-grp">{g.head}</h2>
@@ -194,6 +229,7 @@ export default function MastMenu({ on = false }) {
                 </div>
               ))}
             </nav>
+          </div>
           </div>
         </>
       )}

@@ -908,13 +908,15 @@ ul.mine li > *{ position:relative; z-index:1; }
    ⚠️ Whatever is added seventh does not get to solve this the same way.
    Six is the ceiling for a bar of words.
 
-   ⚠️ SUPERSEDED 18 SEPT 2026 — Ty added a seventh (Care, the RecoveryMap
-   directory) after being shown this note and the measurements. It holds
-   because `white-space:nowrap` below makes the two-line wrap that caused
-   the original bug impossible; the bar's HEIGHT can no longer change, so
-   the worst case is a cramped label rather than a hidden strip of page.
-   Seven tabs need ~351px of label and padding. EIGHT IS THE CEILING NOW,
-   and it is a hard one — there is no slack left in padding or spacing. */
+   ⚠️ TESTED AND REVERTED, 18 SEPT 2026. A seventh tab (Care, the
+   RecoveryMap directory) was added and shipped. Ty looked at it live and
+   took it straight back out: on a real phone a 45px slot with an emoji in
+   it read as clutter, not as a destination. The note above was right, and
+   it stands. SIX IS STILL THE CEILING.
+
+   ⭐ Where it went instead: the "Everything else" drawer in the masthead
+   (components/MastMenu). That is the answer for anything that would be
+   the seventh — not a narrower tab. */
 .tab .tl{ white-space:nowrap; }
 @media (max-width:380px){
   .tab{ padding:7px 1px; }
