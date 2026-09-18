@@ -42,10 +42,18 @@
    ===================================================================== */
 
 import { useState } from 'react';
+import { openPhoto } from './photoBig';
 
 const tried = new Set();
 
-export default function Shot({ path, src, alt = '', className, onFixed, ...rest }) {
+/* ⚠️ `zoom` IS OPT-IN, and that is the safe direction. Shot draws post
+   photos in six places, but it is one import away from being used for an
+   avatar too, and a profile picture that blows up to fill the screen when
+   somebody's thumb brushes it is a bug. A caller that wants full size
+   passes the whole group — { items: [{ path, url }], i } — so the arrows
+   in the viewer can walk the other pictures on that same post. Pass
+   nothing and this behaves exactly as it did before today. */
+export default function Shot({ path, src, alt = '', className, onFixed, zoom, ...rest }) {
   const [url, setUrl] = useState(src);
 
   /* Nothing to show yet. ⚠️ Renders NOTHING rather than an <img src="">,
@@ -76,9 +84,28 @@ export default function Shot({ path, src, alt = '', className, onFixed, ...rest 
     }
   }
 
+  /* ⚠️ role + tabIndex, NOT a wrapping <button>. Six stylesheets size
+     these pictures through their parent grid, and putting a button in
+     between changes the box model in every one of them. The room's
+     .rpic went the button way in August and needed its own CSS to undo
+     what the button added; this is the same keyboard behaviour without
+     the layout cost. */
+  const big = zoom && zoom.items && zoom.items.length
+    ? () => openPhoto(zoom.items, zoom.i || 0)
+    : null;
+
   return (
     // eslint-disable-next-line @next/next/no-img-element
-    <img src={url} alt={alt} className={className} loading="lazy"
-         onError={repair} {...rest} />
+    <img src={url} alt={alt} loading="lazy" onError={repair}
+         className={[className, big ? 'pzoom' : ''].filter(Boolean).join(' ') || undefined}
+         {...(big ? {
+           role: 'button',
+           tabIndex: 0,
+           onClick: big,
+           onKeyDown: (e) => {
+             if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); big(); }
+           },
+         } : {})}
+         {...rest} />
   );
 }

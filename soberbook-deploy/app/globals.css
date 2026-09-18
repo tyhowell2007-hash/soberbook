@@ -406,3 +406,89 @@ html[data-menu="on"] .mast{ padding-left:59px; }
   box-sizing:border-box; font-size:12.5px; color:var(--gm-t); text-decoration:none;
 }
 .mm-ext:hover{ text-decoration:underline; }
+
+/* =====================================================================
+   A PICTURE, FULL SIZE (.pbig). 18 Sept 2026 — components/PhotoBig.jsx
+
+   Ty asked for the Facebook thing: tap a photo on a post, see it whole.
+
+   🔴 IN globals.css, NOT photos.css, AND THAT IS THE POINT. photos.css
+   is imported by the wall, chat, room, admin and /u layouts — five
+   separate imports, and /me is a sixth that would have had to be
+   remembered. The viewer is mounted once in the ROOT layout, so its
+   styles belong in the one stylesheet the root layout loads. A viewer
+   that works on five pages out of six is worse than none, because the
+   sixth looks broken rather than unfinished.
+
+   ⚠️ ONE LOOK IN BOTH THEMES, deliberately, and the same call the room
+   made. A photo is judged against what is behind it; a pale backdrop in
+   the day theme would tint every picture somebody put up. Dark is the
+   honest frame, so these are literals rather than tokens — the one place
+   in this file where that is correct.
+
+   ⚠️ z-index 120, above the drawer's 100. A photo tapped from inside the
+   drawer must land on top of it, not behind it.
+   ===================================================================== */
+.pbig{
+  position:fixed; inset:0; z-index:120;
+  background:rgba(6,18,12,.96);
+  display:flex; align-items:center; justify-content:center;
+  padding:20px; cursor:zoom-out;
+  padding-top:calc(20px + env(safe-area-inset-top, 0px));
+  padding-bottom:calc(20px + env(safe-area-inset-bottom, 0px));
+}
+/* ⚠️ contain, never cover. The whole request was to see the picture
+   WHOLE — cropping it here would defeat the one thing this is for.
+   82vh leaves the close button its own room at the bottom. */
+.pbig-img{
+  max-width:100%; max-height:82vh; object-fit:contain;
+  border-radius:10px; display:block; cursor:default;
+}
+.pbig-gone{
+  color:#CFE9DC; font-size:15px; text-align:center; max-width:32ch;
+}
+
+/* Arrows. ⚠️ 48px square and vertically centred, and they sit ON the
+   dark rather than on the picture, so a tap near the edge of a photo is
+   still a tap on the photo. */
+.pbig-arrow{
+  position:absolute; top:50%; transform:translateY(-50%);
+  width:48px; height:48px; border:0; border-radius:50%;
+  background:rgba(255,255,255,.14); color:#fff;
+  font-size:30px; line-height:1; cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+  padding:0 0 3px;
+}
+.pbig-arrow:hover{ background:rgba(255,255,255,.24); }
+.pbig-arrow:focus-visible{ outline:3px solid #fff; outline-offset:2px; }
+.pbig-prev{ left:10px; }
+.pbig-next{ right:10px; }
+
+/* "3 of 7". Sits above the close button, not over the picture. */
+.pbig-count{
+  position:absolute; left:50%; transform:translateX(-50%); bottom:78px;
+  margin:0; color:#CFE9DC; font-size:12.5px; letter-spacing:.04em;
+  font-variant-numeric:tabular-nums;
+}
+
+/* ⚠️ Same pair the room's viewer used and the meetings Join button
+   uses: #08160F on #4FA97A. MEASURED 6.44:1 — AA needs 4.5 for 13px
+   bold, so it passes, and it is the pair already shipped rather than a
+   new one invented at midnight. */
+.pbig-x{
+  position:absolute; left:50%; transform:translateX(-50%);
+  bottom:calc(22px + env(safe-area-inset-bottom, 0px));
+  min-height:44px; padding:11px 26px; border-radius:22px; border:0;
+  background:#4FA97A; color:#08160F;
+  font-family:'Archivo',system-ui,sans-serif; font-size:13px; font-weight:700;
+  cursor:pointer;
+}
+.pbig-x:focus-visible{ outline:3px solid #fff; outline-offset:3px; }
+
+/* ---- the pictures that are now tappable ----------------------------
+   ⚠️ They stay <img>, they do not become <button>. Wrapping a wall photo
+   in a button changes the grid's box model in three stylesheets. The
+   keyboard path is role="button" + tabIndex, which is what the room's
+   .rpic already proved works here. */
+.pzoom{ cursor:zoom-in; }
+.pzoom:focus-visible{ outline:3px solid var(--gd); outline-offset:2px; }

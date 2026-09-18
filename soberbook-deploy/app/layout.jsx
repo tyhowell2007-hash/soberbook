@@ -43,6 +43,11 @@ import AudioUnlock from './components/AudioUnlock';
    have collided on most of the app AND been 24 chances to miss one.
    Renders nothing when signed out, so the grunge door is untouched. */
 import MastMenu from './components/MastMenu';
+/* The full-size picture viewer. ⚠️ Root layout, not a per-page import —
+   photos are tappable on the wall, in replies, in DMs, in the room and on
+   both profile pages, and the overlay has to be able to sit on top of any
+   of them. It renders null until somebody taps a picture. */
+import PhotoBig from './components/PhotoBig';
 
 export const metadata = {
   title: 'Sober Book',
@@ -187,6 +192,7 @@ export default async function RootLayout({ children }) {
         {/* Registers the service worker after the page has loaded. Renders
             nothing. Without it Chrome will not offer to install the app. */}
         <MastMenu on={signedIn} />
+        <PhotoBig />
         <RegisterSW />
         {/* Blesses the shared audio element on the first tap, so profile
             songs can start on their own afterwards. See lib/song-audio.js

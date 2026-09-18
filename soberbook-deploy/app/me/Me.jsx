@@ -2018,6 +2018,7 @@ export default function Me({ email, profile, posts, initialAvatarUrl,
                     <div className="pgrid" data-n={Math.min(shots.length, 4)}>
                       {shots.map((s, i) => (
                         <Shot key={s} path={s} src={postPhotoUrls[s]}
+                              zoom={{ items: shots.map((x) => ({ path: x, url: postPhotoUrls[x] })), i }}
                               alt={`Photo ${i + 1} of ${shots.length}`} />
                       ))}
                     </div>
@@ -2026,7 +2027,9 @@ export default function Me({ email, profile, posts, initialAvatarUrl,
                 {(!Array.isArray(p.photo_urls) || p.photo_urls.length < 2)
                   && p.photo_url && postPhotoUrls[p.photo_url] && (
                   <div className="mphoto">
-                    <Shot path={p.photo_url} src={postPhotoUrls[p.photo_url]} alt="" />
+                    <Shot path={p.photo_url} src={postPhotoUrls[p.photo_url]}
+                          zoom={{ items: [{ path: p.photo_url, url: postPhotoUrls[p.photo_url] }], i: 0 }}
+                          alt="" />
                   </div>
                 )}
                 {p.video_url && postPhotoUrls[p.video_url] && (

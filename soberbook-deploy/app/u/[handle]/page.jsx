@@ -304,6 +304,7 @@ export default async function ProfilePage({ params }) {
                     <div className="pgrid" data-n={Math.min(shots.length, 4)}>
                       {shots.map((s, i) => (
                         <Shot key={s} path={s} src={photos[s]}
+                              zoom={{ items: shots.map((x) => ({ path: x, url: photos[x] })), i }}
                               alt={`Photo ${i + 1} of ${shots.length}`} />
                       ))}
                     </div>
@@ -312,7 +313,9 @@ export default async function ProfilePage({ params }) {
                 {(!Array.isArray(t.photo_urls) || t.photo_urls.length < 2)
                   && t.photo_url && photos[t.photo_url] && (
                   <div className="mphoto">
-                    <Shot path={t.photo_url} src={photos[t.photo_url]} alt="" />
+                    <Shot path={t.photo_url} src={photos[t.photo_url]}
+                          zoom={{ items: [{ path: t.photo_url, url: photos[t.photo_url] }], i: 0 }}
+                          alt="" />
                   </div>
                 )}
                 {t.video_url && photos[t.video_url] && (

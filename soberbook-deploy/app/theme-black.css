@@ -281,7 +281,9 @@ html[data-theme="black"]{ background:#0B100D; }
 [data-theme="black"] .rtray-one img{ border:1px solid #A8EDC3; }
 [data-theme="black"] .rtray-x{ border:1px solid #A8EDC3; }
 [data-theme="black"] .rpick{ border:1px solid #A8EDC3; }
-[data-theme="black"] .rbig-x{ background:#1E2C25; color:#A8EDC3; }
+/* .rbig-x moved to .pbig-x in globals.css, 18 Sept. It needs no dark
+   override: the photo viewer is deliberately one look in both themes,
+   because a pale backdrop would tint every picture somebody posts. */
 [data-theme="black"] .rta{ border:2px solid #5E7A69; }
 [data-theme="black"] .rta:focus, [data-theme="black"] .redit .rta:focus{ outline:2px solid #5E7A69; }
 [data-theme="black"] .rcnt{ color:#A8EDC3; }

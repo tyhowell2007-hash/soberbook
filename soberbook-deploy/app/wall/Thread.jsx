@@ -389,10 +389,18 @@ export default function Thread({ post, onClose, onCountChange }) {
                   itself instead of showing broken frames (5 Sept). */}
               {(c.photo_urls || []).filter(Boolean).length > 0 && (
                 <div className="rpics">
-                  {(c.photo_urls || []).filter(Boolean).map((p) => (
-                    <Shot key={p} path={p} src={urls[p]} alt="" className="rpic"
-                          onFixed={(k, u) => setUrls((m) => ({ ...m, [k]: u }))} />
-                  ))}
+                  {(() => {
+                    /* The group, so the viewer's arrows walk this
+                       comment's other pictures. See components/photoBig.js
+                       for why the path travels with the url. */
+                    const pics = (c.photo_urls || []).filter(Boolean);
+                    const big = pics.map((x) => ({ path: x, url: urls[x] }));
+                    return pics.map((p, i) => (
+                      <Shot key={p} path={p} src={urls[p]} alt="" className="rpic"
+                            zoom={{ items: big, i }}
+                            onFixed={(k, u) => setUrls((m) => ({ ...m, [k]: u }))} />
+                    ));
+                  })()}
                 </div>
               )}
               {c.body && <p className="rbody"><Body text={c.body} tags={people} hl={didBroadcast.has(c.id)} /></p>}

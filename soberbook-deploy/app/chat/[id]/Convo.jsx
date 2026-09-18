@@ -423,8 +423,9 @@ export default function Convo({ thread, initial }) {
               )}
               {pics.length > 0 && (
                 <div className="dmpics">
-                  {pics.map((p) => (urls[p] ? (
+                  {pics.map((p, i) => (urls[p] ? (
                     <Shot key={p} path={p} src={urls[p]} alt="" className="dmpic"
+                          zoom={{ items: pics.map((x) => ({ path: x, url: urls[x] })), i }}
                           onFixed={(k, u) => setUrls((m) => ({ ...m, [k]: u }))} />
                   ) : null))}
                 </div>

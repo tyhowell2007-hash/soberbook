@@ -9,6 +9,7 @@ import MsgMenu from './MsgMenu';
 import { Body } from '../components/Linked';
 import { useTagBox, useTaggablePeople, tellThemTheyWereTagged } from '../components/TagBox';
 import Shot from '../components/Shot';
+import { openPhoto } from '../components/photoBig';
 
 /* =====================================================================
    🛋️ THE FRONT ROOM — everybody, talking, in one place.
@@ -74,7 +75,16 @@ export default function Room({ room, initial, meHandle, members, signed, spokenH
      first screen has its pictures already, then topped up as new
      messages arrive. */
   const [urls, setUrls]   = useState(signed || {});
-  const [big, setBig]     = useState(null);
+  /* 🔴 THE ROOM'S OWN PHOTO VIEWER IS GONE, 18 Sept 2026, and it worked
+     fine — that is the point. It was the only full-size viewer in the
+     app, and when Ty asked for the same thing on the wall the choice was
+     one viewer used in six places or two viewers that would drift. Shot
+     already carries that lesson in writing ("the third and last time it
+     gets written"). The overlay now lives in components/PhotoBig, mounted
+     once in the root layout; the reason it is an overlay and never a new
+     tab moved there with it, unchanged, because it is the reason that
+     matters most: a signed url in the address bar is copyable and keeps
+     working for an hour in anybody's browser. */
   /* ⚠️ Seeded from the server, then turned off locally the moment they
      send. Waiting for the next poll to hide it would leave a line saying
      "you don't have to write anything clever" sitting directly under the
@@ -613,10 +623,11 @@ export default function Room({ room, initial, meHandle, members, signed, spokenH
                      which, not JavaScript. */
                   <div className={'rpics' + (pics.length === 1 ? ' one'
                                           : pics.length === 2 ? ' two' : ' many')}>
-                    {pics.map((p) => (
+                    {pics.map((p, i) => (
                       <button key={p} type="button" className="rpic"
                               aria-label="Open this picture"
-                              onClick={() => urls[p] && setBig(urls[p])}>
+                              onClick={() => openPhoto(
+                                pics.map((x) => ({ path: x, url: urls[x] })), i)}>
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <Shot path={p} src={urls[p]} alt=""
                               onFixed={(k, u) => addUrls({ [k]: u })} />
@@ -777,17 +788,6 @@ export default function Room({ room, initial, meHandle, members, signed, spokenH
           Your name is hidden in here. A photo isn’t — check for faces, and
           anything behind them.
         </p>
-      )}
-
-      {/* Full size. ⚠️ A plain overlay, not a new tab — a signed URL in
-          the address bar is a link somebody can copy and paste, and it
-          keeps working for an hour in anybody's browser. */}
-      {big && (
-        <div className="rbig" role="dialog" aria-modal="true" onClick={() => setBig(null)}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={big} alt="" />
-          <button type="button" className="rbig-x" aria-label="Close">Close</button>
-        </div>
       )}
 
       {/* ⭐ THE INVITATION, and it is the only thing on this page aimed at

@@ -7,6 +7,7 @@ import { browserClient } from '../../lib/supabase-browser';
 import Thread from './Thread';
 import PostMenu from './PostMenu';
 import PhotoUpload from '../components/PhotoUpload';
+import { openPhoto } from '../components/photoBig';
 import StreamVideo from '../components/StreamVideo';
 import { Body, Player } from '../components/Linked';
 import EmojiPicker from '../friends/EmojiPicker';
@@ -1867,11 +1868,36 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
                    carry one, and making them all become a grid to support
                    the rare ten would change every existing post on the wall
                    to solve a problem none of them have. */
+                /* ⭐ TAP IT AND SEE IT WHOLE (18 Sept). Ty: "just like
+                   Facebook... click on it and see the bigger picture at
+                   its fullity." The group travels with the tap, so the
+                   arrows in the viewer walk this post's other pictures
+                   rather than dead-ending on the one that was pressed.
+                   ⚠️ The PATH goes too, not just the url — a signed link
+                   is an hour old at most and 0078 hands out a cached one
+                   for fifty minutes of that, so a photo sitting on a wall
+                   somebody left open is often tapped after its link died.
+                   See components/photoBig.js. */
+                const big = shots.map((s) => ({ path: s, url: urlFor(s) }));
+
                 if (shots.length === 1) {
                   return (
                     <div className="pphoto">
+                      {/* ⚠️ onError STAYS DIRECTLY AFTER loading="lazy".
+                          check-lazy-images.py finds the repair path with
+                          `<img[^>]*loading="lazy"[^>]*>`, and the `>` inside
+                          an `=>` ends that match — so an arrow-function
+                          handler placed above onError hides it from the
+                          checker and the guard silently stops guarding. */}
                       <img src={urlFor(shots[0])} alt="" loading="lazy"
-                           onError={() => reSign(shots[0])} />
+                           onError={() => reSign(shots[0])}
+                           className="pzoom" role="button" tabIndex={0}
+                           onClick={() => openPhoto(big, 0)}
+                           onKeyDown={(e) => {
+                             if (e.key === 'Enter' || e.key === ' ') {
+                               e.preventDefault(); openPhoto(big, 0);
+                             }
+                           }} />
                     </div>
                   );
                 }
@@ -1884,8 +1910,16 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
                 return (
                   <div className="pgrid" data-n={Math.min(shots.length, 4)}>
                     {shots.map((s, i) => (
+                      /* onError directly after loading="lazy" — see above. */
                       <img key={s} src={urlFor(s)} loading="lazy"
                            onError={() => reSign(s)}
+                           className="pzoom" role="button" tabIndex={0}
+                           onClick={() => openPhoto(big, i)}
+                           onKeyDown={(e) => {
+                             if (e.key === 'Enter' || e.key === ' ') {
+                               e.preventDefault(); openPhoto(big, i);
+                             }
+                           }}
                            /* ⚠️ alt="" everywhere else, but with several
                               pictures a screen reader otherwise hears
                               nothing at all where sighted people see six

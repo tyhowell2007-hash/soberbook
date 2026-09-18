@@ -451,22 +451,12 @@
 .rbar{ flex-wrap:wrap; }
 .rbar .phserr{ flex-basis:100%; margin:7px 2px 0; color:#FFB4B4; }
 
-/* Full size. ⚠️ An overlay, not a new tab — a signed URL in the address
-   bar is a link that can be copied out and keeps working for an hour in
-   anybody's browser. */
-.rbig{
-  position:fixed; inset:0; z-index:80; background:rgba(6,18,12,.95);
-  display:flex; align-items:center; justify-content:center;
-  padding:20px; cursor:zoom-out;
-}
-.rbig img{ max-width:100%; max-height:82vh; object-fit:contain; border-radius:10px; }
-.rbig-x{
-  position:absolute; left:50%; transform:translateX(-50%); bottom:22px;
-  min-height:44px; padding:11px 26px; border-radius:22px; border:0;
-  background:#4FA97A; color:#08160F;
-  font-family:'Archivo',system-ui,sans-serif; font-size:13px; font-weight:700;
-  cursor:pointer;
-}
+/* Full size used to live here as .rbig / .rbig-x. It moved to .pbig in
+   globals.css on 18 Sept, when the wall, replies, DMs and both profile
+   pages got the same behaviour and one viewer replaced two. The rule it
+   was carrying went with it and still governs: AN OVERLAY, NEVER A NEW
+   TAB — a signed url in the address bar is copyable and keeps working
+   for an hour in anybody's browser. Do not re-add a local one here. */
 
 /* =====================================================================
    ✏️ EDITING YOUR OWN WORDS IN THE ROOM (0096).
