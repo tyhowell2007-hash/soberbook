@@ -69,6 +69,19 @@ const KINDS = {
      `feed_comments`, the view that already knows about post visibility,
      blocks, suspension and anonymity. */
   comment:{ ext: 'bin' },
+  /* 📖 A STORY (0171). Same quarantine road, its own bucket, and the
+     prefix `stories/` is what sends the signer to `visible_stories`
+     rather than a wall view.
+
+     🔴 THIS ENTRY IS THE ONE THAT WAS NEARLY MISSED, and it is worth
+     saying how. check-bucket-map.py proves finalize, the signer and the
+     sweeper agree — three files — and it passed with 11 buckets while
+     stories were still completely broken, because THIS file is not one
+     of the three. PhotoUpload calls upload-url FIRST, so a kind missing
+     here never reaches finalize at all: the picture dies on "Unknown
+     upload kind" before any of the agreeing three ever sees it. The
+     checker has been widened to cover this file too. */
+  story:  { ext: 'bin' },
 };
 
 /* What the browser is allowed to say it's sending. ⚠️ This is a HINT, not

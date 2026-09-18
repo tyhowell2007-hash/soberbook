@@ -94,6 +94,10 @@ import '../seasons.css';
    that route's layout needs this line too, or the card arrives as a stack of
    unstyled text with fourteen invisible confetti divs in it. */
 import '../milestone.css';
+/* 📖 STORIES (0171). The rail is on the wall and the viewer and composer
+   open from it, so the wall layout is where these belong — not the root.
+   Nothing on any other route renders a sty- class. */
+import '../stories.css';
 
 import NavBar from '../components/NavBar';
 

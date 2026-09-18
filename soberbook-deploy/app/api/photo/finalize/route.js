@@ -79,6 +79,16 @@ const KINDS = {
      in post-photos and the signer would ask feed_posts, find nothing,
      and the picture would silently never render. */
   comment:{ bucket: 'comment-photos', prefix: 'comments', max: 1600, quality: 80 },
+  /* 📖 A STORY (0171), and the same argument one more time: the prefix
+     picks the view. `stories/` sends the signer to `visible_stories`,
+     which already refuses an expired story, a taken-down one, a
+     suspended author, and either side of a block.
+
+     ⚠️ max 1400, not 1600. A story is watched full-bleed on a phone for
+     five seconds and then it is gone forever — the extra 200px is bytes
+     nobody will ever look at twice, on a project whose egress has
+     already touched 159% of the free tier once. */
+  story:  { bucket: 'story-photos', prefix: 'stories', max: 1400, quality: 80 },
 };
 
 /* =====================================================================
@@ -103,6 +113,12 @@ const VIDEO_KINDS = {
      database is where that rule lives. Do not try to enforce it here. */
   room: { bucket: 'room-videos', prefix: 'roomvids' },
   dm:   { bucket: 'dm-videos',   prefix: 'dmvids' },
+  /* 📖 A VIDEO IN A STORY (0171). `storyvids/`, deliberately NOT
+     `stories/` — 0135: the sweeper compares a bucket listing against
+     referenced_media(), which returns bare paths with no bucket
+     attached, so a shared prefix would let a live photo vouch for a dead
+     video in the other bucket. */
+  story:{ bucket: 'story-videos', prefix: 'storyvids' },
 };
 
 /* ⚠️ `drop` is deliberately NOT in KINDS above. That map is the

@@ -8,6 +8,7 @@ import Thread from './Thread';
 import PostMenu from './PostMenu';
 import PhotoUpload from '../components/PhotoUpload';
 import { openPhoto } from '../components/photoBig';
+import StoryRail from '../components/StoryRail';
 import StreamVideo from '../components/StreamVideo';
 import { Body, Player } from '../components/Linked';
 import EmojiPicker from '../friends/EmojiPicker';
@@ -1142,6 +1143,18 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
           they have, it becomes a two-line record rather than more
           furniture between them and the room. */}
       <Gratitude />
+
+      {/* 📖 THE STORY RAIL, ABOVE THE COMPOSER (0171).
+
+          ⚠️ Above it, not below, and that is the same argument the
+          composer itself makes two comments down: on a phone you land at
+          the top, and a rail you have to scroll to is a rail nobody
+          opens. It is also the shallower thing — a ring is a glance, the
+          composer is a commitment — and the glance should come first.
+
+          It renders NOTHING when there is nothing to show and nothing
+          you could add, so a quiet day costs no height. */}
+      <StoryRail />
 
       {/* ---- THE COMPOSER, MOVED TO THE TOP ----
           It used to sit under the wall. Two reasons it belongs here:

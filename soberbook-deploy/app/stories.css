@@ -1,0 +1,243 @@
+/* =====================================================================
+   STORIES — the rail, the viewer, the composer.  18 Sept 2026.
+
+   ⚠️ EVERY CLASS IS PREFIXED sty-. All seventeen were checked against
+   every stylesheet in the app before a line of this was written, which
+   is the rule photos.css states at the top of itself and the one the
+   room broke twice in August. `.sr-only` already exists, which is why
+   this is not prefixed sr-.
+
+   🔴 IMPORTED BY app/wall/layout.jsx, NOT the root layout — and that is
+   the opposite call from PhotoBig this afternoon, on purpose. PhotoBig
+   went to the root because a photo is tappable on six different routes.
+   A story rail exists in exactly one place, and the viewer and composer
+   only ever open from it, so shipping these rules to /privacy and the
+   sign-in door would be weight for nothing. check-css-coverage.py is
+   what proves that claim rather than my memory of it.
+   ===================================================================== */
+
+/* ---------- the rail across the top of the wall ---------- */
+.sty-rail{
+  display:flex; gap:12px; overflow-x:auto; overflow-y:hidden;
+  padding:12px 14px 10px; margin:0;
+  scrollbar-width:none; -webkit-overflow-scrolling:touch;
+}
+.sty-rail::-webkit-scrollbar{ display:none; }
+
+.sty-item{
+  flex:0 0 auto; width:66px;
+  display:flex; flex-direction:column; align-items:center; gap:5px;
+  background:none; border:0; padding:0; cursor:pointer;
+  font-family:'Archivo',system-ui,sans-serif;
+}
+.sty-item:focus-visible{ outline:3px solid var(--gd); outline-offset:3px; border-radius:12px; }
+
+/* ⭐ THE RING IS THE WHOLE LANGUAGE OF A STORY RAIL, and it has to say
+   two things at a glance: there is something here, and whether you have
+   seen it. A solid ring is unseen; a pale one is seen. Nobody has ever
+   needed that explained to them, which is why it is worth copying. */
+/* 🔴 BOTH RING COLOURS WERE WRONG ON FIRST WRITE, AND THE MEASUREMENT
+   IS THE ONLY REASON I KNOW. Eyeballed they both looked fine.
+
+   1. UNSEEN, DARK THEME. --gd is #17573C, which against the dark page
+      measures 2.17:1. A ring is a non-text UI component and wants 3:1 —
+      so the one mark that says "there is something here" was the faintest
+      thing on the screen at night, which is when this app is most used.
+      --gm-t measures 13.70 there. This is the seasons-bar mistake in a
+      new costume: a green fill on a green ground.
+
+   2. SEEN, LIGHT THEME. --line is 1.21:1 on paper. Not "quiet" —
+      INVISIBLE. A seen story would have looked like no story at all,
+      and the app has now shipped that exact --line bug twice.
+
+   ⚠️ So seen vs unseen is carried by TWO things, not one: hue AND
+   weight. A colour difference alone has to survive both themes and
+   whatever the person's eyes are doing at 3am; a 3px-vs-2px difference
+   survives all of it.
+   MEASURED, ring against the page — unseen 6.15 light / 13.70 dark;
+   seen 4.87 light / 8.92 dark. And against the face it encircles:
+   unseen 5.72 / 10.79, seen 4.53 / 7.03. */
+.sty-ring{
+  width:58px; height:58px; border-radius:50%;
+  padding:3px; box-sizing:border-box;
+  background:var(--gd);
+  display:flex; align-items:center; justify-content:center;
+}
+[data-theme="black"] .sty-ring{ background:var(--gm-t); }
+
+.sty-ring.sty-seen{ background:var(--soft); padding:2px; }
+[data-theme="black"] .sty-ring.sty-seen{ background:var(--soft); }
+
+.sty-face{
+  width:100%; height:100%; border-radius:50%;
+  background:var(--gl); color:var(--gt);
+  display:flex; align-items:center; justify-content:center;
+  font-size:24px; line-height:1; overflow:hidden;
+  border:2px solid var(--paper);
+  font-family:'Archivo',system-ui,sans-serif; font-weight:700;
+}
+.sty-face img{ width:100%; height:100%; object-fit:cover; display:block; }
+
+/* ⚠️ --soft, not --line. This is TEXT, and --line is 1.21:1 on paper —
+   the bug this app has now shipped twice. Measured --soft on --paper:
+   4.87 light / 8.92 dark. */
+.sty-name{
+  font-size:11px; font-weight:600; color:var(--soft);
+  max-width:66px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+}
+
+/* Your own slot, with the plus. Always first. */
+/* Your own slot has no story yet — a quiet ring, not an invisible one. */
+.sty-add .sty-ring{ background:var(--soft); padding:2px; }
+.sty-plus{
+  position:absolute; right:-1px; bottom:-1px;
+  width:20px; height:20px; border-radius:50%;
+  background:var(--gd); color:#fff; border:2px solid var(--paper);
+  display:flex; align-items:center; justify-content:center;
+  font-size:14px; line-height:1; font-weight:700;
+}
+.sty-wrap{ position:relative; display:inline-flex; }
+
+/* ---------- the full-screen viewer ---------- */
+/* ⚠️ ONE LOOK IN BOTH THEMES, same call the photo viewer made: a story
+   is judged against what is behind it, and a pale backdrop in the day
+   theme would tint every picture. z-index 130 — above the photo viewer's
+   120 and the drawer's 100, because a story is the thing on top. */
+.sty-view{
+  position:fixed; inset:0; z-index:130;
+  background:#06120C;
+  display:flex; flex-direction:column;
+  padding-top:env(safe-area-inset-top, 0px);
+  padding-bottom:env(safe-area-inset-bottom, 0px);
+}
+
+/* The segmented progress bar. One segment per story. */
+.sty-bars{ display:flex; gap:4px; padding:10px 12px 0; }
+.sty-seg{
+  flex:1 1 0; height:3px; border-radius:2px;
+  background:rgba(255,255,255,.28); overflow:hidden;
+}
+.sty-fill{ display:block; height:100%; width:0; background:#fff; }
+.sty-seg.sty-done .sty-fill{ width:100%; }
+
+.sty-head{
+  display:flex; align-items:center; gap:10px;
+  padding:10px 12px 8px; color:#fff;
+}
+.sty-head .sty-face{ width:34px; height:34px; border:0; font-size:15px; }
+.sty-who{ font-size:14px; font-weight:700; }
+.sty-when{ font-size:12px; color:#CFE9DC; }
+.sty-x{
+  margin-left:auto; width:44px; height:44px; flex-shrink:0;
+  background:transparent; border:0; color:#fff; cursor:pointer;
+  display:flex; align-items:center; justify-content:center; border-radius:10px;
+}
+.sty-x:focus-visible{ outline:3px solid #fff; outline-offset:-4px; }
+
+.sty-stage{
+  flex-grow:1; position:relative; display:flex;
+  align-items:center; justify-content:center; min-height:0; padding:0 8px 8px;
+}
+/* contain, never cover — the same argument as the photo viewer. A story
+   cropped to fill is a story you cannot see. */
+.sty-img, .sty-vid{
+  max-width:100%; max-height:100%; object-fit:contain;
+  border-radius:12px; display:block;
+}
+
+/* The text card. Its whole job is to be readable at arm's length in the
+   dark, so the type is big and the fill is solid. */
+.sty-card{
+  width:100%; max-width:420px; aspect-ratio:9/16; max-height:100%;
+  border-radius:16px; padding:28px 26px;
+  display:flex; align-items:center; justify-content:center; text-align:center;
+  font-size:23px; line-height:1.4; font-weight:600;
+  overflow-wrap:anywhere;
+}
+/* ⚠️ Every tint is a PAIR — fill and ink decided together, measured
+   together. The 13 Sept bug was a slab built out of a text variable,
+   which flipped in the dark and measured 1.04:1. These are literals and
+   do not move with the theme, because the viewer does not either.
+   MEASURED: moss 11.68 · clay 11.69 · night 14.87 · dawn 11.07 */
+.sty-card[data-tint="moss"] { background:#12331F; color:#D9F2E2; }
+.sty-card[data-tint="clay"] { background:#3A2015; color:#F4DFD2; }
+.sty-card[data-tint="night"]{ background:#0B1220; color:#DCE6F5; }
+.sty-card[data-tint="dawn"] { background:#3A2F0E; color:#F6EBC8; }
+
+/* The two halves you tap. Invisible, full height, and BEHIND the
+   controls — a tap must never land on these instead of the close button. */
+.sty-tapl, .sty-tapr{
+  position:absolute; top:0; bottom:0; width:34%;
+  background:transparent; border:0; padding:0; cursor:pointer; z-index:1;
+}
+.sty-tapl{ left:0; }
+.sty-tapr{ right:0; width:66%; }
+
+.sty-foot{
+  display:flex; align-items:center; gap:10px;
+  padding:8px 14px 12px; color:#CFE9DC; font-size:12.5px; min-height:44px;
+}
+/* "9 people saw this" — only ever on your own, and only ever a number. */
+.sty-count{ font-variant-numeric:tabular-nums; }
+.sty-del{
+  margin-left:auto; min-height:44px; padding:0 14px;
+  background:transparent; border:1px solid rgba(255,255,255,.35);
+  border-radius:22px; color:#F4C7C7; font-family:inherit; font-size:12.5px;
+  cursor:pointer;
+}
+.sty-del:focus-visible{ outline:3px solid #fff; outline-offset:2px; }
+
+/* ---------- the composer ---------- */
+.sty-comp{
+  position:fixed; inset:0; z-index:130;
+  background:var(--paper); color:var(--body);
+  display:flex; flex-direction:column;
+  max-width:520px; margin:0 auto;
+  padding-top:env(safe-area-inset-top, 0px);
+  padding-bottom:env(safe-area-inset-bottom, 0px);
+}
+.sty-chead{
+  display:flex; align-items:center; gap:10px;
+  padding:12px 14px; border-bottom:1px solid var(--line);
+}
+.sty-ctitle{ font-weight:700; font-size:16px; }
+.sty-cbody{ flex-grow:1; overflow-y:auto; padding:14px; }
+
+.sty-ta{
+  width:100%; min-height:132px; resize:none;
+  font-family:inherit; font-size:16px; line-height:1.5;
+  color:var(--body); background:var(--boxfill);
+  border:1px solid var(--soft); border-radius:12px; padding:12px 13px;
+}
+.sty-ta:focus{ outline:3px solid var(--gd); outline-offset:1px; }
+
+.sty-tints{ display:flex; gap:9px; margin:12px 0 0; flex-wrap:wrap; }
+.sty-tint{
+  width:44px; height:44px; border-radius:50%; cursor:pointer;
+  border:2px solid transparent;
+}
+.sty-tint[aria-pressed="true"]{ border-color:var(--gd); }
+.sty-tint:focus-visible{ outline:3px solid var(--gd); outline-offset:2px; }
+
+.sty-left{ font-size:12px; color:var(--soft); margin-top:8px; }
+.sty-left.sty-over{ color:#A3352C; font-weight:700; }
+
+/* ⚠️ The same sentence the room says before somebody sends a picture,
+   because it is the same risk and a story reaches more people. */
+.sty-warn{
+  margin:14px 0 0; padding:11px 13px;
+  background:var(--gl); color:var(--gt);
+  border-radius:12px; font-size:13px; line-height:1.5;
+}
+
+.sty-cfoot{
+  display:flex; gap:10px; align-items:center;
+  padding:12px 14px; border-top:1px solid var(--line);
+}
+.sty-send{
+  margin-left:auto; min-height:46px; padding:0 22px;
+  background:var(--gd); color:#fff; border:0; border-radius:23px;
+  font-family:inherit; font-size:14.5px; font-weight:700; cursor:pointer;
+}
+.sty-send:disabled{ opacity:.45; cursor:default; }
+.sty-send:focus-visible{ outline:3px solid var(--gd); outline-offset:3px; }

@@ -129,6 +129,13 @@ export async function signPhotoPaths(supabase, wanted) {
   const cmtPaths    = asked.filter((p) => p.startsWith('comments/'));
   const roomVids    = asked.filter((p) => p.startsWith('roomvids/'));
   const dmVids      = asked.filter((p) => p.startsWith('dmvids/'));
+  /* 📖 STORIES (18 Sept). Two prefixes, not one, and NOT `posts/`.
+     0135's lesson exactly: the sweeper compares a bucket listing against
+     referenced_media(), which returns bare paths with no bucket attached,
+     so a shared prefix would let a live photo vouch for a dead video in
+     the other bucket. */
+  const storyPics   = asked.filter((p) => p.startsWith('stories/'));
+  const storyVids   = asked.filter((p) => p.startsWith('storyvids/'));
 
   const allowed = new Set();
 
@@ -288,6 +295,30 @@ export async function signPhotoPaths(supabase, wanted) {
     (data || []).forEach((r) => r.video_url && allowed.add(r.video_url));
   }
 
+  /* 📖 A PICTURE IN SOMEBODY'S STORY (0171). Asked of `visible_stories`,
+     which already drops a story that has expired, been taken down, or
+     belongs to somebody suspended or either side of a block — and which
+     returns nothing at all to a caller with no session. So a story photo
+     inherits every one of those rules without this file knowing what any
+     of them are.
+
+     ⭐ THE EXPIRY IS THE POINT. A signed link lives an hour. Without the
+     `expires_at > now()` inside that view, a story could still be minted
+     a link — and therefore watched — after the moment it promised to be
+     gone. Everything else here is a permission; this one is the feature. */
+  if (storyPics.length) {
+    const { data } = await supabase
+      .from('visible_stories').select('photo_url').in('photo_url', storyPics);
+    (data || []).forEach((r) => r.photo_url && allowed.add(r.photo_url));
+  }
+
+  /* 📖 A VIDEO IN A STORY (0171). Same view, other column. */
+  if (storyVids.length) {
+    const { data } = await supabase
+      .from('visible_stories').select('video_url').in('video_url', storyVids);
+    (data || []).forEach((r) => r.video_url && allowed.add(r.video_url));
+  }
+
   if (avatarPaths.length) {
     const { data } = await supabase
       .from('public_profiles')
@@ -307,7 +338,9 @@ export async function signPhotoPaths(supabase, wanted) {
                                   ['dm-photos',   'dms/'],
                                   ['comment-photos', 'comments/'],
                                   ['room-videos',    'roomvids/'],
-                                  ['dm-videos',      'dmvids/']]) {
+                                  ['dm-videos',      'dmvids/'],
+                                  ['story-photos',   'stories/'],
+                                  ['story-videos',   'storyvids/']]) {
     const paths = [...allowed].filter((p) => p.startsWith(prefix));
     if (!paths.length) continue;
 

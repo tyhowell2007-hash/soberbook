@@ -129,6 +129,20 @@ const BUCKETS = [
   { bucket: 'dm-photos',      prefix: 'dms',      grace: GRACE_HOURS },
   { bucket: 'room-videos',    prefix: 'roomvids', grace: GRACE_HOURS },
   { bucket: 'dm-videos',      prefix: 'dmvids',   grace: GRACE_HOURS },
+  /* 📖 STORIES (0171), and the order was respected: referenced_media()
+     learned about the stories table in the SAME migration that created
+     it, BEFORE either bucket existed and long before this line. Adding
+     these two first would have reported every live story's file as an
+     orphan and offered to delete it — the 0063 failure, which does not
+     look like an error, it looks like a helpful list.
+
+     ⭐ AND THIS IS WHERE A STORY ACTUALLY DIES. referenced_media() names
+     only stories with `expires_at > now()`, so twenty-four hours after
+     it went up a story's file stops being referenced and the next sweep
+     removes it. The feature cleans up through machinery that already
+     existed rather than through a new job somebody has to remember. */
+  { bucket: 'story-photos', prefix: 'stories',   grace: GRACE_HOURS },
+  { bucket: 'story-videos', prefix: 'storyvids', grace: GRACE_HOURS },
 ];
 
 /* Supabase's list() is paginated and folder-scoped. It also returns a
