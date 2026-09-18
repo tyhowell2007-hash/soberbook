@@ -363,3 +363,19 @@
 }
 .rm-frameerr p{ margin:0; color:#CFEADC; font-size:14.5px; line-height:1.6; }
 .rm-frameerr .btn{ width:auto; }
+
+
+/* ---- the way out of the meeting list -------------------------------- */
+/* One line to /find-care. --gm-t, not --gm: this is TEXT, and --gm is
+   4.22:1 on paper. MEASURED, not estimated — the first version of this
+   comment guessed 8.40 for the dark theme and the real figure is 13.70:
+     --gm-t on --paper   5.78 light · 13.70 dark   (need 4.5)
+     --soft border       4.87 light ·  8.92 dark   (need 3.0)
+     --gm   on hover     4.02 light ·  3.93 dark   (need 3.0) */
+.mt-care{
+  display:block; padding:12px 14px; min-height:44px; box-sizing:border-box;
+  border:1px dashed var(--soft); border-radius:12px;
+  font-size:13.5px; line-height:1.45; color:var(--gm-t);
+  text-decoration:none; background:transparent;
+}
+.mt-care:hover{ border-style:solid; border-color:var(--gm); }

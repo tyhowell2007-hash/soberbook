@@ -76,9 +76,18 @@ export default function FindCare({ snapshot }) {
 
   return (
     <div className="fc">
+      {/* ⭐ HER NAME IS IN THE FIRST LINE, NOT THE FOOTER, AND THAT IS TY'S
+          CALL (18 Sept). Dr. Labor recovers out loud and agreed to it.
+
+          ⚠️ WHAT THIS LINE CLAIMS AND WHAT IT DOESN'T. It says she built
+          the directory, which is true. It does NOT say she endorses Sober
+          Book, because she hasn't publicly, and /help's own rule is that
+          the app does not make claims on somebody else's behalf. If she
+          gives a quote, put it here in her words instead of ours. */}
       <p className="fc-intro">
-        <b>{TOTAL_IN_DIRECTORY.toLocaleString()} places</b> to get help, from{' '}
-        <a href="https://myrecoverymap.org" target="_blank" rel="noopener noreferrer">RecoveryMap</a>.
+        <b>{TOTAL_IN_DIRECTORY.toLocaleString()} places</b> to get help — the{' '}
+        <a href="https://myrecoverymap.org" target="_blank" rel="noopener noreferrer">RecoveryMap</a>
+        {' '}directory, built by <b>Dr. Nicole Labor</b>.
         {' '}Nobody paid to be on this list, and nobody can.
       </p>
 

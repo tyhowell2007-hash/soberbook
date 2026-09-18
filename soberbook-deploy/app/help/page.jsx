@@ -108,6 +108,39 @@ export default async function HelpPage() {
           list them.
         </p>
 
+        {/* =================================================================
+            FIND CARE — the one thing on this page that IS here.
+
+            ⚠️ IT SITS ABOVE THE CRISIS NUMBERS BY A HAIR, AND THAT ORDER WAS
+            WEIGHED. Somebody in immediate crisis needs a phone number, not a
+            directory — which argues for putting this second. It goes first
+            because it is the only item on the page that does not send the
+            person out of the app, and because the crisis numbers directly
+            below it are unmissable. If that ever stops being true, this moves
+            down.
+
+            ⭐ The directory is Dr. Nicole Labor's, which is why this belongs
+            on the page of things that aren't us even though it opens in the
+            app. She gave RecoveryMap to Sober Book in Sept 2026 and asked for
+            it to live inside it.
+
+            🔴 NO REFERRAL TRACKING HERE EITHER — same rule as every outbound
+            link on this page, and the database has no `featured` column for
+            anybody to buy. See supabase/0167. */}
+        <h2 className="hpsec">Somewhere to go</h2>
+        <div className="hpcard">
+          <h3 className="hpname">Find Care</h3>
+          <p className="hpwhat">
+            19,490 treatment centres and sober living houses, searchable by state
+            and town — the ones that take Medicaid, the ones on a sliding scale,
+            and the ones that will treat you while you&rsquo;re on methadone or
+            suboxone. Built by <b>Dr. Nicole Labor</b>, an addiction medicine
+            doctor in Seville, Ohio, who gave her directory to Sober Book. Nobody
+            paid to be on it and nobody can.
+          </p>
+          <Link className="hptel" href="/find-care">Find care near you</Link>
+        </div>
+
         <h2 className="hpsec">If you need somebody now</h2>
         {NOW.map((r) => (
           <div className="hpcard" key={r.name}>

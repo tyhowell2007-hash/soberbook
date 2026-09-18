@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation';
+import Link from 'next/link';
 import { serverClient, assertReadable } from '../../lib/supabase-server';
 import { fetchMeetings, SOURCE } from '../../lib/meetings';
 import List from './List';
@@ -87,6 +88,23 @@ export default async function MeetingsPage() {
           server in another state is down. */}
       <div className="pad" style={{ paddingBottom: 0 }}>
         <Rooms />
+      </div>
+
+      {/* ⭐ FOR WHEN A MEETING ISN'T THE THING.
+
+          Placed here, under our own rooms and ABOVE the NA list, because
+          somebody who opens /meetings at 2am is already looking for a way
+          in somewhere — and for some of them the answer is detox or a bed,
+          not another hour in a chair.
+
+          ⚠️ Deliberately quiet. It is one line, not a card: a person who
+          came here for a meeting should not have treatment marketed at
+          them. In this industry the loud version of this link is the
+          problem. */}
+      <div className="pad" style={{ paddingTop: 10, paddingBottom: 0 }}>
+        <Link className="mt-care" href="/find-care">
+          Need more than a meeting? Find treatment and sober living near you →
+        </Link>
       </div>
 
       {!ok ? (

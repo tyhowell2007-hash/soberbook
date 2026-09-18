@@ -93,6 +93,35 @@ const TABS = [
      label to "Church" would be a much bigger change than swapping the
      icon back. */
   { href: '/quiet',    icon: '⛪', label: 'Quiet' },
+  /* Sept 18. The fifth to earn its way in, and the first tab that points
+     at something Sober Book did not build: Dr. Nicole Labor's RecoveryMap
+     directory, 19,490 places, which she gave the app so it could live
+     inside it.
+
+     ⚠️ LABEL IS "Care", NOT "Find Care", AND THAT IS A MEASUREMENT, NOT A
+     PREFERENCE. Measured on a canvas with the bar's real computed font
+     (Archivo 600 11px, .11 letter-spacing) plus the tab's real 8px
+     padding and the 44px tap-target floor:
+
+         6 tabs (before this)      307px
+         7 tabs with "Care"        351px  — fits 360px phones and up
+         7 tabs with "Find Care"   378px  — breaks a 375px iPhone SE
+
+     ⚠️ THIS IS THE SEVENTH TAB, AND wall.css SAYS "Six is the ceiling for
+     a bar of words." TY OVERRULED THAT ON 18 SEPT, HAVING BEEN SHOWN THE
+     NOTE AND THE MEASUREMENTS. Recorded here so nobody "corrects" it back
+     later — same as the ⛪ icon on Quiet.
+
+     What the ceiling was protecting against: on 21 Aug "MEETINGS" wrapped
+     to two lines, which made the bar taller than .navpad reserves and hid
+     a strip of every page under it. `white-space:nowrap` on .tl now makes
+     that specific failure impossible — a label can be cramped, but it can
+     no longer change the bar's HEIGHT. That is why seven is survivable
+     where it wasn't in August.
+
+     Still true: below ~344px the labels get tight. Do not lengthen this
+     label without re-measuring, and do not add an eighth. */
+  { href: '/find-care', icon: '🧭', label: 'Care' },
   /* no `dot` — see above */
   { href: '/me',       icon: '🙂', label: 'You'  },
 ];
