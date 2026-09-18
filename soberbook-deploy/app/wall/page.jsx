@@ -14,6 +14,10 @@ import OpenRoom from './OpenRoom';
    a client REFERENCE, so a named one lands on the server as a proxy and
    throws — that took /wall down for every member on 2 Sept with a green
    build. Anything both sides need lives in lib/seasons.js. */
+/* 📖 The story rail. A client component imported by DEFAULT into this
+   server page — the supported way across that boundary, and the same
+   rule Shot.jsx spells out. Never reach for a named export here. */
+import StoryRail from '../components/StoryRail';
 import Seasons from './Seasons';
 /* ⭕ The way in to your circle. ⚠️ Default import only — a named one
    out of a 'use client' module lands on the server as a proxy and throws. */
@@ -381,6 +385,27 @@ export default async function WallPage() {
           ⚠️ No wrapper div. The card carries its own margin matching
           .composer; a .pad around a component left a 110px empty band at
           the top of Home on 2 Sept. */}
+      {/* 📖 THE STORY RAIL, FIRST ON THE PAGE (0171). Ty's call, made
+          against the numbers rather than a hunch.
+
+          🔴 IT HAS NOW BEEN IN THREE PLACES AND THE FIRST TWO WERE
+          MEASURED WRONG. Inside Wall.jsx above the composer it landed at
+          1,646px — 2.2 screens down. Moved to the top of Wall.jsx it was
+          still 882px, because Wall.jsx does not start the page: this file
+          does, and the doors bar, OpenRoom, Seasons and CircleCard all
+          render above it. "First thing in the component" is not the same
+          claim as "first thing on the page", and only the page tells you
+          which.
+
+          ⚠️ ABOVE Seasons, BELOW OpenRoom, and that order is deliberate.
+          OpenRoom renders nothing almost always — but when it renders,
+          somebody is in a meeting RIGHT NOW, and nothing outranks that.
+          A ring does not.
+
+          ⚠️ No wrapper div, for the reason stated twice above: a `.pad`
+          around a component that returns null leaves a 110px empty band
+          at the top of Home. The rail carries its own padding. */}
+      <StoryRail />
       <Seasons initialSeason={profile.season || null} />
       {/* 🔴 NOTICEABLE ON PURPOSE (Ty, 11 Sept). The dark slab is the only
           non-white card on this feed, because a page nobody can find is the
