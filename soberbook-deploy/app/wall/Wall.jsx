@@ -1038,6 +1038,28 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
 
   return (
     <>
+      {/* 📖 THE STORY RAIL, AND IT IS THE FIRST THING ON THE PAGE (0171).
+
+          🔴 IT SHIPPED IN THE WRONG PLACE AND THE MEASUREMENT CAUGHT IT.
+          I first put it directly above the composer, reasoning from the
+          composer's own comment below — "on a phone you land at the top".
+          That sentence was TRUE WHEN IT WAS WRITTEN and is not true now:
+          the wall has grown a welcome block, a seasons card and a circle
+          card since, so the composer starts 1,758px down. The rail landed
+          at 1,646px — 2.2 screens of scrolling on a 744px window.
+
+          ⚠️ A rail nobody scrolls to is the Care tab again: shipped,
+          looked at once, and pulled. A ring is a GLANCE — it only works
+          as the thing your eye lands on, so it goes above the welcome.
+
+          ⚠️ AND IT IS WHY "above the composer" WAS NOT THE SAME CLAIM AS
+          "at the top". Reasoning from a comment about the layout is not
+          the same as measuring the layout. The number is the check.
+
+          It renders NOTHING when there is nothing to show and nothing you
+          could add, so a quiet day still costs no height. */}
+      <StoryRail />
+
       {/* ---- WELCOME HOME ----
           The first thing on the page, every time. It's warm on purpose:
           the moment somebody opens this app is often not a good moment,
@@ -1143,18 +1165,6 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
           they have, it becomes a two-line record rather than more
           furniture between them and the room. */}
       <Gratitude />
-
-      {/* 📖 THE STORY RAIL, ABOVE THE COMPOSER (0171).
-
-          ⚠️ Above it, not below, and that is the same argument the
-          composer itself makes two comments down: on a phone you land at
-          the top, and a rail you have to scroll to is a rail nobody
-          opens. It is also the shallower thing — a ring is a glance, the
-          composer is a commitment — and the glance should come first.
-
-          It renders NOTHING when there is nothing to show and nothing
-          you could add, so a quiet day costs no height. */}
-      <StoryRail />
 
       {/* ---- THE COMPOSER, MOVED TO THE TOP ----
           It used to sit under the wall. Two reasons it belongs here:
