@@ -85,7 +85,12 @@ export default function StoryViewer({ rail, startAt, onClose }) {
          somebody watching, and the worst case is a ring stays bright. ---- */
   useEffect(() => {
     if (!here || here.is_mine) return;
-    supabase.rpc('story_seen', { p_story: here.id });
+    /* 🔴 .then() IS NOT DECORATION. A supabase-js query builder is lazy —
+       it only sends the request when something awaits or thens it. The
+       bare call that stood here never left the browser: views stayed at 0
+       and rings never went grey. Found by the 19 Sept sweep (story_open
+       in the logs, never story_seen). */
+    supabase.rpc('story_seen', { p_story: here.id }).then(() => {}, () => {});
   }, [supabase, here]);
 
   /* ---- move ---- */
