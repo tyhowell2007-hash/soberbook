@@ -34,6 +34,32 @@ export default function StoryComposer({ onClose }) {
   const [busy, setBusy]   = useState(false);
   const [err, setErr]     = useState('');
   const ta = useRef(null);
+  const box = useRef(null);
+
+  /* 🔴 19 Sept — NICK: "STORY MODE HAD NO POST BUTTON."
+     On an iPhone the keyboard does not shrink a position:fixed box. The
+     composer focuses the text box on open, the keyboard comes up, and the
+     footer — which held the ONLY "Add to story" button — sat underneath
+     it. On a laptop there is no keyboard, which is why every test passed.
+     Two fixes, belt and braces:
+       1. the send button now lives in the HEADER, top right, where the
+          keyboard can never reach (Instagram puts "Share" there too);
+       2. the box is sized to the VISIBLE viewport, so the footer rides
+          up above the keyboard instead of hiding behind it. */
+  useEffect(() => {
+    const vv = typeof window !== 'undefined' ? window.visualViewport : null;
+    const el = box.current;
+    if (!vv || !el) return;
+    const fit = () => {
+      el.style.height = vv.height + 'px';
+      el.style.top = vv.offsetTop + 'px';
+      el.style.bottom = 'auto';
+    };
+    fit();
+    vv.addEventListener('resize', fit);
+    vv.addEventListener('scroll', fit);
+    return () => { vv.removeEventListener('resize', fit); vv.removeEventListener('scroll', fit); };
+  }, []);
 
   useEffect(() => {
     const prev = document.body.style.overflow;
@@ -75,15 +101,20 @@ export default function StoryComposer({ onClose }) {
   }
 
   return (
-    <div className="sty-comp" role="dialog" aria-modal="true" aria-label="Add to your story">
+    <div className="sty-comp" ref={box} role="dialog" aria-modal="true" aria-label="Add to your story">
       <div className="sty-chead">
-        <span className="sty-ctitle">Add to your story</span>
         <button type="button" className="sty-x" aria-label="Close" onClick={onClose}
-                style={{ color: 'var(--body)' }}>
+                style={{ color: 'var(--body)', marginLeft: 0 }}>
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                strokeWidth="2.4" strokeLinecap="round" aria-hidden="true">
             <path d="M6 6l12 12M18 6L6 18" />
           </svg>
+        </button>
+        <span className="sty-ctitle">Your story</span>
+        {/* ⭐ THE ONE SEND BUTTON, up here where no keyboard can cover it.
+            See the 19 Sept note at the top of this component. */}
+        <button type="button" className="sty-send" disabled={!ready} onClick={send}>
+          {busy ? 'Sending…' : 'Post'}
         </button>
       </div>
 
@@ -99,7 +130,9 @@ export default function StoryComposer({ onClose }) {
                      style={{ width: '100%', borderRadius: 14, display: 'block' }} />}
           </div>
         ) : (
-          <div className="sty-card" data-tint={tint}
+          /* sty-mini: a 9:16 preview is a whole phone screen tall and
+             shoved the text box below the fold. Same card, shorter. */
+          <div className="sty-card sty-mini" data-tint={tint}
                aria-hidden="true">{body.trim() || 'It disappears in a day.'}</div>
         )}
 
@@ -151,9 +184,6 @@ export default function StoryComposer({ onClose }) {
             Take it off
           </button>
         )}
-        <button type="button" className="sty-send" disabled={!ready} onClick={send}>
-          {busy ? 'Sending…' : 'Add to story'}
-        </button>
       </div>
     </div>
   );

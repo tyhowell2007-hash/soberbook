@@ -50,10 +50,15 @@ export default function StoryRail() {
      that teaches people the feature is broken. */
   if (!rail.length && !mine) {
     return (
-      <div className="sty-rail">
-        <Slot me add onClick={() => setComposing(true)} />
+      <>
+        <div className="sty-rail">
+          <Slot me add onClick={() => setComposing(true)} />
+        </div>
+        {/* ⚠️ OUTSIDE the rail, as in the branch below. The rail is a
+            sideways scroller, and a fixed overlay nested in one is at the
+            browser's mercy on iOS. */}
         {composing && <StoryComposer onClose={() => { setComposing(false); load(); }} />}
-      </div>
+      </>
     );
   }
 

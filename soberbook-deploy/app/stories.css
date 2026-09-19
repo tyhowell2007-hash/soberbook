@@ -201,6 +201,15 @@
   padding:12px 14px; border-bottom:1px solid var(--line);
 }
 .sty-ctitle{ font-weight:700; font-size:16px; }
+/* 19 Sept: the send button moved up here (see StoryComposer). Smaller
+   than the old footer one so the header stays one line on a phone. */
+.sty-chead .sty-send{ min-height:40px; padding:0 20px; }
+/* The composer's preview card. 9:16 is right for WATCHING a story and
+   wrong for writing one — at phone width it was ~630px tall. */
+.sty-card.sty-mini{
+  aspect-ratio:auto; min-height:150px; max-height:34vh; max-width:none;
+  margin-bottom:12px; font-size:20px; padding:22px 20px;
+}
 .sty-cbody{ flex-grow:1; overflow-y:auto; padding:14px; }
 
 .sty-ta{
