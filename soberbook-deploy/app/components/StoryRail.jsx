@@ -34,7 +34,34 @@ export default function StoryRail() {
 
   const load = useCallback(async () => {
     const { data } = await supabase.rpc('story_rail');
-    setRail(data || []);
+    const rows = data || [];
+    /* 🔴 19 Sept. story_rail() hands back an avatar as a STORAGE PATH
+       ("avatars/….webp"), not a URL — the bucket is private. Dropped into
+       <img src> as-is it is a broken picture on every circle whose owner
+       has a profile photo. So the paths go through /api/photo/sign, the
+       same door the wall uses, which asks public_profiles whether this
+       viewer may see that face. Anything it refuses to sign becomes null
+       and the circle falls back to the emoji or the initial — never a
+       broken image, and never a photo the views would have hidden.
+       The viewer is handed these same rows, so it is fixed too. */
+    const isPath = (p) => typeof p === 'string' && p && !/^(https?:|blob:|data:)/.test(p);
+    const paths = [...new Set(rows.map((r) => r.display_avatar_photo).filter(isPath))];
+    let urls = {};
+    if (paths.length) {
+      try {
+        const res = await fetch('/api/photo/sign', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ paths }),
+        });
+        urls = (await res.json()).urls || {};
+      } catch {
+        /* A circle with an initial beats an error over the wall. */
+      }
+    }
+    setRail(rows.map((r) => (isPath(r.display_avatar_photo)
+      ? { ...r, display_avatar_photo: urls[r.display_avatar_photo] || null }
+      : r)));
   }, [supabase]);
 
   useEffect(() => { load(); }, [load]);
