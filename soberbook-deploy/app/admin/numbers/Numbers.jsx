@@ -194,6 +194,7 @@ export default function Numbers({ initial }) {
       <section className="nm-foot">
         <Link href="/admin/traffic" className="btn">Traffic &amp; analytics</Link>
         <Link href="/admin/growth" className="btn">Growth &amp; retention</Link>
+        <Link href="/admin/artists" className="btn">Artists</Link>
         <Link href="/admin" className="btn">
           {s.reports_open > 0
             ? `${s.reports_open} report${s.reports_open === 1 ? '' : 's'} waiting`

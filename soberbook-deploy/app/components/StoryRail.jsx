@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { browserClient } from '../../lib/supabase-browser';
 import StoryViewer from './StoryViewer';
 import StoryComposer from './StoryComposer';
+import ArtistCheck from './ArtistCheck';
 
 /* =====================================================================
    THE RAIL.  18 Sept 2026.
@@ -137,7 +138,7 @@ function Slot({ row, me = false, add = false, onClick }) {
         </span>
         {add && <span className="sty-plus" aria-hidden="true">+</span>}
       </span>
-      <span className="sty-name">{name}</span>
+      <span className="sty-name">{name}{!me && row && <ArtistCheck handle={row.display_name} />}</span>
     </button>
   );
 }

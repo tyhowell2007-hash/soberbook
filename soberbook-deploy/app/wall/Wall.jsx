@@ -31,6 +31,7 @@ import Pledge from '../components/Pledge';
 import Gratitude from '../components/Gratitude';
 import MilestoneCard from './MilestoneCard';
 import { markLabel } from '../../lib/milestones';
+import ArtistCheck from '../components/ArtistCheck';
 
 function ago(iso) {
   const mins = Math.floor((Date.now() - new Date(iso).getTime()) / 60000);
@@ -132,9 +133,14 @@ function unanswered(p) {
 function who(p) {
   if (!p.author_handle) return p.display_name;
   return (
-    <Link href={`/u/${p.author_handle}`} className="wholink">
-      {p.display_name}
-    </Link>
+    <>
+      <Link href={`/u/${p.author_handle}`} className="wholink">
+        {p.display_name}
+      </Link>
+      {/* Gold checkmark for verified artists. Keyed on author_handle,
+          which is NULL on anonymous posts — see ArtistCheck. */}
+      <ArtistCheck handle={p.author_handle} />
+    </>
   );
 }
 

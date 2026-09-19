@@ -9,6 +9,9 @@ import './wall.css';
    🔴 IMPORTED AFTER wall.css ON PURPOSE. It is an override layer and
    loses to anything that comes later at equal specificity. */
 import './theme-black.css';
+/* Artist profiles (19 Sept): the gold checkmark shows on the wall,
+   replies, profiles and the story rail, so its rules load everywhere. */
+import './artists.css';
 import { serverClient } from '../lib/supabase-server';
 
 /* ⚠️ theme-green.css IS DELIBERATELY NOT IMPORTED HERE. DO NOT ADD IT BACK.

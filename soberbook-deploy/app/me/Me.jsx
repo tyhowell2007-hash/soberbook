@@ -1289,6 +1289,12 @@ export default function Me({ email, profile, posts, initialAvatarUrl,
               <span className="mtD">A 3&frac12;-minute walkthrough of the whole app.</span>
             </Link>
 
+            {/* Artist profiles, 19 Sept. Same card shape as the two above. */}
+            <Link href="/artist" className="mtour">
+              <span className="mtT">🎤 Are you a musician?</span>
+              <span className="mtD">Apply for an artist profile — a gold checkmark, your links and shows, and followers.</span>
+            </Link>
+
             {/* ---- ☕ HELP KEEP THIS APP MOVING ----
 
                 🔴 THE LANDING PAGE CARRIES THE SAME ASK, AND THAT ONE IS

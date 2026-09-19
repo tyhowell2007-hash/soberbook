@@ -14,6 +14,7 @@ import PhotoUpload from '../components/PhotoUpload';
 import EmojiPicker from '../friends/EmojiPicker';
 import ReplyMenu from './ReplyMenu';
 import Shot from '../components/Shot';
+import ArtistCheck from '../components/ArtistCheck';
 /* 🏅 ADDED 16 SEPT, AND THE REASON IS KENNY'S SIX YEARS.
 
    The celebration shipped on 11 Sept to Wall.jsx and to Wall.jsx only. This
@@ -336,9 +337,12 @@ export default function Thread({ post, onClose, onCountChange }) {
                     is the same behaviour as before — the handle is NULL
                     by construction, not hidden by this markup. */}
                 {c.author_handle ? (
-                  <Link href={`/u/${c.author_handle}`} className="wholink">
-                    {c.display_name}
-                  </Link>
+                  <>
+                    <Link href={`/u/${c.author_handle}`} className="wholink">
+                      {c.display_name}
+                    </Link>
+                    <ArtistCheck handle={c.author_handle} />
+                  </>
                 ) : c.display_name}
                 <span className="rwhen">
                   {ago(c.created_at)}

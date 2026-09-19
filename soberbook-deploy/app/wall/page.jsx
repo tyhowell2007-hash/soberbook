@@ -18,6 +18,7 @@ import OpenRoom from './OpenRoom';
    server page — the supported way across that boundary, and the same
    rule Shot.jsx spells out. Never reach for a named export here. */
 import StoryRail from '../components/StoryRail';
+import ArtistStrip from '../components/ArtistStrip';
 import Seasons from './Seasons';
 /* ⭕ The way in to your circle. ⚠️ Default import only — a named one
    out of a 'use client' module lands on the server as a proxy and throws. */
@@ -406,6 +407,9 @@ export default async function WallPage() {
           around a component that returns null leaves a 110px empty band
           at the top of Home. The rail carries its own padding. */}
       <StoryRail />
+      {/* Artists on Sober Book (19 Sept) — hideable, renders nothing until
+          there is at least one verified artist to show. */}
+      <ArtistStrip />
       <Seasons initialSeason={profile.season || null} />
       {/* 🔴 NOTICEABLE ON PURPOSE (Ty, 11 Sept). The dark slab is the only
           non-white card on this feed, because a page nobody can find is the

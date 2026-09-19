@@ -14,6 +14,10 @@ import { signPhotoPaths } from '../../../lib/sign-photos';
    references and calling one on the server throws (2 Sept, /wall down
    fifteen minutes). Shot has exactly one export for that reason. */
 import Shot from '../../components/Shot';
+/* Artist profiles, 19 Sept. Both are client components imported by their
+   DEFAULT export — the only kind a server page may import. */
+import ArtistCheck from '../../components/ArtistCheck';
+import ArtistPanel from '../../components/ArtistPanel';
 
 export const dynamic = 'force-dynamic';
 
@@ -176,7 +180,7 @@ export default async function ProfilePage({ params }) {
             ? <img className="pav pav-photo" src={facePhoto} alt="" aria-hidden="true" />
             : <div className="pav" aria-hidden="true">{p.display_avatar || '🌱'}</div>}
           <div className="pwho">
-            <span className="pname">{p.display_name}</span>
+            <span className="pname">{p.display_name}<ArtistCheck handle={p.handle} /></span>
             <span className="phandle">@{p.handle}</span>
           </div>
         </div>
@@ -193,6 +197,8 @@ export default async function ProfilePage({ params }) {
           small
         />
 
+        {/* Renders nothing unless this is a verified artist. */}
+        <ArtistPanel handle={p.handle} />
         {p.bio && <p className="bio">{p.bio}</p>}
 
         {(p.sponsor_open || p.sponsor_has || p.sponsor_looking
