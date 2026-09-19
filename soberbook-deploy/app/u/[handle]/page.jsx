@@ -143,6 +143,10 @@ export default async function ProfilePage({ params }) {
      the viewer may see, so on almost every profile this is null and the
      page below renders exactly as it always has. */
   const { data: artist } = await supabase.rpc('artist_page', { p_handle: p.handle });
+  /* 0180: the same page for authors and podcasters (Dr. Labor, 19 Sept).
+     A musician's page is unchanged; an author/podcaster swaps "shows" for
+     "talks" and gains About, Books and The podcast. */
+  const isMusician = !artist || !Array.isArray(artist.kinds) || artist.kinds.includes('musician');
   const MON = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
 
   return (
@@ -200,13 +204,13 @@ export default async function ProfilePage({ params }) {
                 </div>
                 <h2 className="art-title">
                   {artist.name}
-                  <svg className="gchk" viewBox="0 0 24 24" role="img" aria-label="Verified artist">
-                    <title>Verified artist</title>
+                  <svg className="gchk" viewBox="0 0 24 24" role="img" aria-label="Verified">
+                    <title>Verified</title>
                     <circle cx="12" cy="12" r="11" /><path d="M7 12.5l3.2 3.2L17.2 8.6" />
                   </svg>
                 </h2>
                 <p className="art-hh">@{p.handle}{p.location ? ` · ${p.location}` : ''}</p>
-                {artist.genre && <p className="art-hh">{artist.genre}</p>}
+                {(artist.role_line || artist.genre) && <p className="art-hh">{artist.role_line || artist.genre}</p>}
                 <ArtistBar handle={p.handle} followers={artist.followers} following={artist.following}
                            isMine={!!artist.is_mine} days={p.day_count}>
                   {!p.is_mine && <MessageButton handle={p.handle} />}
@@ -219,6 +223,52 @@ export default async function ProfilePage({ params }) {
                 <p className="art-sub">Anthem</p>
                 <SongPlayer song={song} whose={artist.name + '’s song'}
                             autoplay={!!mine?.autoplay_songs} big />
+              </div>
+            )}
+
+            {artist.about && (
+              <div className="art-sect">
+                <p className="art-sub">About</p>
+                <p className="art-about">{artist.about}</p>
+              </div>
+            )}
+
+            {Array.isArray(artist.books) && artist.books.length > 0 && (
+              <div className="art-sect">
+                <p className="art-sub">Books</p>
+                <ul className="art-books">
+                  {artist.books.map((b, i) => (
+                    <li key={i} className="art-book">
+                      <span className="art-spine" aria-hidden="true" data-n={i % 3}>
+                        {String(b.title).replace(/^the\s+/i, '').split(/[\s:]+/).filter(Boolean).slice(0, 2).map((w) => w[0]).join('').toUpperCase()}
+                      </span>
+                      <span className="art-bk">
+                        <b>{b.title}</b>
+                        {b.blurb && <small>{b.blurb}</small>}
+                      </span>
+                      {b.url && <a className="art-get" href={b.url} target="_blank" rel="noreferrer noopener">Get it ↗</a>}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {artist.podcast && Array.isArray(artist.podcast.episodes) && artist.podcast.episodes.length > 0 && (
+              <div className="art-sect">
+                <p className="art-sub">The podcast · {String(artist.podcast.label).replace(/\s*\(podcast\)\s*$/i, '')}</p>
+                <ul className="art-books">
+                  {artist.podcast.episodes.map((e, i) => (
+                    <li key={i} className="art-book">
+                      <span className="art-play" aria-hidden="true">▶</span>
+                      <span className="art-bk">
+                        {e.url
+                          ? <a href={e.url} target="_blank" rel="noreferrer noopener"><b>{e.title}</b></a>
+                          : <b>{e.title}</b>}
+                        {e.at && <small>{MON[new Date(e.at).getMonth()].charAt(0) + MON[new Date(e.at).getMonth()].slice(1).toLowerCase()} {new Date(e.at).getDate()}</small>}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
               </div>
             )}
 
@@ -237,7 +287,7 @@ export default async function ProfilePage({ params }) {
             )}
 
             <div className="art-sect">
-              <p className="art-sub">Upcoming shows</p>
+              <p className="art-sub">{isMusician ? 'Upcoming shows' : 'Upcoming talks'}</p>
               {Array.isArray(artist.shows) && artist.shows.length > 0 ? (
                 <ul className="art-shows">
                   {artist.shows.map((sh, i) => {
@@ -257,7 +307,7 @@ export default async function ProfilePage({ params }) {
                     );
                   })}
                 </ul>
-              ) : <p className="art-none">No shows listed right now.</p>}
+              ) : <p className="art-none">{isMusician ? 'No shows listed right now.' : 'No talks listed right now.'}</p>}
             </div>
           </>
         ) : (

@@ -201,3 +201,23 @@
 .art-page .art-btns .btn{ color:#7FD3A4; border-color:#7FD3A4; background:transparent; }
 .art-page .art-btns .btn:hover{ background:#7FD3A4; color:#0C110F; }
 .art-page .art-date{ color:#7FD3A4; }
+
+/* ---------- 0180: authors & podcasters (Dr. Labor, 19 Sept) ----------
+   Same stage as the musicians; three extra cards. MEASURED on #18211C:
+   white spine text on #8A2B2B 8.6 · on #2E6B4F 6.3 · on #8A5A00 5.6. */
+.art-about{ font-size:14.5px; line-height:1.55; margin:0; color:var(--body); }
+.art-books{ list-style:none; margin:0; padding:0; }
+.art-book{ display:flex; align-items:center; gap:12px; padding:8px 0; border-top:1px solid var(--line); }
+.art-book:first-child{ border-top:0; }
+.art-spine{ width:40px; height:56px; border-radius:4px; flex:none; display:grid; place-items:center;
+  font-family:'Anton',Impact,sans-serif; font-size:12px; color:#fff; background:#8A2B2B; }
+.art-spine[data-n="1"]{ background:#2E6B4F; }
+.art-spine[data-n="2"]{ background:#8A5A00; }
+.art-play{ width:34px; height:34px; border-radius:50%; flex:none; display:grid; place-items:center;
+  background:#1E2C25; color:var(--gm-t); font-size:13px; }
+.art-bk{ display:flex; flex-direction:column; min-width:0; }
+.art-bk b{ font-size:14.5px; color:var(--body); line-height:1.3; }
+.art-bk a{ text-decoration:none; }
+.art-bk small{ font-size:12.5px; color:var(--soft); margin-top:2px; }
+.art-get{ margin-left:auto; font-size:12px; font-weight:700; color:var(--gm-t); text-decoration:none; white-space:nowrap; }
+.art-get:focus-visible, .art-bk a:focus-visible{ outline:3px solid var(--gm-t); outline-offset:2px; }
