@@ -124,3 +124,80 @@
 .art-q td{ padding:5px 0; border-bottom:1px solid var(--line); color:var(--body); vertical-align:top; overflow-wrap:anywhere; }
 .art-q td:first-child{ color:var(--soft); width:34%; padding-right:10px; }
 .art-acts{ display:flex; gap:8px; flex-wrap:wrap; }
+
+/* ---------- the artist version of /u/<handle> (19 Sept, round 2) ----------
+   Ty: "doesn't look like the picture". The prototype he approved has a
+   cover banner, a big overlapping avatar, the name in Anton with the gold
+   check, followers + Follow/Message up top, then Anthem, Listen & follow,
+   Upcoming shows as separate cards. This is that, for verified artists
+   only; every other profile is untouched. */
+.art-hero{ margin-bottom:14px; }
+.art-cover{
+  height:132px; border-radius:16px 16px 0 0; position:relative; overflow:hidden;
+  background:linear-gradient(135deg,#0F3D2A 0%,#2E6B4F 55%,#8A5A00 130%);
+}
+.art-cover svg{ position:absolute; left:0; right:0; bottom:0; width:100%; height:56px; opacity:.35; }
+.art-heroin{
+  background:var(--paper2); border:1px solid var(--line); border-top:0;
+  border-radius:0 0 16px 16px; padding:0 16px 16px;
+}
+.art-av{
+  width:88px; height:88px; border-radius:50%; border:4px solid var(--paper2);
+  margin-top:-44px; position:relative; overflow:hidden;
+  background:#C98B5A; color:#3A1F0E; display:grid; place-items:center;
+  font-family:'Anton',Impact,sans-serif; font-size:36px;
+}
+.art-av img{ width:100%; height:100%; object-fit:cover; }
+.art-title{
+  font-family:'Anton',Impact,sans-serif; font-weight:400; font-size:28px; line-height:1.1;
+  text-transform:uppercase; letter-spacing:.01em; color:var(--body);
+  margin:10px 0 0; display:flex; align-items:center; gap:8px; flex-wrap:wrap;
+}
+.art-title .gchk{ width:24px; height:24px; margin-left:0; }
+.art-hh{ color:var(--soft); font-size:14px; margin:3px 0 0; }
+.art-stats{ display:flex; gap:18px; flex-wrap:wrap; margin-top:12px; font-size:13px; color:var(--soft); }
+.art-stats b{ color:var(--body); font-size:15px; }
+.art-btns{ display:flex; gap:10px; flex-wrap:wrap; align-items:flex-start; margin-top:12px; }
+.art-btns .btn{
+  /* MessageButton's big block button, reshaped into the outline pill from
+     the prototype so it sits level with Follow. */
+  margin:0; min-height:40px; padding:0 18px; border-radius:20px; width:auto;
+  font-family:inherit; font-size:14px; font-weight:700; letter-spacing:0; text-transform:none;
+  background:transparent; color:var(--gm-t); border:1px solid var(--gm-t); box-shadow:none;
+}
+.art-sect{ margin-top:12px; background:var(--paper2); border:1px solid var(--line); border-radius:14px; padding:12px 14px; }
+.art-sect .art-sub{ margin-bottom:8px; }
+
+/* ---------- 19 Sept, round 3: "I want it to look just like this" ----------
+   Ty's reference is the prototype as it rendered on his Mac — the DARK
+   version. So a verified artist's page is always that look, whatever theme
+   the visitor has picked: it is the artist's stage, not the member's room.
+   Done the way theme-black does it — by redefining the app's own tokens
+   inside .art-page — so every existing part of the profile below the hero
+   (bio, posts, friends, buttons) follows without a rule of its own.
+   MEASURED on the card #18211C: ink #E4ECE7 13.9 · soft #9AA9A1 6.71 ·
+   green text #7FD3A4 10.1 · dark ink on the green button #0C110F/#7FD3A4 12.3.
+   Page #121916 vs card #18211C is carried by the #2B3831 edge. */
+.art-page{
+  --paper:#121916; --paper2:#18211C; --body:#E4ECE7; --x:#E4ECE7; --soft:#9AA9A1;
+  --line:#2B3831; --gd:#17573C; --gm-t:#7FD3A4; --gl:#1E2C25; --gt:#CFF3DF; --boxfill:#18211C;
+  --art-chk:#E6B93F; --art-tick:#18211C;
+  background:#121916; color:#E4ECE7; min-height:70vh;
+}
+.art-page .art-cover{ background:linear-gradient(135deg,#2F7A48 0%,#6DB36A 50%,#D9CF6A 115%); }
+.art-page .art-cover svg{ opacity:.55; }
+.art-page .art-heroin{ background:transparent; border:0; padding:0 4px 4px; }
+.art-page .art-hero{ margin-bottom:6px; }
+.art-page .art-av{ border-color:#121916; background:#E39A5C; color:#3A1F0E; }
+.art-page .art-title{ color:#FFFFFF; }
+.art-page .art-sub{
+  font-family:'Courier Prime',ui-monospace,monospace; font-size:11px; font-weight:700;
+  letter-spacing:.16em; color:#9AA9A1;
+}
+.art-page .art-sect{ background:#18211C; border-color:#2B3831; }
+.art-page .art-link{ background:#121916; border-color:#2B3831; color:#E4ECE7; }
+.art-page .art-follow{ background:#7FD3A4; border-color:#7FD3A4; color:#0C110F; }
+.art-page .art-follow[aria-pressed="true"]{ background:transparent; color:#7FD3A4; }
+.art-page .art-btns .btn{ color:#7FD3A4; border-color:#7FD3A4; background:transparent; }
+.art-page .art-btns .btn:hover{ background:#7FD3A4; color:#0C110F; }
+.art-page .art-date{ color:#7FD3A4; }

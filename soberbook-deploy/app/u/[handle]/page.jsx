@@ -17,7 +17,7 @@ import Shot from '../../components/Shot';
 /* Artist profiles, 19 Sept. Both are client components imported by their
    DEFAULT export — the only kind a server page may import. */
 import ArtistCheck from '../../components/ArtistCheck';
-import ArtistPanel from '../../components/ArtistPanel';
+import ArtistBar from '../../components/ArtistBar';
 
 export const dynamic = 'force-dynamic';
 
@@ -138,6 +138,13 @@ export default async function ProfilePage({ params }) {
   ]);
   const facePhoto = photos[p.display_avatar_photo] || null;
 
+  /* ---- verified artist? (19 Sept) ----
+     artist_page() returns null for everyone who isn't an approved artist
+     the viewer may see, so on almost every profile this is null and the
+     page below renders exactly as it always has. */
+  const { data: artist } = await supabase.rpc('artist_page', { p_handle: p.handle });
+  const MON = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+
   return (
     <>
       <div className="mast">
@@ -173,8 +180,88 @@ export default async function ProfilePage({ params }) {
       </div>
       <div className="bar">{p.is_mine ? 'This is how others see you' : 'Somebody’s page'}</div>
 
-      <div className="pad">
+      <div className={artist ? 'pad art-page' : 'pad'}>
 
+        {artist ? (
+          /* ===== THE ARTIST PAGE — the layout Ty approved in the prototype ===== */
+          <>
+            <section className="art-hero" aria-label="Artist">
+              <div className="art-cover" aria-hidden="true">
+                <svg viewBox="0 0 400 56" preserveAspectRatio="none">
+                  <path d="M0 40 Q 25 10 50 34 T 100 30 T 150 20 T 200 36 T 250 14 T 300 32 T 350 22 T 400 30 V56 H0Z" fill="#F6EBC8" />
+                </svg>
+              </div>
+              <div className="art-heroin">
+                <div className="art-av" aria-hidden="true">
+                  {facePhoto
+                    /* eslint-disable-next-line @next/next/no-img-element */
+                    ? <img src={facePhoto} alt="" />
+                    : (p.display_avatar || String(artist.name || p.handle).slice(0, 1).toUpperCase())}
+                </div>
+                <h2 className="art-title">
+                  {artist.name}
+                  <svg className="gchk" viewBox="0 0 24 24" role="img" aria-label="Verified artist">
+                    <title>Verified artist</title>
+                    <circle cx="12" cy="12" r="11" /><path d="M7 12.5l3.2 3.2L17.2 8.6" />
+                  </svg>
+                </h2>
+                <p className="art-hh">@{p.handle}{p.location ? ` · ${p.location}` : ''}</p>
+                {artist.genre && <p className="art-hh">{artist.genre}</p>}
+                <ArtistBar handle={p.handle} followers={artist.followers} following={artist.following}
+                           isMine={!!artist.is_mine} days={p.day_count}>
+                  {!p.is_mine && <MessageButton handle={p.handle} />}
+                </ArtistBar>
+              </div>
+            </section>
+
+            {song && (
+              <div className="art-sect">
+                <p className="art-sub">Anthem</p>
+                <SongPlayer song={song} whose={artist.name + '’s song'}
+                            autoplay={!!mine?.autoplay_songs} big />
+              </div>
+            )}
+
+            {Array.isArray(artist.links) && artist.links.length > 0 && (
+              <div className="art-sect">
+                <p className="art-sub">Listen &amp; follow</p>
+                <div className="art-links">
+                  {artist.links.map((l) => (
+                    /* noreferrer: the artist's site never learns the visitor
+                       came from a recovery app. */
+                    <a key={l.url} className="art-link" href={l.url}
+                       target="_blank" rel="noreferrer noopener">{l.label} ↗</a>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div className="art-sect">
+              <p className="art-sub">Upcoming shows</p>
+              {Array.isArray(artist.shows) && artist.shows.length > 0 ? (
+                <ul className="art-shows">
+                  {artist.shows.map((sh, i) => {
+                    const d = new Date(sh.date + 'T12:00:00');
+                    return (
+                      <li key={i} className="art-show">
+                        <span className="art-date">{d.getDate()}<small>{MON[d.getMonth()]}</small></span>
+                        <span>
+                          <span className="art-venue">
+                            {sh.url
+                              ? <a href={sh.url} target="_blank" rel="noreferrer noopener" style={{ color: 'inherit' }}>{sh.venue} ↗</a>
+                              : sh.venue}
+                          </span>
+                          {sh.city && <span className="art-city"><br />{sh.city}</span>}
+                        </span>
+                      </li>
+                    );
+                  })}
+                </ul>
+              ) : <p className="art-none">No shows listed right now.</p>}
+            </div>
+          </>
+        ) : (
+        <>
         <div className="pcard">
           {facePhoto
             ? <img className="pav pav-photo" src={facePhoto} alt="" aria-hidden="true" />
@@ -196,9 +283,8 @@ export default async function ProfilePage({ params }) {
           sub={p.day_count === 1 ? 'day' : 'days'}
           small
         />
-
-        {/* Renders nothing unless this is a verified artist. */}
-        <ArtistPanel handle={p.handle} />
+        </>
+        )}
         {p.bio && <p className="bio">{p.bio}</p>}
 
         {(p.sponsor_open || p.sponsor_has || p.sponsor_looking
@@ -266,7 +352,7 @@ export default async function ProfilePage({ params }) {
           </div>
         ) : null}
 
-        {song ? (
+        {artist ? null : song ? (
           <>
             <h2 className="sec">Their song</h2>
             <SongPlayer
@@ -372,7 +458,7 @@ export default async function ProfilePage({ params }) {
           : (
             <div className="pacts">
               <FriendButton handle={p.handle} initialState={p.friend_state} />
-              <MessageButton handle={p.handle} />
+              {!artist && <MessageButton handle={p.handle} />}
             </div>
           )}
       </div>
