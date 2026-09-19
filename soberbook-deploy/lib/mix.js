@@ -391,7 +391,10 @@ export function mixFeed(posts = [], content = [], { every = EVERY, lonelyId = nu
        don't add another, whatever the ratio says. */
     if (isCard(out[out.length - 1])) continue;
 
-    out.push({ type: 'content', item: queue.shift() });
+    /* 0179: through pinRow too (not pinned), so a podcast episode that has
+       a companion post renders AS that post — hearts and replies — and one
+       that doesn't (comedy clips) stays a plain card. */
+    out.push(pinRow(queue.shift(), false));
     sincePost = 0;
   }
 

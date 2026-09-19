@@ -194,6 +194,19 @@ export default async function WallPage() {
      decides where a pin goes. */
   const content = [...(pinned || []), ...(clips || [])];
 
+  /* 0179: the posts that carry these exact cards (hearts + replies on
+     podcasts and ads). fetchFeedPosts above ran before the cards were
+     known, so fill in any it didn't find. Plain posts are untouched. */
+  if (Array.isArray(posts) && content.length) {
+    const have = new Set(posts.map((p) => p.content_item_id).filter(Boolean));
+    const missing = content.map((c) => c.id).filter((id) => !have.has(id));
+    if (missing.length) {
+      const { data: extra } = await supabase
+        .from(assertReadable('feed_posts')).select('*').in('content_item_id', missing);
+      if (extra && extra.length) posts.push(...extra);
+    }
+  }
+
   /* A member's own record (0058), keyed by post id.
 
      ⚠️ Read through feed_drops, never the `drops` table — the view is

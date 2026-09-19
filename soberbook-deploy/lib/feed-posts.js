@@ -36,7 +36,7 @@ export const FEED_WINDOW = 60;
 /* Ads are few and hand-placed, so this only has to be larger than the number
    of pinned items that will ever exist at once. It is not a display cap —
    lib/mix.js decides how many are shown and where. */
-export const AD_FETCH = 40;
+export const AD_FETCH = 120;
 
 /* ⚠️ Dedupe by id, keeping the order the lists arrive in. A milestone or an
    ad inside the last sixty comes back from two queries, and rendering
@@ -60,16 +60,28 @@ function merge(...lists) {
    query by definition rather than by somebody remembering to keep two copies
    in step. `assertReadable` is applied by the caller on the server, where the
    rule about reading through views is enforced. */
-export async function fetchFeedPosts(supabase, table = 'feed_posts') {
+/* 🔴 19 Sept (0179) — PODCAST EPISODES AND EVERY AD ARE POSTS NOW, so
+   they can be hearted and replied to. Two consequences, both handled here:
+   1. The "newest 60" window must NOT count them. They are dated to the
+      episode, and ten new episodes would otherwise push ten members' posts
+      off the wall. `content_item_id is null` on the recent query.
+   2. There are hundreds of them, so "the newest 40" no longer finds the
+      ones on screen. Pass `itemIds` (the cards actually being shown) and
+      exactly those posts are fetched; without it, the newest AD_FETCH. */
+export async function fetchFeedPosts(supabase, table = 'feed_posts', itemIds = null) {
+  const ids = Array.isArray(itemIds) ? itemIds.filter(Boolean).slice(0, 300) : null;
   const [recent, milestones, ads] = await Promise.all([
     supabase.from(table).select('*')
+      .is('content_item_id', null)
       .order('created_at', { ascending: false }).limit(FEED_WINDOW),
     supabase.from(table).select('*')
       .not('milestone_days', 'is', null)
       .order('created_at', { ascending: false }).limit(MAX_CELEBRATIONS),
-    supabase.from(table).select('*')
-      .not('content_item_id', 'is', null)
-      .order('created_at', { ascending: false }).limit(AD_FETCH),
+    ids && ids.length
+      ? supabase.from(table).select('*').in('content_item_id', ids)
+      : supabase.from(table).select('*')
+          .not('content_item_id', 'is', null)
+          .order('created_at', { ascending: false }).limit(AD_FETCH),
   ]);
 
   return {

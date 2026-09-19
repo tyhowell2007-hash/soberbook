@@ -679,7 +679,7 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
   // their post and moves it to whoever has been waiting next longest.
   // The layout is the promise.
   async function refresh() {
-    const { posts: data } = await fetchFeedPosts(supabase);
+    const { posts: data } = await fetchFeedPosts(supabase, 'feed_posts', content.map((c) => c.id));
     if (data) {
       setPosts(data);
       setOpen((o) => (o ? data.find((p) => p.id === o.id) || o : o));
@@ -824,7 +824,7 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
         });
         if (error) throw error;
 
-        const { posts: data } = await fetchFeedPosts(supabase);
+        const { posts: data } = await fetchFeedPosts(supabase, 'feed_posts', content.map((c) => c.id));
         setPosts(data || []);
       }
 
@@ -992,7 +992,7 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
       setPhotoDropped(false);
       setAudience('open');
       // re-read through the VIEW, never the base table
-      const { posts: data } = await fetchFeedPosts(supabase);
+      const { posts: data } = await fetchFeedPosts(supabase, 'feed_posts', content.map((c) => c.id));
       setPosts(data || []);
       /* ⚠️ The record has to be re-read HERE, in the same breath as the
          posts. router.refresh() also refetches it, eventually — and
