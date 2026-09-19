@@ -255,6 +255,7 @@
   font-family:'Anton',Impact,sans-serif; font-size:19px;
   letter-spacing:.06em; color:#C6F24E;
 }
+.tvnav{ display:flex; gap:14px; align-items:baseline; flex-wrap:wrap; }
 .tvback{
   font-family:'Courier Prime',monospace; font-size:11px;
   letter-spacing:.08em; color:#8FA894; text-decoration:none;
@@ -298,6 +299,65 @@
 }
 .tvaxis .tvtoday{ color:#C6F24E; }
 
+/* ---------------------------------------------------------------------
+   THE PEOPLE PANELS - 16 Sept 2026. Ty: "I want to see all the new
+   people coming in and what they chose to be their handle... who's
+   posting and who's talking and who isn't."
+
+   MEASURED BEFORE THIS BLOCK WAS WRITTEN (floor 4.5 text / 3.0 graphic):
+     handle     #E8F3EA on #16201A .... 14.69
+     acid       #C6F24E on #16201A .... 12.91
+     gold       #E8B75C on #16201A ..... 9.05
+     muted      #8FA894 on #16201A ..... 6.53
+     chip open  #C6F24E on #1D2A1F .... 11.55
+     chip hid   #8FA894 on #1A241E ..... 6.23
+     chip edge  #5E7A66 on #1D2A1F ..... 3.17  (graphic, floor 3.0)
+   Control: #C6F24E on #D9F58A = 1.07 and #16201A on #121A14 = 1.06,
+   so the function genuinely fails when it should.
+
+   The row divider is #24302A at 1.22 and that is DELIBERATE - it is a
+   hairline, it carries no information, and the rows are already spaced.
+   It is not text and must not be "fixed" up to 4.5, which would turn a
+   quiet list into a grid of lines.
+   --------------------------------------------------------------------- */
+.tvpanels{ display:grid; grid-template-columns:repeat(auto-fit,minmax(272px,1fr));
+  gap:11px; margin-bottom:20px; }
+.tvpanel{ background:#16201A; border:1px solid #5E7A66; border-radius:9px;
+  padding:13px 14px; }
+.tvptitle{ font-family:'Courier Prime',monospace; font-size:11px;
+  letter-spacing:.08em; color:#8FA894; margin-bottom:10px;
+  display:flex; justify-content:space-between; gap:8px; align-items:baseline; }
+.tvptitle em{ font-style:normal; color:#7A9280; font-size:10.5px; }
+
+.tvperson{ display:flex; align-items:center; gap:9px; padding:7px 0;
+  border-bottom:1px solid #24302A; }
+.tvperson:last-child{ border-bottom:0; }
+.tvname{ flex:1; font-size:14px; font-weight:600; color:#E8F3EA;
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.tvchip{ font-family:'Courier Prime',monospace; font-size:9.5px;
+  letter-spacing:.06em; border-radius:999px; padding:2px 7px;
+  border:1px solid #5E7A66; }
+.tvchip.tvopen{ color:#C6F24E; background:#1D2A1F; }
+.tvchip.tvhid{ color:#8FA894; background:#1A241E; }
+.tvwhen{ font-size:11.5px; color:#7A9280; white-space:nowrap; }
+.tvdid{ font-size:11.5px; color:#C6F24E; white-space:nowrap;
+  min-width:74px; text-align:right; }
+/* Gold, never red. Somebody who has not spoken yet has done nothing
+   wrong - this is a nudge, exactly like the 19 Aug friends list. */
+.tvdid.tvnone{ color:#E8B75C; }
+
+.tvsplit{ display:flex; height:10px; border-radius:999px; overflow:hidden;
+  background:#24302A; margin-bottom:11px; }
+.tvsplit i{ display:block; }
+.tvsplit i.a{ background:#C6F24E; }
+.tvsplit i.b{ background:#5C8A68; }
+.tvkey{ font-size:13px; line-height:1.85; color:#8FA894; }
+.tvkey b{ color:#E8F3EA; font-weight:700; }
+.tvkey b.a{ color:#C6F24E; }
+.tvkey b.c{ color:#E8B75C; }
+.tvempty{ font-size:12.5px; color:#7A9280; line-height:1.6; margin:0; }
+
+
 .tvrows{ display:flex; flex-direction:column; gap:9px; }
 .tvrow{
   display:grid; grid-template-columns:92px 1fr 66px 86px;
@@ -321,3 +381,94 @@
   .tvrow{ grid-template-columns:76px 1fr 54px; }
   .tvrow u{ display:none; }
 }
+
+/* =====================================================================
+   GROWTH & RETENTION (.gw-*) — /admin/growth.  18 Sept 2026.
+
+   ⚠️ Every name here was checked against every stylesheet first. None
+   of the nineteen existed.
+
+   🔴 --gw-ink IS A VARIABLE BECAUSE --gd FAILS IN THE DARK. Measured
+   before writing: --gd bars on the dark card are 1.94:1 — the same
+   green-on-green trap the story rings fell into the same evening. A bar
+   is a non-text graphic and needs 3:1. Dark theme uses --gm-t.
+   MEASURED  bar on card   6.46 light / 12.23 dark
+             bar on track  5.72 light / 10.79 dark
+             --soft labels 5.12 light /  7.96 dark
+   ===================================================================== */
+.gw{ --gw-ink:var(--gd); --gw-card:#fff; }
+[data-theme="black"] .gw{ --gw-ink:var(--gm-t); --gw-card:#18211c; }
+
+.gw-filters{ display:flex; flex-wrap:wrap; gap:10px 14px; align-items:flex-end; margin:0 0 14px; }
+.gw-presets, .gw-toggle{ display:flex; flex-wrap:wrap; gap:6px; }
+.gw-chip{
+  min-height:40px; padding:0 13px; border-radius:20px; cursor:pointer;
+  border:1.5px solid var(--soft); background:transparent; color:var(--body);
+  font:600 13px/1 'Archivo',system-ui,sans-serif;
+}
+.gw-chip[aria-pressed="true"]{ background:var(--gw-ink); border-color:var(--gw-ink); color:var(--gw-card); }
+.gw-chip:focus-visible{ outline:3px solid var(--gw-ink); outline-offset:2px; }
+
+.gw-dates{ display:flex; gap:8px; flex-wrap:wrap; }
+.gw-dates label, .gw-segl{
+  display:flex; flex-direction:column; gap:4px;
+  font:700 10.5px/1 'Courier Prime',monospace; letter-spacing:.12em; text-transform:uppercase; color:var(--soft);
+}
+.gw-dates input, .gw-segl select{
+  min-height:40px; padding:0 10px; border-radius:10px;
+  border:1px solid var(--soft); background:var(--gw-card); color:var(--body);
+  font:400 14px/1 'Archivo',system-ui,sans-serif; text-transform:none; letter-spacing:0;
+}
+.gw-status{ flex-basis:100%; margin:0; font-size:12.5px; color:var(--soft); }
+.gw-err{ flex-basis:100%; margin:0; font-size:13px; color:#A3352C; }
+
+.gw-card{
+  background:var(--gw-card); border:1px solid var(--line); border-radius:14px;
+  padding:14px 14px 12px; margin:0 0 12px;
+}
+.gw-card h2{ margin:0 0 6px; font:700 16px/1.25 'Archivo',system-ui,sans-serif; color:var(--body); }
+.gw-head{ display:flex; flex-wrap:wrap; gap:8px; align-items:center; justify-content:space-between; margin:0 0 6px; }
+.gw-head h2{ margin:0; }
+
+.gw-note{ margin:0 0 10px; font-size:13px; line-height:1.5; color:var(--soft); }
+.gw-sub{ display:block; margin:3px 0 0; font-size:12px; line-height:1.45; color:var(--soft); }
+.gw-dim{ color:var(--soft); font-weight:400; }
+.gw-thin{ font-style:normal; font-weight:700; color:var(--gold-ink); }
+.gw-foot{ margin:6px 0 20px; font-size:12.5px; line-height:1.55; color:var(--soft); }
+
+/* The one sentence that changes how every number below is read. Gold,
+   not red: it is a caveat, not an error. */
+.gw-warn{
+  margin:0 0 12px; padding:11px 13px; border-radius:12px;
+  background:var(--gold-bg); border:1px solid var(--gold); color:var(--gold-ink);
+  font-size:13px; line-height:1.55;
+}
+
+.gw-read{ display:flex; flex-wrap:wrap; gap:4px 14px; margin:0 0 6px; font-size:13px; color:var(--body); font-variant-numeric:tabular-nums; }
+.gw-rd{ font-weight:700; }
+.gw-svg{ display:block; width:100%; height:auto; touch-action:pan-y; }
+.gw-barf{ fill:var(--gw-ink); opacity:.78; }
+.gw-barf.gw-on{ opacity:1; }
+.gw-grid{ stroke:var(--line); stroke-width:1; }
+.gw-axis{ fill:var(--soft); font:400 11px 'Archivo',system-ui,sans-serif; font-variant-numeric:tabular-nums; }
+
+.gw-tiles{ display:grid; grid-template-columns:repeat(auto-fit, minmax(128px, 1fr)); gap:8px; }
+.gw-tile{
+  display:flex; flex-direction:column; gap:2px;
+  border:1.5px solid var(--gw-ink); border-radius:12px; padding:10px 11px;
+}
+.gw-num{ font:800 26px/1.05 'Archivo',system-ui,sans-serif; color:var(--body); font-variant-numeric:tabular-nums; }
+.gw-lab{ font:700 12.5px/1.3 'Archivo',system-ui,sans-serif; color:var(--body); }
+
+.gw-row{ margin:0 0 12px; }
+.gw-rowh{ display:flex; justify-content:space-between; gap:10px; margin:0 0 5px; }
+.gw-rowl{ font-weight:700; font-size:14px; color:var(--body); }
+.gw-rowv{ font-weight:800; font-size:18px; color:var(--body); font-variant-numeric:tabular-nums; }
+
+.gw-track{ display:block; flex:1 1 auto; height:10px; border-radius:5px; background:var(--gl); overflow:hidden; }
+.gw-fill{ display:block; height:100%; border-radius:5px; background:var(--gw-ink); }
+
+.gw-hb{ display:flex; align-items:center; gap:10px; margin:0 0 8px; }
+.gw-hbl{ flex:0 0 42%; font-size:13.5px; color:var(--body); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.gw-hbn{ flex:0 0 auto; min-width:52px; text-align:right; font-weight:700; font-size:13.5px; color:var(--body); font-variant-numeric:tabular-nums; }
+@media (max-width:380px){ .gw-hbl{ flex-basis:38%; } }

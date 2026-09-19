@@ -48,6 +48,9 @@ import MastMenu from './components/MastMenu';
    both profile pages, and the overlay has to be able to sit on top of any
    of them. It renders null until somebody taps a picture. */
 import PhotoBig from './components/PhotoBig';
+/* "Opened the app today" — one date-only mark per member per day, for
+   /admin/growth. See components/DayMark and migration 0176. */
+import DayMark from './components/DayMark';
 
 export const metadata = {
   title: 'Sober Book',
@@ -193,6 +196,7 @@ export default async function RootLayout({ children }) {
             nothing. Without it Chrome will not offer to install the app. */}
         <MastMenu on={signedIn} />
         <PhotoBig />
+        <DayMark on={signedIn} />
         <RegisterSW />
         {/* Blesses the shared audio element on the first tap, so profile
             songs can start on their own afterwards. See lib/song-audio.js
