@@ -42,12 +42,40 @@ export default function StoryViewer({ rail, startAt, onClose }) {
   useEffect(() => {
     let alive = true;
     setLoading(true);
-    supabase.rpc('story_open', { p_author: person.author_id }).then(({ data }) => {
+    /* 🔴 19 Sept — PHOTO STORIES SHOWED A BROKEN IMAGE TO EVERYONE.
+       story_open() returns STORAGE PATHS ("stories/….webp"), and the
+       buckets are private, so <img src> on a path is a broken picture.
+       Found by the bug sweep: 13 story_open calls, 0 signing requests.
+       Same fix as the rail's avatars: the paths go through
+       /api/photo/sign, which asks visible_stories whether this viewer
+       may see them. Anything it won't sign becomes null and that story
+       is skipped rather than shown broken. */
+    (async () => {
+      const { data } = await supabase.rpc('story_open', { p_author: person.author_id });
+      const rows = data || [];
+      const paths = [...new Set(rows.flatMap((r) => [r.photo_url, r.video_url]).filter(Boolean))];
+      let urls = {};
+      if (paths.length) {
+        try {
+          const res = await fetch('/api/photo/sign', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ paths }),
+          });
+          urls = (await res.json()).urls || {};
+        } catch { /* fall through: media stories drop out below */ }
+      }
+      const ready = rows
+        .map((r) => ({
+          ...r,
+          photo_url: r.photo_url ? (urls[r.photo_url] || null) : null,
+          video_url: r.video_url ? (urls[r.video_url] || null) : null,
+        }))
+        .filter((r) => r.kind === 'text' || r.photo_url || r.video_url);
       if (!alive) return;
-      setItems(data || []);
+      setItems(ready);
       setAt(0);
       setLoading(false);
-    });
+    })();
     return () => { alive = false; };
   }, [supabase, person.author_id]);
 
