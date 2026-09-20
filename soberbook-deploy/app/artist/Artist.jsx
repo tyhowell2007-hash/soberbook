@@ -110,13 +110,26 @@ export default function Artist({ initial, handle, look = null, face = null }) {
 
   const linkRows = (
     <fieldset style={{ border: 0, padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 8 }}>
-      <legend className="art-sub" style={{ marginBottom: 6 }}>Links to your music (https://)</legend>
+      {/* 🔴 "Links to YOUR MUSIC" was wrong the day authors and
+          podcasters got this page (0180). Dr. Labor's links are a
+          website, a podcast and four socials. */}
+      <legend className="art-sub" style={{ marginBottom: 6 }}>Your links (https://)</legend>
+      {/* 0186: the ten are SUGGESTIONS now, not the menu. The database
+          has always taken any label up to 30 characters — it was this
+          control that only offered a dropdown, so a creator with a
+          Patreon, a vinyl preorder or a Substack had nowhere to put it
+          and no way to tell that the limit wasn't real. A datalist keeps
+          one tap for the common ones and a keyboard for everything
+          else. */}
+      <datalist id="artist-link-labels">
+        {LABELS.map((x) => <option key={x} value={x} />)}
+      </datalist>
       {links.map((l, i) => (
         <div className="art-pair" key={i}>
           <label htmlFor={`al-k${i}`}>Where
-            <select id={`al-k${i}`} value={l.label} onChange={(e) => setLink(i, 'label', e.target.value)}>
-              {LABELS.map((x) => <option key={x}>{x}</option>)}
-            </select>
+            <input id={`al-k${i}`} list="artist-link-labels" maxLength={30}
+                   placeholder="Spotify, Patreon, anything"
+                   value={l.label} onChange={(e) => setLink(i, 'label', e.target.value)} />
           </label>
           <label htmlFor={`al-u${i}`}>Link
             <input id={`al-u${i}`} type="url" inputMode="url" placeholder="https://"
@@ -126,7 +139,9 @@ export default function Artist({ initial, handle, look = null, face = null }) {
                   onClick={() => setLinks(links.length > 1 ? links.filter((_, j) => j !== i) : [blankLink()])}>×</button>
         </div>
       ))}
-      {links.length < 8 && (
+      {/* 12 and 10 to match 0186 — change these and the SQL together or
+          the member gets a row that saves nothing. */}
+      {links.length < 12 && (
         <button type="button" className="art-btn ghost small" onClick={() => setLinks([...links, blankLink()])}>
           + Add a link
         </button>
@@ -237,7 +252,7 @@ export default function Artist({ initial, handle, look = null, face = null }) {
               <button type="button" className="art-x" aria-label="Remove this book" onClick={() => setBooks(books.filter((_, j) => j !== i))}>×</button>
             </div>
           ))}
-          {books.length < 12 && (
+          {books.length < 10 && (
             <button type="button" className="art-btn ghost small" onClick={() => setBooks([...books, blankBook()])}>+ Add a book</button>
           )}
         </fieldset>
