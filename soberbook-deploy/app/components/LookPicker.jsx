@@ -43,7 +43,8 @@ import { COVERS, ACCENTS, BLOCKS, normaliseSections, coverCss, accentHex } from 
    it goes BESIDE these, never instead of them.
    ===================================================================== */
 
-export default function LookPicker({ profile, days = 0, name = '', avatar = '', avatarUrl = '' }) {
+export default function LookPicker({ profile, days = 0, name = '', avatar = '', avatarUrl = '',
+                                    onLook = null }) {
   const router = useRouter();
   const [cover, setCover] = useState(profile.cover || 'none');
   const [accent, setAccent] = useState(profile.accent || 'green');
@@ -94,6 +95,10 @@ export default function LookPicker({ profile, days = 0, name = '', avatar = '', 
     save({ sections: next }, 'Saved.');
   }
 
+  /* ⚠️ onLook is an ECHO, not the save. /me draws the same hero card at
+     the top of the page, and without this it only caught up after the
+     server round trip — you tapped a cover and the card two inches above
+     your thumb sat still. The database write is still the one below. */
   const label = (k) => BLOCKS.find((b) => b.k === k) || { n: k, d: '' };
 
   return (
@@ -141,7 +146,8 @@ export default function LookPicker({ profile, days = 0, name = '', avatar = '', 
                   className={'lookp-cov' + (cover === c.k ? ' sel' : '')}
                   aria-pressed={cover === c.k}
                   style={c.css === 'none' ? undefined : { backgroundImage: c.css }}
-                  onClick={() => { setCover(c.k); save({ cover: c.k }, 'Saved.'); }}>
+                  onClick={() => { setCover(c.k); if (onLook) onLook((l) => ({ ...l, cover: c.k }));
+                                   save({ cover: c.k }, 'Saved.'); }}>
             <span>{c.n}</span>
           </button>
         ))}
@@ -154,7 +160,8 @@ export default function LookPicker({ profile, days = 0, name = '', avatar = '', 
                   className={'lookp-dot' + (accent === a.k ? ' sel' : '')}
                   aria-label={a.n} aria-pressed={accent === a.k}
                   style={{ background: a.c }}
-                  onClick={() => { setAccent(a.k); save({ accent: a.k }, 'Saved.'); }} />
+                  onClick={() => { setAccent(a.k); if (onLook) onLook((l) => ({ ...l, accent: a.k }));
+                                   save({ accent: a.k }, 'Saved.'); }} />
         ))}
       </div>
       <p className="hint">

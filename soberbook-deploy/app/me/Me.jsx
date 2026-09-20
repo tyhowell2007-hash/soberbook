@@ -19,6 +19,8 @@ import { cleanHandle } from '../../lib/first-run';
 /* The new profile controls. Split out of this file rather than added to
    it — see the note at the top of ProfileBits.jsx. */
 import LookPicker from '../components/LookPicker';
+/* Plain module, no 'use client' — the same lists /u/[handle] reads. */
+import { coverCss, accentHex } from '../../lib/look';
 import { SponsorPair, PathPicker, NightSwitch, DayCountVisibility,
          HandleEditor, Eye } from './ProfileBits';
 import PhotoUpload from '../components/PhotoUpload';
@@ -137,6 +139,14 @@ export default function Me({ email, profile, posts, initialAvatarUrl,
   const router = useRouter();
   const supabase = browserClient();
 
+  /* 0182 — the look, held here rather than only in the picker so the
+     card at the top of this page changes the instant a member taps a
+     cover, not after a round trip. LookPicker still owns the saving;
+     this is only the echo. */
+  const [look, setLook] = useState({
+    cover: profile.cover || 'none',
+    accent: profile.accent || 'green',
+  });
   const [privacy, setPrivacy] = useState(profile.privacy_mode);
   const [since, setSince] = useState(profile.sober_since || '');
 
@@ -714,7 +724,54 @@ export default function Me({ email, profile, posts, initialAvatarUrl,
       </div>
       <div className="bar">Nothing here is public</div>
 
-      <div className="pad">
+      <div className="pad" style={{ '--acc': accentHex(look.accent) }}>
+
+        {/* ===== YOUR PAGE, WEARING YOUR LOOK (0182, 20 Sept) =====
+            Ty, after seeing it on the public page: "everybody's page
+            needs to look like this as well. Except the artists. And the
+            podcasters."
+
+            🔴 THIS IS THE SAME CARD AS /u/[handle]. Same classes, same
+            rules in photos.css — cover, face, name, then the count in
+            the member's colour. Not a copy of it: if the hero changes
+            over there, this changes with it. A second set of rules that
+            merely looked the same would be two things to keep in step,
+            and they would stop being in step.
+
+            ⚠️ ARTIST AND PODCASTER PAGES ARE UNTOUCHED, and that is on
+            /u/[handle], where the `artist` branch never reads the look
+            at all. Nothing here can reach them — this page only ever
+            renders the member reading it.
+
+            ⚠️ THE FACE AND THE NAME MOVED UP HERE OUT OF `.phead`. The
+            bio stayed below it, because a paragraph inside the card
+            pushes the count off the first screen on a small phone. */}
+        <div className="uhero">
+          <div className={'ucover' + (coverCss(look.cover) ? '' : ' flat')}
+               style={coverCss(look.cover) ? { backgroundImage: coverCss(look.cover) } : undefined}
+               aria-hidden="true" />
+          <div className="pcard">
+            <Face cls="pav" />
+            <div className="pwho">
+              <span className="pname">{anon ? profile.handle : (dname || profile.handle)}</span>
+              <span className="phandle">
+                @{profile.handle}
+                {!anon && showLoc && town ? ' \u00B7 ' + town + (state ? ', ' + state : '') : ''}
+              </span>
+            </div>
+          </div>
+          {/* 🔴 NO DATE STILL MEANS NO CARD — see the long note below, it
+              has not changed. The count simply lives inside the hero now
+              instead of above it, and when there is no date the hero is
+              the cover, the face and the name, which is a page rather
+              than a gap. */}
+          {since && soon === null && (
+            <div className="ucount">
+              <Milestones since={since} days={d}
+                          sub={d === 1 ? 'day' : 'days'} />
+            </div>
+          )}
+        </div>
 
         {/* ---- the count ----
 
@@ -776,9 +833,7 @@ export default function Me({ email, profile, posts, initialAvatarUrl,
           </p>
         ) : (
           <>
-            <Milestones since={since || null} days={d}
-                        sub={(d === 1 ? 'day' : 'days') + ' · @' + profile.handle} />
-
+            {/* The count moved into the hero at the top of this page. */}
             {/* ⭐ THE EDIT LINK, NEXT TO THE THING IT EDITS.
                 Ty: "we're gonna need a hyperlink for an edit button
                 somewhere underneath the number."
@@ -1023,13 +1078,11 @@ export default function Me({ email, profile, posts, initialAvatarUrl,
             )}
 
             <div className="phead">
-              {/* The big circle at the top of your own page — the first
-                  thing you look at, and the one that was drawing "TY". */}
-              <Face cls="pface" />
-              <h2 className="pn">
-                {anon ? profile.handle : (dname || profile.handle)}
-                {!anon && showLoc && town ? <span className="pdot"> · {town}{state ? ', ' + state : ''}</span> : null}
-              </h2>
+              {/* ⚠️ THE FACE AND THE NAME ARE NOT HERE ANY MORE — they are
+                  in the hero at the top of this page (0182). Putting them
+                  back would show a member their own face twice on one
+                  screen. What is left is the bio, which stays out of the
+                  card on purpose: see the note up there. */}
               {/* ⚠️ NO PROSE ON AN ANONYMOUS PAGE. Free text is the easiest
                   way to unmask yourself by accident — a bio naming your town,
                   your job and your dog is an identification. Same rule the
@@ -1893,7 +1946,7 @@ export default function Me({ email, profile, posts, initialAvatarUrl,
               day count all update as the member edits them further up,
               so the little page in the picker is the real one, not a
               second copy that drifts. */}
-          <LookPicker profile={profile} days={d}
+          <LookPicker profile={profile} days={d} onLook={setLook}
                       name={dname} avatar={avatar}
                       avatarUrl={photoKind === 'photo' ? photoUrl : ''} />
         </Section>

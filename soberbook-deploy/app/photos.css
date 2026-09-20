@@ -893,3 +893,39 @@ html[data-theme="black"] .mecream .lookp-prev .pcard{ background:transparent; }
 .lookp-prev .count .cl, .lookp-prev .count .mnext,
 .mecream .lookp-prev .count .cl,
 .mecream .lookp-prev .count .mnext{ color:#fff; opacity:.95; }
+
+/* ---------------------------------------------------------------------
+   THE HERO ON YOUR OWN PAGE (/me), 20 Sept.
+
+   Ty: "everybody's page needs to look like this as well. Except the
+   artists. And the podcasters."
+
+   /me wears the cream skin, which loads after this file and paints
+   `.mecream .count` acid with dark ink — on top of the member's colour,
+   which is the one thing the card is there to show. Naming `.uhero` in
+   the middle out-ranks it without touching me-cream.css, so the rest of
+   the You page keeps the flyer look it was designed with.
+   --------------------------------------------------------------------- */
+.mecream .uhero .count{
+  background:transparent; border:0; box-shadow:none; border-radius:0;
+  margin:0; padding:18px 14px 6px; transform:none;
+}
+.mecream .uhero .count .cn{ color:#fff; font-size:52px; }
+.mecream .uhero .count .cl,
+.mecream .uhero .count .mnext{ color:#fff; opacity:.95; }
+.mecream .uhero .count .mbar{
+  border-color:rgba(255,255,255,.45); background:rgba(255,255,255,.12);
+}
+.mecream .uhero .count .mfill{ background:#fff; }
+.mecream .uhero .chips{ margin:10px 0 0; padding:0 12px; }
+.mecream .uhero .chips .chip.on{
+  background:rgba(255,255,255,.94); color:#1C2320; border:0; box-shadow:none;
+}
+.mecream .uhero .chips .chip.next{
+  background:transparent; color:#fff; border:1.5px solid rgba(255,255,255,.55);
+  box-shadow:none;
+}
+.mecream .uhero .pcard{ border:0; box-shadow:none; background:transparent; }
+/* The bio sits under the card on this page, so `.phead` no longer holds
+   a face or a name and only needs the room the paragraph takes. */
+.mecream .phead{ margin-top:18px; }
