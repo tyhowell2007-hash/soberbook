@@ -44,7 +44,15 @@ import { COVERS, ACCENTS, BLOCKS, normaliseSections, coverCss, accentHex } from 
    ===================================================================== */
 
 export default function LookPicker({ profile, days = 0, name = '', avatar = '', avatarUrl = '',
-                                    onLook = null }) {
+                                    onLook = null,
+                                    /* 🔴 BOTH DEFAULT TRUE so /me is unchanged. They exist for
+                                       /artist (0184), where the preview would be a lie — it
+                                       draws the member hero, and a verified artist's page is
+                                       the artist layout — and where the three blocks it
+                                       reorders are not on that page at all. Showing a control
+                                       that governs a different page is worse than showing
+                                       none. */
+                                    showPreview = true, showBlocks = true }) {
   const router = useRouter();
   const [cover, setCover] = useState(profile.cover || 'none');
   const [accent, setAccent] = useState(profile.accent || 'green');
@@ -103,6 +111,7 @@ export default function LookPicker({ profile, days = 0, name = '', avatar = '', 
 
   return (
     <div className="lookp">
+      {showPreview && <>
       {/* ===== THE PAGE, WHILE YOU CHANGE IT =====
           🔴 THE REASON THIS EXISTS. Without it the picker was a set of
           swatches that moved a tick and did nothing else: the change was
@@ -138,6 +147,7 @@ export default function LookPicker({ profile, days = 0, name = '', avatar = '', 
       <p className="hint" style={{ marginTop: -8 }}>
         This is your page. It changes as you pick.
       </p>
+      </>}
 
       <h3 className="pushh">Your cover</h3>
       <div className="lookp-covers">
@@ -168,6 +178,7 @@ export default function LookPicker({ profile, days = 0, name = '', avatar = '', 
         Every colour here has been checked to stay readable, in the app and in Night.
       </p>
 
+      {showBlocks && <>
       <h3 className="pushh" style={{ marginTop: 18 }}>What shows, and in what order</h3>
       <ul className="lookp-rows">
         {rows.map((r, i) => (
@@ -190,6 +201,7 @@ export default function LookPicker({ profile, days = 0, name = '', avatar = '', 
         Your bio, your town and your interests have their own switches further up
         this page. Your name, handle and days stay where they are.
       </p>
+      </>}
 
       {note && <p className="ok" role="status">{note}</p>}
       {err && <p className="err" role="alert">{err}</p>}

@@ -221,3 +221,32 @@
 .art-bk small{ font-size:12.5px; color:var(--soft); margin-top:2px; }
 .art-get{ margin-left:auto; font-size:12px; font-weight:700; color:var(--gm-t); text-decoration:none; white-space:nowrap; }
 .art-get:focus-visible, .art-bk a:focus-visible{ outline:3px solid var(--gm-t); outline-offset:2px; }
+
+/* =====================================================================
+   THE ARTIST PAGE, IN THE MEMBER'S OWN COLOUR.  0184, 20 Sept 2026.
+
+   Ty: "everybody else seems to be able to put up pictures and
+   everything, but the public figures ... can't change their profiles."
+   Verified people were the only ones in the app who could not dress
+   their page, because /u/[handle] read the look for everyone except
+   them. Now they get it — the LAYOUT is unchanged, the colour is not.
+
+   🔴 THE ACCENT IS A FILL HERE, NEVER SMALL TEXT, AND THAT IS MEASURED
+   RATHER THAN taste. An artist page is dark. Against that background
+   the six accents run 4.02 to 5.75 (lib/look.js) — fine for a large
+   shape or a rule, but clay and violet sit under 4.5, which is the bar
+   for 11px uppercase labels like `.art-sub`. So the labels keep the
+   colour they already had, and the accent goes where it cannot hurt
+   anybody: the cover, the button fill (white on any of the six is
+   5.72:1 or better), and a rule down the edge of each card.
+   ===================================================================== */
+.art-page .art-cover{ background-size:cover; background-position:center; }
+
+.art-page .art-follow{
+  background:var(--acc,#1B6B4A); border-color:var(--acc,#1B6B4A); color:#fff;
+}
+.art-page .art-follow[aria-pressed="true"]{
+  background:transparent; color:var(--acc,#1B6B4A); border-color:var(--acc,#1B6B4A);
+  filter:brightness(1.6);
+}
+.art-page .art-sect{ border-left:3px solid var(--acc,#1B6B4A); }
