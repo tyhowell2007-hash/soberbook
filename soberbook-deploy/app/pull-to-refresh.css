@@ -1,0 +1,99 @@
+/* Pull-to-refresh is a signed-in enhancement mounted by the root layout.
+   The class is added only after its touch handlers are live, so native
+   browser refresh remains available if JavaScript never starts. */
+html.ptr-enabled,
+html.ptr-enabled body{
+  overscroll-behavior-y:contain;
+}
+
+.ptr-indicator{
+  --ptr-distance:0px;
+  position:fixed;
+  top:6px;
+  top:max(6px, env(safe-area-inset-top));
+  left:50%;
+  z-index:70;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  max-width:calc(100vw - 32px);
+  padding:10px 14px;
+  border:1px solid var(--line);
+  border-radius:999px;
+  background:var(--paper2);
+  color:var(--body);
+  box-shadow:0 8px 24px rgba(0,0,0,.18);
+  font-family:system-ui,-apple-system,sans-serif;
+  font-size:13px;
+  font-weight:700;
+  line-height:1.2;
+  white-space:nowrap;
+  opacity:0;
+  pointer-events:none;
+  transform:translate3d(-50%, calc(-100% - 18px + var(--ptr-distance)), 0);
+  transition:transform 180ms ease-out, opacity 120ms ease-out;
+  will-change:transform, opacity;
+}
+
+.ptr-indicator[data-visible="true"]{
+  opacity:1;
+}
+
+/* Follow the finger directly. The transition returns for `settling` and
+   `refreshing`, where it smooths the indicator back into place. */
+.ptr-indicator[data-phase="pulling"],
+.ptr-indicator[data-phase="ready"]{
+  transition:opacity 120ms ease-out;
+}
+
+.ptr-icon{
+  display:grid;
+  width:18px;
+  height:18px;
+  place-items:center;
+  flex:0 0 18px;
+}
+
+.ptr-arrow{
+  display:block;
+  font-size:18px;
+  line-height:1;
+  transform:rotate(0deg);
+  transition:transform 140ms ease-out;
+}
+
+.ptr-indicator[data-phase="ready"] .ptr-arrow{
+  transform:rotate(180deg);
+}
+
+.ptr-spinner{
+  display:none;
+  width:16px;
+  height:16px;
+  border:2px solid var(--line);
+  border-top-color:var(--body);
+  border-radius:50%;
+  animation:ptr-spin 700ms linear infinite;
+}
+
+.ptr-indicator[data-phase="refreshing"] .ptr-arrow{
+  display:none;
+}
+
+.ptr-indicator[data-phase="refreshing"] .ptr-spinner{
+  display:block;
+}
+
+@keyframes ptr-spin{
+  to{ transform:rotate(360deg); }
+}
+
+@media (prefers-reduced-motion:reduce){
+  .ptr-indicator,
+  .ptr-arrow{
+    transition:none;
+  }
+  .ptr-spinner{
+    animation:none;
+  }
+}

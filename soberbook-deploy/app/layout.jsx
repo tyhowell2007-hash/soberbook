@@ -12,6 +12,10 @@ import './theme-black.css';
 /* Artist profiles (19 Sept): the gold checkmark shows on the wall,
    replies, profiles and the story rail, so its rules load everywhere. */
 import './artists.css';
+/* Mobile pull-to-refresh is global, but its component renders only for a
+   signed-in member. Keeping its small visual layer here means every room
+   gets the same gesture and status indicator. */
+import './pull-to-refresh.css';
 import { serverClient } from '../lib/supabase-server';
 
 /* ⚠️ theme-green.css IS DELIBERATELY NOT IMPORTED HERE. DO NOT ADD IT BACK.
@@ -54,6 +58,9 @@ import PhotoBig from './components/PhotoBig';
 /* "Opened the app today" — one date-only mark per member per day, for
    /admin/growth. See components/DayMark and migration 0176. */
 import DayMark from './components/DayMark';
+/* One guarded touch listener for every signed-in screen. It only claims a
+   downward gesture when the document is already at the top. */
+import PullToRefresh from './components/PullToRefresh';
 
 export const metadata = {
   title: 'Sober Book',
@@ -200,6 +207,7 @@ export default async function RootLayout({ children }) {
         <MastMenu on={signedIn} />
         <PhotoBig />
         <DayMark on={signedIn} />
+        <PullToRefresh on={signedIn} />
         <RegisterSW />
         {/* Blesses the shared audio element on the first tap, so profile
             songs can start on their own afterwards. See lib/song-audio.js
