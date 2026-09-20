@@ -851,3 +851,45 @@
 .lookp-sw.on{ background:var(--gd,#1B6B4A); border-color:var(--gd,#1B6B4A); }
 .lookp-sw.on::after{ transform:translateX(19px); }
 .lookp-sw:focus-visible{ outline:3px solid var(--gd,#1B6B4A); outline-offset:3px; }
+
+/* ---------------------------------------------------------------------
+   THE PREVIEW INSIDE THE PICKER (20 Sept, the afternoon it shipped)
+
+   It borrows `.uhero` wholesale rather than redrawing it, so the only
+   thing this block does is make it smaller. If the hero on /u/[handle]
+   changes, this follows it for free — which is the entire reason it is
+   not its own set of rules.
+
+   ⚠️ THE TWO NIGHT OVERRIDES ARE NOT OPTIONAL. /me wears the cream skin,
+   and theme-black paints `.mecream .count` and `.mecream .pcard` dark —
+   which would sit ON TOP of the member's colour and hide the very thing
+   they are choosing. Higher specificity here puts them back to
+   transparent so the accent shows through, in both themes.
+   --------------------------------------------------------------------- */
+.lookp-prev{ margin:0 0 10px; }
+.lookp-prev .ucover{ height:74px; }
+.lookp-prev .ucover.flat{ height:8px; }
+.lookp-prev .pcard{ padding:12px 14px 14px; }
+.lookp-prev .ucount{ padding:2px 0 12px; }
+.lookp-prev .count.small{ padding:12px 14px 4px; }
+.lookp-prev .count.small .cn{ font-size:34px; }
+.lookp-prev .pname{ font-size:20px; }
+html[data-theme="black"] .mecream .lookp-prev .count.small{ background:transparent; }
+html[data-theme="black"] .mecream .lookp-prev .pcard{ background:transparent; }
+
+/* THE CREAM SKIN LOADS AFTER THIS FILE, so the preview has to out-rank
+   it rather than out-order it. me-cream.css paints `.mecream .pcard`
+   and `.mecream .count` — a bordered cream card and dark ink — which on
+   the preview drew a box around the face and turned "DAYS" near-black on
+   the member's colour. Naming `.lookp-prev` in the middle beats both,
+   in either theme, whatever order the stylesheets end up in. */
+.mecream .lookp-prev .pcard{ border:0; box-shadow:none; background:transparent; }
+.mecream .lookp-prev .count.small{ border:0; box-shadow:none; background:transparent; }
+/* ⚠️ `.mecream .count .cl` is the same weight as `.lookp-prev .count .cl`
+   and loads later, so it won on a tie and "DAYS" came out near-black on
+   the member's colour. Both class names in one selector settles it. */
+.lookp-prev .count .cn,
+.mecream .lookp-prev .count .cn{ color:#fff; }
+.lookp-prev .count .cl, .lookp-prev .count .mnext,
+.mecream .lookp-prev .count .cl,
+.mecream .lookp-prev .count .mnext{ color:#fff; opacity:.95; }

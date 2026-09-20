@@ -1,10 +1,11 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { browserClient } from '../../lib/supabase-browser';
 /* The lists live in a plain file so the SERVER page can import them too —
    see lib/look.js for why that matters. */
-import { COVERS, ACCENTS, BLOCKS, normaliseSections } from '../../lib/look';
+import { COVERS, ACCENTS, BLOCKS, normaliseSections, coverCss, accentHex } from '../../lib/look';
 
 /* =====================================================================
    MAKE IT YOURS — the member dresses their own page. 20 Sept.
@@ -42,7 +43,8 @@ import { COVERS, ACCENTS, BLOCKS, normaliseSections } from '../../lib/look';
    it goes BESIDE these, never instead of them.
    ===================================================================== */
 
-export default function LookPicker({ profile }) {
+export default function LookPicker({ profile, days = 0, name = '', avatar = '', avatarUrl = '' }) {
+  const router = useRouter();
   const [cover, setCover] = useState(profile.cover || 'none');
   const [accent, setAccent] = useState(profile.accent || 'green');
   const [rows, setRows] = useState(normaliseSections(profile.sections));
@@ -58,6 +60,18 @@ export default function LookPicker({ profile }) {
       const { error } = await supabase.from('profiles').update(patch).eq('id', user.id);
       if (error) throw error;
       setNote(said);
+      /* 🔴 20 SEPT — THE SAVE WORKED AND THE APP LOOKED BROKEN ANYWAY.
+         Ty picked a cover and a colour, both landed in the database, and
+         /u/<handle> still showed the old page: Next keeps a client-side
+         cache of pages you have already visited, so walking back to your
+         own profile re-renders the copy taken before the change. Nothing
+         was wrong with the write; there was simply nothing anywhere on
+         screen saying so.
+
+         router.refresh() throws that cache away. Same call the avatar and
+         the name saves further up Me.jsx already make, for the same
+         reason — this one just didn't learn it until somebody hit it. */
+      router.refresh();
     } catch (e) {
       /* The member's page, the member's words — same rule as save() in
          Me.jsx. They never see a Postgres constraint name. */
@@ -84,6 +98,42 @@ export default function LookPicker({ profile }) {
 
   return (
     <div className="lookp">
+      {/* ===== THE PAGE, WHILE YOU CHANGE IT =====
+          🔴 THE REASON THIS EXISTS. Without it the picker was a set of
+          swatches that moved a tick and did nothing else: the change was
+          three taps away on another screen, so a member who tried it
+          concluded it was broken — which is exactly what happened the
+          first time it shipped. A control for how something LOOKS has to
+          show the thing it is changing.
+
+          ⚠️ It is the real classes, not a drawing of them — `.uhero`,
+          `.ucover`, `.pcard`, `.ucount` and `.count` are the same rules
+          /u/[handle] renders, so this cannot drift away from the page it
+          claims to preview. Change the hero there and this follows. */}
+      <div className="uhero lookp-prev" style={{ '--acc': accentHex(accent) }}>
+        <div className={'ucover' + (coverCss(cover) ? '' : ' flat')}
+             style={coverCss(cover) ? { backgroundImage: coverCss(cover) } : undefined}
+             aria-hidden="true" />
+        <div className="pcard">
+          {avatarUrl
+            ? <img className="pav pav-photo" src={avatarUrl} alt="" aria-hidden="true" />
+            : <div className="pav" aria-hidden="true">{avatar || '\u{1F331}'}</div>}
+          <div className="pwho">
+            <span className="pname">{name || '@' + profile.handle}</span>
+            <span className="phandle">@{profile.handle}</span>
+          </div>
+        </div>
+        <div className="ucount">
+          <div className="count small">
+            <div className="cn">{(days || 0).toLocaleString()}</div>
+            <div className="cl">{days === 1 ? 'day' : 'days'}</div>
+          </div>
+        </div>
+      </div>
+      <p className="hint" style={{ marginTop: -8 }}>
+        This is your page. It changes as you pick.
+      </p>
+
       <h3 className="pushh">Your cover</h3>
       <div className="lookp-covers">
         {COVERS.map((c) => (

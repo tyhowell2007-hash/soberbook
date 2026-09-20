@@ -1888,7 +1888,14 @@ export default function Me({ email, profile, posts, initialAvatarUrl,
             title — a member who had learned where "how your page looks"
             lives finds it where they left it. */}
         <Section title="🎨 How your page looks" tint="cream">
-          <LookPicker profile={profile} />
+          {/* Everything the preview needs comes from state that is
+              ALREADY live on this page — the name, the face and the
+              day count all update as the member edits them further up,
+              so the little page in the picker is the real one, not a
+              second copy that drifts. */}
+          <LookPicker profile={profile} days={d}
+                      name={dname} avatar={avatar}
+                      avatarUrl={photoKind === 'photo' ? photoUrl : ''} />
         </Section>
         <Section title="🎵 Your song" tint="peach">
           <p className="hint" style={{ marginTop: 0 }}>
