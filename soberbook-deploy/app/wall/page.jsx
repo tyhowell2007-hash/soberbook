@@ -372,6 +372,27 @@ export default async function WallPage() {
         <Link href="/checkin" className="dr dr-in">Check in</Link>
         <Link href="/resources" className="dr dr-ask">◆ Ask Sage</Link>
       </div>
+      {/* 🔴 THE SECOND ROW, 20 SEPT — THE DOORS NOBODY COULD FIND.
+          Counted over 30 days, out of 339 members: Check in, which is
+          one tap above this line, 114 people. Gratitude, Tenth step and
+          Your plan, which lived only behind an unlabelled ☰, 20, 9 and 2.
+          Same app, same members; the only difference is whether the door
+          is on this screen. Thirteenth instance of "everything built
+          except the way in".
+
+          ⚠️ IT GOES UNDER THE DOORS, NOT AMONG THEM. "Right now" stays
+          first and alone in its row for the reason written above — the
+          crisis door is never one of four daily habits, and a person in
+          trouble must not read past a gratitude prompt to reach it.
+
+          ⚠️ No new colour: var(--gt) on the bar's --gl, the 10.80 pair
+          already proven by "Check in" beside it. */}
+      <div className="bar bar-today" aria-label="Today">
+        <Link href="/gratitude" className="td">🙏<span>Gratitude</span></Link>
+        <Link href="/tenth" className="td">🔟<span>Tenth step</span></Link>
+        <Link href="/readings" className="td">📖<span>Readings</span></Link>
+        <Link href="/plan" className="td">🧭<span>Your plan</span></Link>
+      </div>
       {/* Renders nothing. Keeps the podcast feed fresh when the Vercel
           cron doesn't fire — which, as of 29 Aug, is most days. */}
       <FeedRefresh />

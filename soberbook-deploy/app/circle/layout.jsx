@@ -17,11 +17,18 @@ import '../circle.css';
    is what catches it if it goes. */
 import '../wyr.css';
 
+import Link from 'next/link';
 import NavBar from '../components/NavBar';
 
 export default function CircleLayout({ children }) {
   return (
     <>
+      {/* 20 Sept: this page had no masthead and no back arrow — the only
+          way out was the bottom bar, which is not a way BACK. */}
+      <div className="mast">
+        <Link href="/wall" className="back" aria-label="Back to the wall">←</Link>
+        <span className="lg">your circle</span>
+      </div>
       {children}
       <div className="navpad" aria-hidden="true" />
       <NavBar />

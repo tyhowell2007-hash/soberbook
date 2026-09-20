@@ -193,6 +193,7 @@ export default async function FriendsPage({ searchParams }) {
   return (
     <>
       <div className="mast">
+        <Link href="/wall" className="back" aria-label="Back to the wall">←</Link>
         <span className="lg">🌱 SOBER BOOK</span>
         <Link href="/find" className="rt melink">find someone ›</Link>
       </div>

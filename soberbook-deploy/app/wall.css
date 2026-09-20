@@ -1979,3 +1979,30 @@ textarea:focus-visible{ outline:4px solid var(--x); outline-offset:3px; }
 .cheart:focus-visible { outline: 3px solid var(--gd); outline-offset: 2px; }
 /* Your own reply: the count, never a button. */
 .cheartmine { cursor: default; color: #8A2B2B; }
+
+/* =====================================================================
+   THE TODAY ROW — the four daily doors, 20 Sept.
+
+   ⚠️ SAME BAR, SECOND LINE. It reuses .bar's background and .dr's
+   contrast pair (var(--gt) on --gl, measured 10.80 when the third door
+   was added) so there is no new colour to get wrong.
+
+   ⚠️ 48px, and the label sits UNDER the emoji rather than beside it:
+   four words across 375px beside their emoji measured 71px each, which
+   truncates "Tenth step" on the narrowest phone in the house.
+   ===================================================================== */
+.bar-today{
+  display:flex; padding:0; text-align:center;
+  border-top:1px solid #6B8F7C;
+}
+.td{
+  flex:1 1 0; min-height:48px;
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1px;
+  font-family:'Archivo',system-ui,sans-serif;
+  font-size:16px; text-decoration:none; color:var(--gt);
+  border-left:1px solid #6B8F7C;
+}
+.td:first-child{ border-left:0; }
+.td span{ font-size:11.5px; font-weight:600; letter-spacing:.01em; }
+.td:hover span{ text-decoration:underline; text-underline-offset:3px; }
+.td:focus-visible{ outline:3px solid var(--gd); outline-offset:-3px; }

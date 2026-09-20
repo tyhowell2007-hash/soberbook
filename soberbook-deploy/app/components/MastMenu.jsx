@@ -34,33 +34,46 @@ import { usePathname } from 'next/navigation';
    adds no query.
    ===================================================================== */
 
-/* One list, in the order somebody would look for them. `soon` marks the
-   two the bar already carries — they are NOT repeated here; a menu that
-   lists what the bar lists teaches people the bar is incomplete. */
+/* One list, in the order somebody would look for them.
+
+   ⚠️ 20 SEPT — EVERY ROW NOW SAYS WHAT IT IS. "Tenth step" and "Places
+   that aren't us" are Ty's words and they stay, but a name nobody knows
+   is a door nobody opens: 9 people used Tenth step in 30 days and 2 have
+   ever opened Your plan, against 114 for Check in, which is the only one
+   of the four with a door on the home screen. The sub-line is the fix
+   that keeps his words.
+
+   ⚠️ /quiet IS IN THIS LIST NOW. It left the bottom bar the same day to
+   make room for a labelled More tab — see BottomNav. If it ever goes
+   back on the bar, take it out of here again: a menu that lists what the
+   bar lists teaches people the bar is incomplete. */
 const GROUPS = [
   {
-    head: 'Every day',
+    head: 'Your day',
     items: [
-      { href: '/checkin',   label: 'Check in' },
-      { href: '/plan',      label: 'Your plan' },
-      { href: '/tenth',     label: 'Tenth step' },
-      { href: '/gratitude', label: 'Gratitude' },
+      { href: '/checkin',   label: 'Check in',        sub: 'How you’re doing today' },
+      { href: '/gratitude', label: 'Gratitude',       sub: 'One good thing' },
+      { href: '/tenth',     label: 'Tenth step',      sub: 'Look back at your day' },
+      { href: '/plan',      label: 'Your safety plan',sub: 'What to do on a hard day' },
     ],
   },
   {
-    head: 'To read',
+    head: 'Quiet things',
     items: [
-      { href: '/readings',  label: 'Daily readings' },
-      { href: '/resources', label: 'Resources' },
+      /* ⛪ kept on the row. It came off the bottom bar on 20 Sept; the
+         icon was Ty's call and travels with the label. */
+      { href: '/quiet',     label: '⛪ Quiet',        sub: 'No advice, no fixing' },
+      { href: '/readings',  label: 'Daily readings',  sub: 'Something to read' },
+      { href: '/resources', label: '◆ Ask Sage',      sub: 'Answers, any time' },
     ],
   },
   {
     head: 'This place',
     items: [
-      { href: '/help',    label: 'Places that aren’t us' },
-      { href: '/rules',   label: 'The rules' },
-      { href: '/privacy', label: 'Privacy' },
-      { href: '/tour',    label: 'Take the tour' },
+      { href: '/help',    label: 'Hotlines and help', sub: 'Places that aren’t us' },
+      { href: '/rules',   label: 'The rules',         sub: 'What gets you removed' },
+      { href: '/privacy', label: 'Privacy',           sub: 'What we keep, what we don’t' },
+      { href: '/tour',    label: 'Take the tour',     sub: 'Everything the app does' },
     ],
   },
 ];
@@ -177,9 +190,9 @@ export default function MastMenu({ on = false }) {
               Same centring as .mm-dock, same reason. */}
           <div className="mm-cage">
           <div id="mm-panel" ref={panel} className="mm-panel"
-               role="dialog" aria-modal="true" aria-label="Everything else">
+               role="dialog" aria-modal="true" aria-label="More">
             <div className="mm-head">
-              <span className="mm-title">Everything else</span>
+              <span className="mm-title">More</span>
               <button type="button" className="mm-x" aria-label="Close menu"
                       onClick={() => setOpen(false)}>
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -189,7 +202,7 @@ export default function MastMenu({ on = false }) {
               </button>
             </div>
 
-            <nav className="mm-list" aria-label="Everything else">
+            <nav className="mm-list" aria-label="More">
 
               {/* ⭐ DR. LABOR'S RECOVERY MAP, FIRST AND BY NAME.
 
@@ -224,7 +237,10 @@ export default function MastMenu({ on = false }) {
                 <div key={g.head}>
                   <h2 className="mm-grp">{g.head}</h2>
                   {g.items.map((it) => (
-                    <Link key={it.href} href={it.href} className="mm-row">{it.label}</Link>
+                    <Link key={it.href} href={it.href} className="mm-row">
+                      <span className="mm-rt">{it.label}</span>
+                      {it.sub && <span className="mm-rs">{it.sub}</span>}
+                    </Link>
                   ))}
                 </div>
               ))}

@@ -61,7 +61,9 @@ const TABS = [
      null` line in 0044 does that. Without it, ignoring somebody would
      leave a dot burning with nothing behind it — which would make the
      ignore worse than useless. */
-  { href: '/friends',  icon: '👋', label: 'Community', dot: 'friends',
+  /* 20 Sept: "Community" told nobody what was behind it — People does.
+     Same page, same dot, one word. */
+  { href: '/friends',  icon: '👋', label: 'People', dot: 'friends',
     said: 'someone asked to be your friend' },
   /* Aug 21. The fourth to earn its way in, and the only tab with NO DOT
      BY DESIGN rather than by omission.
@@ -92,9 +94,21 @@ const TABS = [
      a church is the compromise holding it together, and swapping the
      label to "Church" would be a much bigger change than swapping the
      icon back. */
-  { href: '/quiet',    icon: '⛪', label: 'Quiet' },
-  /* no `dot` — see above */
+  /* ⚠️ 20 SEPT — QUIET CAME OFF THE BAR AND ⛪ WENT WITH IT. Everything
+     written above about the icon still stands and is kept on purpose: if
+     Quiet ever returns to this bar, it returns as ⛪ Quiet, and that was
+     Ty's call made with the argument against it in front of him.
+
+     Why it moved: the ☰ had no label, so the four daily things behind it
+     went unused — 20 people used Gratitude in 30 days, 9 used Tenth step,
+     2 have ever opened Your plan, against 114 who used Check in, which
+     sits on the home screen. The menu needed a word on the bar, and six
+     is the ceiling for a bar of words (22 Aug). Quiet is the only tab
+     with nothing that can arrive for you, so it is the only one whose
+     seat could be spent. It is now the first row under "Quiet things"
+     on /more, with the ⛪ beside it. */
   { href: '/me',       icon: '🙂', label: 'You'  },
+  { href: '/more',     icon: '⋯', label: 'More' },
 ];
 
 /* =====================================================================

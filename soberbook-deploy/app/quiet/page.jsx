@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { serverClient, assertReadable } from '../../lib/supabase-server';
 import Wall from './Wall';
@@ -53,7 +54,10 @@ export default async function QuietPage() {
 
   return (
     <>
+      {/* ← added 20 Sept. Quiet came off the bottom bar the same day, so
+          the bar is no longer a guaranteed way back out of this page. */}
       <div className="mast">
+        <Link href="/wall" className="back" aria-label="Back to the wall">←</Link>
         <span className="lg">🌱 SOBER BOOK</span>
         <span className="rt">quiet</span>
       </div>

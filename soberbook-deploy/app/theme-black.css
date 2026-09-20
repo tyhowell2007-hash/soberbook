@@ -537,6 +537,10 @@ html[data-theme="black"] .mecream .ppempty p{ color:#A8B8AE; }
 [data-theme="black"] .dr-now{ color:#F4A6A6; }
 [data-theme="black"] .dr-in{ border-left:1px solid #A8EDC3; }
 [data-theme="black"] .dr-ask{ border-left:1px solid #A8EDC3; }
+/* the Today row, 20 Sept — same hairline as the doors above it */
+[data-theme="black"] .bar-today{ border-top:1px solid #A8EDC3; }
+[data-theme="black"] .td{ border-left:1px solid #A8EDC3; }
+[data-theme="black"] .td:first-child{ border-left:0; }
 [data-theme="black"] .item.poster .heart{ color:#E8C87A; }
 [data-theme="black"] .item.poster .dots{ color:#E8C87A; }
 [data-theme="black"] .mrow.danger:hover{ background:#0F1512; border-color:#F4A6A6; }
