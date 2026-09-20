@@ -74,7 +74,20 @@ export default async function ProfilePage({ params }) {
             'anthem_spotify, ' +
             'is_mine, joined_at, total_days, ' +
             'bio, location, programs, interests, sponsor_open, ' +
-            'sponsor_has, sponsor_looking, friends, friend_state')
+            'sponsor_has, sponsor_looking, friends, friend_state, ' +
+            /* 🔴 0182 — THE LOOK. THIS SELECT NAMES ITS COLUMNS ONE BY ONE,
+               so a column added to the view is invisible here until it is
+               added to this string too. That is what shipped broken on 20
+               Sept: cover, accent and sections were in the table, in the
+               view, saved correctly by the picker and rendered correctly
+               by the markup below — and every page still came out green
+               with no cover, because they were never asked for. Nothing
+               errored. An unasked-for column arrives as undefined, and
+               `coverCss(undefined)` and `accentHex(undefined)` both fall
+               back to the default by design, so the page looked like a
+               member who had simply never picked anything.
+               ⚠️ Add a column to public_profiles, add it here. */
+            'cover, accent, sections')
     .eq('handle_key', handle.toLowerCase())
     .maybeSingle();
 
