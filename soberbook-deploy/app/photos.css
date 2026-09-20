@@ -682,3 +682,172 @@
   background:#12110F; color:#F2EDE3; font-size:14px; text-align:center;
 }
 .cvidtick{ font-size:26px; line-height:1; }
+
+/* =====================================================================
+   MAKE IT YOURS — the hero, and the member's colour. 20 Sept (0182).
+
+   Ty, holding up the old acid counter card: "make it look like that,
+   but blend it into the profile to make it look like it's not just
+   bolted on."
+
+   So the cover, the face, the name and the count are ONE card now
+   instead of three stacked ones. No markup was invented to do it —
+   .pcard and Milestones emit exactly what they always have and simply
+   lose their own edges in here, while .uhero carries the single border.
+   That is deliberate: the count is the most looked-at number in the app
+   and the thing people screenshot, and this had to be a layout change
+   rather than a rewrite of it.
+
+   🔴 --acc IS SET INLINE ON .pad BY THE PAGE, from the colour the
+   member picked. Every rule below reads it with the shipped green as
+   the fallback, so a row that somehow arrives without a look still
+   looks like Sober Book rather than like nothing.
+
+   ⚠️ WHY THE ACCENT IS A FILL HERE AND TEXT EVERYWHERE ELSE. All six
+   accents were measured both ways before they went in the picker (see
+   lib/look.js): the lowest, teal, is 5.72:1 — so white numerals on any
+   of them clear AA comfortably, and so does any of them as text on the
+   white card. There is no combination in the set that a member can pick
+   their way into that is hard to read. Add a seventh colour without
+   measuring it and that stops being true.
+   ===================================================================== */
+.uhero{
+  border:1px solid var(--line); border-radius:13px; overflow:hidden;
+  background:#fff; margin-bottom:20px;
+}
+
+/* The cover band. A gradient when they chose one; when they didn't,
+   a thin stripe of their colour — the page should still say something
+   about them without a picture shouting first. */
+.ucover{ height:104px; background-size:cover; background-position:center; }
+.ucover.flat{ height:10px; background:var(--acc,#1B6B4A); }
+
+.uhero .pcard{
+  border:0; box-shadow:none; border-radius:0; background:transparent;
+  margin:0; padding:14px 16px 16px; transform:none;
+}
+/* The face climbs onto the cover — the one place in the app where two
+   things overlap on purpose, and only when there is a cover to climb
+   onto. The white ring is what keeps the edge readable over a dark
+   gradient; without it the avatar border disappears into the picture. */
+.uhero .ucover:not(.flat) + .pcard{ padding-top:0; }
+.uhero .ucover:not(.flat) + .pcard .pav{
+  margin-top:-38px; box-shadow:0 0 0 4px #fff;
+}
+
+/* The count, joined to the bottom of the same card and wearing their
+   colour. .count itself goes transparent so the slab is ONE block of
+   colour behind both the number and the chips — the chips were always
+   a separate element with a negative top margin tucking them under a
+   card that no longer has a bottom edge. */
+.ucount{ background:var(--acc,#1B6B4A); padding:2px 0 16px; }
+.uhero .count.small{
+  border:0; border-radius:0; box-shadow:none; background:transparent;
+  margin:0; padding:16px 14px 6px; transform:none;
+}
+.uhero .count.small .cn{ font-size:46px; color:#fff; }
+.ucount .chips{ margin:12px 0 0; padding:0 12px; }
+/* Earned chips read as solid on their colour; the next one stays an
+   outline, same grammar as everywhere else — what you have is filled,
+   what you're walking toward is drawn. */
+.ucount .chips .chip.on{ background:rgba(255,255,255,.94); color:#1C2320; border:0; }
+.ucount .chips .chip.next{
+  background:transparent; color:#fff; border:1.5px solid rgba(255,255,255,.55);
+}
+
+/* The member's colour on the rest of their page: the rule under each
+   section heading and their friend count. Text stays near-black — the
+   accent is for edges and numerals, never for body copy. */
+.pad h2.sec{ border-bottom-color:var(--acc,#1B6B4A); }
+.pad .fstat b{ color:var(--acc,#1B6B4A); }
+
+/* Each block the member ordered is its own wrapper now, so the old
+   tuck-under margins that assumed a fixed stacking order have to go —
+   .total in particular used to pull itself up under the chips. */
+.ublk{ display:block; }
+.ublk .total{ margin-top:0; }
+.ublk > :first-child h2.sec{ margin-top:24px; }
+
+/* =====================================================================
+   MAKE IT YOURS — the picker in /me. 20 Sept (0182).
+
+   ⚠️ PREFIX IS `lookp-`. `.lk` is a link inside a post (wall.css, 23
+   Aug) and wall.css is on every page, so a picker rooted at `.lk` came
+   out underlined and green throughout. See the note in LookPicker.jsx.
+
+   Every control here is a real <button>, which is why there is no
+   pointer-events trickery and no label-wrapping-an-input: the arrows
+   and the switches have to be reachable by keyboard and announceable,
+   and a member reordering their own page with a screen reader gets the
+   same feature as everybody else rather than a broken version of it.
+   ===================================================================== */
+.lookp-covers{
+  display:grid; grid-template-columns:repeat(3,1fr); gap:9px; margin-bottom:4px;
+}
+.lookp-cov{
+  height:62px; border:2px solid var(--line); border-radius:11px;
+  background-size:cover; background-position:center; cursor:pointer;
+  display:flex; align-items:flex-end; justify-content:center; padding:0 0 6px;
+  position:relative;
+}
+/* "None" is the only tile with no picture, so it says so in ink on the
+   card rather than sitting there as an empty box somebody has to guess
+   about. */
+.lookp-cov:first-child{ background:var(--gl,#E8F4ED); }
+.lookp-cov span{
+  font-size:11px; font-weight:700; letter-spacing:.04em; color:#fff;
+  text-shadow:0 1px 3px rgba(0,0,0,.55);
+}
+.lookp-cov:first-child span{ color:var(--gt,#0F3D2A); text-shadow:none; }
+.lookp-cov.sel{ border-color:var(--gd,#1B6B4A); border-width:3px; }
+.lookp-cov.sel::after{
+  content:'✓'; position:absolute; top:5px; right:7px; font-size:13px;
+  color:#fff; text-shadow:0 1px 3px rgba(0,0,0,.6);
+}
+.lookp-cov:first-child.sel::after{ color:var(--gt,#0F3D2A); text-shadow:none; }
+.lookp-cov:focus-visible{ outline:3px solid var(--gd,#1B6B4A); outline-offset:2px; }
+
+.lookp-dots{ display:flex; gap:12px; flex-wrap:wrap; margin-bottom:4px; }
+.lookp-dot{
+  width:36px; height:36px; border-radius:50%; border:2px solid rgba(0,0,0,.12);
+  cursor:pointer; padding:0;
+}
+/* The ring, not a tick. A tick inside a 36px circle of colour either
+   disappears on the dark ones or has to be two colours; the gap-and-ring
+   reads at a glance on all six. */
+.lookp-dot.sel{ box-shadow:0 0 0 3px #fff, 0 0 0 6px currentColor; }
+.lookp-dot:focus-visible{ outline:3px solid var(--x,#1C2320); outline-offset:3px; }
+
+.lookp-rows{ list-style:none; padding:0; margin:0 0 4px; }
+.lookp-row{
+  display:flex; align-items:center; gap:8px; padding:11px 2px;
+  border-bottom:1px solid var(--line);
+}
+.lookp-row:last-child{ border-bottom:0; }
+.lookp-txt{ flex:1 1 auto; min-width:0; }
+.lookp-txt b{ display:block; font-size:15px; font-weight:700; }
+.lookp-txt small{ display:block; font-size:12.5px; color:var(--gm-t,#256F4C); margin-top:1px; }
+/* Switched off is dimmed, not hidden — the row has to stay readable or
+   a member cannot find the thing they turned off to turn it back on. */
+.lookp-row.off .lookp-txt{ opacity:.55; }
+
+.lookp-mv{
+  width:34px; height:34px; flex:0 0 auto; border:1px solid var(--line);
+  border-radius:9px; background:#fff; font-size:15px; line-height:1; cursor:pointer;
+}
+.lookp-mv:disabled{ opacity:.3; cursor:default; }
+.lookp-mv:focus-visible{ outline:3px solid var(--gd,#1B6B4A); outline-offset:2px; }
+
+.lookp-sw{
+  width:46px; height:27px; flex:0 0 auto; border-radius:99px; cursor:pointer;
+  border:1px solid var(--line); background:#DDE3DF; position:relative;
+  padding:0; transition:background .12s;
+}
+.lookp-sw::after{
+  content:''; position:absolute; top:2px; left:2px; width:21px; height:21px;
+  border-radius:50%; background:#fff; box-shadow:0 1px 2px rgba(0,0,0,.28);
+  transition:transform .12s;
+}
+.lookp-sw.on{ background:var(--gd,#1B6B4A); border-color:var(--gd,#1B6B4A); }
+.lookp-sw.on::after{ transform:translateX(19px); }
+.lookp-sw:focus-visible{ outline:3px solid var(--gd,#1B6B4A); outline-offset:3px; }

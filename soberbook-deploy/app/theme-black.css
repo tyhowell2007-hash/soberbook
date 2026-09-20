@@ -789,3 +789,26 @@ html[data-theme="black"] .mecream .sgo:hover{ background:#1A6647; color:#fff; }
 /* ⚠️ The hover goes DARKER, not lighter, and that is forced by the maths:
    my first pick #25925F put white at 3.92 — a hover state that drops the
    label under the floor the moment a thumb rests on it. #1A6647 is 6.92. */
+
+/* =====================================================================
+   MAKE IT YOURS, AT NIGHT (0182, 20 Sept)
+
+   The hero card on /u/[handle] is white in daylight. Night is the mode
+   people actually open at 2am, and a white slab there is the thing that
+   makes someone turn their phone face-down — so it takes the same card
+   colour as every other card in this theme.
+
+   ⚠️ The count slab inside it is NOT overridden. It wears the colour
+   the member picked, and all six were measured with white numerals
+   (lib/look.js, lowest 5.72:1) — the accent has to read the same in
+   both themes or a member would be choosing a look they can only see
+   half the time. The ring around an overlapping face follows the card
+   instead of staying white, which is the only thing that changes.
+   ===================================================================== */
+[data-theme="black"] .uhero{
+  background:#18211C; border-color:rgba(255,255,255,.12);
+}
+[data-theme="black"] .uhero .ucover:not(.flat) + .pcard .pav{
+  box-shadow:0 0 0 4px #18211C;
+}
+[data-theme="black"] .ucount .chips .chip.on{ background:rgba(255,255,255,.94); color:#141A17; }
