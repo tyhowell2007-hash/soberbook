@@ -69,6 +69,11 @@ export default async function MePage() {
      popping images in afterwards. */
   /* Photos AND videos, in one signing pass. flatMap not map: a post
      contributes zero, one or two paths and Boolean() drops the nulls. */
+  /* 0186: are they a verified artist? One call, and null for almost
+     everybody — artist_mine() returns a status or nothing. /me needs it
+     only to decide whether to show the door to /artist. */
+  const { data: artistMine } = await supabase.rpc('artist_mine');
+
   const postPhotoUrls = await signPhotoPaths(
     supabase,
     /* ⚠️ Spread photo_urls in (0065). */
@@ -118,6 +123,7 @@ export default async function MePage() {
       pendingTags={pending || []}
       notes={notes || []}
       friends={friends || []}
+      artistStatus={artistMine?.status || null}
     />
   );
 }

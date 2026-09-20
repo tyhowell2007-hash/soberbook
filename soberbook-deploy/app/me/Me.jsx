@@ -123,7 +123,9 @@ export default function Me({ email, profile, posts, initialAvatarUrl,
                                 an undefined prop from a page that forgets to
                                 pass it would white-screen /me for everybody
                                 rather than showing an empty shelf. */
-                             friends = [] }) {
+                             friends = [],
+                             /* 0186 — null for almost everybody. See the section below. */
+                             artistStatus = null }) {
   /* Tags waiting on this member (0082). Kept in state so approving or
      declining one takes it off the screen immediately — the person is
      standing right there watching, and a round trip reads as a dead
@@ -1940,6 +1942,37 @@ export default function Me({ email, profile, posts, initialAvatarUrl,
             ⚠️ It is still one Section, in the same place, with the same
             title — a member who had learned where "how your page looks"
             lives finds it where they left it. */}
+        {/* 🔴 20 SEPT — THE VERIFIED PAGE HAD NO DOOR FROM HERE.
+            Ty, three times over an afternoon: the public figures can't
+            change their profiles. The editor existed and their own page
+            did carry an "Edit artist page" button — but ONLY there, on
+            /u/<their handle>, and only when they were the one looking.
+            Anybody who went to the You tab for their settings, which is
+            where settings are for all 339 other members, found nothing
+            about their artist page at all.
+
+            ⚠️ A control that lives only on the thing it controls is a
+            control most people never find. Third time this shape has
+            bitten this app — the conversation menu, reporting from a
+            profile, and now this. The fix is always the same: put it
+            where people already go looking.
+
+            Renders for approved artists only. artistStatus is null for
+            everybody else and this is simply absent — no teaser, no
+            "apply to be verified" nag on a page somebody opened to
+            change their bio. /artist is still there for anyone who
+            wants to apply. */}
+        {artistStatus === 'approved' && (
+          <Section title="✅ Your artist page" tint="sand">
+            <p className="hint" style={{ marginTop: 0 }}>
+              Your name, the line under it, your About, your books, your
+              links and your shows — and the cover and colour your page
+              wears. All of it is yours to change.
+            </p>
+            <Link href="/artist" className="btn">Edit your artist page</Link>
+          </Section>
+        )}
+
         <Section title="🎨 How your page looks" tint="cream">
           {/* Everything the preview needs comes from state that is
               ALREADY live on this page — the name, the face and the
