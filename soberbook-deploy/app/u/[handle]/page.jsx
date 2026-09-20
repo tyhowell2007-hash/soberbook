@@ -192,7 +192,10 @@ export default async function ProfilePage({ params }) {
             <section className="art-hero" aria-label="Artist">
               <div className="art-cover" aria-hidden="true">
                 <svg viewBox="0 0 400 56" preserveAspectRatio="none">
-                  <path d="M0 40 Q 25 10 50 34 T 100 30 T 150 20 T 200 36 T 250 14 T 300 32 T 350 22 T 400 30 V56 H0Z" fill="#F6EBC8" />
+                  {isMusician
+                    ? <path d="M0 40 Q 25 10 50 34 T 100 30 T 150 20 T 200 36 T 250 14 T 300 32 T 350 22 T 400 30 V56 H0Z" fill="#F6EBC8" />
+                    /* the one long hill from the approved Dr. Labor prototype */
+                    : <path d="M0 40 C40 10 80 10 120 34 S200 60 240 24 S320 0 360 30 S400 40 400 40 V56 H0Z" fill="#F4F0C8" />}
                 </svg>
               </div>
               <div className="art-heroin">
@@ -212,7 +215,7 @@ export default async function ProfilePage({ params }) {
                 <p className="art-hh">@{p.handle}{p.location ? ` · ${p.location}` : ''}</p>
                 {(artist.role_line || artist.genre) && <p className="art-hh">{artist.role_line || artist.genre}</p>}
                 <ArtistBar handle={p.handle} followers={artist.followers} following={artist.following}
-                           isMine={!!artist.is_mine} days={p.day_count}>
+                           isMine={!!artist.is_mine} days={p.day_count} sinceYear={artist.since_year}>
                   {!p.is_mine && <MessageButton handle={p.handle} />}
                 </ArtistBar>
               </div>
@@ -240,7 +243,7 @@ export default async function ProfilePage({ params }) {
                   {artist.books.map((b, i) => (
                     <li key={i} className="art-book">
                       <span className="art-spine" aria-hidden="true" data-n={i % 3}>
-                        {String(b.title).replace(/^the\s+/i, '').split(/[\s:]+/).filter(Boolean).slice(0, 2).map((w) => w[0]).join('').toUpperCase()}
+                        {b.tag || String(b.title).replace(/^the\s+/i, '').split(/[\s:]+/).filter(Boolean).slice(0, 2).map((w) => w[0]).join('').toUpperCase()}
                       </span>
                       <span className="art-bk">
                         <b>{b.title}</b>
