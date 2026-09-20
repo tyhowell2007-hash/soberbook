@@ -162,7 +162,13 @@ export default async function ProfilePage({ params }) {
      ⚠️ Imported from lib/look.js, NOT from the picker — LookPicker is a
      'use client' module and a named import from one of those into a
      server page is the 2 Sept wall outage. */
-  const coverBg = artist ? null : coverCss(p.cover);
+  /* 0184 — ARTIST PAGES WEAR THE LOOK TOO. This used to be
+     `artist ? null : …`, which is why all four verified people sat on
+     the shipped green while every other member could dress their page.
+     The artist LAYOUT is untouched — same wave, same cards, same gold
+     check, the arrangement Ty approved — it just takes their cover and
+     their colour like everybody else's. */
+  const coverBg = coverCss(p.cover);
   const accent = accentHex(p.accent);
   const order = normaliseSections(p.sections);
   /* 0180: the same page for authors and podcasters (Dr. Labor, 19 Sept).
@@ -212,7 +218,8 @@ export default async function ProfilePage({ params }) {
           /* ===== THE ARTIST PAGE — the layout Ty approved in the prototype ===== */
           <>
             <section className="art-hero" aria-label="Artist">
-              <div className="art-cover" aria-hidden="true">
+              <div className="art-cover" aria-hidden="true"
+                   style={coverBg ? { backgroundImage: coverBg } : undefined}>
                 <svg viewBox="0 0 400 56" preserveAspectRatio="none">
                   {isMusician
                     ? <path d="M0 40 Q 25 10 50 34 T 100 30 T 150 20 T 200 36 T 250 14 T 300 32 T 350 22 T 400 30 V56 H0Z" fill="#F6EBC8" />
