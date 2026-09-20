@@ -96,9 +96,9 @@ function ago(iso) {
    named HERE rather than picked by nth-child in CSS, so reordering the
    sections (which happened tonight, for the date) can't silently swap
    every colour. A section with no tint gets cream. */
-function Section({ title, open = false, tint, eye, children }) {
+function Section({ title, open = false, tint, eye, id, children }) {
   return (
-    <details className="msec" open={open} data-tint={tint}>
+    <details className="msec" id={id} open={open} data-tint={tint}>
       <summary className="msum">
         <span>{title}</span>
         {/* The eye sits in the heading, beside the thing it governs —
@@ -140,6 +140,32 @@ export default function Me({ email, profile, posts, initialAvatarUrl,
   useEffect(() => { setIosApp(isIosApp()); }, []);
   const router = useRouter();
   const supabase = browserClient();
+
+  /* 🔴 20 SEPT — "IT TAKES HIM TO A SOBER COUNT."
+     Produkt tapped the picture button on his artist page and landed at
+     the TOP of this page, with the face control several screens below,
+     past his notifications and his details card. He concluded, four
+     times, that the app was broken. It wasn't; the link just had no
+     destination.
+
+     A <details> does not open itself for a hash, and the browser cannot
+     scroll to something inside a collapsed one — so both have to be done
+     by hand. Any section given an id can now be linked to as /me#<id>.
+
+     ⚠️ requestAnimationFrame, not a bare call: the accordion has to be
+     open and laid out before scrollIntoView can find where it ended up.
+     Without the frame it scrolls to where the section was while still
+     collapsed, which is the same bug wearing a different hat. */
+  useEffect(() => {
+    const id = typeof window === 'undefined' ? '' : window.location.hash.slice(1);
+    if (!id) return;
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (el.tagName === 'DETAILS') el.open = true;
+    requestAnimationFrame(() => {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  }, []);
 
   /* 0182 — the look, held here rather than only in the picker so the
      card at the top of this page changes the instant a member taps a
@@ -1511,7 +1537,7 @@ export default function Me({ email, profile, posts, initialAvatarUrl,
         </Section>
 
         {/* ---- name and face ---- */}
-        <Section title="🙂 Your name and face" tint="pink">
+        <Section title="🙂 Your name and face" tint="pink" id="face">
 
           <div className="pcard">
             {/* "This is exactly how your card looks to everybody else" — a
