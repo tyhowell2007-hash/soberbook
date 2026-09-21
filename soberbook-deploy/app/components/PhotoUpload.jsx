@@ -73,9 +73,33 @@ export default function PhotoUpload({
        a row fires no change event the second time, and the button
        silently dies after one use. */
     e.target.value = '';
-    if (!file) return;
+
+    /* 🔴 20 SEPT — THIS USED TO BE `if (!file) return;` AND THAT SILENCE
+       COST A MEMBER A WHOLE EVENING.
+
+       Produkt spent hours trying to put a photo on his page. Nothing of
+       his ever reached the server — not one byte, not once — while the
+       same control took twelve uploads from other people the same day.
+       We could not tell whether the picker refused to open, opened and
+       was cancelled, or handed back something unreadable, because in
+       every one of those cases this function did exactly nothing and
+       said exactly nothing. Five rounds of "it doesn't work" / "it works
+       for everyone else" and neither of us could get past it.
+
+       ⚠️ A CONTROL THAT CAN FAIL SILENTLY IS A CONTROL NOBODY CAN
+       SUPPORT. The member cannot tell you what went wrong, so you guess,
+       and you guess at the wrong thing. Say something for every exit —
+       even the boring one where they changed their mind. */
+    if (!file) {
+      setStage('');
+      setErr('No photo came back from the picker. If you cancelled, tap it '
+           + 'again. If the picker never opened, tell us — that is a fault '
+           + 'at our end and we want to know.');
+      return;
+    }
 
     setErr('');
+    setStage('Reading your photo…');
 
     /* ================================================================
        ☁️ A VIDEO GOES TO CLOUDFLARE. ALL OF THEM, WHATEVER THE FORMAT.
@@ -415,9 +439,19 @@ export default function PhotoUpload({
 
   return (
     <>
+      {/* 🔴 THE LABEL CHANGES ON THE TAP ITSELF, BEFORE THE PICKER IS
+          ASKED FOR ANYTHING. That one detail is what separates "the
+          button is dead" from "the picker didn't open" — the two
+          failures look identical to somebody holding a phone, and until
+          tonight we had no way to tell them apart from the outside.
+          `stage` is cleared again by chosen() on every path out. */}
       <button type="button" className={className} disabled={disabled || busy}
-              onClick={() => input.current?.click()}>
-        {busy ? (busyLabel || stage || 'Working…') : label}
+              onClick={() => {
+                setErr('');
+                setStage('Opening your photos…');
+                input.current?.click();
+              }}>
+        {busy ? (busyLabel || stage || 'Working…') : (stage || label)}
       </button>
 
       {/* accept is a hint to the picker, never a check — the real one is
