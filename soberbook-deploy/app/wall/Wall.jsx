@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { browserClient } from '../../lib/supabase-browser';
 import Thread from './Thread';
+import InlineReply from './InlineReply';
 import PostMenu from './PostMenu';
 import PhotoUpload from '../components/PhotoUpload';
 import { openPhoto } from '../components/photoBig';
@@ -2142,6 +2143,27 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
                 </div>
               )}
 
+              {/* 💬 THE INVITATION IS A REAL FIELD NOW.
+
+                  "Join in" used to make somebody tap, wait for the sheet,
+                  and then find the place to type. The field below sends a
+                  text reply without leaving the wall, which is the Facebook
+                  shape Will asked for.
+
+                  ⚠️ It still receives the shared tag list and calls the same
+                  sendComment() path as Thread. Anonymous state, mentions,
+                  generated ids and @highlight therefore keep the existing
+                  database rules. The + and conversation link open Thread for
+                  photos, emoji, reply hearts and moderation; this does not
+                  strand the capabilities that lived behind the old button. */}
+              <InlineReply
+                post={p}
+                people={friends}
+                face={me.avatar}
+                onSent={refresh}
+                onOpen={() => setOpen(p)}
+              />
+
               <div className="ft">
                 {/* 🔴 THE OLD ♥ LIKE BUTTON WAS RETIRED HERE ON 7 SEPT, and
                     its 207 hearts were COPIED into post_reactions as
@@ -2157,27 +2179,7 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
                     reachable from here, which makes this reversible by
                     putting the button back. 27 self-likes were NOT copied,
                     because a reaction cannot be your own, and they are
-                    still in `likes` if they are ever wanted.
-
-                    ⚠️ REPLYING IS UNTOUCHED. "join in" below is the
-                    comment button and it stays exactly as it was — the
-                    only thing that left this row is the like. */}
-                {/* The reply count is the tap target. Deliberately worded as
-                    an invitation when it's zero — that's the post that most
-                    needs someone, and it's the one already sized biggest. */}
-                {/* ⚠️ THE WORDING CHANGED WHEN THE REPLIES BECAME VISIBLE.
-                    It used to read "3 replies", which was the only clue
-                    a conversation existed at all. Now the conversation is
-                    sitting right above it, and a button that counts what
-                    you can already see is dead weight in the one spot
-                    where the invitation should be.
-
-                    So: nothing there → "say something". Something there →
-                    "join in". The number moved to the "N earlier replies"
-                    link, where it's still doing a job. */}
-                <button className="replies" onClick={() => setOpen(p)}>
-                  {p.comment_count === 0 ? 'say something' : 'join in'}
-                </button>
+                    still in `likes` if they are ever wanted. */}
                 {/* is_mine, never author_id — an anonymous post still shows
                     the author their own controls without exposing them */}
                 {/* ⚠️ THE ⋯ NOW APPEARS ON YOUR OWN POSTS, and this is a bug

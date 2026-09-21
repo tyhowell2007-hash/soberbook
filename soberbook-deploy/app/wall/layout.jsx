@@ -34,6 +34,11 @@ import '../photos.css';
    on this page changes. See app/emoji.css. */
 import '../emoji.css';
 import '../tagmenu.css';
+/* The real comment field under each wall post. Kept out of wall.css for
+   the same reason as the feature styles below: that file is already large
+   enough to have failed uploads silently, and a stylesheet that is not
+   imported here is a feature that only looks finished in source. */
+import '../inline-reply.css';
 /* The ad-card button. Its own small file rather than four more rules in
    wall.css — that file is 71KB and silently failed to upload three deploys
    running on Aug 23. Small files land. */
