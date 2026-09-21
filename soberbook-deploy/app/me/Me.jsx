@@ -1471,9 +1471,18 @@ export default function Me({ email, profile, initialAvatarUrl,
               day count all update as the member edits them further up,
               so the little page in the picker is the real one, not a
               second copy that drifts. */}
+          {/* ⚠️ 21 Sept — NO "What shows, and in what order" HERE ANY MORE.
+              PR #8 (Will) made every member's page header + day count +
+              posts, full stop, so the song/total/posts switches stopped
+              changing anything. A switch that does nothing is worse than
+              no switch: people flip it, see no change, and decide the app
+              is broken. showBlocks={false} is the same prop /artist already
+              uses. The `sections` column stays, untouched, in case the
+              blocks ever come back — nothing is deleted. */}
           <LookPicker profile={profile} days={d} onLook={setLook}
                       name={dname} avatar={avatar}
-                      avatarUrl={photoKind === 'photo' ? photoUrl : ''} />
+                      avatarUrl={photoKind === 'photo' ? photoUrl : ''}
+                      showBlocks={false} />
         </Section>
         <Section title="🎵 Your song" tint="peach">
           <p className="hint" style={{ marginTop: 0 }}>
