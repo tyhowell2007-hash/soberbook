@@ -207,12 +207,14 @@ export default function Artist({ initial, handle, look = null, face = null }) {
                 : String(aName || handle || '?').slice(0, 1).toUpperCase()}
             </div>
             <div>
-              <Link href="/me" className="art-btn ghost small" style={{ textDecoration: 'none' }}>
+              <Link href="/me#face" className="art-btn ghost small" style={{ textDecoration: 'none' }}>
                 {face ? 'Change your picture' : 'Add a picture'}
               </Link>
               <p className="art-none" style={{ marginTop: 6 }}>
-                Set in <b>Your name and face</b> on your page. It shows at the top of
-                your artist page and next to everything you post.
+                This opens <b>Your name and face</b> on your page and scrolls you
+                straight to it. The button in there is marked <b>Use a photo</b>.
+                Your picture shows at the top of your artist page and next to
+                everything you post.
               </p>
             </div>
           </div>

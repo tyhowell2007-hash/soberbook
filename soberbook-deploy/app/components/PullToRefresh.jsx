@@ -53,6 +53,37 @@ function startsInsideScrollableRegion(target) {
   return false;
 }
 
+/* 🔴 20 SEPT — THE ONE THING THIS GESTURE CAN COST SOMEBODY.
+   It ends in a full document reload, and it fires at the TOP of the
+   page. On the wall, the top of the page is the composer. So a member
+   half-way through writing a post, who pulls down out of the habit
+   every other app has taught them, loses what they wrote.
+
+   On most apps that is a papercut. Here it is somebody typing the
+   hardest thing they will type this week, at 2am, watching it vanish —
+   and not typing it again. That is worth a few lines.
+
+   ⚠️ NOT THE SAME CHECK AS isBlockedTarget(). That one asks where the
+   FINGER landed, and correctly refuses to start a pull that begins on a
+   textarea. This asks whether anything on the page is holding unsaved
+   words, wherever the finger is. Both are needed: you can have a post
+   half-written and still put your thumb on empty paper beside it.
+
+   Hidden fields are skipped — a collapsed editor somewhere in the page
+   holding old text must not quietly disable the gesture everywhere. */
+function hasUnsavedWriting() {
+  const fields = document.querySelectorAll(
+    'textarea, input[type="text"], input[type="search"], input:not([type]), [contenteditable="true"]'
+  );
+  for (const el of fields) {
+    /* offsetParent is null for anything display:none or inside it. */
+    if (el.offsetParent === null) continue;
+    const value = el.isContentEditable ? el.textContent : el.value;
+    if (value && value.trim()) return true;
+  }
+  return false;
+}
+
 export default function PullToRefresh({ on = false }) {
   const [distance, setDistance] = useState(0);
   const [phase, setPhase] = useState('idle');
@@ -97,6 +128,10 @@ export default function PullToRefresh({ on = false }) {
       if (event.touches.length !== 1 || !pageIsAtTop()) return;
       if (document.body.style.overflow === 'hidden') return;
       if (isBlockedTarget(event.target) || startsInsideScrollableRegion(event.target)) return;
+      /* Nothing happens rather than something surprising — the same way
+         this already declines to start on a control. See the note above
+         hasUnsavedWriting(). */
+      if (hasUnsavedWriting()) return;
 
       window.clearTimeout(hideTimer.current);
       tracking.current = true;
