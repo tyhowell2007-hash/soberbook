@@ -22,7 +22,7 @@ export default async function ArtistPage() {
      photo and the same cover and colour as everybody else's page. */
   const { data: me } = await supabase
     .from('profiles')
-    .select('handle, avatar_photo, cover, accent, sections')
+    .select('handle, avatar, avatar_photo, avatar_kind, cover, accent, sections')
     .eq('id', user.id)
     .maybeSingle();
   const { data: mine } = await supabase.rpc('artist_mine');
@@ -49,7 +49,8 @@ export default async function ArtistPage() {
       <div className="bar">For musicians with a real following</div>
       <div className="pad">
         <Artist initial={mine || null} handle={me?.handle || ''} face={face}
-                look={me ? { cover: me.cover, accent: me.accent, sections: me.sections } : null} />
+                look={me ? { cover: me.cover, accent: me.accent, sections: me.sections } : null}
+                emoji={me?.avatar || ''} photoPath={me?.avatar_photo || ''} />
       </div>
     </>
   );

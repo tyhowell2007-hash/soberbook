@@ -7,6 +7,8 @@ import { browserClient } from '../../lib/supabase-browser';
    switched off — see the note on those props. Default export, which is
    the only kind a page may import. */
 import LookPicker from '../components/LookPicker';
+/* 🔴 THE REAL UPLOADER, NOT A LINK TO ONE. See the note where it renders. */
+import PhotoUpload from '../components/PhotoUpload';
 
 const LABELS = ['Spotify', 'Apple Music', 'YouTube', 'SoundCloud', 'Instagram', 'TikTok', 'Facebook', 'Website', 'Merch', 'Bandcamp'];
 const blankLink = () => ({ label: 'Spotify', url: '' });
@@ -21,7 +23,8 @@ const blankBook = () => ({ title: '', blurb: '', url: '', tag: '' });
    (javascript:, http:, plain text), so a link that disappears after
    saving was refused there, not lost here.
    ===================================================================== */
-export default function Artist({ initial, handle, look = null, face = null }) {
+export default function Artist({ initial, handle, look = null, face = null,
+                                emoji = '', photoPath = '' }) {
   const supabase = browserClient();
   const [m, setM] = useState(initial);
   const [busy, setBusy] = useState(false);
@@ -43,6 +46,14 @@ export default function Artist({ initial, handle, look = null, face = null }) {
      form and starts empty on purpose — somebody applying has not got a
      stored name yet. These start from what is already on the page, so
      opening the editor and pressing Save changes nothing. */
+  /* The face, owned here now. `path` is what the database stores
+     ('avatars/9f3c.webp'); `url` is a signed link that expires and is only
+     good for drawing the picture. Same split as Me.jsx — see the long note
+     there about why they are never merged. */
+  const [facePath, setFacePath] = useState(photoPath || '');
+  const [faceUrl, setFaceUrl] = useState(face || '');
+  const [faceMsg, setFaceMsg] = useState('');
+
   const [aName, setAName] = useState(initial?.name || '');
   const [role, setRole] = useState(initial?.role_line || '');
   const [about, setAbout] = useState(initial?.about || '');
@@ -56,6 +67,30 @@ export default function Artist({ initial, handle, look = null, face = null }) {
   function setLink(i, k, v) { setLinks(links.map((l, j) => (j === i ? { ...l, [k]: v } : l))); }
   function setShow(i, k, v) { setShows(shows.map((s, j) => (j === i ? { ...s, [k]: v } : s))); }
   function setBook(i, k, v) { setBooks(books.map((b, j) => (j === i ? { ...b, [k]: v } : b))); }
+
+  /* 🔴 SAVES ON THE SPOT, WITH NO SAVE BUTTON TO MISS. 20 Sept: Produkt
+     spent an evening on this, and one of the ways it failed him was a
+     Save button further down a long form that he never reached. A picture
+     is not a draft — the moment it is chosen, the choice is made.
+
+     ⚠️ avatar_kind is DERIVED, never stored as a separate opinion that can
+     drift from whether a photo actually exists. Same rule as Me.jsx: one
+     fact, one home. Dropping the photo falls back to their emoji if they
+     have one and to nothing if they don't. */
+  async function saveFace(path) {
+    setFaceMsg(''); setErr('');
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      const { error } = await supabase.from('profiles').update({
+        avatar_photo: path || null,
+        avatar_kind: path ? 'photo' : (emoji ? 'emoji' : 'none'),
+      }).eq('id', user.id);
+      if (error) throw error;
+      setFaceMsg(path ? 'Saved. That\u2019s your face now.' : 'Taken off.');
+    } catch (e) {
+      setErr('That picture didn\u2019t save. Try again in a second.');
+    }
+  }
   const cleanLinks = () => links.filter((l) => l.url.trim()).map((l) => ({ label: l.label, url: l.url.trim() }));
 
   async function apply(e) {
@@ -199,23 +234,49 @@ export default function Artist({ initial, handle, look = null, face = null }) {
             screen and not the other. */}
         <div className="art-sect" style={{ marginTop: 0 }}>
           <p className="art-sub">Your picture</p>
+          {/* 🔴 20 SEPT, LATE — THIS USED TO BE A LINK TO /me#face, AND THE
+              LINK IS WHAT BROKE. Produkt spent an entire evening trying to
+              put his face on his page. He found this button every time. It
+              sent him to the top of a long settings page, where the control
+              he wanted sat several screens down under a heading that says
+              "Your photo" beside a button that says "Use a photo" — and he
+              never got there. Four rounds of "it doesn't work".
+
+              I argued for the link when this was built: one column, one
+              control, no drift. That reasoning was fine and the outcome was
+              still that a verified artist could not put up a picture. A
+              handoff between two screens is a place people fall.
+
+              ⚠️ IT IS STILL ONE CONTROL AND ONE COLUMN. This is the same
+              PhotoUpload component and the same `profiles.avatar_photo`
+              that /me writes; nothing was duplicated. What changed is that
+              it is now reachable from the page it affects. */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginTop: 10 }}>
             <div className="art-av" style={{ width: 64, height: 64, marginTop: 0, fontSize: 26, borderWidth: 2 }}>
-              {face
+              {faceUrl
                 /* eslint-disable-next-line @next/next/no-img-element */
-                ? <img src={face} alt="" />
-                : String(aName || handle || '?').slice(0, 1).toUpperCase()}
+                ? <img src={faceUrl} alt="" />
+                : (emoji || String(aName || handle || '?').slice(0, 1).toUpperCase())}
             </div>
             <div>
-              <Link href="/me#face" className="art-btn ghost small" style={{ textDecoration: 'none' }}>
-                {face ? 'Change your picture' : 'Add a picture'}
-              </Link>
+              <PhotoUpload
+                kind="avatar"
+                disabled={busy}
+                label={facePath ? 'Choose a different one' : 'Use a photo'}
+                onDone={(path, preview) => {
+                  setFacePath(path); setFaceUrl(preview); saveFace(path);
+                }} />
+              {facePath && (
+                <button type="button" className="art-btn ghost small" style={{ marginTop: 6 }}
+                        onClick={() => { setFacePath(''); setFaceUrl(''); saveFace(''); }}>
+                  Take it off
+                </button>
+              )}
               <p className="art-none" style={{ marginTop: 6 }}>
-                This opens <b>Your name and face</b> on your page and scrolls you
-                straight to it. The button in there is marked <b>Use a photo</b>.
-                Your picture shows at the top of your artist page and next to
-                everything you post.
+                Shows at the top of this page and next to everything you post.
+                It saves as soon as you pick one.
               </p>
+              {faceMsg && <p className="art-count" role="status">{faceMsg}</p>}
             </div>
           </div>
         </div>
