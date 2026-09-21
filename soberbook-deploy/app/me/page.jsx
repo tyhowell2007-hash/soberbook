@@ -3,19 +3,19 @@ import { serverClient, assertReadable } from '../../lib/supabase-server';
 import { adminClient, adminConfigured } from '../../lib/supabase-admin';
 import { signPhotoPaths } from '../../lib/sign-photos';
 import Me from './Me';
+import MeProfile from './MeProfile';
 
 export const dynamic = 'force-dynamic';
 
-/* Your own page. Deliberately small.
-
-   NOT here, on purpose: themes, anthem, sponsor status, milestone chips,
-   and other people's profiles. Every one of those is a good idea and every
-   one of them would have delayed the sign-out button, which is a promise
-   already made to 12 people. Ship the promise first. */
-export default async function MePage() {
+/* Your own route has two explicit states. /me is deliberately a small profile:
+   its header followed only by this member's posts. /me?edit=1 is the settings
+   screen. Keeping that boundary in the server page means profile visits do
+   not fetch notifications, friends or settings-only support data. */
+export default async function MePage({ searchParams }) {
   const supabase = serverClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');
+  const editing = searchParams?.edit === '1';
 
   const { data: profile } = await supabase
     .from('profiles')
@@ -45,6 +45,7 @@ export default async function MePage() {
     initialAvatarUrl = signed?.signedUrl || null;
   }
 
+  if (!editing) {
   /* Your own posts — WITHOUT ever asking the database "whose posts are
      these?". `is_mine` is computed inside the view by comparing author_id
      to auth.uid() and is the only ownership signal that ever reaches a
@@ -69,11 +70,6 @@ export default async function MePage() {
      popping images in afterwards. */
   /* Photos AND videos, in one signing pass. flatMap not map: a post
      contributes zero, one or two paths and Boolean() drops the nulls. */
-  /* 0186: are they a verified artist? One call, and null for almost
-     everybody — artist_mine() returns a status or nothing. /me needs it
-     only to decide whether to show the door to /artist. */
-  const { data: artistMine } = await supabase.rpc('artist_mine');
-
   const postPhotoUrls = await signPhotoPaths(
     supabase,
     /* ⚠️ Spread photo_urls in (0065). */
@@ -81,15 +77,23 @@ export default async function MePage() {
       ...(Array.isArray(p.photo_urls) ? p.photo_urls : []), p.photo_url, p.video_url,
     ]).filter(Boolean));
 
-  /* Who got back to you. ⚠️ Read from the VIEW, never the table — the view
-     is what turns an anonymous replier into the word "Someone" and drops
-     their id entirely. Selecting from `notifications` here would hand the
-     browser actor_id and undo 0025 in one line. */
-  const { data: notes } = await supabase
-    .from('my_notifications')
-    .select('id, kind, who, who_handle, about, post_id, unread, created_at')
-    .order('created_at', { ascending: false })
-    .limit(20);
+  /* The normal route ends here: profile header, then only this member's
+     posts. Settings use an explicit query string so none of their support
+     queries can quietly turn /me back into a dashboard. */
+    return (
+      <MeProfile
+        profile={profile}
+        posts={mine || []}
+        avatarUrl={initialAvatarUrl}
+        postPhotoUrls={postPhotoUrls}
+      />
+    );
+  }
+
+  /* 0186: are they a verified artist? One call, and null for almost
+     everybody — artist_mine() returns a status or nothing. The settings
+     screen needs it only to decide whether to show the artist editor. */
+  const { data: artistMine } = await supabase.rpc('artist_mine');
 
   /* Tags waiting on you (0082).
 
@@ -101,28 +105,12 @@ export default async function MePage() {
      one screen that is already about you and nobody else. */
   const { data: pending } = await supabase.rpc('my_pending_tags');
 
-  /* Your people (8 Sept). ⭐ Already ordered quietest-first by the
-     function itself — the component does not sort, because "who have I
-     not heard from" is a rule about relationships and belongs next to
-     the data, not in the markup.
-
-     ⚠️ my_friends() is SECURITY DEFINER and takes NO ARGUMENT, so it can
-     only ever return the caller's own friendships — there is no version
-     of it that could hand back somebody else's list. That is exactly why
-     this grid is safe here and was refused on a public profile; 0155
-     dropped the friends_of(handle) I had written for that. */
-  const { data: friends } = await supabase.rpc('my_friends');
-
   return (
     <Me
       email={user.email}
       profile={profile}
-      posts={mine || []}
       initialAvatarUrl={initialAvatarUrl}
-      postPhotoUrls={postPhotoUrls}
       pendingTags={pending || []}
-      notes={notes || []}
-      friends={friends || []}
       artistStatus={artistMine?.status || null}
     />
   );
