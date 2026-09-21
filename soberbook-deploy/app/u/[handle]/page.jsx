@@ -19,6 +19,7 @@ import Shot from '../../components/Shot';
 import ArtistCheck from '../../components/ArtistCheck';
 import { coverCss, accentHex, normaliseSections } from '../../../lib/look';
 import ArtistBar from '../../components/ArtistBar';
+import MemberProfile from './MemberProfile';
 
 export const dynamic = 'force-dynamic';
 
@@ -170,6 +171,24 @@ export default async function ProfilePage({ params }) {
      their colour like everybody else's. */
   const coverBg = coverCss(p.cover);
   const accent = accentHex(p.accent);
+
+  /* Ordinary personal profiles stop here: header, actions and only this
+     member's public posts. The verified artist branch below keeps its custom
+     approved layout; it is a public artist page rather than a personal
+     profile. The author_handle query above remains the anonymity boundary. */
+  if (!artist) {
+    return (
+      <MemberProfile
+        profile={p}
+        posts={theirPosts || []}
+        photos={photos}
+        facePhoto={facePhoto}
+        coverBackground={coverBg}
+        accent={accent}
+      />
+    );
+  }
+
   const order = normaliseSections(p.sections);
   /* 0180: the same page for authors and podcasters (Dr. Labor, 19 Sept).
      A musician's page is unchanged; an author/podcaster swaps "shows" for

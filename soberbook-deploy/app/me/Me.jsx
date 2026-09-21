@@ -5,8 +5,6 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { browserClient } from '../../lib/supabase-browser';
 import { plainError } from '../../lib/plain-error';
-import { isIosApp } from '../../lib/is-ios-app';
-import People from './People';
 import SongPicker from './SongPicker';
 import SongPlayer from '../components/SongPlayer';
 import Milestones from '../components/Milestones';
@@ -28,8 +26,7 @@ import DeleteAccount from './DeleteAccount';
 import Blocked from './Blocked';
 import PushSwitch from '../components/PushSwitch';
 import EmailSwitch from '../components/EmailSwitch';
-import PledgeRecord from './PledgeRecord';
-import Shot from '../components/Shot';
+import PendingTags from './PendingTags';
 
 /* The faces you can pick from.
 
@@ -56,15 +53,6 @@ const FACE_GROUPS = [
    copy of dayCount(). It didn't clamp, so this page showed "-130" to a
    member whose sober date hadn't arrived. Deleted rather than fixed: a
    repaired copy is still a copy, and the next screen would drift too. */
-
-function ago(iso) {
-  const mins = Math.floor((Date.now() - new Date(iso).getTime()) / 60000);
-  if (mins < 1) return 'just now';
-  if (mins < 60) return mins + 'm ago';
-  const h = Math.floor(mins / 60);
-  if (h < 24) return h + 'h ago';
-  return Math.floor(h / 24) + 'd ago';
-}
 
 /* =====================================================================
    ONE COLLAPSIBLE SECTION OF THE EDITOR.
@@ -116,28 +104,10 @@ function Section({ title, open = false, tint, eye, id, children }) {
   );
 }
 
-export default function Me({ email, profile, posts, initialAvatarUrl,
-                             postPhotoUrls = {}, notes = [], pendingTags = [],
-                             /* ⚠️ Defaults to an empty array, not undefined.
-                                People.jsx reads .length on the first line;
-                                an undefined prop from a page that forgets to
-                                pass it would white-screen /me for everybody
-                                rather than showing an empty shelf. */
-                             friends = [],
+export default function Me({ email, profile, initialAvatarUrl,
+                             pendingTags = [],
                              /* 0186 — null for almost everybody. See the section below. */
                              artistStatus = null }) {
-  /* Tags waiting on this member (0082). Kept in state so approving or
-     declining one takes it off the screen immediately — the person is
-     standing right there watching, and a round trip reads as a dead
-     button. Same call the drops and edit paths already learned. */
-  const [pend, setPend] = useState(pendingTags);
-  const [pendBusy, setPendBusy] = useState('');
-
-  /* Apple 3.1.1 — see the comment above the coffee box. Starts true so the
-     donation block is never in the server-rendered HTML; the browser reveals
-     it only after confirming this is not the iPhone app. */
-  const [iosApp, setIosApp] = useState(true);
-  useEffect(() => { setIosApp(isIosApp()); }, []);
   const router = useRouter();
   const supabase = browserClient();
 
@@ -185,8 +155,8 @@ export default function Me({ email, profile, posts, initialAvatarUrl,
      at all."
 
      8 of 18 members have no date, and the reason turned out to be the
-     usual one: the editor exists, it is good, and it is THREE TAPS behind
-     the pencil. The line that says you don't have to set one is already
+     usual one: the editor exists, it is good, and it is behind the profile's
+     Edit button. The line that says you don't have to set one is already
      written — buried where only somebody already editing would read it.
 
      'shut' = the member said no, this session or in the database.
@@ -297,7 +267,7 @@ export default function Me({ email, profile, posts, initialAvatarUrl,
   const [photoUrl,  setPhotoUrl]  = useState(initialAvatarUrl || '');
   const [photoKind, setPhotoKind] = useState(profile.avatar_kind || 'emoji');
 
-  /* ---- READ FIRST, EDIT ON PURPOSE (Ty's call, Aug 16) ----
+  /* ---- PROFILE FIRST, SETTINGS ON PURPOSE (Ty's call, Aug 16) ----
 
      This page used to be ten open forms stacked on top of each other:
      name, face, privacy, date, lifetime, bio, location, sponsoring, song,
@@ -310,13 +280,14 @@ export default function Me({ email, profile, posts, initialAvatarUrl,
      THESE ARE YOUR SETTINGS (knobs nobody else will ever look at). Stacked
      together there was no way to tell which was which.
 
-     So: the page you land on is now a page you READ. One pencil opens the
-     settings. Nothing was deleted — every field, every save path and every
-     piece of state below is untouched, just moved behind `editing`. That
-     was deliberate: a restructure that also rewrites the save logic is two
-     changes wearing one commit, and when it breaks you can't tell which
-     half did it. */
-  const [editing, setEditing] = useState(false);
+     The read profile is now MeProfile.jsx at /me. This component is only the
+     explicit /me?edit=1 settings state, so account controls can never drift
+     back into the profile feed. The existing save paths remain here rather
+     than being rewritten alongside the layout. */
+
+  function finishEditing() {
+    router.replace('/me');
+  }
 
   /* The face picker is CLOSED by default and shuts itself again the moment
      you choose. Fifty-four squares sitting open is most of the page, and
@@ -508,15 +479,15 @@ export default function Me({ email, profile, posts, initialAvatarUrl,
   /* =====================================================================
      THE STARTED-OVER QUESTION — BUILT ONCE, RENDERED TWICE.
 
-     A date can now be moved forward from two places: the full editor
-     behind the pencil, and the edit link under the number. Both must ask
+     A date can now be moved forward from two places: the full settings
+     section and the edit link under the number. Both must ask
      the same question, because the answer decides whether a run gets
      added to the lifetime total — and a lifetime total is the one number
      in this app that is supposed to survive everything.
 
      🔴 I nearly shipped this as a dead button. The first version set
      reset='ask' from the counter, but the question only rendered inside
-     `{editing && …}` — so saving a forward date from the counter would
+     the settings section — so saving a forward date from the counter would
      have set a flag and shown nothing at all. That is the sixth instance
      this month of everything-built-except-the-way-in, and this time I
      wrote it myself. Building it as one variable and dropping it in both
@@ -928,521 +899,16 @@ export default function Me({ email, profile, posts, initialAvatarUrl,
         {lifeBlock}
 
         {/* =================================================================
-            THE READ VIEW — your page as a page, not a form.
-
-            Only rendered when you are NOT editing, so the two states can
-            never both be on screen arguing about which value is current.
+            EVERYTHING BELOW IS THE SETTINGS SIDE. Reached through Edit.
             ================================================================= */}
-        {!editing && (
-          <>
-            {/* =============================================================
-                "COUNTING DAYS?" — THE ONE PLACE IT IS EASY TO SAY YES.
-
-                🔴 Shown ONLY when there is no date and the member has not
-                already said no. Never shown to somebody who has a date —
-                their number is right above this and it would be absurd.
-
-                ⚠️ THE REFUSAL IS THE SAME SIZE AS THE OFFER, ON PURPOSE.
-                Every other recovery app makes the day count the point and
-                the opt-out a settings-screen afterthought. Here the person
-                who is not counting — four days from a relapse, or simply
-                measuring it some other way — gets a one-tap answer that
-                sticks forever. `date_prompt_off` (0085) is what makes
-                "forever" true; without it this card comes back every time
-                they open their own page, and an app that asks a person in
-                recovery about their day count daily is doing harm with a
-                cheerful face.
-
-                ⚠️ It does NOT lock the field. Somebody who says no today
-                can still set a date from the pencil whenever they like.
-                This silences the ASKING, not the ability.
-                ============================================================= */}
-            {!since && dateAsk !== 'shut' && (
-              <div className="datecard">
-                {dateAsk === 'closed' ? (
-                  <>
-                    <p className="dc-h">Counting days?</p>
-                    <p className="dc-s">Put your date in and it counts for you.</p>
-                    <button className="btn" type="button"
-                            onClick={() => setDateAsk('open')}>
-                      Set my date
-                    </button>
-                  </>
-                ) : (
-                  <>
-                    <p className="dc-h">When did you start?</p>
-                    <DatePick value={since || today} disabled={busy}
-                              idPrefix="ask" onChange={setSince} />
-                    <button className="btn" type="button" disabled={busy || !since}
-                            onClick={() => save({ sober_since: since }, 'Date saved.')}>
-                      {busy ? 'Saving…' : 'Save'}
-                    </button>
-                    <p className="dc-s">
-                      Only used to count days. Nobody else sees the date itself.
-                    </p>
-                  </>
-                )}
-
-                {/* 🔴 One tap, and it is remembered. The card closes FIRST,
-                    before the write — the member said no, and making them
-                    watch a spinner to be told their refusal was accepted
-                    is the small rudeness this whole card exists to avoid.
-
-                    ⚠️ No .catch() here on purpose: save() handles its own
-                    errors and never rejects. Writing one anyway would
-                    imply a promise contract that doesn't exist, and this
-                    app has been bitten repeatedly by a second statement of
-                    a rule drifting from the first. If save() ever starts
-                    throwing, this needs revisiting — not decorating. */}
-                <button className="dc-no" type="button" disabled={busy}
-                        onClick={() => {
-                          setDateAsk('shut');
-                          save({ date_prompt_off: true }, '');
-                        }}>
-                  I&rsquo;d rather not count days
-                </button>
-              </div>
-            )}
-
-            {/* ---- WHO GOT BACK TO YOU ----
-
-                ⚠️ Nothing renders when there's nothing. No "You're all
-                caught up!", no empty-state illustration, no zero. An app
-                that reports the absence of news is still talking to you
-                about news — and a person who opens this in a bad hour and
-                reads "no one has replied to you" has been told something
-                cruel by a computer that meant nothing by it.
-
-                Silence is allowed to just be silence. */}
-            {/* ---- tags waiting on you (0082) ----
-
-                ⚠️ ABOVE "who got back to you", deliberately. This is the
-                only thing on the page that needs a DECISION; everything
-                else is news. A choice buried under a list is a choice
-                nobody makes.
-
-                ⚠️ Nothing renders when there is nothing pending — same
-                rule as the notifications below. No "you're all caught up",
-                no empty state. Silence is allowed to be silence. */}
-            {pend.length > 0 && (
-              <div className="pendtags">
-                <h2 className="sec">Somebody tagged you</h2>
-                <ul>
-                  {pend.map((t) => (
-                    <li key={t.post_id}>
-                      <p className="pt-who">
-                        <b>{t.tagged_by}</b> put your handle on a post
-                      </p>
-                      {t.preview ? <p className="pt-prev">“{t.preview}”</p> : null}
-                      {/* 🔴 The sentence that makes the whole feature make
-                          sense. Without it a person cannot tell whether
-                          their name is already out there. */}
-                      <p className="pt-note">
-                        Your handle isn’t on it yet. Nobody sees this until you say so.
-                      </p>
-                      <div className="pt-btns">
-                        <button className="pt-yes" type="button" disabled={!!pendBusy}
-                                onClick={async () => {
-                                  setPendBusy(t.post_id);
-                                  const { error } = await supabase.rpc('approve_my_tag', { p_post: t.post_id });
-                                  setPendBusy('');
-                                  /* ⚠️ Only drop it from the list if the
-                                     database agreed. Removing it optimistically
-                                     on failure would tell somebody their name
-                                     is showing when it isn't. */
-                                  if (!error) setPend((l) => l.filter((x) => x.post_id !== t.post_id));
-                                }}>
-                          Let it show
-                        </button>
-                        {/* ⚠️ remove_my_tag is the SAME call used to take your
-                            name off an approved post. Declining and removing
-                            are one act — a separate decline_tag() would be a
-                            second implementation of one rule. */}
-                        <button className="pt-no" type="button" disabled={!!pendBusy}
-                                onClick={async () => {
-                                  setPendBusy(t.post_id);
-                                  const { error } = await supabase.rpc('remove_my_tag', { p_post: t.post_id });
-                                  setPendBusy('');
-                                  if (!error) setPend((l) => l.filter((x) => x.post_id !== t.post_id));
-                                }}>
-                          No thanks
-                        </button>
-                      </div>
-                      {/* 🔴 They are never told. Same as an ignored friend
-                          request: the person declining may be avoiding a
-                          dealer, an ex, or someone from the years they are
-                          leaving behind. If saying no starts a conversation,
-                          people stop saying no. */}
-                      <p className="pt-fine">“No thanks” doesn’t tell them.</p>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            {notes.length > 0 && (
-              <div className="nots">
-                <h2 className="sec">Who got back to you</h2>
-                <ul>
-                  {notes.map((n) => (
-                    <li key={n.id} className={n.unread ? 'fresh' : ''}>
-                      <Link href={n.kind === 'message' ? '/chat' : '/wall'}
-                            className="notl">
-                        <span className="notw">
-                          {/* who_handle is null when they were anonymous,
-                              so there is nothing to link and no way to
-                              work out who it was. */}
-                          {n.who}
-                          {n.kind === 'message' ? ' messaged you'
-                                                : ' replied to your post'}
-                        </span>
-                        {n.about ? <span className="nota">“{n.about}”</span> : null}
-                        <span className="notm">{ago(n.created_at)}</span>
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            <div className="phead">
-              {/* ⚠️ THE FACE AND THE NAME ARE NOT HERE ANY MORE — they are
-                  in the hero at the top of this page (0182). Putting them
-                  back would show a member their own face twice on one
-                  screen. What is left is the bio, which stays out of the
-                  card on purpose: see the note up there. */}
-              {/* ⚠️ NO PROSE ON AN ANONYMOUS PAGE. Free text is the easiest
-                  way to unmask yourself by accident — a bio naming your town,
-                  your job and your dog is an identification. Same rule the
-                  public profile already follows. */}
-              {!anon && bio ? <p className="pbio">{bio}</p> : null}
-            </div>
-
-            {/* ---- personal details, with the one pencil ---- */}
-            <div className="deets">
-              <div className="deets-hd">
-                <h3>Personal details</h3>
-                <button type="button" className="pencil" onClick={() => setEditing(true)}
-                        aria-label="Edit your details">✏️</button>
-              </div>
-
-              {/* ⚠️ The sponsor row is gated to 365 days. That gate was a
-                  safety call, not a product one: "available to sponsor" on a
-                  page belonging to somebody three weeks in is exactly the
-                  shape of a 13th-stepping problem. Do not lower it. */}
-              {/* ⚠️ .deet, NOT .mrow. `.mrow` looks similar and is a BUTTON
-                  style — it turns acid on hover and takes a focus ring. Read-only
-                  facts wearing it would look tappable and do nothing, which is
-                  how you teach somebody the app is broken. `.deet` is the same
-                  card the public profile at /u already uses, so the two views
-                  of the same information can't drift apart. */}
-              {/* 0113: two facts, not one status. `sponsor` (the old
-                  single value) is no longer what the editor writes, so a
-                  read view still keyed on it would show a member the
-                  answer they gave LAST WEEK next to the one they gave
-                  today. Same producer/consumer rule as 0083. */}
-              {!anon && willSp === 'yes' && d !== null && d >= 365 && (
-                <div className="deet sponsor">
-                  <span className="di" aria-hidden="true">🛟</span>
-                  <span>Willing to sponsor</span>
-                </div>
-              )}
-              {!anon && willSp === 'yes' && (d === null || d < 365) && (
-                <div className="deet sponsor">
-                  <span className="di" aria-hidden="true">🛟</span>
-                  <span>Willing to sponsor</span>
-                  <span className="deet-sub">shows on your page once you have a year</span>
-                </div>
-              )}
-
-              {/* ⚠️ THE BUG THIS FIXES, Aug 18: your own page showed only
-                  programs and interests. Everything else you'd filled in —
-                  your sponsor status, your town — was saved and invisible
-                  to you, while a stranger's page showed theirs.
-
-                  That's worse than a missing feature. You tick "looking
-                  for a sponsor", come back to your page, see nothing, and
-                  reasonably conclude it didn't save. The only page where
-                  you can check your own settings has to show all of them.
-
-                  ⚠️ ONE EXCEPTION, DELIBERATE: this is your OWN page, so
-                  `looking` is shown to you regardless of your day count.
-                  The 0031 gate is about who may see it on SOMEBODY ELSE'S
-                  page. Hiding your own setting from yourself would mean a
-                  member under a year could never confirm what they'd
-                  chosen — a privacy rule turned into a trap. */}
-              {!anon && hasSp === 'yes' && (
-                <div className="deet">
-                  <span className="di" aria-hidden="true">🤝</span>
-                  <span>I have a sponsor</span>
-                </div>
-              )}
-              {!anon && spNA && (
-                <div className="deet">
-                  <span className="di" aria-hidden="true">🤫</span>
-                  <span>Not interested in sponsoring</span>
-                </div>
-              )}
-              {!anon && hasSp === 'no' && (
-                <div className="deet sponsor">
-                  <span className="di" aria-hidden="true">🔎</span>
-                  <span>No sponsor yet</span>
-                  {/* Say who can see it, right where it's shown. Otherwise
-                      "quiet" is indistinguishable from "broken". */}
-                  <span className="deet-sub">only members with a year can see this</span>
-                </div>
-              )}
-
-              {/* Your town, on your own page. It was only in the small grey
-                  line next to your name — easy to miss, and absent
-                  entirely if you'd typed a town but left it hidden. Now
-                  it's a row like every other fact, and it says which of
-                  those two states you're in. */}
-              {!anon && town && (
-                <div className="deet">
-                  <span className="di" aria-hidden="true">📍</span>
-                  <span>{town}{state ? ', ' + state : ''}</span>
-                  {!showLoc && (
-                    <span className="deet-sub">hidden — only you see this</span>
-                  )}
-                </div>
-              )}
-              {!anon && programs && (
-                <div className="deet">
-                  <span className="di" aria-hidden="true">🧭</span><span>{programs}</span>
-                </div>
-              )}
-              {/* ⚠️ There used to be a SECOND town row here, gated on
-                  showLoc — so a public town printed twice. Removed 2 Sept. */}
-              {!anon && interests && (
-                <div className="deet">
-                  <span className="di" aria-hidden="true">🎣</span><span>{interests}</span>
-                </div>
-              )}
-
-              {/* An empty card with a pencil is a dead end — say what the
-                  pencil is for rather than showing four blank rows. */}
-              {/* ⚠️ THIS CONDITION HAS TO MIRROR THE ROWS ABOVE, EXACTLY.
-                  It used to read `!(showLoc && town) && sponsor !== 'available'`,
-                  which was right when a town only appeared if it was public
-                  and the only sponsor state was 'available'. Both changed
-                  today, and a stale emptiness test is worse than none: it
-                  prints "Nothing filled in yet" directly above the three
-                  things you just filled in.
-
-                  Derived from the same values the rows use, so the two
-                  can't drift again. */}
-              {(anon || (!programs && !interests && !town && hasSp === 'unsaid' && willSp === 'unsaid' && !spNA)) && (
-                <p className="hint" style={{ margin: 0 }}>
-                  {anon
-                    ? 'You’re anonymous, so nothing here is shown to anybody. The pencil still opens your settings.'
-                    : 'Nothing filled in yet. The pencil adds your programs, where you are, what you’re into, and anything about sponsoring.'}
-                </p>
-              )}
-            </div>
-
-            {/* ---- one more day ----
-                Ty's placement: "right above their song." It renders
-                nothing at all if you've never pledged — see the file. */}
-            <PledgeRecord />
-
-            {/* ---- the anthem ---- */}
-            {song?.anthem_url ? (
-              <SongPlayer song={song} whose="my anthem" big />
-            ) : (
-              <p className="hint">
-                No song yet. The pencil adds one &mdash; the song that got you through.
-              </p>
-            )}
-
-            {/* 🔴 YOUR PEOPLE LIVES ON THE READ VIEW, AND I SHIPPED IT
-                BEHIND THE PENCIL FIRST. It went out inside the settings
-                panel — three steps deep, on a page that already carries
-                two written notes about doing exactly that (sign-out on
-                23 Aug, the push switch an hour after writing the note
-                about sign-out). The build was green and /me looked
-                perfect; the grid simply was not on it.
-
-                ⭐ Fourteenth "everything built except the way in", and
-                this one is worse than most because the component's OWN
-                comment is about a friends list nobody could reach.
-
-                ⚠️ It sits after your song and before the phone switches:
-                everything below this point is plumbing you decide about
-                your handset, and your people are content. */}
-            <People friends={friends} />
-
-            {/* ---- the way out ----
-                🔴 Aug 23. Ty: "we need a log out on the site." It was
-                already built — behind the pencil, at the bottom of a long
-                settings list, under "🔑 Account". THREE STEPS DEEP.
-
-                ⭐ He owns the app and couldn't find it. A member has no
-                chance. This is the same shape as the Aug 19 bug where you
-                couldn't delete your own post: everything built except the
-                way in. Four days of building didn't find that one either —
-                one person using it did.
-
-                ⚠️ It sits at the very BOTTOM of the read view, quiet and
-                small. The original reason for hiding it was sound — sign
-                out is the one control here you can't undo by tapping
-                again, and it doesn't belong next to your own face. That
-                reasoning argued for putting it LAST. It did not argue for
-                putting it behind a pencil.
-
-                ⚠️ Calls the SAME signOut() as the settings one, so there is
-                no second implementation to drift. Two buttons, one door. */}
-            {/* 🔴 AND I PUT THIS ONE BEHIND THE PENCIL TOO — an hour after
-                writing the note above about why that was wrong.
-
-                The switch shipped inside a <Section>, which only renders
-                in the settings panel. Three steps deep, identical to
-                sign-out on Aug 23, ninth instance this month. Caught by
-                loading the live page and finding .pushbox simply absent —
-                the build was green the whole time.
-
-                ⚠️ ONE COPY, on the read view. The settings version was
-                DELETED rather than left alongside: two mounts of a control
-                that asks the browser for permission would let somebody
-                grant it in one place and see the other still saying "off".
-
-                It sits above sign-out for the same reason sign-out sits
-                last — this is a thing you decide about your phone, not
-                about your account. */}
-            {/* 🌙 ON THE READ VIEW, NOT BEHIND THE PENCIL — the mistake this
-                page has now made three times (sign-out on 23 Aug, the push
-                switch an hour after writing the note about sign-out, and
-                your people earlier tonight). Somebody who wants the screen
-                to stop burning at 2am should not have to go looking for a
-                settings panel to find that out. */}
-            <NightSwitch theme={theme} setTheme={setTheme} save={save} busy={busy} />
-            <PushSwitch />
-            {/* ⚠️ UNDER push, not above it. Push is the better experience when
-                it works; email is the one that works for everybody. Meet the
-                good option first. */}
-            <EmailSwitch />
-
-            {/* ⭐ THE WALKTHROUGH, PERMANENTLY. The card on the wall is
-                shown once and then gone forever — which is right for a
-                card and wrong as the only way to reach an explanation of
-                the whole app. Somebody who tapped "Not now" in April and
-                is stuck in June needs it to still be findable.
-
-                🔴 2 SEPT: this line said "A 14-minute walkthrough" over a
-                film that is 3:29. It was the FIFTH place carrying the old
-                runtime and the last one found — because the other four
-                spelled it "fourteen" and this one used a numeral, so the
-                first sweep missed it. ⚠️ When a fact is wrong in several
-                places, grep for every spelling of it before believing the
-                list is complete.
-
-                ⚠️ Here, at the bottom, above sign-out: this is where a
-                person goes when they are looking for the thing they
-                can't find. It is not in the nav, because six tabs is the
-                ceiling for that bar and it is written down in wall.css. */}
-            {/* ⭐ SAGE, AND IT SITS HERE BECAUSE THE FIRST VERSION DIDN'T.
-
-                I put this behind the pencil, three taps down inside the
-                Account section — while writing a comment in that very block
-                about how log-out sat three taps deep for weeks and Ty
-                himself couldn't find it. For a page whose entire job is "I
-                can't find the thing", being hard to find isn't ironic, it's
-                disqualifying.
-
-                ⚠️ It reuses .mtour deliberately rather than getting a new
-                class. Two cards of the same shape read as a pair — "ask a
-                quick question" and "watch the whole thing" — and a new
-                class would have meant new CSS in a fourth file for no
-                visual gain. The 5 Sept lesson: a class you invent is a
-                class that might not exist. This one provably does.
-
-                🔴 The label is in the card itself, not in small print
-                underneath. Wherever Sage appears it says what it is. */}
-            <Link href="/resources" className="mtour">
-              <span className="mtT">◆ Stuck? Ask Sage</span>
-              <span className="mtD">
-                A robot that knows how Sober Book works. Not a person — and it
-                can&apos;t see your posts, your messages or your date.
-              </span>
-            </Link>
-
-            <Link href="/tour" className="mtour">
-              <span className="mtT">📺 How all this works</span>
-              <span className="mtD">A 3&frac12;-minute walkthrough of the whole app.</span>
-            </Link>
-
-            {/* Artist profiles, 19 Sept. Same card shape as the two above. */}
-            <Link href="/artist" className="mtour">
-              <span className="mtT">🎤 Are you a musician?</span>
-              <span className="mtD">Apply for an artist profile — a gold checkmark, your links and shows, and followers.</span>
-            </Link>
-
-            {/* ---- ☕ HELP KEEP THIS APP MOVING ----
-
-                🔴 THE LANDING PAGE CARRIES THE SAME ASK, AND THAT ONE IS
-                THE PRIMARY. The people most able to give are the family,
-                friends and treatment staff who arrive from a flyer — not
-                the 243 people in recovery using this. This copy exists so
-                a member who WANTS to chip in has somewhere to do it, not
-                so anybody gets asked.
-
-                ⚠️ Which is why it is here, at the very bottom, under
-                everything, next to Sign out — and never in the feed and
-                never on /now. A tip jar beside somebody posting at 2am
-                that they are struggling is a different object entirely.
-
-                ⚠️ "Only if you're able" is load-bearing copy, not
-                politeness. A good number of people here are broke, in
-                treatment, or paying off the wreckage.
-
-                ⚠️ rel="noreferrer" is the 23 Aug rule — from Sober Book a
-                referrer tells a third party's logs that the visitor came
-                from a recovery app. */}
-            {/* 🔴 HIDDEN INSIDE THE iPHONE APP — Apple Guideline 3.1.1: a
-                donation, "including those which are merely to tip the
-                developers", must go through in-app purchase. Sober Book LLC is
-                for-profit, so it cannot take one any other way. Web and Android
-                are untouched. See lib/is-ios-app.js. */}
-            {!iosApp && (
-            <div className="pushbox">
-              <h3 className="pushh">Help keep this app moving</h3>
-              <p className="pushp">
-                Sober Book is free and it stays free &mdash; no ads, nobody
-                selling your information. It costs a little each month to
-                run. Only if you&apos;re able; nothing here changes either way.
-              </p>
-              <a className="btn" href="https://buymeacoffee.com/tyhowell07"
-                 target="_blank" rel="noopener noreferrer">
-                ☕ Buy us a coffee
-              </a>
-            </div>
-            )}
-
-            <div className="meout">
-              <button className={'btn out' + (confirmOut ? ' arm' : '')} type="button"
-                      disabled={busy} onClick={signOut}>
-                {confirmOut ? 'Tap again to sign out' : 'Sign out'}
-              </button>
-              {confirmOut && (
-                <button className="nvm" type="button" onClick={() => setConfirmOut(false)}>
-                  never mind
-                </button>
-              )}
-            </div>
-          </>
-        )}
-
-        {/* =================================================================
-            EVERYTHING BELOW IS THE SETTINGS SIDE. Behind the pencil.
-            ================================================================= */}
-        {editing && (
         <>
         <div className="editbar">
-          <button type="button" className="btn ghost" onClick={() => setEditing(false)}>
+          <button type="button" className="btn ghost" onClick={finishEditing}>
             ‹ Done
           </button>
         </div>
 
+        <PendingTags initialTags={pendingTags} />
 
         {/* 🔴 THE DATE COMES FIRST — 2 Sept, Ty asked three times.
             It used to be the THIRD section, behind name-and-face and
@@ -2083,6 +1549,14 @@ export default function Me({ email, profile, posts, initialAvatarUrl,
               on. It is the one control here you can't undo by tapping again,
               and it does not belong next to your own face. */}
         </Section>
+        <Section title="📱 Phone and notifications" tint="sand">
+          {/* These controls used to sit on /me's read view. That view is now
+              intentionally only the profile and its posts, so device choices
+              belong here with the rest of the member's settings. */}
+          <NightSwitch theme={theme} setTheme={setTheme} save={save} busy={busy} />
+          <PushSwitch />
+          <EmailSwitch />
+        </Section>
         <Section title="🔑 Account" tint="cream">
           <p className="hint">Signed in as {email}</p>
           <button className={'btn out' + (confirmOut ? ' arm' : '')} type="button"
@@ -2095,10 +1569,9 @@ export default function Me({ email, profile, posts, initialAvatarUrl,
             </button>
           )}
 
-          {/* ⚠️ THE SAGE LINK USED TO BE HERE AND HAS MOVED UP TO THE READ
-              VIEW, beside the walkthrough card. It was behind the pencil,
-              which for a help page means nobody would ever have found it.
-              Do not put it back here. */}
+          {/* Help and the walkthrough stay in the permanent More menu. They
+              are navigation, not account settings, and putting them here
+              would make them harder to find again. */}
 
           {/* ⚠️ Above delete, below sign-out. It renders NOTHING when you
               haven't blocked anybody, so for most members this section
@@ -2116,70 +1589,12 @@ export default function Me({ email, profile, posts, initialAvatarUrl,
           <DeleteAccount handle={profile.handle} />
         </Section>
         <div className="editbar">
-          <button type="button" className="btn" onClick={() => setEditing(false)}>
+          <button type="button" className="btn" onClick={finishEditing}>
             Done
           </button>
         </div>
         </>
-        )}
 
-        {/* ---- your posts ---- */}
-        <h2 className="sec">What you&apos;ve put up</h2>
-        {posts.length === 0 ? (
-          <p className="hint">Nothing yet. The wall is through the arrow up top.</p>
-        ) : (
-          <ul className="mine">
-            {posts.map((p) => (
-              <li key={p.id} className={p.is_anonymous ? 'screened' : ''}>
-                {p.body ? <p className="mb">{p.body}</p> : null}
-                {/* Your page should show what you actually put up — the
-                    picture as much as the words. This list showed only text,
-                    so a photo post appeared here as a blank entry. */}
-                {/* ⚠️ 0065: several photos become a grid, one stays exactly
-                    as it was. Same rule as the wall — see app/photos.css. */}
-                {(() => {
-                  const shots = (Array.isArray(p.photo_urls) && p.photo_urls.length
-                    ? p.photo_urls : []).filter((s) => postPhotoUrls[s]);
-                  if (shots.length < 2) return null;
-                  return (
-                    <div className="pgrid" data-n={Math.min(shots.length, 4)}>
-                      {shots.map((s, i) => (
-                        <Shot key={s} path={s} src={postPhotoUrls[s]}
-                              zoom={{ items: shots.map((x) => ({ path: x, url: postPhotoUrls[x] })), i }}
-                              alt={`Photo ${i + 1} of ${shots.length}`} />
-                      ))}
-                    </div>
-                  );
-                })()}
-                {(!Array.isArray(p.photo_urls) || p.photo_urls.length < 2)
-                  && p.photo_url && postPhotoUrls[p.photo_url] && (
-                  <div className="mphoto">
-                    <Shot path={p.photo_url} src={postPhotoUrls[p.photo_url]}
-                          zoom={{ items: [{ path: p.photo_url, url: postPhotoUrls[p.photo_url] }], i: 0 }}
-                          alt="" />
-                  </div>
-                )}
-                {p.video_url && postPhotoUrls[p.video_url] && (
-                  <div className="mphoto">
-                    <video src={postPhotoUrls[p.video_url]} controls playsInline
-                           preload="none" />
-                  </div>
-                )}
-                <div className="mm">
-                  {ago(p.created_at)}
-                  {p.is_anonymous ? ' · posted anonymously' : ''}
-                  {/* 🔴 Never a zero. "0 support" on your own post is a
-                      worse thing to read than nothing at all. */}
-                  {p.support_count > 0 ? ` · ❤️ ${p.support_count}` : ''}
-                  {p.strength_count > 0 ? ` · 🤝 ${p.strength_count}` : ''}
-                  {p.comment_count > 0
-                    ? ` · ${p.comment_count} ${p.comment_count === 1 ? 'reply' : 'replies'}`
-                    : ' · no replies yet'}
-                </div>
-              </li>
-            ))}
-          </ul>
-        )}
 
       </div>
     </>
