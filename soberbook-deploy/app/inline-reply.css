@@ -1,0 +1,163 @@
+/* =====================================================================
+   THE COMMENT BOX ON A WALL POST.
+
+   Ty asked for the Facebook shape: a place to type where "join in" used
+   to be, rather than a text link that first opens another screen.
+
+   ⚠️ Every class is prefixed qreply-. wall.css is global and has already
+   had unrelated `.composer` and `.rheart` collisions; a generic `.comment`
+   or `.input` here would repeat that failure on every route.
+
+   ⚠️ Variables only. The box appears in both the green room and Night,
+   and --boxfill/--body/--soft are the measured contrast pairs that move
+   together when the theme changes. A fixed white field is the exact bug
+   that made typed replies disappear in dark mode on 12 Sept.
+   ===================================================================== */
+
+.qreply{
+  margin-top:12px;
+  padding-top:11px;
+  border-top:1.5px solid var(--line);
+}
+
+.qreply-form{
+  display:flex;
+  align-items:flex-end;
+  gap:7px;
+  min-width:0;
+}
+
+.qreply-face{
+  flex:none;
+  width:38px;
+  height:38px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  align-self:flex-start;
+  margin-top:3px;
+  border:1.5px solid var(--gm);
+  border-radius:50%;
+  background:var(--gl);
+  color:var(--gt);
+  font-size:19px;
+  line-height:1;
+}
+
+.qreply-box{
+  flex:1 1 auto;
+  width:auto;
+  min-width:0;
+  min-height:44px;
+  max-height:168px;
+  padding:9px 12px;
+  border:1.5px solid var(--gm);
+  border-radius:18px;
+  background:var(--boxfill);
+  color:var(--body);
+  font-family:'Archivo',system-ui,sans-serif;
+  /* 16px prevents iOS from zooming the whole wall when the field opens. */
+  font-size:16px;
+  line-height:1.45;
+  resize:none;
+  overflow-y:auto;
+}
+.qreply-box::placeholder{ color:var(--soft); opacity:1; }
+.qreply-box:focus-visible{
+  outline:3px solid var(--gm);
+  outline-offset:2px;
+}
+
+.qreply-more,
+.qreply-send{
+  flex:none;
+  min-height:44px;
+  border-radius:12px;
+  cursor:pointer;
+  font:inherit;
+  font-weight:700;
+}
+.qreply-more{
+  width:44px;
+  padding:0;
+  border:1.5px solid var(--gm);
+  background:var(--paper2);
+  color:var(--body);
+  font-size:24px;
+  line-height:1;
+}
+.qreply-send{
+  border:1.5px solid var(--gd);
+  padding:0 11px;
+  background:var(--gd);
+  color:#fff;
+  font-size:13px;
+}
+.qreply-more:focus-visible,
+.qreply-send:focus-visible,
+.qreply-tools button:focus-visible{
+  outline:3px solid var(--gm);
+  outline-offset:2px;
+}
+.qreply-more:disabled,
+.qreply-send:disabled{
+  opacity:.5;
+  cursor:default;
+}
+
+.qreply-tools{
+  display:flex;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:4px 12px;
+  margin:4px 0 0 45px;
+}
+.qreply-tools button{
+  min-height:44px;
+  padding:6px 2px;
+  border:0;
+  background:none;
+  color:var(--gm-t);
+  cursor:pointer;
+  font:inherit;
+  font-size:12.5px;
+  font-weight:700;
+  text-decoration:underline;
+  text-underline-offset:3px;
+}
+.qreply-anon.on{
+  padding:6px 10px;
+  border-radius:999px;
+  background:var(--gd);
+  color:#fff;
+  text-decoration:none;
+}
+.qreply-thread{ margin-left:auto; }
+
+.qreply-status{
+  margin:4px 0 0 45px;
+  padding:8px 10px;
+  border-left:3px solid var(--gm);
+  color:var(--body);
+  font-size:13px;
+  line-height:1.45;
+}
+.qreply-status.error{ border-left-color:#C65D4B; }
+
+/* The comment box owns the divider now. Leaving the old footer divider in
+   place draws two rules six pixels apart and makes the input look detached
+   from the labels underneath it. */
+.qreply + .ft{
+  margin-top:2px;
+  padding-top:0;
+  border-top:0;
+}
+
+@media (max-width:360px){
+  .qreply-form{ gap:5px; }
+  .qreply-face{ width:34px; height:34px; font-size:17px; }
+  .qreply-more{ width:40px; }
+  .qreply-send{ padding:0 8px; }
+  .qreply-tools,
+  .qreply-status{ margin-left:39px; }
+}

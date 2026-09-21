@@ -8,8 +8,8 @@ import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { browserClient } from '../../lib/supabase-browser';
 import { Body, Player } from '../components/Linked';
-import { useTagBox, useTaggablePeople, tellThemTheyWereTagged } from '../components/TagBox';
-import { saysHighlight } from '../../lib/mentions';
+import { useTagBox, useTaggablePeople } from '../components/TagBox';
+import { sendComment } from '../../lib/send-comment';
 import PhotoUpload from '../components/PhotoUpload';
 import EmojiPicker from '../friends/EmojiPicker';
 import ReplyMenu from './ReplyMenu';
@@ -193,61 +193,18 @@ export default function Thread({ post, onClose, onCountChange }) {
     setBusy(true);
     setErr('');
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('You seem to be signed out. Reload and try again.');
-
-      /* 🔴 THE ID IS MADE HERE AND SENT WITH THE ROW, NEVER READ BACK.
-         Members hold INSERT on comments and no SELECT, so appending
-         `.select()` or a RETURNING clause is refused with 42501 — a
-         RETURNING clause is a read (23 Aug, fourth appearance). We need
-         to know the id to tell the people who were named, and the only
-         way to know it is to have chosen it. Same shape as posts. */
-      const commentId = crypto.randomUUID();
-      const named = tag.handles;
-
-      const { error } = await supabase.from('comments').insert({
-        id: commentId,
-        post_id: post.id,
-        author_id: user.id,
-        body: body || null,
-        is_anonymous: anon,
-        /* ⚠️ null, not [] — comment_photo_paths_ok allows null or 1..10,
-           and an empty array is neither. Sending [] for a words-only
-           reply is refused by the CHECK and reads as "replying is
-           broken". Same trap the room composer already carries. */
-        photo_urls: tray.length ? tray.map((t) => t.path) : null,
+      /* The compact Wall box and this full composer call the same helper.
+         ID ownership, NULL-vs-empty photo paths, mention notifications and
+         @highlight therefore cannot drift between the two surfaces. */
+      const sent = await sendComment({
+        supabase,
+        postId: post.id,
+        body,
+        anonymous: anon,
+        photoPaths: tray.map((t) => t.path),
+        handles: tag.handles,
       });
-      if (error) throw error;
-
-      /* ⚠️ AFTER the insert and never awaited into the failure path. The
-         reply is already saved; a notification that doesn't fire must not
-         be able to make it look like the reply didn't land. */
-      tellThemTheyWereTagged('comment', commentId, named);
-
-      /* 🔴 @highlight FROM A REPLY — 6 Sept, and it never worked here before.
-         Ty typed it into this box three times today and got silence every
-         time: no broadcast, no pill, no error. The word was only ever wired
-         to the Wall composer, while THIS box says "Say something… @ to tag"
-         and looks like it should take it.
-
-         ⚠️ saysHighlight is imported from lib/mentions — the same function
-         Wall.jsx asks and the same string Linked.jsx draws the pill from.
-         Three callers, one rule. A local copy here is exactly how the
-         0046→0049 drift happened and it would be worse than silence: the
-         reply would broadcast to 224 people while the thread showed nothing.
-
-         ⚠️ `!anon` mirrors the database, which refuses an anonymous
-         broadcast outright. Asking and being refused is worse than not
-         asking, so the client doesn't ask. */
-      if (!anon && saysHighlight(body || '')) {
-        const { data: reached, error: hErr } =
-          await supabase.rpc('highlight_comment', { p_comment_id: commentId });
-        /* ⭐ AND IT SAYS SO EITHER WAY. The real fault today was not the
-           regex — it was that nothing on screen ever said whether the
-           announcement went out. Silence is what cost three attempts. */
-        if (hErr) setErr(`Replied. ${hErr.message}`);
-        else if (reached > 0) setErr(`Replied, and everybody was told — ${reached} members.`);
-      }
+      if (sent?.notice) setErr(sent.notice);
 
       setText('');
       /* ⚠️ 14 Sept — THE HEIGHT, NOT JUST THE TEXT. The box is sized by an
