@@ -1,0 +1,104 @@
+/* =====================================================================
+   look.css — THE PICKER'S CONTROLS, ON THEIR OWN. 21 Sept.
+
+   🔴 WHY THIS FILE EXISTS. These rules used to live in photos.css, and
+   /artist never loaded photos.css. The picker went onto the artist
+   editor on 20 Sept and rendered there with no styles at all: cover
+   tiles 36×19px of squashed text, colour dots 4×4px — six specks nobody
+   could tap. Dr. Labor and Produkt had the controls for a day and they
+   looked like debris. The build was green and every file parsed; only
+   check-css-coverage.py saw it.
+
+   So the controls live here and BOTH pages that render LookPicker import
+   this file, each straight after the sheet it used to arrive with:
+     app/me/layout.jsx      — after photos.css  (order on /me unchanged)
+     app/artist/layout.jsx  — after theme-green.css
+   A third page that renders <LookPicker> must import it too.
+
+   The preview (.lookp-prev) stays in photos.css: it borrows .uhero,
+   which lives there, and only /me shows it.
+   ===================================================================== */
+
+/* =====================================================================
+   MAKE IT YOURS — the picker in /me. 20 Sept (0182).
+
+   ⚠️ PREFIX IS `lookp-`. `.lk` is a link inside a post (wall.css, 23
+   Aug) and wall.css is on every page, so a picker rooted at `.lk` came
+   out underlined and green throughout. See the note in LookPicker.jsx.
+
+   Every control here is a real <button>, which is why there is no
+   pointer-events trickery and no label-wrapping-an-input: the arrows
+   and the switches have to be reachable by keyboard and announceable,
+   and a member reordering their own page with a screen reader gets the
+   same feature as everybody else rather than a broken version of it.
+   ===================================================================== */
+.lookp-covers{
+  display:grid; grid-template-columns:repeat(3,1fr); gap:9px; margin-bottom:4px;
+}
+.lookp-cov{
+  height:62px; border:2px solid var(--line); border-radius:11px;
+  background-size:cover; background-position:center; cursor:pointer;
+  display:flex; align-items:flex-end; justify-content:center; padding:0 0 6px;
+  position:relative;
+}
+/* "None" is the only tile with no picture, so it says so in ink on the
+   card rather than sitting there as an empty box somebody has to guess
+   about. */
+.lookp-cov:first-child{ background:var(--gl,#E8F4ED); }
+.lookp-cov span{
+  font-size:11px; font-weight:700; letter-spacing:.04em; color:#fff;
+  text-shadow:0 1px 3px rgba(0,0,0,.55);
+}
+.lookp-cov:first-child span{ color:var(--gt,#0F3D2A); text-shadow:none; }
+.lookp-cov.sel{ border-color:var(--gd,#1B6B4A); border-width:3px; }
+.lookp-cov.sel::after{
+  content:'✓'; position:absolute; top:5px; right:7px; font-size:13px;
+  color:#fff; text-shadow:0 1px 3px rgba(0,0,0,.6);
+}
+.lookp-cov:first-child.sel::after{ color:var(--gt,#0F3D2A); text-shadow:none; }
+.lookp-cov:focus-visible{ outline:3px solid var(--gd,#1B6B4A); outline-offset:2px; }
+
+.lookp-dots{ display:flex; gap:12px; flex-wrap:wrap; margin-bottom:4px; }
+.lookp-dot{
+  width:36px; height:36px; border-radius:50%; border:2px solid rgba(0,0,0,.12);
+  cursor:pointer; padding:0;
+}
+/* The ring, not a tick. A tick inside a 36px circle of colour either
+   disappears on the dark ones or has to be two colours; the gap-and-ring
+   reads at a glance on all six. */
+.lookp-dot.sel{ box-shadow:0 0 0 3px #fff, 0 0 0 6px currentColor; }
+.lookp-dot:focus-visible{ outline:3px solid var(--x,#1C2320); outline-offset:3px; }
+
+.lookp-rows{ list-style:none; padding:0; margin:0 0 4px; }
+.lookp-row{
+  display:flex; align-items:center; gap:8px; padding:11px 2px;
+  border-bottom:1px solid var(--line);
+}
+.lookp-row:last-child{ border-bottom:0; }
+.lookp-txt{ flex:1 1 auto; min-width:0; }
+.lookp-txt b{ display:block; font-size:15px; font-weight:700; }
+.lookp-txt small{ display:block; font-size:12.5px; color:var(--gm-t,#256F4C); margin-top:1px; }
+/* Switched off is dimmed, not hidden — the row has to stay readable or
+   a member cannot find the thing they turned off to turn it back on. */
+.lookp-row.off .lookp-txt{ opacity:.55; }
+
+.lookp-mv{
+  width:34px; height:34px; flex:0 0 auto; border:1px solid var(--line);
+  border-radius:9px; background:#fff; font-size:15px; line-height:1; cursor:pointer;
+}
+.lookp-mv:disabled{ opacity:.3; cursor:default; }
+.lookp-mv:focus-visible{ outline:3px solid var(--gd,#1B6B4A); outline-offset:2px; }
+
+.lookp-sw{
+  width:46px; height:27px; flex:0 0 auto; border-radius:99px; cursor:pointer;
+  border:1px solid var(--line); background:#DDE3DF; position:relative;
+  padding:0; transition:background .12s;
+}
+.lookp-sw::after{
+  content:''; position:absolute; top:2px; left:2px; width:21px; height:21px;
+  border-radius:50%; background:#fff; box-shadow:0 1px 2px rgba(0,0,0,.28);
+  transition:transform .12s;
+}
+.lookp-sw.on{ background:var(--gd,#1B6B4A); border-color:var(--gd,#1B6B4A); }
+.lookp-sw.on::after{ transform:translateX(19px); }
+.lookp-sw:focus-visible{ outline:3px solid var(--gd,#1B6B4A); outline-offset:3px; }
