@@ -63,6 +63,12 @@
   overflow-y:auto;
 }
 .qreply-box::placeholder{ color:var(--soft); opacity:1; }
+/* One line, always. A textarea's hint wraps like its text does, and the
+   field is only one row tall at rest, so a second line is simply cut in
+   half (21 Sept: "Write a" on every post). Ellipsis is the backstop for
+   narrow phones and large system text. */
+.qreply-box:placeholder-shown{ white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.qreply-box::placeholder{ white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .qreply-box:focus-visible{
   outline:3px solid var(--gm);
   outline-offset:2px;

@@ -768,90 +768,6 @@
 .ublk .total{ margin-top:0; }
 .ublk > :first-child h2.sec{ margin-top:24px; }
 
-/* =====================================================================
-   MAKE IT YOURS — the picker in /me. 20 Sept (0182).
-
-   ⚠️ PREFIX IS `lookp-`. `.lk` is a link inside a post (wall.css, 23
-   Aug) and wall.css is on every page, so a picker rooted at `.lk` came
-   out underlined and green throughout. See the note in LookPicker.jsx.
-
-   Every control here is a real <button>, which is why there is no
-   pointer-events trickery and no label-wrapping-an-input: the arrows
-   and the switches have to be reachable by keyboard and announceable,
-   and a member reordering their own page with a screen reader gets the
-   same feature as everybody else rather than a broken version of it.
-   ===================================================================== */
-.lookp-covers{
-  display:grid; grid-template-columns:repeat(3,1fr); gap:9px; margin-bottom:4px;
-}
-.lookp-cov{
-  height:62px; border:2px solid var(--line); border-radius:11px;
-  background-size:cover; background-position:center; cursor:pointer;
-  display:flex; align-items:flex-end; justify-content:center; padding:0 0 6px;
-  position:relative;
-}
-/* "None" is the only tile with no picture, so it says so in ink on the
-   card rather than sitting there as an empty box somebody has to guess
-   about. */
-.lookp-cov:first-child{ background:var(--gl,#E8F4ED); }
-.lookp-cov span{
-  font-size:11px; font-weight:700; letter-spacing:.04em; color:#fff;
-  text-shadow:0 1px 3px rgba(0,0,0,.55);
-}
-.lookp-cov:first-child span{ color:var(--gt,#0F3D2A); text-shadow:none; }
-.lookp-cov.sel{ border-color:var(--gd,#1B6B4A); border-width:3px; }
-.lookp-cov.sel::after{
-  content:'✓'; position:absolute; top:5px; right:7px; font-size:13px;
-  color:#fff; text-shadow:0 1px 3px rgba(0,0,0,.6);
-}
-.lookp-cov:first-child.sel::after{ color:var(--gt,#0F3D2A); text-shadow:none; }
-.lookp-cov:focus-visible{ outline:3px solid var(--gd,#1B6B4A); outline-offset:2px; }
-
-.lookp-dots{ display:flex; gap:12px; flex-wrap:wrap; margin-bottom:4px; }
-.lookp-dot{
-  width:36px; height:36px; border-radius:50%; border:2px solid rgba(0,0,0,.12);
-  cursor:pointer; padding:0;
-}
-/* The ring, not a tick. A tick inside a 36px circle of colour either
-   disappears on the dark ones or has to be two colours; the gap-and-ring
-   reads at a glance on all six. */
-.lookp-dot.sel{ box-shadow:0 0 0 3px #fff, 0 0 0 6px currentColor; }
-.lookp-dot:focus-visible{ outline:3px solid var(--x,#1C2320); outline-offset:3px; }
-
-.lookp-rows{ list-style:none; padding:0; margin:0 0 4px; }
-.lookp-row{
-  display:flex; align-items:center; gap:8px; padding:11px 2px;
-  border-bottom:1px solid var(--line);
-}
-.lookp-row:last-child{ border-bottom:0; }
-.lookp-txt{ flex:1 1 auto; min-width:0; }
-.lookp-txt b{ display:block; font-size:15px; font-weight:700; }
-.lookp-txt small{ display:block; font-size:12.5px; color:var(--gm-t,#256F4C); margin-top:1px; }
-/* Switched off is dimmed, not hidden — the row has to stay readable or
-   a member cannot find the thing they turned off to turn it back on. */
-.lookp-row.off .lookp-txt{ opacity:.55; }
-
-.lookp-mv{
-  width:34px; height:34px; flex:0 0 auto; border:1px solid var(--line);
-  border-radius:9px; background:#fff; font-size:15px; line-height:1; cursor:pointer;
-}
-.lookp-mv:disabled{ opacity:.3; cursor:default; }
-.lookp-mv:focus-visible{ outline:3px solid var(--gd,#1B6B4A); outline-offset:2px; }
-
-.lookp-sw{
-  width:46px; height:27px; flex:0 0 auto; border-radius:99px; cursor:pointer;
-  border:1px solid var(--line); background:#DDE3DF; position:relative;
-  padding:0; transition:background .12s;
-}
-.lookp-sw::after{
-  content:''; position:absolute; top:2px; left:2px; width:21px; height:21px;
-  border-radius:50%; background:#fff; box-shadow:0 1px 2px rgba(0,0,0,.28);
-  transition:transform .12s;
-}
-.lookp-sw.on{ background:var(--gd,#1B6B4A); border-color:var(--gd,#1B6B4A); }
-.lookp-sw.on::after{ transform:translateX(19px); }
-.lookp-sw:focus-visible{ outline:3px solid var(--gd,#1B6B4A); outline-offset:3px; }
-
 /* ---------------------------------------------------------------------
    THE PREVIEW INSIDE THE PICKER (20 Sept, the afternoon it shipped)
 
@@ -929,3 +845,43 @@ html[data-theme="black"] .mecream .lookp-prev .pcard{ background:transparent; }
 /* The bio sits under the card on this page, so `.phead` no longer holds
    a face or a name and only needs the room the paragraph takes. */
 .mecream .phead{ margin-top:18px; }
+
+/* =====================================================================
+   THE SONG ON A PROFILE — smaller. 21 Sept (Ty: "make the music player
+   smaller").
+
+   The sleeve is a square and a square takes the full width it's given:
+   on a phone that was a ~350px block of album art, the largest thing on
+   anybody's page — bigger than their day count, and a whole screen of
+   scrolling before their posts. Capped at 240px and centred it still
+   reads as a record, the ▶ is still a 60px target, and the Apple/Spotify
+   embed still has room when "whole song" is opened.
+
+   ⚠️ Artists keep the big one. On an artist's page the song IS the page
+   (Ty, 20 Sept: "except the artists"), so `.art-page` undoes the cap.
+   ===================================================================== */
+.pad .sleeve.big{ max-width:240px; margin-left:auto; margin-right:auto; }
+.pad .sleeve.big .stitle{ font-size:20px; padding:10px 12px 11px; }
+.pad .sleeve.big .sbtn{ width:60px; height:60px; font-size:21px; }
+.pad .sleeve.big .sbtn.on{ width:46px; height:46px; font-size:16px; }
+/* The off switch lives inside the sleeve, so it narrowed too — keep it one line. */
+.pad .sleeve.big .sout{ color:#B7DCC6; }   /* was --gm-t on the black footer: 2.6:1 */
+.pad .sleeve.big .soff{ font-size:10.5px; letter-spacing:.05em; padding:11px 8px; }
+.art-page .sleeve.big{ max-width:none; }
+.art-page .sleeve.big .stitle{ font-size:28px; padding:14px 15px 15px; }
+.art-page .sleeve.big .sbtn{ width:76px; height:76px; font-size:25px; }
+.art-page .sleeve.big .soff{ font-size:11.5px; letter-spacing:.1em; padding:11px 13px; }
+
+/* 🔴 AND IN NIGHT, ON SOMEBODY ELSE'S PAGE, THE TITLE WAS INVISIBLE.
+   .stitle is painted var(--paper), which Night turns near-black, over a
+   veil that is near-black at the bottom — the song name vanished. And the
+   footer went pale with --soft text on it (~1.8:1), so "Apple Music ↗"
+   couldn't be read. /me was fixed for this (theme-black.css, .mecream);
+   /u/<handle> never was. Same treatment, same tokens. Artists keep their
+   own dark page. */
+html[data-theme="black"] .pad:not(.art-page) .sleeve.big,
+html[data-theme="black"] .pad:not(.art-page) .sframe,
+html[data-theme="black"] .pad:not(.art-page) .sfoot{ background:var(--gl); border-color:var(--line); }
+html[data-theme="black"] .pad:not(.art-page) .stitle{ color:var(--body); }
+html[data-theme="black"] .pad:not(.art-page) .swho,
+html[data-theme="black"] .pad:not(.art-page) .sout{ color:var(--soft); }
