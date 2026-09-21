@@ -104,7 +104,11 @@ export default function InlineReply({ post, people = [], face = null, onSent, on
             e.target.style.height = (e.target.scrollHeight + edge) + 'px';
           }}
           aria-label="Write a reply"
-          placeholder={anon ? 'Reply anonymously…' : 'Write a comment…'}
+          /* ⚠️ 21 Sept — SHORT ON PURPOSE. Beside the face, the + and Reply
+             the field is ~110px of text on a 390px phone, and "Write a
+             comment…" wrapped and clipped to "Write a" on every post.
+             inline-reply.css also keeps the hint on one line. */
+          placeholder={anon ? 'Anonymously…' : 'Comment…'}
         />
         <button
           type="button"
