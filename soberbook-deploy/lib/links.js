@@ -184,22 +184,31 @@ export function classify(url) {
   return { kind: 'out', service: null, url, hostname: h };
 }
 
-/* Split a body into text and link pieces, in order, for rendering. */
-export function pieces(body = '') {
+/* Split a body into text and link pieces, in order, for rendering.
+
+   🔴 `body = ''` IS NOT ENOUGH, AND THAT COST A LIVE PAGE ON 22 SEPT.
+   A default parameter fills in for `undefined` only — `pieces(null)` keeps
+   the null and dies on `null.matchAll`. A reply with a photo and no words
+   stores `body = NULL` deliberately (send-comment.js: the CHECK asks
+   whether there are words), so the FIRST caption-less photo reply crashed
+   the whole thread for everyone who opened that post. Coerce here, where
+   every caller is covered, rather than at each call site. */
+export function pieces(body) {
+  const src = typeof body === 'string' ? body : (body == null ? '' : String(body));
   const out = []; let last = 0;
-  for (const m of body.matchAll(URL_RE)) {
+  for (const m of src.matchAll(URL_RE)) {
     const raw = tidy(m[0]);
-    if (m.index > last) out.push({ t: 'text', v: body.slice(last, m.index) });
+    if (m.index > last) out.push({ t: 'text', v: src.slice(last, m.index) });
     out.push({ t: 'link', v: raw });
     last = m.index + raw.length;
   }
-  if (last < body.length) out.push({ t: 'text', v: body.slice(last) });
+  if (last < src.length) out.push({ t: 'text', v: src.slice(last) });
   return out;
 }
 
 /* The first thing in a body that can actually play. One card per post —
    ⚠️ five links should not become five autoplaying players. */
-export function firstPlayable(body = '') {
+export function firstPlayable(body) {
   for (const p of pieces(body)) {
     if (p.t !== 'link') continue;
     const c = classify(p.v);
