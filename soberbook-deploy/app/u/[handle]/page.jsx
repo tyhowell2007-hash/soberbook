@@ -185,6 +185,8 @@ export default async function ProfilePage({ params }) {
         facePhoto={facePhoto}
         coverBackground={coverBg}
         accent={accent}
+        song={song}
+        autoplay={!!mine?.autoplay_songs}
       />
     );
   }

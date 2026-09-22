@@ -6,17 +6,22 @@ import FriendButton from './FriendButton';
 import ArtistCheck from '../../components/ArtistCheck';
 import Shot from '../../components/Shot';
 import { sinceFromCount } from '../../../lib/milestones';
+import ProfileTabs from './ProfileTabs';
+import { aboutPane } from './about';
 
-/* An ordinary member profile has one job: identify whose page this is and
-   show that member's public posts. Profile fields and device/account tools
-   remain editable on /me, but they do not turn this page into a dashboard.
+/* An ordinary member profile leads with that member's public posts (Will,
+   PR #8). Since 22 Sept an "About" tab beside Posts holds what they chose
+   to say about themselves — bio, song, details, lifetime days — so the page
+   opens like a profile, not a dashboard, and nothing they filled in is lost.
 
    ⚠️ The parent page obtains `posts` by matching feed_posts.author_handle.
    Anonymous posts have a NULL author_handle in that view, so they cannot
    enter this component. Do not pass posts selected by author_id. */
 export default function MemberProfile({ profile, posts, photos, facePhoto,
-                                        coverBackground, accent }) {
+                                        coverBackground, accent, song, autoplay }) {
   const p = profile;
+
+  const about = aboutPane(p, song, autoplay);
 
   return (
     <>
@@ -64,6 +69,7 @@ export default function MemberProfile({ profile, posts, photos, facePhoto,
           </div>
         )}
 
+        <ProfileTabs about={about} posts={(
         <div className="ublk">
           <h2 className="sec">{p.is_mine ? 'What you’ve put up' : 'What they’ve put up'}</h2>
           {!posts || posts.length === 0 ? (
@@ -124,6 +130,7 @@ export default function MemberProfile({ profile, posts, photos, facePhoto,
             </ul>
           )}
         </div>
+        )} />
       </div>
     </>
   );
