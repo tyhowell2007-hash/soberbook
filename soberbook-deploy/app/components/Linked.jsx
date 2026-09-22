@@ -180,7 +180,11 @@ export function Body({ text, tags, hl = false }) {
 
 export function Player({ text }) {
   const [on, setOn] = useState(false);
-  const c = firstPlayable(text);
+  /* ⚠️ `text` is null for a photo reply with no caption (comments.body is
+     NULL by design). Body above is guarded at its call sites; this was not.
+     Guarded here as well as in lib/links.js — belt and braces, because the
+     hooks rule means this component always runs before it can bail. */
+  const c = text ? firstPlayable(text) : null;
   if (!c) return null;
 
   return (
