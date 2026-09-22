@@ -3,6 +3,7 @@ import Milestones from '../components/Milestones';
 import Shot from '../components/Shot';
 import { dayCount, startsInDays } from '../../lib/milestones';
 import { coverCss, accentHex } from '../../lib/look';
+import ProfileTabs from '../u/[handle]/ProfileTabs';
 
 function ago(iso) {
   const mins = Math.floor((Date.now() - new Date(iso).getTime()) / 60000);
@@ -23,7 +24,7 @@ function ago(iso) {
    is why this screen can safely include the member's own anonymous posts
    without receiving an author id or teaching any public profile who wrote
    them. Do not replace that server-side filter with author_id. */
-export default function MeProfile({ profile, posts, avatarUrl, postPhotoUrls = {} }) {
+export default function MeProfile({ profile, posts, avatarUrl, postPhotoUrls = {}, about = null }) {
   const anonymous = profile.privacy_mode === 'anonymous';
   const since = profile.sober_since || '';
   const days = dayCount(since);
@@ -73,60 +74,64 @@ export default function MeProfile({ profile, posts, avatarUrl, postPhotoUrls = {
           <Link href="/me?edit=1" className="btn">Edit your profile</Link>
         </div>
 
-        <h2 className="sec">What you&apos;ve put up</h2>
-        {posts.length === 0 ? (
-          <p className="hint">Nothing yet. The wall is through the arrow up top.</p>
-        ) : (
-          <ul className="mine">
-            {posts.map((post) => {
-              const photoPaths = (Array.isArray(post.photo_urls) && post.photo_urls.length
-                ? post.photo_urls
-                : post.photo_url ? [post.photo_url] : [])
-                .filter((path) => postPhotoUrls[path]);
+        <ProfileTabs about={about} posts={(
+          <div className="ublk">
+          <h2 className="sec">What you&apos;ve put up</h2>
+          {posts.length === 0 ? (
+            <p className="hint">Nothing yet. The wall is through the arrow up top.</p>
+          ) : (
+            <ul className="mine">
+              {posts.map((post) => {
+                const photoPaths = (Array.isArray(post.photo_urls) && post.photo_urls.length
+                  ? post.photo_urls
+                  : post.photo_url ? [post.photo_url] : [])
+                  .filter((path) => postPhotoUrls[path]);
 
-              return (
-                <li key={post.id} className={post.is_anonymous ? 'screened' : ''}>
-                  {post.body ? <p className="mb">{post.body}</p> : null}
-                  {photoPaths.length > 1 && (
-                    <div className="pgrid" data-n={Math.min(photoPaths.length, 4)}>
-                      {photoPaths.map((path, i) => (
-                        <Shot key={path} path={path} src={postPhotoUrls[path]}
-                              zoom={{ items: photoPaths.map((item) => ({
-                                path: item, url: postPhotoUrls[item],
-                              })), i }}
-                              alt={`Photo ${i + 1} of ${photoPaths.length}`} />
-                      ))}
+                return (
+                  <li key={post.id} className={post.is_anonymous ? 'screened' : ''}>
+                    {post.body ? <p className="mb">{post.body}</p> : null}
+                    {photoPaths.length > 1 && (
+                      <div className="pgrid" data-n={Math.min(photoPaths.length, 4)}>
+                        {photoPaths.map((path, i) => (
+                          <Shot key={path} path={path} src={postPhotoUrls[path]}
+                                zoom={{ items: photoPaths.map((item) => ({
+                                  path: item, url: postPhotoUrls[item],
+                                })), i }}
+                                alt={`Photo ${i + 1} of ${photoPaths.length}`} />
+                        ))}
+                      </div>
+                    )}
+                    {photoPaths.length === 1 && (
+                      <div className="mphoto">
+                        <Shot path={photoPaths[0]} src={postPhotoUrls[photoPaths[0]]}
+                              zoom={{ items: [{
+                                path: photoPaths[0], url: postPhotoUrls[photoPaths[0]],
+                              }], i: 0 }}
+                              alt="" />
+                      </div>
+                    )}
+                    {post.video_url && postPhotoUrls[post.video_url] && (
+                      <div className="mphoto">
+                        <video src={postPhotoUrls[post.video_url]} controls playsInline
+                               preload="none" />
+                      </div>
+                    )}
+                    <div className="mm">
+                      {ago(post.created_at)}
+                      {post.is_anonymous ? ' · posted anonymously' : ''}
+                      {post.support_count > 0 ? ` · ❤️ ${post.support_count}` : ''}
+                      {post.strength_count > 0 ? ` · 🤝 ${post.strength_count}` : ''}
+                      {post.comment_count > 0
+                        ? ` · ${post.comment_count} ${post.comment_count === 1 ? 'reply' : 'replies'}`
+                        : ' · no replies yet'}
                     </div>
-                  )}
-                  {photoPaths.length === 1 && (
-                    <div className="mphoto">
-                      <Shot path={photoPaths[0]} src={postPhotoUrls[photoPaths[0]]}
-                            zoom={{ items: [{
-                              path: photoPaths[0], url: postPhotoUrls[photoPaths[0]],
-                            }], i: 0 }}
-                            alt="" />
-                    </div>
-                  )}
-                  {post.video_url && postPhotoUrls[post.video_url] && (
-                    <div className="mphoto">
-                      <video src={postPhotoUrls[post.video_url]} controls playsInline
-                             preload="none" />
-                    </div>
-                  )}
-                  <div className="mm">
-                    {ago(post.created_at)}
-                    {post.is_anonymous ? ' · posted anonymously' : ''}
-                    {post.support_count > 0 ? ` · ❤️ ${post.support_count}` : ''}
-                    {post.strength_count > 0 ? ` · 🤝 ${post.strength_count}` : ''}
-                    {post.comment_count > 0
-                      ? ` · ${post.comment_count} ${post.comment_count === 1 ? 'reply' : 'replies'}`
-                      : ' · no replies yet'}
-                  </div>
-                </li>
-              );
-            })}
-          </ul>
-        )}
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+          </div>
+        )} />
       </div>
     </>
   );

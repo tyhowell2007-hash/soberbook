@@ -4,6 +4,7 @@ import { adminClient, adminConfigured } from '../../lib/supabase-admin';
 import { signPhotoPaths } from '../../lib/sign-photos';
 import Me from './Me';
 import MeProfile from './MeProfile';
+import { aboutPane } from '../u/[handle]/about';
 
 export const dynamic = 'force-dynamic';
 
@@ -80,12 +81,32 @@ export default async function MePage({ searchParams }) {
   /* The normal route ends here: profile header, then only this member's
      posts. Settings use an explicit query string so none of their support
      queries can quietly turn /me back into a dashboard. */
+  /* 22 Sept — the About tab. Read from public_profiles, NOT from the row
+     above, so your own About shows exactly what other members see: the
+     view applies your show_* switches, anonymous mode and every gate.
+     Rebuilding that from raw settings here would be a second copy of the
+     privacy rules, and the two would drift. */
+  const { data: pub } = await supabase
+    .from(assertReadable('public_profiles'))
+    .select('handle, display_name, is_mine, total_days, bio, location, programs, ' +
+            'interests, sponsor_open, sponsor_has, sponsor_looking, sections, ' +
+            'anthem_url, anthem_title, anthem_art, anthem_preview, anthem_youtube, anthem_spotify')
+    .eq('handle_key', String(profile.handle || '').toLowerCase())
+    .maybeSingle();
+  const pubSong = pub?.anthem_url ? {
+    anthem_url: pub.anthem_url, anthem_title: pub.anthem_title, anthem_art: pub.anthem_art,
+    anthem_preview: pub.anthem_preview, anthem_youtube: pub.anthem_youtube,
+    anthem_spotify: pub.anthem_spotify,
+  } : null;
+  const about = pub ? aboutPane(pub, pubSong, profile.autoplay_songs) : null;
+
     return (
       <MeProfile
         profile={profile}
         posts={mine || []}
         avatarUrl={initialAvatarUrl}
         postPhotoUrls={postPhotoUrls}
+        about={about}
       />
     );
   }
