@@ -58,6 +58,25 @@ export default function MemberProfile({ profile, posts, photos, facePhoto,
           </div>
         </div>
 
+        {/* 🔴 THE COUNT, NEVER THE LIST. Restored 26 Sept — it was lost
+            when this renderer replaced the markup in page.jsx, and Nick
+            Roster noticed it gone before we did.
+
+            Friendship is mutual, so a public friend list is a map of who
+            in recovery knows whom: being on somebody's list outs you by
+            association, whether or not you wanted it. The count says
+            "this person is real and connected", which is what it was for.
+            The list said more than that.
+
+            ⚠️ `friends` is already on the public_profiles row the parent
+            selected. Do not add a second query for it. */}
+        <div className="fstats">
+          <span className="fstat">
+            <b>{p.friends}</b>
+            <span>{p.friends === 1 ? 'friend' : 'friends'}</span>
+          </span>
+        </div>
+
         {p.is_mine ? (
           <div className="editbar">
             <Link href="/me?edit=1" className="btn">Edit your profile</Link>

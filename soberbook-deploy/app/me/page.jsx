@@ -100,6 +100,23 @@ export default async function MePage({ searchParams }) {
   } : null;
   const about = pub ? aboutPane(pub, pubSong, profile.autoplay_songs) : null;
 
+  /* ---- your people (26 Sept) ----
+     ⚠️ This is the ONE support query the profile route makes, and it is
+     a deliberate reversal of the note above. People.jsx was written in
+     September to give friends a home on your own page and was then never
+     imported, so the only place friends existed was a list nineteen
+     thousand pixels down the Community page. A grid nobody can reach is
+     not a feature.
+
+     🔴 THROUGH THE FUNCTION, NEVER A TABLE READ. my_friends() takes no
+     argument, so there is no shape of this call that returns somebody
+     else's friends — the same rule my_pending_tags() lives by. It also
+     returns quietest-first, which is the whole point of the grid.
+
+     ⚠️ It stays out of the settings branch: that screen is already
+     heavy, and your people belong on the page that is about you. */
+  const { data: friends } = await supabase.rpc('my_friends');
+
     return (
       <MeProfile
         profile={profile}
@@ -107,6 +124,7 @@ export default async function MePage({ searchParams }) {
         avatarUrl={initialAvatarUrl}
         postPhotoUrls={postPhotoUrls}
         about={about}
+        friends={friends || []}
       />
     );
   }
