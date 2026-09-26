@@ -1,0 +1,83 @@
+/* =====================================================================
+   WHO THEY KNOW — the friends-only grid on /u/[handle].  26 Sept.
+
+   ⚠️ EVERY CLASS IS PREFIXED .tp- AND THAT WAS CHECKED, NOT ASSUMED.
+   The /me grid uses .pp- and is scoped to .mecream, which does not exist
+   on this route — reusing those names here would have given a grid with
+   no styling at all and no error to say so.
+
+   Colours come from theme-green.css, which app/u/layout.jsx loads:
+     --gd   #1B6B4A   the bar, the heading
+     --gm   #2E8B5F   DECORATION ONLY — borders and edges, never text
+     --gm-t #256F4C   5.78:1 on paper — the text green
+     --gt   #0F3D2A   deep green on a pale fill
+     --gl   #E8F4ED   the pale wash
+   ===================================================================== */
+
+.tpwrap { margin: 22px 0 6px; }
+
+.tphead {
+  display: flex; align-items: baseline; justify-content: space-between;
+  gap: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--gm);
+}
+.tptitle {
+  margin: 0; font-size: 15px; font-weight: 700; color: var(--gt);
+  overflow-wrap: anywhere;
+}
+.tpcount {
+  font-size: 13px; color: var(--gm-t); font-variant-numeric: tabular-nums;
+}
+
+/* ⚠️ The sentence is not decoration. A friends list turning up on a
+   profile is the thing members were told would stay private, so the page
+   says who can see it rather than leaving them to guess. */
+.tpwhy {
+  margin: 9px 0 0; font-size: 12.5px; line-height: 1.5; color: var(--gm-t);
+}
+
+.tpgrid {
+  list-style: none; margin: 13px 0 0; padding: 0;
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 13px;
+}
+@media (min-width: 520px) {
+  .tpgrid { grid-template-columns: repeat(4, 1fr); }
+}
+
+.tpitem { margin: 0; min-width: 0; }
+.tplink { display: block; text-decoration: none; color: inherit; }
+.tplink:focus-visible {
+  outline: 3px solid var(--gd); outline-offset: 3px; border-radius: 12px;
+}
+
+.tpface {
+  display: flex; align-items: center; justify-content: center;
+  width: 100%; aspect-ratio: 1; border-radius: 12px;
+  border: 1.5px solid var(--gm); font-size: 23px; line-height: 1;
+}
+
+/* The five tints. Stable per handle so a person looks the same every
+   visit, and carrying no information whatsoever — unlike the /me grid
+   there is no gold tile here, because "quiet a while" is precisely the
+   fact that must not leave your own page. */
+.tp-green { background: #E8F4ED; color: #0F3D2A; }
+.tp-lilac { background: #EDE7F8; color: #3B2A63; }
+.tp-rose  { background: #FBE7E7; color: #6B2626; }
+.tp-blue  { background: #E4EFF8; color: #123A5B; }
+.tp-sand  { background: #F3EDE2; color: #4A4234; }
+
+.tpname {
+  display: block; margin-top: 7px; font-size: 12.5px; line-height: 1.3;
+  color: var(--body);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+
+.tpmore { margin-top: 12px; text-align: center; }
+.tpall {
+  background: none; border: 0; margin: 0; padding: 6px 10px; font: inherit;
+  font-size: 12.5px; color: var(--gd); cursor: pointer; min-height: 44px;
+}
+.tpall:focus-visible { outline: 3px solid var(--gd); outline-offset: 2px; }
+
+/* The black skin, same treatment the .pp grid gets in theme-black.css. */
+html[data-theme="black"] .tpface { border-color: #5E7A69; }
+html[data-theme="black"] .tptitle { color: #E8F0E9; }

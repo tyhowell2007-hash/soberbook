@@ -7,6 +7,7 @@ import ArtistCheck from '../../components/ArtistCheck';
 import Shot from '../../components/Shot';
 import { sinceFromCount } from '../../../lib/milestones';
 import ProfileTabs from './ProfileTabs';
+import TheirPeople from './TheirPeople';
 import { aboutPane } from './about';
 
 /* An ordinary member profile leads with that member's public posts (Will,
@@ -87,6 +88,14 @@ export default function MemberProfile({ profile, posts, photos, facePhoto,
             <MessageButton handle={p.handle} />
           </div>
         )}
+
+        {/* ⚠️ WHO THEY KNOW — friends only, 26 Sept. The guard is
+            friends_of_member() in the database, not this line: it
+            returns an empty set to anyone who is not this member or an
+            accepted friend, and the component renders nothing at all on
+            an empty set. A stranger's page is byte-for-byte what it was
+            before. The count above stays public; the names never are. */}
+        <TheirPeople handle={p.handle} name={p.display_name || null} />
 
         <ProfileTabs about={about} posts={(
         <div className="ublk">
