@@ -1364,6 +1364,53 @@ textarea:focus-visible{ outline:4px solid var(--x); outline-offset:3px; }
   text-decoration:none; white-space:nowrap;
 }
 
+/* =====================================================================
+   🔴 A LINK INSIDE YOUR OWN MESSAGE BUBBLE.  26 Sept.
+
+   Ty posted http://soberbook.app into The Front Room and could not read
+   what he had just sent. Not a bug in the link — a bug in the colour.
+
+   .lk is --gm-t (#256F4C), which is the link green for text sitting on
+   PAPER, where it measures 5.78:1. Your own message does not sit on
+   paper. It sits on a green bubble, and green on green is nothing:
+
+     MEASURED, not estimated —
+       .lk  #256F4C on the room bubble #2E6B4C   1.04:1
+       .lk  #256F4C on the DM bubble   #1B6B4A   1.06:1
+       .lkh #63716A on the room bubble           1.23:1
+       .lkh #63716A on the DM bubble             1.26:1
+
+   1.04:1 is the same colour. The text was rendering perfectly and was
+   invisible, which is why nothing looked broken from the code — the
+   same shape as the blank names on the /me grid and the /admin tile
+   that went white when a key was renamed.
+
+   ⚠️ ORDINARY TEXT WAS NEVER AFFECTED: #EAF6EF on that bubble is
+   5.69:1. Only links, and only inside your own bubble — which is why it
+   went unnoticed. You see everybody else's links on paper, fine, all
+   day. It is your own that vanish.
+
+   ⭐ Scoped to the two bubbles rather than changing .lk globally. The
+   paper colour is correct where it is used; this is the one context
+   whose background it was never chosen against.
+
+     #CFF5E0 on #2E6B4C  5.35:1      #CFF5E0 on #1B6B4A  5.48:1
+     #B8E6CC on #2E6B4C  4.58:1      #B8E6CC on #1B6B4A  4.69:1
+
+   The hostname stays a step dimmer than the link so it still reads as a
+   label rather than part of the address — but now it reads at all.
+   ===================================================================== */
+.rmsg.mine .rbub .lk,
+.bub.mine .lk{ color:#CFF5E0; }
+.rmsg.mine .rbub .lkh,
+.bub.mine .lkh{ color:#B8E6CC; }
+
+/* ⚠️ The hover fill is --acid on paper; on the bubble it would put a
+   bright yellow-green block inside a dark green message. Keep the
+   underline behaviour, drop the fill. */
+.rmsg.mine .rbub .lk:hover,
+.bub.mine .lk:hover{ background:transparent; text-decoration:underline; }
+
 .ply{ margin:12px 0 4px; }
 .plyf{
   width:100%; height:180px; border:0; border-radius:12px;
