@@ -183,6 +183,31 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
   const [bcast, setBcast] = useState(broadcast0);
   const didBroadcast = new Set(bcast);
   const [text, setText] = useState('');
+
+  /* ⭐ 26 Sept — SEEDED FROM THE READINGS PAGE, and from nowhere else.
+     "Say something about this" on /readings puts the passage reference
+     in sessionStorage and comes here; this picks it up once and the key
+     is gone immediately after.
+
+     ⚠️ ONE SHOT, AND IT IS NOT A DRAFT STORE. It is a handoff between
+     two pages. If the member never arrives, the key dies with the tab.
+
+     ⚠️ It only fires when the box is EMPTY. Somebody who is halfway
+     through writing something and taps back to the wall does not get
+     their sentence replaced by a Bible reference.
+
+     ⚠️ Nothing is posted. The composer is seeded and the member still
+     has to write and send it themselves. */
+  useEffect(() => {
+    let seed = null;
+    try {
+      seed = window.sessionStorage.getItem('sb_wall_seed');
+      if (seed) window.sessionStorage.removeItem('sb_wall_seed');
+    } catch (e) {
+      /* private mode or blocked storage: nothing to seed, carry on */
+    }
+    if (seed) setText((t) => (t ? t : seed));
+  }, []);
   const [anon, setAnon] = useState(false);
   /* 'open' | 'friends'. Resets to open after every post — a sticky
      audience is how somebody posts to four people believing they

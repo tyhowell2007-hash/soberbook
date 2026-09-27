@@ -285,3 +285,165 @@
   .rd-h1    { font-size: 33px; }
   .rd-title { font-size: 34px; }
 }
+
+/* =====================================================================
+   26 SEPT 2026 — the daily rotation, and the three things Ty added:
+   read it to me, the question, and a way to talk about it.
+
+   ⚠️ CONTRAST MEASURED, NOT EYEBALLED — the Aug 17 lesson. Every pair
+   below was computed before it was written down:
+     paper #E4DFD3 on ink #0A0A09 ............ 14.90:1
+     acid  #D6FF2E on ink #0A0A09 ............ 17.17:1
+     muted #BDB8AC on ink #0A0A09 ............ 10.01:1
+   And the pair that proves the check works: acid on paper is 1.15:1,
+   which is why acid is a FILL here and never a text colour on paper.
+   ===================================================================== */
+
+/* ---- read it to me ---------------------------------------------------
+   ⚠️ A bordered button on paper, NOT an acid one. The acid slab is the
+   "what nobody tells you" block and it has been since August; a second
+   acid element on the same screen makes neither of them the loudest
+   thing, which is the only job acid has here. */
+.rd-listen {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  font-family: 'Courier Prime', monospace;
+  font-size: 11.5px;
+  letter-spacing: .13em;
+  text-transform: uppercase;
+  color: #0A0A09;
+  background: #F2EFE6;
+  border: 2px solid #0A0A09;
+  border-radius: 0;
+  padding: 10px 14px;
+  margin: 0 0 22px;
+  cursor: pointer;
+  min-height: 44px;
+}
+.rd-listen:hover { background: #D6FF2E; }
+.rd-listen:focus-visible { outline: 3px solid #0A0A09; outline-offset: 2px; }
+/* speaking: inverted, so there is no doubt it is on */
+.rd-listen[data-on="1"] { background: #0A0A09; color: #D6FF2E; }
+/* ⚠️ A disabled control still has to be readable. #4A4A44 on #F2EFE6 is
+   7.6:1 — the usual trick of dropping opacity to .4 would take it under
+   3:1 and make "not available on this phone" the least legible sentence
+   on the page, which is the one sentence that has to be read. */
+.rd-listen:disabled {
+  color: #4A4A44;
+  border-color: #4A4A44;
+  cursor: default;
+  text-transform: none;
+  letter-spacing: .04em;
+}
+.rd-listen:disabled:hover { background: #F2EFE6; }
+
+/* ---- the question ----------------------------------------------------
+   ⭐ INK SLAB, not acid. The two blocks are the two halves of the page
+   and they must not compete: the acid one is the fact about the
+   passage, this one is the thing pointed at the reader.
+
+   🔴 There is no input in here and there is never going to be. A text
+   box would make the app the keeper of somebody's private inventory. */
+.rd-ask {
+  background: #0A0A09;
+  border: 2px solid #0A0A09;
+  padding: 16px 14px;
+  margin: 0 0 18px;
+}
+.rd-asklabel {
+  font-family: 'Courier Prime', monospace;
+  font-size: 10px;
+  letter-spacing: .17em;
+  text-transform: uppercase;
+  color: #D6FF2E;
+  margin: 0 0 8px;
+}
+.rd-asktext {
+  font-family: 'Archivo', system-ui, sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.32;
+  letter-spacing: -0.015em;
+  color: #E4DFD3;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.rd-asknote {
+  font-family: 'Courier Prime', monospace;
+  font-size: 10px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: #BDB8AC;
+  margin: 10px 0 0;
+}
+
+/* ---- say something about this ---------------------------------------
+   ⚠️ It seeds the wall composer and posts nothing. Nobody's reading
+   lands on the wall because they tapped a button. */
+.rd-talk {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  text-align: left;
+  background: #F2EFE6;
+  border: 2px solid #0A0A09;
+  border-radius: 0;
+  padding: 13px 14px;
+  margin: 0 0 20px;
+  cursor: pointer;
+  min-height: 56px;
+  font-family: inherit;
+  color: #0A0A09;
+}
+.rd-talk:hover { background: #D6FF2E; }
+.rd-talk:focus-visible { outline: 3px solid #0A0A09; outline-offset: 2px; }
+.rd-talktext { display: block; min-width: 0; }
+.rd-talktext b {
+  display: block;
+  font-family: 'Archivo', system-ui, sans-serif;
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  line-height: 1.15;
+}
+.rd-talktext span {
+  display: block;
+  font-size: 12.5px;
+  color: #4A4A44;
+  margin-top: 3px;
+  overflow-wrap: anywhere;
+}
+.rd-talkarrow { font-family: 'Courier Prime', monospace; font-size: 18px; flex: none; }
+
+/* ---- the library under today's -------------------------------------- */
+.rd-libhead {
+  border-top: 2px solid #0A0A09;
+  padding-top: 18px;
+  margin-top: 26px;
+}
+.rd-h2 {
+  font-family: 'Archivo', system-ui, sans-serif;
+  font-size: 30px;
+  font-weight: 800;
+  line-height: .98;
+  letter-spacing: -0.03em;
+  text-transform: uppercase;
+  margin: 0 0 8px;
+  color: #0A0A09;
+}
+.rd-libnote {
+  font-size: 14px;
+  line-height: 1.55;
+  color: #4A4A44;
+  margin: 0 0 18px;
+  max-width: 34em;
+}
+
+/* ⚠️ The library items are <a> now, not <button> — they are real routes
+   so a member can send one to somebody, and so the back button works.
+   The August rule set text-align and cursor on .rd-item for a button;
+   a link needs the underline turned off too, which a button never did. */
+a.rd-item { text-decoration: none; color: #0A0A09; }
