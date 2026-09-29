@@ -1,9 +1,10 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useRef, useState } from 'react';
+import { Fragment, useEffect, useRef, useState } from 'react';
 import { browserClient, assertReadable } from '../../lib/supabase-browser';
 import EmojiPicker from './EmojiPicker';
+import Reactions from './Reactions';
 import PhotoUpload from '../components/PhotoUpload';
 import MsgMenu from './MsgMenu';
 import { Body } from '../components/Linked';
@@ -45,7 +46,7 @@ import { openPhoto } from '../components/photoBig';
    conversation; it is not a presence signal. */
 const POLL_MS = 12000;
 
-const COLS = 'id, body, photo_urls, edited_at, created_at, is_mine, handle, display_name, display_avatar, likes, i_liked';
+const COLS = 'id, body, photo_urls, edited_at, created_at, is_mine, handle, display_name, display_avatar, display_avatar_photo, likes, i_liked, reactions, my_reaction';
 
 export default function Room({ room, initial, meHandle, members, signed, spokenHere = true }) {
   /* ⚠️ `initial === null` means nobody has fetched this room yet (see
@@ -59,6 +60,37 @@ export default function Room({ room, initial, meHandle, members, signed, spokenH
   const [busy, setBusy]   = useState(false);
   const [err, setErr]     = useState('');
   const [emoji, setEmoji] = useState(false);
+  /* which message has its reaction bar open — one at a time, never a set */
+  const [rxOpen, setRxOpen] = useState(null);
+
+  /* =====================================================================
+     WHERE YOU LEFT OFF — this device only. 29 Sept 2026.
+
+     🔴 IT NEVER LEAVES THE PHONE. localStorage, keyed per room, written
+     on the way OUT and read once on the way IN. No column, no request,
+     no notification, and nothing another member can ever observe. That
+     is the line between this and a seen tick.
+
+     ⚠️ READ ONCE, INTO STATE, AND THEN FROZEN for the visit. If it
+     tracked live, the divider would erase itself the moment you looked
+     at it — which is exactly when you want it to stay put.
+
+     ⚠️ try/catch around both: localStorage throws in a private window
+     and in an iOS webview with cookies blocked, and a room that will not
+     render because it could not remember a scroll position is a far
+     worse bug than no divider. */
+  const [lastSeen, setLastSeen] = useState(null);
+  useEffect(() => {
+    try {
+      const v = window.localStorage.getItem('sb.room.seen.' + room.slug);
+      if (v) setLastSeen(new Date(v));
+    } catch { /* no divider, still a working room */ }
+    return () => {
+      try {
+        window.localStorage.setItem('sb.room.seen.' + room.slug, new Date().toISOString());
+      } catch { /* nothing to do about it and nothing that needs doing */ }
+    };
+  }, [room.slug]);
 
   /* Pictures chosen but not sent yet: { path, preview }. The path is
      already a stripped file sitting in room-photos — PhotoUpload finishes
@@ -194,6 +226,14 @@ export default function Room({ room, initial, meHandle, members, signed, spokenH
          as an empty player with no error anywhere. Same silent shape as
          the 0065 bug where photos 2-10 were never collected. */
       if (m.video_url && !have[m.video_url]) want.push(m.video_url);
+      /* 👤 AND THE AUTHOR'S FACE (29 Sept). Same pipeline, same endpoint —
+         lib/sign-photos.js already routes an `avatars/` prefix to its own
+         gatekeeper, so this needs no new permission anywhere.
+         ⚠️ NULL in an anonymous room by construction: room_wall nulls
+         display_avatar_photo when rooms.anonymous, so the Porch and 7-OH
+         never even reach this line. This file still does not know which
+         rooms those are, and must not learn. */
+      if (m.display_avatar_photo && !have[m.display_avatar_photo]) want.push(m.display_avatar_photo);
     }
     if (!want.length) return null;
     try {
@@ -279,33 +319,56 @@ export default function Room({ room, initial, meHandle, members, signed, spokenH
      which is closer to the block case than the message case. It's one
      round trip on a deliberate action, with the field right there.
      --------------------------------------------------------------- */
+  /* ⚠️ heart() AND ITS ♥/♡ BUTTON WERE REMOVED 29 Sept 2026, replaced by
+     react() below. Nothing called them any more and an orphaned handler
+     is the ArtistPanel bug waiting to happen.
+
+     The database side is deliberately still there: room_like() and the
+     `likes` / `i_liked` columns on room_wall are untouched, so this is a
+     one-file revert if reactions turn out to be wrong. COLS still asks
+     for both columns for the same reason — one release of belt and
+     braces, then they can go. */
   /* =====================================================================
-     TOGGLE A HEART.
+     PICK A REACTION.  29 Sept 2026.
 
-     ⚠️ THE SERVER'S ANSWER OVERWRITES THE GUESS, it doesn't just confirm
-     it. `room_like` returns the real count after the write, so if two
-     people heart the same message in the same second this lands on the
-     true number instead of on our own +1. Guessing and then never
-     checking is how a count drifts and nobody notices for a week.
+     ⚠️ SAME CONTRACT AS heart() ABOVE, deliberately: optimistic, and then
+     THE SERVER'S ANSWER OVERWRITES THE GUESS rather than confirming it.
+     room_react returns the real counts after the write, so two people
+     reacting in the same second land on the true number instead of on our
+     own +1. On failure the row goes back exactly as it was.
 
-     ⚠️ On failure the row goes back exactly as it was. The database
-     refuses hearting your own message and anything you can't see, so a
-     refusal here is a real answer, not a glitch to paper over. */
-  async function heart(id) {
+     ⚠️ ONE PER PERSON. The primary key is (message_id, user_id), so
+     picking a second emoji CHANGES yours. The optimistic guess has to
+     model that — decrement the old one, increment the new — or the counts
+     flash wrong for a beat on every change.
+
+     ⚠️ A REFUSAL IS A REAL ANSWER. The database refuses your own message,
+     anything you cannot see, and any emoji off the fixed list. Reverting
+     is right; retrying would not be. */
+  async function react(id, e) {
     const before = msgs.find((x) => x.id === id);
     if (!before) return;
 
-    setMsgs((all) => all.map((x) => x.id === id
-      ? { ...x, i_liked: !x.i_liked, likes: (x.likes || 0) + (x.i_liked ? -1 : 1) }
-      : x));
+    const had  = before.my_reaction || null;
+    const off  = had === e;                 /* same one again = take it back */
+    const next = off ? null : e;
 
-    const { data, error } = await browserClient().rpc('room_like', { m_id: id });
+    const guess = { ...(before.reactions || {}) };
+    if (had)  guess[had]  = Math.max(0, (guess[had]  || 0) - 1);
+    if (next) guess[next] = (guess[next] || 0) + 1;
+
+    setMsgs((all) => all.map((x) => x.id === id
+      ? { ...x, my_reaction: next, reactions: guess }
+      : x));
+    setRxOpen(null);
+
+    const { data, error } = await browserClient().rpc('room_react', { m_id: id, e });
     const row = Array.isArray(data) ? data[0] : data;
 
     setMsgs((all) => all.map((x) => x.id === id
       ? (error || !row
-          ? { ...x, i_liked: before.i_liked, likes: before.likes }
-          : { ...x, i_liked: row.liked, likes: row.likes })
+          ? { ...x, my_reaction: before.my_reaction, reactions: before.reactions }
+          : { ...x, my_reaction: row.mine || null, reactions: row.counts || {} })
       : x));
   }
 
@@ -528,8 +591,47 @@ export default function Room({ room, initial, meHandle, members, signed, spokenH
              messages yet". An empty room that instructs is an invitation;
              one that reports emptiness is a verdict on the place. */
           <p className="roomempty">Nobody’s said anything yet today. “Morning” counts.</p>
-        ) : msgs.map((m) => {
+        ) : msgs.map((m, i) => {
           const pics = (m.photo_urls || []).filter(Boolean);
+
+          /* ============================================================
+             GROUPING, TIMES, AND THE LINE FOR WHAT YOU MISSED. 29 Sept.
+
+             ⭐ CONSECUTIVE MESSAGES FROM ONE PERSON SHARE A HEADER. Six
+             replies from the same person should read as one person
+             talking, not six separate announcements of their name.
+
+             ⚠️ THE GAP BREAKS THE GROUP. Same author an hour later is a
+             new thought, not the same breath. 4 minutes is the window.
+
+             ⚠️ IDENTITY IS handle ?? display_name, NOT author id — the
+             view does not return an author id, and in an anonymous room
+             the alias IS the identity. Comparing on the alias keeps the
+             Porch grouping correctly without this file ever learning
+             which rooms are anonymous.
+             ============================================================ */
+          const prev = i > 0 ? msgs[i - 1] : null;
+          const who  = m.handle || m.display_name || '';
+          const pwho = prev ? (prev.handle || prev.display_name || '') : null;
+          const gap  = prev ? (new Date(m.created_at) - new Date(prev.created_at)) : Infinity;
+          const grouped = !!prev
+            && prev.is_mine === m.is_mine
+            && pwho === who
+            && gap < 4 * 60 * 1000;
+
+          /* 🔴 THE "NEW SINCE YOU WERE HERE" LINE, AND WHY IT IS NOT A
+             READ RECEIPT. `lastSeen` is written to this device's own
+             localStorage and is NEVER sent anywhere. Nobody else can see
+             it, no column records it, and it produces no notification —
+             which is the whole difference between this and the seen
+             ticks, typing dots and presence dots this app has refused.
+             130 members were emailed "no reminders, no streaks, no nudges
+             to come back", and a line you only ever meet once you have
+             already chosen to open the page is not a nudge. */
+          const fresh = lastSeen
+            && new Date(m.created_at) > lastSeen
+            && (!prev || new Date(prev.created_at) <= lastSeen)
+            && !m.is_mine;
 
           /* ⭐ THE BUBBLE BECOMES THE FIELD, in place. Ty picked this over
              editing inside the ⋯ sheet, and the reason is that the room
@@ -598,7 +700,33 @@ export default function Room({ room, initial, meHandle, members, signed, spokenH
           }
 
           return (
-          <div key={m.id} className={'rmsg' + (m.is_mine ? ' mine' : '') + (m.pending ? ' pending' : '')}>
+          <Fragment key={m.id}>
+          {fresh && (
+            <div className="rnew" role="separator" aria-label="New since you were here">
+              <span>New since you were here</span>
+            </div>
+          )}
+          <div className={'rmsg' + (m.is_mine ? ' mine' : '') + (m.pending ? ' pending' : '')
+                          + (grouped ? ' grouped' : '')}>
+            {/* 👤 THE FACE. 29 Sept.
+                ⚠️ display_avatar (an emoji) and display_avatar_photo are
+                BOTH null in an anonymous room — room_wall nulls them by
+                construction, exactly like the handle below. So the Porch
+                and 7-OH fall through to the initial, and this file still
+                does not know which rooms those are.
+                ⚠️ The initial comes off display_name, which in an
+                anonymous room IS the alias — never the real name. */}
+            {!m.is_mine && (
+              <div className="rface" aria-hidden="true">
+                {grouped ? null
+                  : m.display_avatar_photo && urls[m.display_avatar_photo]
+                    /* eslint-disable-next-line @next/next/no-img-element */
+                    ? <img className="rfaceimg" src={urls[m.display_avatar_photo]} alt="" />
+                  : m.display_avatar
+                    ? <span className="rfaceemo">{m.display_avatar}</span>
+                    : <span className="rfaceltr">{(m.display_name || '?').trim().charAt(0).toUpperCase()}</span>}
+              </div>
+            )}
             {/* 🔴 THE NAME OVER A MESSAGE LEADS SOMEWHERE (8 Sept).
                 ⚠️ `m.handle` IS NULL IN AN ANONYMOUS ROOM and that is the
                 whole gate — room_wall nulls it there by construction, so
@@ -606,12 +734,30 @@ export default function Room({ room, initial, meHandle, members, signed, spokenH
                 without this file knowing which rooms those are. A slug
                 list here would be a second copy of a rule the view
                 already owns, and the fourth anonymous room would ship
-                without it. */}
-            {!m.is_mine && (
+                without it.
+                ⚠️ HIDDEN WHEN GROUPED — six replies from one person read
+                as one person talking, not six announcements of a name. */}
+            {!m.is_mine && !grouped && (
               <div className="roomwho">
                 {m.handle
                   ? <Link href={`/u/${m.handle}`} className="wholink">{m.display_name}</Link>
                   : m.display_name}
+                {/* ⚠️ A REAL <time>, with the full stamp in the title, so
+                    "2:31pm" can be checked against a real date by anyone
+                    who needs to. Never a live "3 minutes ago" — a ticking
+                    clock on somebody's worst night is a nudge. */}
+                <time className="rtime" dateTime={m.created_at}
+                      title={new Date(m.created_at).toLocaleString()}>
+                  {new Date(m.created_at).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}
+                </time>
+              </div>
+            )}
+            {m.is_mine && !grouped && (
+              <div className="roomwho mine">
+                <time className="rtime" dateTime={m.created_at}
+                      title={new Date(m.created_at).toLocaleString()}>
+                  {new Date(m.created_at).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}
+                </time>
               </div>
             )}
             <div className="rline">
@@ -685,22 +831,20 @@ export default function Room({ room, initial, meHandle, members, signed, spokenH
 
                   ⚠️ Hidden while a message is still in flight: there is
                   no row on the server yet to heart. */}
-              {!m.pending && !m.is_mine && (
-                <button type="button"
-                        className={'rheart' + (m.i_liked ? ' on' : '')}
-                        aria-pressed={!!m.i_liked}
-                        aria-label={m.i_liked ? 'Take your heart back' : 'Heart this'}
-                        onClick={() => heart(m.id)}>
-                  <span aria-hidden="true">{m.i_liked ? '♥' : '♡'}</span>
-                  {m.likes > 0 && <span className="rheartn">{m.likes}</span>}
-                </button>
-              )}
-              {!m.pending && m.is_mine && m.likes > 0 && (
-                <span className="rheart on mine" aria-label={`${m.likes} hearted this`}>
-                  <span aria-hidden="true">♥</span>
-                  <span className="rheartn">{m.likes}</span>
-                </span>
-              )}
+              {/* 🫂 REACTIONS replaced the single ♥/♡ on 29 Sept 2026.
+                  Every rule the heart kept is kept — see Reactions.jsx,
+                  which carries the reasoning rather than repeating it here.
+                  ⚠️ The old heart rows are still there: an emoji of NULL
+                  reads as ❤️, so nobody's heart disappeared. */}
+              <Reactions
+                counts={m.reactions}
+                mine={m.my_reaction}
+                isMine={m.is_mine}
+                pending={m.pending}
+                open={rxOpen === m.id}
+                onOpen={() => setRxOpen(rxOpen === m.id ? null : m.id)}
+                onPick={(e) => react(m.id, e)}
+              />
               {!m.pending && (
                 <MsgMenu id={m.id} mine={m.is_mine} name={m.display_name}
                          onEdit={startEdit}
@@ -708,6 +852,7 @@ export default function Room({ room, initial, meHandle, members, signed, spokenH
               )}
             </div>
           </div>
+          </Fragment>
           );
         })}
       </div>
