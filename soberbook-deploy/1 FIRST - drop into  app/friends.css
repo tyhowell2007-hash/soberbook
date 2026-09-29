@@ -1,0 +1,842 @@
+/* =====================================================================
+   YOUR PEOPLE.
+
+   All classes prefixed fr- , for the reason photos.css learned the hard
+   way on Aug 16: an unprefixed `.composer` collided with the green room's
+   own `.composer` and unpinned the message box. Every new stylesheet in
+   this app carries a prefix now.
+
+   ⚠️ Edges on everything, not just fills. The Aug 17 audit found a pale
+   tag on a pale card measuring 1.00:1 — invisible — and the text-only
+   contrast pass missed it because it was fill against fill.
+   ===================================================================== */
+
+.frwrap{ padding-bottom:14px; }
+
+.frsec{
+  font-family:'Courier Prime',monospace;
+  font-size:11.5px; letter-spacing:.09em; text-transform:uppercase;
+  color:var(--gm-t); margin:18px 0 8px;
+}
+.frsec:first-child{ margin-top:0; }
+/* Gold for "it's been a while" — NOT red. Nobody has done anything
+   wrong; this is a nudge, not an error. Red would frame a friendship as
+   a failure. */
+.frsec.warm{ color:#8A6A18; }
+.frsec.quiet{ color:var(--soft); }
+
+.frlist{ list-style:none; margin:0; padding:0; }
+
+.frrowitem{
+  display:flex; align-items:center; gap:10px;
+  background:#fff; border:2px solid var(--gm); border-radius:14px;
+  padding:10px 11px; margin:0 0 9px;
+}
+.frrowitem.warm{ background:#FEFCF5; border-color:var(--gold); }
+.frrowitem.gold{ background:#FEFCF5; border-color:var(--gold); }
+
+.frwho{
+  display:flex; align-items:center; gap:10px;
+  flex:1 1 auto; min-width:0; text-decoration:none; color:inherit;
+}
+
+.frface{
+  width:40px; height:40px; flex:0 0 40px; border-radius:50%;
+  background:var(--gl); border:1px solid var(--gm);
+  display:flex; align-items:center; justify-content:center;
+  font-size:19px; line-height:1;
+}
+.frface-photo{ background:var(--gl) center/cover no-repeat; }
+
+.frmeta{ display:flex; flex-direction:column; min-width:0; }
+.frname{
+  font-size:15px; color:var(--x);
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+}
+/* ⚠️ This line never carries a clock time. Whole days only — see the note
+   in Friends.jsx and the Aug 16 decision against presence dots. */
+.frwhen{ font-size:12px; color:var(--soft); margin-top:2px; }
+.frrowitem.warm .frwhen,
+.frrowitem.gold .frwhen{ color:#5A4409; }
+
+/* 44px minimum, because this is the only control on the row and the
+   Aug 18 audit found 20px tap targets on the two buttons that mattered
+   most. */
+.frsay{
+  flex:0 0 auto; text-decoration:none;
+  font-size:13.5px; padding:0 14px; min-height:44px;
+  display:flex; align-items:center;
+  border:1px solid var(--gm); border-radius:999px;
+  background:#fff; color:var(--gm-t);
+}
+.frrowitem.warm .frsay{ border-color:var(--gold); color:#4A3708; }
+
+.frtwo{ display:flex; gap:7px; flex:0 0 auto; }
+.frtwo .btn.tiny{
+  width:auto; margin:0; box-shadow:none;
+  font-size:13px; padding:0 13px; min-height:44px;
+  display:flex; align-items:center; justify-content:center;
+}
+
+.frempty{ text-align:center; padding:30px 14px; }
+.frempty h2{ margin:0 0 8px; }
+.frempty p{ margin:0 0 16px; font-size:14px; line-height:1.65; color:var(--soft); }
+.frempty .btn{ width:auto; display:inline-block; }
+
+.frfoot{ margin-top:16px; }
+
+/* =====================================================================
+   ⏳ THE QUIET CHIP — "Quiet 13 days" / "Hasn't posted yet".
+
+   Ty, 29 Aug: "add the days they've been quiet. So we know who isn't
+   talking or not."
+
+   ⚠️ IT LIVES HERE RATHER THAN IN wall.css, and the honest reason is
+   smaller than the one first written in this comment. I claimed /friends
+   never loads wall.css. That was WRONG — the ROOT layout imports it
+   (app/layout.jsx), so it is on every page in the app, and the rule would
+   have worked perfectly well there.
+
+   The real reasons it stays here: this chip belongs to one page, and
+   wall.css is a 1,500-line file that failed to upload three times on Aug
+   23 at 71KB. Keeping it out of the deploy is worth something. Neither of
+   those is "it wouldn't have worked".
+
+   ⭐ The lesson that IS real, kept because it cost time: checking a
+   route's own layout imports does not tell you which stylesheets that
+   route has. Layouts NEST — the root's imports apply everywhere beneath
+   them. Read app/layout.jsx too.
+
+   ⚠️ Every property is still declared here rather than half-inherited
+   from the .dchip base, which is cheap insurance and makes this rule
+   readable on its own.
+
+   ⚠️ GOLD, DELIBERATELY NOT RED. Red is the colour of a mistake and
+   nobody has made one by going quiet. Somebody who stops posting for two
+   weeks may be busy, may be well, may be having the worst fortnight of
+   their life — the app does not know which, and red would guess, and it
+   would guess accusingly. Gold says "worth a look", which is the only
+   thing this chip actually knows. Copied from the friends page's own
+   "It's been a while", which is gold for the same reason.
+
+   ⚠️ NOT one of the m-* metals. Those are a ladder you climb. This is not
+   an achievement and must never read as the bottom rung of one — the same
+   argument that keeps .dchip.new green instead of copper.
+   ===================================================================== */
+/* =====================================================================
+   🛋️ THE FRONT ROOM — the one dark surface in the app, on purpose.
+
+   Ty picked this after seeing his own screen next to the mockup: "it
+   doesn't look like this picture." He was right, and the mockup was the
+   thing that was wrong — I had drawn it in a dark palette that exists
+   nowhere else in Sober Book. Given the choice between fixing the picture
+   and building the picture, he chose the picture.
+
+   ⭐ AND IT EARNS ITS KEEP: a conversation is not a card. Everything else
+   on this page is a cream tile you READ. This is a place you are IN, and
+   giving it its own surface says so before a word is read. It is the same
+   argument the flyer-styled readings page makes — a page that looks
+   different is a choice; NAVIGATION that looks different is a bug, which
+   is why the bar underneath stays exactly as it is.
+
+   ⚠️ EVERY COLOUR HERE WAS MEASURED, NOT PICKED. On a dark surface the
+   failure mode is a mid-green that looks fine on a bright monitor and
+   disappears on a phone at 2am. Ratios against their real backgrounds:
+     body text on a bubble ......... 12.38
+     body text on YOUR bubble ....... 5.69
+     the name above a message ...... 10.89
+     the empty line and the count ... 7.62
+     the room title ................ 14.62
+   Floor is 4.5. ⚠️ --gm (#2E8B5F) as TEXT on this panel measures 3.84 and
+   is therefore banned here, the same way it is banned as a text colour on
+   paper — theme-green.css says it is "DECORATION ONLY".
+
+   ⚠️ Hard-coded hex rather than the theme variables, and that is
+   deliberate: every var in theme-green.css is tuned for dark-on-light.
+   Reaching for --body or --soft in here would silently produce grey text
+   on a dark green panel. This block owns its own palette because it is
+   the only inverted surface in the app.
+
+   ⚠️ AND IT MUST OUT-SPECIFY wall.css, which the root layout loads on
+   every page. Anything in here that shares a class name with that file is
+   competing with it, so the room uses names that appear nowhere else.
+   ===================================================================== */
+.room{
+  margin:0 0 20px;
+  background:#12241C; border-radius:16px; padding:13px 12px 12px;
+}
+
+.roomhead{ display:flex; align-items:center; gap:7px; margin:0 0 10px; }
+.roomemoji{ font-size:17px; line-height:1; }
+.roomname{
+  font-family:'Archivo',system-ui,sans-serif; font-size:14px;
+  font-weight:700; color:#EAF6EF; letter-spacing:0;
+}
+/* Pushed right, and quiet. It says the room is populated without being a
+   scoreboard — and it is a COUNT, never a list of who is here. Publishing
+   who is in a room at 11pm publishes who is struggling and when, which is
+   the presence-dot argument from August. */
+.roomcount{ margin-left:auto; font-size:11px; color:#7FBFA0; }
+
+/* ⚠️ Its own scroll with a capped height so the member list underneath
+   never gets pushed off the page. A room that grows forever would quietly
+   undo the quiet-chips feature sitting below it. */
+.roombox{
+  max-height:44vh; overflow-y:auto; -webkit-overflow-scrolling:touch;
+  padding:0 1px 2px; margin:0 0 10px;
+}
+
+.roomempty{ margin:4px 2px 8px; font-size:13px; line-height:1.6; color:#7FBFA0; }
+
+.rmsg{ margin:0 0 10px; }
+/* 🔴 RENAMED FROM .rwho, 6 SEPT. IT COLLIDED WITH THE WALL'S REPLY AUTHOR.
+   Ty, looking at a real thread: "you can barely see the names with that
+   color font." Two stylesheets both defined `.rwho` — this one (11px pale
+   green, built for the Front Room's DARK panel, where #9FE1CB measures
+   9.22) and wall.css's (15px Anton, near-black, 16.02 on white). The root
+   layout loads wall.css on every page and /friends loads this one after
+   it, so once a member had visited Community the pale green won on the
+   WALL too — 1.49 against white. Invisible, and only after a particular
+   navigation, which is why it never showed up in a fresh page load.
+   ⚠️ Same family as the `.composer` collision (16 Aug) and the four
+   landing-page names that forced the `lp-` prefix (23 Aug). A class name
+   is a global; two files owning one is a bug waiting for a route change. */
+.roomwho{ font-size:11px; color:#9FE1CB; margin:0 0 3px; font-weight:600; }
+.rbub{
+  display:inline-block; max-width:88%; padding:8px 11px; border-radius:12px;
+  background:#1A3227; color:#EAF6EF; font-size:14px; line-height:1.5;
+  /* A pasted link must not stretch the bubble off a phone screen. */
+  overflow-wrap:anywhere;
+}
+.rmsg.mine{ text-align:right; }
+.rmsg.mine .rbub{ background:#2E6B4C; color:#EAF6EF; text-align:left; }
+/* Yours, still in flight. Faded, not a spinner — a spinner on every
+   message makes a calm room feel like it is struggling. */
+.rmsg.pending .rbub{ opacity:.55; }
+
+/* =====================================================================
+   🙂 THE EMOJI PICKER'S STYLES MOVED OUT OF THIS FILE. 5 Sept.
+
+   🔴 They used to live here, and that was the bug. EmojiPicker.jsx is
+   imported by FOUR files — Wall.jsx, Thread.jsx, Convo.jsx and Room.jsx
+   — while friends.css is imported by ONE layout. So the picker was
+   styled in the room and completely naked on the other three screens.
+
+   ⭐ They are now in app/emoji.css, imported by all three layouts that
+   render it, with the room's dark palette kept as .emp-green. The room
+   looks exactly as it did; nothing here changed except where it lives.
+   See the header of app/emoji.css for the whole story.
+   ===================================================================== */
+
+/* The 🙂 beside the box. 44px, same as Send — it sits in the same row and
+   a smaller sibling reads as less tappable than it is. */
+.remo{
+  flex:none; width:44px; height:44px; padding:0;
+  border:1px solid #2A4A38; background:none; border-radius:50%;
+  font-size:17px; line-height:1; cursor:pointer;
+}
+.remo:hover{ background:#1A3227; }
+
+.rbar{ display:flex; gap:7px; align-items:center; }
+.rin{
+  flex:1; min-width:0; padding:11px 14px; border-radius:22px;
+  border:1px solid #2A4A38; background:#1A3227; color:#EAF6EF;
+  font-size:16px;   /* ⚠️ 16px or iOS zooms the whole page on focus */
+  font-family:inherit;
+  /* 📝 12 Sept — it is a <textarea> now so it can GROW, because an
+     <input> does not wrap and 2,000 characters were scrolling sideways
+     out of view. Colours, radius and border are untouched — the room
+     keeps its own skin, only the behaviour is shared with the Wall.
+     🔴 12 SEPT (later) — RAISED FROM 40vh. Ty: "make sure when you type
+     something out, you can see all the sentences... even if they're
+     extremely long", and then: "make sure this is in every form of
+     communication in the app."
+     ⭐ BUT NOT UNCAPPED, AND THE REASON IS THE SEND BUTTON. The Wall's
+     box has no cap at all because theme-green puts that composer in
+     normal flow at the TOP of the feed — it grows downward and the page
+     scrolls. This one is pinned to the BOTTOM: an uncapped box grows
+     UPWARD, and past full height it carries Send off the top of the
+     screen. That is the 29 Aug bug exactly — the ⋯ sheet whose Cancel
+     sat 39px under the tab bar, the way out unreachable.
+     ⚠️ So the cap is `100vh - 190px`, which is not a taste number: it is
+     "everything except the send row and the nav". ~26 lines on a phone
+     against 40vh's ~12, so a genuinely long message is visible whole,
+     and the control that sends it can never be pushed off.
+     ⚠️ resize:none — the browser's drag handle would let somebody pull
+     the box over the whole room with no way back.
+     ⚠️ line-height set explicitly: a textarea does not inherit the
+     comfortable default an input gets, and without it the first line
+     sits tight against the top edge. */
+  resize:none; max-height:calc(100vh - 190px); overflow-y:auto;
+  line-height:1.45; display:block;
+}
+.rin::placeholder{ color:#7FBFA0; }
+
+/* 🔴 YOU COULD NOT SEE WHAT YOU WERE TYPING, AND THIS IS WHY.
+
+   globals.css has `input:focus{ background:#fff }` — written for the
+   cream app, where a white field on focus is right. It is a type selector
+   plus a pseudo-class (0,1,1), which BEATS a plain class (0,1,0). So the
+   instant somebody tapped this box to type, the background flipped to
+   white while the text stayed near-white from .rin above.
+
+   White on white. Invisible EXACTLY while you are typing, and only then.
+
+   ⭐ THE PROCESS LESSON, and it is the sharpest one this week: I measured
+   this input earlier and got 12.38:1 and called it proven. I had measured
+   the UNFOCUSED state. A control that only misbehaves while focused is
+   invisible to a check that never focuses it. **Measure the state the
+   person is actually in.** Ty found it by typing; I found it by finally
+   looking at pixels instead of getComputedStyle.
+
+   ⚠️ (0,2,0) beats (0,1,1), so this wins without !important. The caret is
+   set too — a light caret on white is its own small invisibility. */
+.rin:focus{
+  background:#1A3227; color:#EAF6EF; caret-color:#EAF6EF;
+  outline:2px solid #4FA97A; outline-offset:1px;
+}
+.rgo{
+  flex:none; padding:10px 16px; border-radius:22px; border:0;
+  background:#4FA97A; color:#08160F;
+  font-family:'Archivo',system-ui,sans-serif; font-size:13px; font-weight:700;
+  cursor:pointer;
+  min-height:44px;  /* ⚠️ 44px tap target — the Aug 18 post-footer lesson */
+}
+.rgo:disabled{ opacity:.45; cursor:default; }
+
+.dchip.m-quiet{
+  display:inline-block; margin-left:6px; padding:2px 9px; border-radius:99px;
+  font-size:10px; font-weight:700; letter-spacing:.03em; vertical-align:1px;
+  white-space:nowrap;
+  background:#F6EEDC; color:#5A4412; border:1px solid #B08D3A;
+}
+
+/* =====================================================================
+   📷 PICTURES IN THE FRONT ROOM.
+
+   Ty, 30 Aug: "In community in the green room, I want you to be able to
+   post pictures as well as type. And I want you to be able to send as
+   many pictures as you would like."
+
+   ⚠️ Every class name below was checked against every stylesheet in the
+   app before being written — .rline .rtext .rpics .rpic .rtray .rtray-one
+   .rtray-x .rbig .rbig-x .rpick .rmsgdots were all free. That check
+   exists because `.composer` collided in August, `.sheetwrap` collided
+   on the 29th, and `.rmwrap` collided while I was fixing that collision.
+
+   ⚠️ The room's own dark palette. --gm (#2E8B5F) as TEXT on this surface
+   measures 3.84 and is banned here; every colour below is one already
+   measured against #152B21 / #1A3227.
+   ===================================================================== */
+
+/* The bubble and its ⋯ sit side by side. ⚠️ The menu is a SIBLING of the
+   bubble, never a child — a <button> inside a <button> is invalid HTML
+   and browsers recover from it in different ways. */
+.rline{ display:flex; align-items:flex-start; gap:4px; }
+.rmsg.mine .rline{ justify-content:flex-end; flex-direction:row-reverse; }
+.rtext{ display:block; }
+
+/* ⚠️ 32px wide but a FULL 44px tall. The Aug 18 lesson was 44px tap
+   targets; a 44×44 circle beside every single message would shout louder
+   than the messages. Height is where the finger actually misses on a
+   scrolling list, so that is the axis kept honest. */
+.rmsgdots{
+  flex:none; min-width:32px; min-height:44px; padding:0 4px;
+  border:0; background:none; color:#7FBFA0;
+  font-size:17px; line-height:1; cursor:pointer; border-radius:8px;
+}
+.rmsgdots:hover{ background:#1A3227; }
+.rmsgdots:focus-visible{ outline:2px solid #4FA97A; outline-offset:1px; }
+
+/* =====================================================================
+   ♥ THE HEART ON A MESSAGE.  3 Sept 2026.  (migration 0129)
+
+   ⚠️ SAME 32×44 AS .rmsgdots ABOVE, and it has to be, because these two
+   sit side by side. The tray ✕ gets away with 30px because nothing else
+   near it is tappable and a near miss does nothing; a near miss HERE
+   opens the report-and-block sheet instead of hearting somebody, which
+   is the wrong action rather than no action.
+
+   🔴 THERE IS NO STYLE FOR A ZERO, because a zero is never rendered.
+   Room.jsx only prints .rheartn when the count is at least one, and a
+   message of your own that nobody hearted renders no heart at all. If a
+   `.rheart .zero` rule ever appears here, the feature has drifted into
+   the thing it was designed not to be.
+
+   ⚠️ COLOURS MEASURED against the room panel #12241C, not guessed —
+   my own mockup used #4E7A64 for the outline and it came out at 3.31,
+   under the 4.5 floor, which is exactly the mistake that shipped three
+   times in two days this week:
+       #6FA98A outline on #12241C = 5.96
+       #EE837B filled  on #12241C = 6.31
+       #9FE1CB number  on #12241C = 10.89
+
+   ⚠️ The filled state is warm, not the room's green. A heart is the one
+   thing on this screen that is a person rather than the furniture, and
+   green-on-green would let it disappear into the chrome. */
+.rheart{
+  flex:none; min-width:32px; min-height:44px; padding:0 4px;
+  border:0; background:none; color:#6FA98A;
+  font-size:16px; line-height:1; cursor:pointer; border-radius:8px;
+  display:inline-flex; align-items:center; justify-content:center; gap:4px;
+}
+.rheart.on{ color:#EE837B; }
+/* ⚠️ A span, not a button, when it is your own message — there is nothing
+   to press, and a disabled button is skipped by screen readers and shows
+   no tooltip on touch (the 2 Sept lesson from the anonymous eye). */
+.rheart.mine{ cursor:default; }
+.rheart:hover{ background:#1A3227; }
+.rheart:focus-visible{ outline:2px solid #4FA97A; outline-offset:1px; }
+.rheartn{ font-size:12px; color:#9FE1CB; }
+
+.rpics{ display:grid; gap:3px; width:min(264px, 100%); margin:0 0 6px; }
+.rpics.one { grid-template-columns:1fr; }
+.rpics.two { grid-template-columns:repeat(2, 1fr); }
+.rpics.many{ grid-template-columns:repeat(3, 1fr); }
+
+.rpic{
+  padding:0; border:0; background:#0F241B; cursor:pointer;
+  border-radius:9px; overflow:hidden; aspect-ratio:1; display:block;
+}
+.rpic img{ width:100%; height:100%; object-fit:cover; display:block; }
+.rpic:focus-visible{ outline:2px solid #4FA97A; outline-offset:2px; }
+
+/* 🔴 A SINGLE PICTURE IS NEVER CROPPED, and that is not a nicety. Aug 18
+   settled this for video — object-fit:cover hides somebody's head and you
+   cannot tell it happened. One photo, one subject, and it is very often a
+   face or a chip: it gets its real shape and whatever letterboxing that
+   costs. Two or more become a grid, where square thumbs are read as a
+   contact sheet and tapping one opens it whole. */
+.rpics.one .rpic{ aspect-ratio:auto; background:none; }
+.rpics.one img{
+  width:auto; max-width:100%; height:auto; max-height:300px; object-fit:contain;
+}
+
+/* Chosen, not sent yet. ⚠️ Sits between the conversation and the bar so
+   it never covers the message somebody is replying to. */
+.rtray{ display:flex; flex-wrap:wrap; gap:9px; margin:0 0 9px; padding:2px; }
+.rtray-one{ position:relative; width:72px; height:72px; }
+.rtray-one img{
+  width:72px; height:72px; object-fit:cover; border-radius:9px; display:block;
+  border:1px solid #2A4A38;
+}
+/* ⚠️ 30px, not 44. A 44px × on a 72px thumbnail covers the picture it is
+   asking you to identify. Nothing else in the tray is tappable, so a
+   near miss does nothing at all rather than the wrong thing — which is
+   the trade that makes a smaller target acceptable here and would not
+   make it acceptable next to Send. */
+.rtray-x{
+  position:absolute; top:-7px; right:-7px; width:30px; height:30px;
+  border-radius:50%; border:1px solid #2A4A38; background:#08160F;
+  color:#EAF6EF; font-size:16px; line-height:1; cursor:pointer; padding:0;
+}
+
+/* The 🖼️ beside the box. Matches .remo exactly — two round 44px buttons
+   in a row, one of which looked different, would read as one being less
+   real than the other. */
+.rpick{
+  flex:none; width:44px; height:44px; padding:0;
+  border:1px solid #2A4A38; background:none; border-radius:50%;
+  font-size:17px; line-height:1; cursor:pointer; color:#EAF6EF;
+  font-family:inherit;
+}
+.rpick:hover{ background:#1A3227; }
+.rpick:disabled{ opacity:.5; cursor:default; }
+
+/* 🔴 PhotoUpload's error line is styled in photos.css as #8A2B2B — a dark
+   red written for the cream app. On this panel it measures 2.15:1 and is
+   effectively invisible, so an upload that failed would say nothing a
+   person could read. Scoped override, and .rbar has to wrap for it to
+   have anywhere to go. */
+.rbar{ flex-wrap:wrap; }
+.rbar .phserr{ flex-basis:100%; margin:7px 2px 0; color:#FFB4B4; }
+
+/* Full size used to live here as .rbig / .rbig-x. It moved to .pbig in
+   globals.css on 18 Sept, when the wall, replies, DMs and both profile
+   pages got the same behaviour and one viewer replaced two. The rule it
+   was carrying went with it and still governs: AN OVERLAY, NEVER A NEW
+   TAB — a signed url in the address bar is copyable and keeps working
+   for an hour in anybody's browser. Do not re-add a local one here. */
+
+/* =====================================================================
+   ✏️ EDITING YOUR OWN WORDS IN THE ROOM (0096).
+
+   ⚠️ All six names checked against every stylesheet before writing —
+   .redit .rta .rerow .rcnt .redited .lnk. That check exists because
+   `.composer` collided in August and `.rmwrap` collided while I was
+   fixing an earlier collision.
+   ===================================================================== */
+
+/* The block sits where the bubble was, on the right like your other
+   messages, and slightly wider — a field you are typing into needs more
+   room than a bubble you are reading. */
+.redit{ width:86%; margin-left:auto; }
+
+.rta{
+  display:block; width:100%; box-sizing:border-box;
+  border:2px solid #4FA97A; border-radius:12px;
+  background:#1A3227; color:#EAF6EF; caret-color:#EAF6EF;
+  font-size:16px;   /* ⚠️ 16px or iOS zooms the whole page on focus */
+  line-height:1.5; padding:9px 11px; font-family:inherit; resize:none;
+}
+/* 🔴 globals.css has `input:focus{background:#fff}` at (0,1,1). It does
+   not match a <textarea>, but the ONE-CLASS version of this rule would
+   still lose to any future `textarea:focus`. Two classes = (0,2,0), which
+   wins outright. Same lesson as .rin:focus above — the bug that made the
+   message box invisible exactly while somebody was typing in it. */
+.rta:focus, .redit .rta:focus{
+  background:#1A3227; color:#EAF6EF; caret-color:#EAF6EF;
+  outline:2px solid #4FA97A; outline-offset:1px;
+}
+
+.rerow{ display:flex; align-items:center; gap:8px; margin-top:7px; }
+
+/* ⚠️ Takes the space on the left so Cancel and Save stay together on the
+   right, where the Send button already trained the thumb to look. */
+.rcnt{ margin-right:auto; font-size:11px; color:#7FBFA0; line-height:1.4; }
+
+.lnk{
+  background:none; border:0; color:#7FBFA0; cursor:pointer;
+  font-family:inherit; font-size:12px; padding:8px 6px;
+  min-height:44px;   /* the Aug 18 tap-target lesson */
+}
+.lnk:hover{ color:#EAF6EF; }
+
+/* 🔴 THE MARKER. #C7E5D6 measures 4.70:1 on your own green bubble
+   (#2E6B4C) and 10.20:1 on somebody else's (#1A3227) — quiet, but never
+   the invisible grey that "subtle" usually means. It has to be READABLE:
+   it is the whole reason editing is safe to offer, and a marker nobody
+   can see is the same as no marker.
+
+   ⚠️ I first wrote 6.1 here from memory and the measurement said 4.70.
+   Both numbers pass, so nothing was broken — but a guessed figure in a
+   comment is how a later change "safely" darkens this to 4.2 and nobody
+   notices. Measured, both surfaces, or don't write a number at all. */
+.redited{ color:#C7E5D6; font-size:11px; white-space:nowrap; }
+
+/* =====================================================================
+   🌱 THE INVITATION — shown only to somebody who has never spoken here.
+
+   ⚠️ Dashed, not solid, and not a card. A solid bordered box reads as a
+   system notice, something the app is telling you. A dashed line reads as
+   a gap waiting to be filled, which is what it actually is.
+
+   🔴 THE BORDER IS STRUCTURAL HERE, NOT DECORATION, AND THE MEASUREMENT
+   IS WHY. The fill (#1A3227) against the room panel it sits on (#12241C)
+   is 1.18:1 — all but invisible as a shape. So the dashed edge is the
+   only thing drawing the box, and a dashed edge nobody can see is a
+   paragraph floating in the middle of a conversation.
+
+   ⚠️ My first pick, #3A6B52, measured 2.23 against the fill — under the
+   3:1 floor for non-text. Exactly the Aug 17 blind spot: a text-only
+   contrast pass reports everything fine while the thing that defines the
+   element is invisible. **Audit fills and borders, not just type.**
+
+   Measured, all three real:
+     text  #9FE1CB on #1A3227 ....... 9.22   (floor 4.5)
+     edge  #57987A on #1A3227 ....... 4.04   (floor 3.0, non-text)
+     fill  #1A3227 on #12241C ....... 1.18   (intentional — see above)
+   ===================================================================== */
+.rnudge{
+  margin:0 0 9px; padding:8px 11px;
+  border:1px dashed #57987A; border-radius:9px;
+  background:#1A3227; color:#9FE1CB;
+  font-size:12.5px; line-height:1.55;
+}
+
+/* =====================================================================
+   THE PHOTO WARNING IN AN ANONYMOUS ROOM. 3 Sept.
+
+   Deliberately the same SHAPE as .rnudge above — same bubble, same
+   radius, same size — because inventing a second visual language for one
+   sentence is noise, and this sits two pixels from that one.
+
+   ⚠️ TWO DIFFERENCES, AND BOTH CARRY THE MEANING. The border is SOLID
+   rather than dashed, and both it and the text are brighter. The nudge is
+   encouragement ("Morning counts"); this is a caution, and it has to
+   out-rank the thing beside it without shouting.
+
+   🔴 AND IT IS DELIBERATELY NOT RED OR AMBER. Nothing has gone wrong —
+   somebody picked a picture, which is allowed. A red bar in a room about
+   7-OH dependence reads as an accusation, and this app's whole stance is
+   that nobody has to explain themselves. Caution, not alarm.
+
+   ⚠️ MEASURED, not guessed — three contrast numbers were written into
+   comments unmeasured in two days, and two of them were failures:
+       #C7EFDD on #1A3227 = 11.00   (the nudge's own text is 9.22)
+       #6FB294 on #1A3227 =  5.54   (the nudge's border is 4.04)
+   Floor is 4.5. */
+.rshade{
+  margin:0 0 9px; padding:8px 11px;
+  border:1px solid #6FB294; border-radius:9px;
+  background:#1A3227; color:#C7EFDD;
+  font-size:12.5px; line-height:1.55;
+}
+
+/* =====================================================================
+   🪑 THE FRONT PORCH — the one room in the app with a photograph behind it.
+
+   Ty asked for a real country porch at dusk, and then for the view to be
+   FROM the porch rather than of it. That second note was the better idea:
+   the room is called The Front Porch, so the member should be sitting on
+   it, not standing in the yard looking at somebody else's house.
+
+   ⚠️ NAMED .rporch, NOT .porch. door.css already has a `.porch` — the
+   serif line on the warm sign-in door. It is scoped under `.door.back` so
+   a collision would not have shown up today, which is exactly how the
+   August collisions happened: two unrelated things sharing a name, fine
+   until one of them moves.
+
+   ---------------------------------------------------------------------
+   🔴 THE SCRIM IS A MEASUREMENT, NOT A LOOK.
+
+   Every colour in this room was measured against a flat dark panel. A
+   photograph underneath invalidates all of it — and the failure would not
+   be uniform, it would be one bright patch of sky sitting behind the
+   member count.
+
+   So it was measured against the real file, WORST PIXEL not average,
+   compositing the gradient over each pixel of porch.webp:
+
+     room name   #EAF6EF ......  9.27
+     blurb/alias #9FE1CB ......  6.91
+     count/empty #7FBFA0 ......  4.83     (floor 4.5)
+
+   ⭐ And the measurement changed the design. I assumed a heavy scrim was
+   needed and picked .82→.90; the numbers said .72→.84 passes, so the
+   photograph is far more visible than instinct would have allowed. The
+   whole reason to put a porch behind this room is that it should feel
+   like a place — a scrim heavy enough to be "safe" reduces it to a warm
+   smudge nobody could identify.
+
+   ⚠️ background-IMAGE, so `.room`'s background-COLOR survives underneath.
+   If porch.webp ever 404s, the gradient still paints over #12241C and the
+   room degrades to a normal dark panel rather than to unreadable text on
+   white. A missing file must never be a legibility failure.
+
+   ⚠️ `center 28%` keeps the sky behind the header and drops the fields
+   behind the conversation. Centred, the colour disappears under the
+   messages, which is the only part of the picture worth having.
+   ===================================================================== */
+.room.rporch{
+  background-image:
+    linear-gradient(rgba(10,22,17,.72), rgba(10,22,17,.84)),
+    url('/porch.webp');
+  background-size: cover;
+  background-position: center 28%;
+  background-repeat: no-repeat;
+}
+
+/* The blurb under a room's name. ⚠️ In an anonymous room this is load
+   bearing, not decoration — somebody arriving from the Front Room will
+   assume their handle is showing, because everywhere else in this app it
+   is. `.hush` gives it a touch more presence for that reason. */
+.roomblurb{
+  margin:0 0 10px; font-size:11.5px; line-height:1.55; color:#9FE1CB;
+}
+.roomblurb.hush{ color:#B7E7D3; }
+
+/* =====================================================================
+   THE ROOM TABS.
+
+   ⚠️ Only drawn when there is more than one room — RoomSwitch hides the
+   strip entirely for a single room rather than rendering one lone tab. A
+   control that does nothing teaches people to stop tapping.
+   ===================================================================== */
+.rtabs{ display:flex; gap:6px; margin:0 0 10px; }
+.rtab{
+  flex:1; min-height:40px; padding:8px 6px;
+  border:1px solid #2A4A38; border-radius:10px;
+  background:#152B21; color:#9FE1CB;
+  font-family:inherit; font-size:12px; line-height:1.3; cursor:pointer;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.rtab.on{
+  background:#2E6B4C; color:#EAF6EF; border-color:#4FA97A;
+}
+.rtab:focus-visible{ outline:2px solid #4FA97A; outline-offset:1px; }
+
+/* 🔴 THE LINE THAT LEADS TO THE PHONE NUMBERS.
+   Ten things this month were fully built with no way to reach them. A
+   help page nobody can find would be the eleventh — and this is the one
+   where "hard to find" and "didn't call anybody" are the same outcome.
+   ⚠️ In the room, above the conversation. Not in a menu.
+   ⚠️ Measured, both surfaces: #9FE1CB is 10.89 on the room panel and its
+   worst pixel over the porch photograph at the light scrim is 6.91.
+
+   ⚠️ I first wrote "10.15" here from memory and the real figure is 10.89
+   — the second time today I have typed a contrast number instead of
+   measuring one. Both pass, so nothing broke; the habit is the problem.
+
+   🔴 AND THE UNDERLINE WAS ACTUALLY WRONG. #3A6B52 measures 2.63 on this
+   panel, under the 3.0 floor for non-text — and I picked that same colour
+   for the nudge border earlier today and had to fix it there too. It is
+   the one thing drawing the link as a link. Now #57987A at 4.77. */
+.roomhelp{ margin:0 0 10px; }
+.roomhelp a{
+  display:inline-block; min-height:34px; line-height:34px;
+  font-size:12px; color:#9FE1CB; text-decoration:none;
+  border-bottom:1px solid #57987A;
+}
+.roomhelp a:hover{ color:#EAF6EF; border-bottom-color:#9FE1CB; }
+
+/* 🎬 A video in a room message (5 Sept). Sized like the picture grid so a
+   clip and a photo sit at the same weight in the conversation.
+   ⚠️ object-fit is deliberately NOT `cover`: cropping a still is visible
+   at a glance, cropping a video hides somebody's head for the length of
+   the clip. Black bars are honest. (18 Aug, on post video.) */
+.rvid{
+  display:block; width:100%; max-width:320px; max-height:360px;
+  border-radius:12px; background:#000; margin:0 0 6px;
+}
+
+/* =====================================================================
+   🫂 REACTIONS IN THE ROOMS — 29 Sept 2026.
+
+   Replaces the single ♥/♡. The reasoning for the BEHAVIOUR lives in
+   friends/Reactions.jsx; this file only has to make it readable.
+
+   ⚠️ SIX NEW CLASS NAMES, ALL CHECKED AGAINST EVERY STYLESHEET FIRST —
+   .rxrow .rxp .rxn .rxadd .rxbar .rxpick appear nowhere else. That check
+   is not ceremony: wall.css loads on EVERY page, so a name shared with it
+   wins on the wall the moment a member has visited Community once. That
+   is the .rwho bug, and it was invisible until somebody navigated in a
+   particular order.
+
+   ⚠️ HARD-CODED HEX, like the rest of this block. Every var in
+   theme-green.css is tuned for dark-on-light and would silently produce
+   grey text on a dark green panel.
+
+   ⚠️ MEASURED, NOT PICKED. Against their real backgrounds:
+     the count on a plain pill ......... 6.96
+     the count on YOUR pill ............ 4.74
+     the ＋ button on the panel ........ 7.62
+     ink on a plain pill ............... 8.29
+   Floor is 4.5.
+
+   🔴 ONE FAILED AND WAS CHANGED BEFORE IT SHIPPED. The count started as
+   #B9EBD4 on both pill states — 6.96 on a plain pill, but only 3.98 on
+   your own highlighted one. It looked completely fine. The fix is the
+   count going to #EAF6EF on the `on` state only (4.74); darkening the
+   pill instead would have passed too, but it collapsed the separation
+   between "yours" and "theirs" from 1.75 to 1.25, which is the whole
+   point of the highlight. Same trap as --gm: a mid-green reads as dark
+   enough long after it has stopped being readable.
+   ===================================================================== */
+.rxrow{
+  display:flex; flex-wrap:wrap; align-items:center; gap:5px;
+  margin:5px 0 0; position:relative;
+}
+.rmsg.mine .rxrow{ justify-content:flex-end; }
+
+.rxp{
+  display:inline-flex; align-items:center; gap:4px;
+  background:#24503A; border:1px solid transparent; border-radius:99px;
+  padding:3px 9px 3px 7px; font-size:13px; line-height:1.3;
+  color:#EAF6EF; cursor:pointer;
+  font-family:'Archivo',system-ui,sans-serif;
+}
+.rxp:hover{ background:#2A5C43; }
+.rxn{ font-size:11.5px; font-weight:700; color:#B9EBD4; }
+
+/* yours — lighter fill AND a ring, because colour alone is not a signal
+   somebody with low colour vision can read. */
+.rxp.on{ background:#37785A; border-color:#4FA97A; }
+.rxp.on .rxn{ color:#EAF6EF; }
+
+/* your own message: the counts, no buttons. Cursor stays default — there
+   is nothing to press, and a pointer that does nothing is a small lie. */
+.rxp.on-mine{ cursor:default; background:#24503A; }
+.rxp.on-mine:hover{ background:#24503A; }
+
+/* ⚠️ 32px and not 44px, and that is deliberate: this sits inside a dense
+   conversation, and a 44px circle under every message pushes the talk off
+   the screen. The reaction BAR it opens is 40px per target, which is
+   where the accuracy actually matters. */
+.rxadd{
+  width:32px; height:32px; padding:0; flex:none;
+  border:1px solid #2A4A38; background:none; border-radius:50%;
+  color:#7FBFA0; font-size:14px; line-height:1; cursor:pointer;
+}
+.rxadd:hover, .rxadd.open{ background:#1C382A; color:#EAF6EF; }
+
+/* the picker bar. Sits ABOVE the row and never covers the message it
+   belongs to — same rule the emoji panel follows for the composer. */
+.rxbar{
+  position:absolute; bottom:calc(100% + 6px); left:0; z-index:20;
+  display:flex; gap:2px; padding:5px 7px;
+  background:#173024; border:1px solid #2C5B43; border-radius:99px;
+  box-shadow:0 8px 20px rgba(0,0,0,.36);
+}
+.rmsg.mine .rxbar{ left:auto; right:0; }
+.rxpick{
+  width:40px; height:40px; padding:0; border:0; background:none;
+  border-radius:99px; font-size:21px; line-height:1; cursor:pointer;
+}
+.rxpick:hover{ background:#24503A; }
+.rxpick.on{ background:#37785A; }
+.rxpick:focus-visible, .rxp:focus-visible, .rxadd:focus-visible{
+  outline:2px solid #4FA97A; outline-offset:1px;
+}
+
+/* =====================================================================
+   👤 FACES, TIMES, GROUPING, AND THE LINE FOR WHAT YOU MISSED.
+   29 Sept 2026.
+
+   🔴 THIS BLOCK NEARLY SHIPPED THE .rwho BUG FOR THE SIXTH TIME. The
+   timestamp was written as `.rwhen` — and wall.css line 263 already
+   defines .rwhen, sitting directly beside .rwho itself. wall.css is
+   loaded by the ROOT layout, so it is on every page; friends.css loads
+   after it, so MY rule would have won on the wall too, repainting the
+   timestamp on every reply for anybody who had visited Community once.
+   Invisible on a fresh load, and only after a particular navigation.
+   It is `.rtime` here, and .rtime appears in no other stylesheet.
+   The other six names were checked the same way.
+
+   ⚠️ MEASURED, against their real backgrounds:
+     the time on the panel .......... 7.62
+     the divider label .............. 9.20
+     an initial on its circle ....... 11.53
+     the name (unchanged) ........... 10.89
+   Floor is 4.5. The banned #2E8B5F still measures 3.84 here.
+   ===================================================================== */
+
+/* the row becomes: face | everything else */
+.rmsg{ display:grid; grid-template-columns:30px 1fr; column-gap:9px; }
+.rmsg > .rline, .rmsg > .roomwho{ grid-column:2; }
+.rmsg.mine{ grid-template-columns:1fr; }
+.rmsg.mine > .rline, .rmsg.mine > .roomwho{ grid-column:1; }
+
+.rface{ grid-column:1; grid-row:1 / span 2; width:30px; height:30px; }
+.rfaceimg{ width:30px; height:30px; border-radius:50%; object-fit:cover; display:block;
+           background:#1A3227; }
+.rfaceemo, .rfaceltr{
+  width:30px; height:30px; border-radius:50%; display:flex;
+  align-items:center; justify-content:center; line-height:1;
+}
+.rfaceemo{ background:#1A3227; font-size:16px; }
+/* ⚠️ Dark ink on a light circle, not the reverse — 11.53. And the letter
+   comes off display_name, which in an anonymous room IS the alias. */
+.rfaceltr{ background:#9FE1CB; color:#0C1F16; font-size:13px; font-weight:700;
+           font-family:'Archivo',system-ui,sans-serif; }
+
+/* ⚠️ A grouped message keeps the 30px column so its bubble stays in line
+   with the one above it — the face is simply absent, not collapsed. */
+.rmsg.grouped{ margin-top:-4px; }
+
+.roomwho{ display:flex; align-items:baseline; gap:8px; }
+.roomwho.mine{ justify-content:flex-end; }
+.rtime{
+  font-family:'Courier Prime',monospace; font-size:10.5px; letter-spacing:.06em;
+  color:#7FBFA0; font-weight:400; flex:none;
+}
+
+/* the divider. ⚠️ It is drawn only when a message crosses the boundary,
+   so there is never more than one, and it never appears at the very top
+   of a room you have not opened before. */
+.rnew{ display:flex; align-items:center; gap:10px; margin:6px 0 12px; }
+.rnew::before, .rnew::after{ content:''; flex:1; border-top:1px solid #2F5A44; }
+.rnew span{
+  font-family:'Archivo',system-ui,sans-serif; font-size:10.5px; font-weight:700;
+  letter-spacing:.07em; text-transform:uppercase; color:#8FD1B0; white-space:nowrap;
+}
