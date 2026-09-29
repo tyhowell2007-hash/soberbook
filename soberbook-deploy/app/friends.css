@@ -689,3 +689,154 @@
   display:block; width:100%; max-width:320px; max-height:360px;
   border-radius:12px; background:#000; margin:0 0 6px;
 }
+
+/* =====================================================================
+   🫂 REACTIONS IN THE ROOMS — 29 Sept 2026.
+
+   Replaces the single ♥/♡. The reasoning for the BEHAVIOUR lives in
+   friends/Reactions.jsx; this file only has to make it readable.
+
+   ⚠️ SIX NEW CLASS NAMES, ALL CHECKED AGAINST EVERY STYLESHEET FIRST —
+   .rxrow .rxp .rxn .rxadd .rxbar .rxpick appear nowhere else. That check
+   is not ceremony: wall.css loads on EVERY page, so a name shared with it
+   wins on the wall the moment a member has visited Community once. That
+   is the .rwho bug, and it was invisible until somebody navigated in a
+   particular order.
+
+   ⚠️ HARD-CODED HEX, like the rest of this block. Every var in
+   theme-green.css is tuned for dark-on-light and would silently produce
+   grey text on a dark green panel.
+
+   ⚠️ MEASURED, NOT PICKED. Against their real backgrounds:
+     the count on a plain pill ......... 6.96
+     the count on YOUR pill ............ 4.74
+     the ＋ button on the panel ........ 7.62
+     ink on a plain pill ............... 8.29
+   Floor is 4.5.
+
+   🔴 ONE FAILED AND WAS CHANGED BEFORE IT SHIPPED. The count started as
+   #B9EBD4 on both pill states — 6.96 on a plain pill, but only 3.98 on
+   your own highlighted one. It looked completely fine. The fix is the
+   count going to #EAF6EF on the `on` state only (4.74); darkening the
+   pill instead would have passed too, but it collapsed the separation
+   between "yours" and "theirs" from 1.75 to 1.25, which is the whole
+   point of the highlight. Same trap as --gm: a mid-green reads as dark
+   enough long after it has stopped being readable.
+   ===================================================================== */
+.rxrow{
+  display:flex; flex-wrap:wrap; align-items:center; gap:5px;
+  margin:5px 0 0; position:relative;
+}
+.rmsg.mine .rxrow{ justify-content:flex-end; }
+
+.rxp{
+  display:inline-flex; align-items:center; gap:4px;
+  background:#24503A; border:1px solid transparent; border-radius:99px;
+  padding:3px 9px 3px 7px; font-size:13px; line-height:1.3;
+  color:#EAF6EF; cursor:pointer;
+  font-family:'Archivo',system-ui,sans-serif;
+}
+.rxp:hover{ background:#2A5C43; }
+.rxn{ font-size:11.5px; font-weight:700; color:#B9EBD4; }
+
+/* yours — lighter fill AND a ring, because colour alone is not a signal
+   somebody with low colour vision can read. */
+.rxp.on{ background:#37785A; border-color:#4FA97A; }
+.rxp.on .rxn{ color:#EAF6EF; }
+
+/* your own message: the counts, no buttons. Cursor stays default — there
+   is nothing to press, and a pointer that does nothing is a small lie. */
+.rxp.on-mine{ cursor:default; background:#24503A; }
+.rxp.on-mine:hover{ background:#24503A; }
+
+/* ⚠️ 32px and not 44px, and that is deliberate: this sits inside a dense
+   conversation, and a 44px circle under every message pushes the talk off
+   the screen. The reaction BAR it opens is 40px per target, which is
+   where the accuracy actually matters. */
+.rxadd{
+  width:32px; height:32px; padding:0; flex:none;
+  border:1px solid #2A4A38; background:none; border-radius:50%;
+  color:#7FBFA0; font-size:14px; line-height:1; cursor:pointer;
+}
+.rxadd:hover, .rxadd.open{ background:#1C382A; color:#EAF6EF; }
+
+/* the picker bar. Sits ABOVE the row and never covers the message it
+   belongs to — same rule the emoji panel follows for the composer. */
+.rxbar{
+  position:absolute; bottom:calc(100% + 6px); left:0; z-index:20;
+  display:flex; gap:2px; padding:5px 7px;
+  background:#173024; border:1px solid #2C5B43; border-radius:99px;
+  box-shadow:0 8px 20px rgba(0,0,0,.36);
+}
+.rmsg.mine .rxbar{ left:auto; right:0; }
+.rxpick{
+  width:40px; height:40px; padding:0; border:0; background:none;
+  border-radius:99px; font-size:21px; line-height:1; cursor:pointer;
+}
+.rxpick:hover{ background:#24503A; }
+.rxpick.on{ background:#37785A; }
+.rxpick:focus-visible, .rxp:focus-visible, .rxadd:focus-visible{
+  outline:2px solid #4FA97A; outline-offset:1px;
+}
+
+/* =====================================================================
+   👤 FACES, TIMES, GROUPING, AND THE LINE FOR WHAT YOU MISSED.
+   29 Sept 2026.
+
+   🔴 THIS BLOCK NEARLY SHIPPED THE .rwho BUG FOR THE SIXTH TIME. The
+   timestamp was written as `.rwhen` — and wall.css line 263 already
+   defines .rwhen, sitting directly beside .rwho itself. wall.css is
+   loaded by the ROOT layout, so it is on every page; friends.css loads
+   after it, so MY rule would have won on the wall too, repainting the
+   timestamp on every reply for anybody who had visited Community once.
+   Invisible on a fresh load, and only after a particular navigation.
+   It is `.rtime` here, and .rtime appears in no other stylesheet.
+   The other six names were checked the same way.
+
+   ⚠️ MEASURED, against their real backgrounds:
+     the time on the panel .......... 7.62
+     the divider label .............. 9.20
+     an initial on its circle ....... 11.53
+     the name (unchanged) ........... 10.89
+   Floor is 4.5. The banned #2E8B5F still measures 3.84 here.
+   ===================================================================== */
+
+/* the row becomes: face | everything else */
+.rmsg{ display:grid; grid-template-columns:30px 1fr; column-gap:9px; }
+.rmsg > .rline, .rmsg > .roomwho{ grid-column:2; }
+.rmsg.mine{ grid-template-columns:1fr; }
+.rmsg.mine > .rline, .rmsg.mine > .roomwho{ grid-column:1; }
+
+.rface{ grid-column:1; grid-row:1 / span 2; width:30px; height:30px; }
+.rfaceimg{ width:30px; height:30px; border-radius:50%; object-fit:cover; display:block;
+           background:#1A3227; }
+.rfaceemo, .rfaceltr{
+  width:30px; height:30px; border-radius:50%; display:flex;
+  align-items:center; justify-content:center; line-height:1;
+}
+.rfaceemo{ background:#1A3227; font-size:16px; }
+/* ⚠️ Dark ink on a light circle, not the reverse — 11.53. And the letter
+   comes off display_name, which in an anonymous room IS the alias. */
+.rfaceltr{ background:#9FE1CB; color:#0C1F16; font-size:13px; font-weight:700;
+           font-family:'Archivo',system-ui,sans-serif; }
+
+/* ⚠️ A grouped message keeps the 30px column so its bubble stays in line
+   with the one above it — the face is simply absent, not collapsed. */
+.rmsg.grouped{ margin-top:-4px; }
+
+.roomwho{ display:flex; align-items:baseline; gap:8px; }
+.roomwho.mine{ justify-content:flex-end; }
+.rtime{
+  font-family:'Courier Prime',monospace; font-size:10.5px; letter-spacing:.06em;
+  color:#7FBFA0; font-weight:400; flex:none;
+}
+
+/* the divider. ⚠️ It is drawn only when a message crosses the boundary,
+   so there is never more than one, and it never appears at the very top
+   of a room you have not opened before. */
+.rnew{ display:flex; align-items:center; gap:10px; margin:6px 0 12px; }
+.rnew::before, .rnew::after{ content:''; flex:1; border-top:1px solid #2F5A44; }
+.rnew span{
+  font-family:'Archivo',system-ui,sans-serif; font-size:10.5px; font-weight:700;
+  letter-spacing:.07em; text-transform:uppercase; color:#8FD1B0; white-space:nowrap;
+}
