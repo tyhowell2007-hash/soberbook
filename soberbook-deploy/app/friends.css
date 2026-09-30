@@ -161,10 +161,81 @@
    every page. Anything in here that shares a class name with that file is
    competing with it, so the room uses names that appear nowhere else.
    ===================================================================== */
+/* =====================================================================
+   🖥️ THE ROOM IS THE PAGE NOW — 29 Sept 2026.
+
+   Ty: "Everything needs to be in that one window. You can even stretch it
+   down further if you want. We don't need all those contacts below it. We
+   can make this whole page just for streaming talk."
+
+   ⚠️ THE MEASUREMENT THAT SETTLED IT: the contact list under the room was
+   39,806px tall. The conversation had 351px. The page called People was
+   98% list and 2% talking.
+
+   ⭐ ONE COLUMN THE HEIGHT OF THE SCREEN: masthead, strip, room tabs, and
+   then the room takes the rest. Nothing on this page scrolls except the
+   conversation, and the composer never leaves the bottom of the screen.
+
+   ⚠️ dvh, WITH vh UNDERNEATH IT. On iOS Safari 100vh is taller than the
+   window whenever the address bar is showing, which would push the
+   composer below the fold — the exact bug this is meant to fix. Older
+   browsers that don't know dvh keep the vh line.
+
+   ⚠️ AND IT PAYS FOR THE FIXED NAV BAR ITSELF. .navpad is a 60px spacer in
+   the flow for a bar that is position:fixed; inside a 100dvh column that
+   spacer would push the whole thing 60px past the bottom. So the spacer is
+   removed here and the column reserves the room instead — plus the safe
+   area, or the composer sits under the home indicator on a notched phone. */
+.roomscreen{
+  display:flex; flex-direction:column;
+  height:100vh;
+  height:100dvh;
+  padding-bottom:calc(60px + env(safe-area-inset-bottom, 0px));
+}
+.roomscreen .mast, .roomscreen .bar, .roomscreen .rtabs{ flex:none; }
+.roomscreen .navpad{ display:none; }
+
+/* .pad's own 20/16/90 padding is for a page you scroll. This one doesn't. */
+.roomscreen .pad{
+  flex:1; min-height:0;
+  display:flex; flex-direction:column;
+  padding:12px 14px 8px;
+}
+
 .room{
   margin:0 0 20px;
   background:#12241C; border-radius:16px; padding:13px 12px 12px;
 }
+/* 🔴 A PHONE TURNED SIDEWAYS. Add it up on a landscape phone — masthead
+   54, strip 37, tabs 40, the room's own header about 110, composer 76,
+   nav bar 60 — and there is nothing left for the conversation. flex:1
+   with min-height:0 would hand the feed ZERO pixels and the page would
+   look empty rather than broken, which is worse.
+
+   ⚠️ So under 520px tall this hands the whole thing back: an ordinary
+   scrolling page with a capped feed, exactly as it was before tonight.
+   The nav spacer comes back with it, or the last row hides under the bar. */
+@media (max-height: 520px){
+  .roomscreen{ height:auto; padding-bottom:0; display:block; }
+  .roomscreen .navpad{ display:block; }
+  .roomscreen .pad{ display:block; padding:20px 16px 90px; }
+  .roomscreen .room{ display:block; margin:0 0 20px; }
+  .roomscreen .room > .roombox{ max-height:52vh; }
+}
+
+/* ⚠️ Only inside the full-height page. The room is still a card anywhere
+   else it is ever mounted, and this must not reach those. */
+.roomscreen .room{
+  flex:1; min-height:0; margin:0;
+  display:flex; flex-direction:column;
+}
+/* ⚠️ EVERY child pinned, then the feed alone told to grow — rather than
+   naming the header, the blurb, the tray, the error line and the composer
+   one by one. Room.jsx renders a different set depending on what has
+   happened (a photo tray, a nudge, an error), and a list of names would be
+   wrong the first time one of those appeared. */
+.roomscreen .room > *{ flex:none; }
+.roomscreen .room > .roombox{ flex:1; min-height:0; }
 
 .roomhead{ display:flex; align-items:center; gap:7px; margin:0 0 10px; }
 .roomemoji{ font-size:17px; line-height:1; }
@@ -181,8 +252,22 @@
 /* ⚠️ Its own scroll with a capped height so the member list underneath
    never gets pushed off the page. A room that grows forever would quietly
    undo the quiet-chips feature sitting below it. */
+/* 🔴 THE CAP IS GONE, 29 SEPT. It said "so the member list underneath
+   never gets pushed off the page" — and the member list underneath is
+   gone, so the reason went with it. Ty: "We can make this whole page just
+   for streaming talk." The feed now takes whatever the screen has left.
+
+   ⚠️ overflow-x:clip IS NOT DECORATION. `overflow-y:auto` with the other
+   axis left at `visible` makes the browser compute overflow-x as `auto`
+   too — so anything that stuck out sideways became a HORIZONTAL SCROLL,
+   and the feed silently scrolled itself right, slicing the left half off
+   every message. Measured on the live page at 406px wide: scrollWidth 508
+   against clientWidth 320. Say it out loud and it cannot happen again.
+   A conversation must never scroll sideways. */
 .roombox{
-  max-height:44vh; overflow-y:auto; -webkit-overflow-scrolling:touch;
+  flex:1; min-height:0;
+  overflow-y:auto; overflow-x:hidden; overflow-x:clip;
+  -webkit-overflow-scrolling:touch;
   padding:0 1px 2px; margin:0 0 10px;
 }
 
@@ -332,7 +417,17 @@
 /* The bubble and its ⋯ sit side by side. ⚠️ The menu is a SIBLING of the
    bubble, never a child — a <button> inside a <button> is invalid HTML
    and browsers recover from it in different ways. */
-.rline{ display:flex; align-items:flex-start; gap:4px; }
+/* ⚠️ wraps, so .rxrow can take a full line beneath the bubble. The
+   bubble and the ⋯ stay on line one; nothing else changes. */
+.rline{ display:flex; align-items:flex-start; gap:4px; flex-wrap:wrap; }
+/* 🔴 CAUGHT ON THE LIVE PAGE, NOT IN THE MOCK. The moment .rline could
+   wrap, an 88%-wide bubble plus the 44px ⋯ button came to more than one
+   line — so the ⋯ dropped onto a line of its own under every long
+   message, adding a whole empty row to each one and leaving the reactions
+   stranded nearer the NEXT person's message than their own.
+   ⚠️ The bubble is capped so the ⋯ always fits beside it. 88% still wins
+   on a wide screen; this only bites where it has to. */
+.rline > .rbub{ max-width:min(88%, calc(100% - 44px)); }
 .rmsg.mine .rline{ justify-content:flex-end; flex-direction:row-reverse; }
 .rtext{ display:block; }
 
@@ -723,9 +818,24 @@
    point of the highlight. Same trap as --gm: a mid-green reads as dark
    enough long after it has stopped being readable.
    ===================================================================== */
+/* 🔴 UNDER THE MESSAGE, NOT BESIDE IT — 29 Sept 2026, same night it
+   shipped. <Reactions> is a sibling of the bubble inside .rline, so it was
+   being handed whatever width the bubble left over: about 40px. Six
+   reactions in a 40px column means six stacked rows, drifting down the
+   screen away from the words they answer. Ty, on his phone: "The emojis go
+   too far right of center."
+
+   ⚠️ FIXED IN CSS, NOT BY MOVING THE COMPONENT. .rline wraps and the row
+   is given the whole line — so Room.jsx and Reactions.jsx are untouched by
+   this, and the ⋯ menu keeps its place beside the bubble. */
 .rxrow{
+  flex:0 0 100%; order:3;
   display:flex; flex-wrap:wrap; align-items:center; gap:5px;
-  margin:5px 0 0; position:relative;
+  margin:5px 0 0;
+  /* ⚠️ NOT position:relative any more, and that is the whole fix working:
+     while this was the containing block, the picker bar below could only
+     ever hang off this 40px sliver. It now hangs off .rmsg. */
+  position:static;
 }
 .rmsg.mine .rxrow{ justify-content:flex-end; }
 
@@ -762,15 +872,29 @@
 
 /* the picker bar. Sits ABOVE the row and never covers the message it
    belongs to — same rule the emoji panel follows for the composer. */
+/* 🔴 IT RAN OFF THE RIGHT-HAND SIDE OF THE PHONE. Measured on the live
+   page at 406px wide: the bar is 266px and it opened at x=270, so its
+   right edge landed at 536 — 130px past the screen. It was anchored to
+   .rxrow, and .rxrow was that 40px sliver beside the bubble, so the bar
+   started three-quarters of the way across and kept going.
+
+   ⚠️ ANCHORED TO .rmsg NOW — the whole message row, face column included —
+   which is the widest thing available and is already the width of the
+   feed. Plus max-width:100% and pickers that can shrink, because 6×40 is
+   266px and the narrowest phones still in use have about 264px to give.
+   A picker that shrinks to 38px is a smaller sin than one you cannot see. */
+.rmsg{ position:relative; }
 .rxbar{
-  position:absolute; bottom:calc(100% + 6px); left:0; z-index:20;
+  position:absolute; bottom:calc(100% + 6px); left:0; right:auto; z-index:20;
+  max-width:100%;
   display:flex; gap:2px; padding:5px 7px;
   background:#173024; border:1px solid #2C5B43; border-radius:99px;
   box-shadow:0 8px 20px rgba(0,0,0,.36);
 }
 .rmsg.mine .rxbar{ left:auto; right:0; }
 .rxpick{
-  width:40px; height:40px; padding:0; border:0; background:none;
+  width:40px; height:40px; flex:0 1 40px; min-width:32px;
+  padding:0; border:0; background:none;
   border-radius:99px; font-size:21px; line-height:1; cursor:pointer;
 }
 .rxpick:hover{ background:#24503A; }
