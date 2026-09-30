@@ -55,16 +55,19 @@ const TABS = [
     said: 'a meeting you said you’d be at is today' },
   /* Aug 19. The third tab to earn its way in, and the first one that is
      about people rather than content. A wave, because the page exists to
-     make you say hi to somebody who went quiet — not to browse a list.
+     make you say hi to somebody — and since 29 Sept that is all it is:
+     the rooms, filling the screen, with the member list moved out.
 
-     🔴 Its dot cannot be lit by a request you IGNORED. The `ignored_at is
-     null` line in 0044 does that. Without it, ignoring somebody would
-     leave a dot burning with nothing behind it — which would make the
-     ignore worse than useless. */
-  /* 20 Sept: "Community" told nobody what was behind it — People does.
-     Same page, same dot, one word. */
-  { href: '/friends',  icon: '👋', label: 'People', dot: 'friends',
-    said: 'someone asked to be your friend' },
+     🔴 NO DOT ANY MORE, AND THAT IS THE SAME RULE, NOT A CHANGE OF MIND.
+     It lit for "someone asked to be your friend", and the list where you
+     answered that lived on /friends. The list is gone, so the dot would
+     have sent somebody to a chat room to deal with a friend request —
+     a dot burning with nothing behind it, which is exactly what the
+     `ignored_at is null` line in 0044 exists to prevent. The request
+     still reaches you: it writes a notification, and a 'friend'
+     notification opens that person's profile, where Accept and Ignore
+     are. One door instead of two, and the one that still works. */
+  { href: '/friends',  icon: '👋', label: 'People' },
   /* Aug 21. The fourth to earn its way in, and the only tab with NO DOT
      BY DESIGN rather than by omission.
 
