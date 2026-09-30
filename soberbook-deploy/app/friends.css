@@ -193,7 +193,21 @@
   padding-bottom:calc(60px + env(safe-area-inset-bottom, 0px));
 }
 .roomscreen .mast, .roomscreen .bar, .roomscreen .rtabs{ flex:none; }
-.roomscreen .navpad{ display:none; }
+
+/* 🔴 A SIBLING, NOT A CHILD — and I got this wrong the first time and
+   watched it on the live page. .navpad is rendered by friends/layout.jsx,
+   OUTSIDE whatever page.jsx returns, so `.roomscreen .navpad` matched
+   nothing: the 60px spacer stayed in the flow and the document came to
+   857px against a 797px window. Sixty pixels of scroll under a page whose
+   whole claim is that nothing scrolls but the conversation.
+
+   ⚠️ AND IT IS SCOPED THROUGH .roomscreen ON PURPOSE. A bare
+   `.navpad{display:none}` here would be the .rwho bug for the seventh
+   time: friends.css loads after wall.css and survives a client-side
+   navigation, so it would eat the nav spacer on the WALL for anybody who
+   had visited this page once. Scoped to a class only this page renders,
+   it cannot reach another route. */
+.roomscreen ~ .navpad{ display:none; }
 
 /* .pad's own 20/16/90 padding is for a page you scroll. This one doesn't. */
 .roomscreen .pad{
@@ -217,7 +231,7 @@
    The nav spacer comes back with it, or the last row hides under the bar. */
 @media (max-height: 520px){
   .roomscreen{ height:auto; padding-bottom:0; display:block; }
-  .roomscreen .navpad{ display:block; }
+  .roomscreen ~ .navpad{ display:block; }
   .roomscreen .pad{ display:block; padding:20px 16px 90px; }
   .roomscreen .room{ display:block; margin:0 0 20px; }
   .roomscreen .room > .roombox{ max-height:52vh; }
