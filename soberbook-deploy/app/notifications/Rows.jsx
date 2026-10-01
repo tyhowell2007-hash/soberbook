@@ -243,6 +243,11 @@ export default function Rows({ initial, askPush: askPushInitial }) {
              at who is asking. An Accept button in this list would let you
              let somebody in without ever seeing them. */
           n.kind === 'friend' && n.who_handle ? `/u/${n.who_handle}` :
+          /* ⚠️ Static, and it needs no field from the query — which is the
+             first kind here that doesn't. The meeting's identity is not in
+             the notification on purpose (see the line below); the page
+             itself puts the one that is starting at the top. */
+          n.kind === 'meeting' ? '/meetings' :
           null;
 
         const icon = n.kind === 'message' ? '✉️'
@@ -252,6 +257,7 @@ export default function Rows({ initial, askPush: askPushInitial }) {
           : n.kind === 'support' ? '🤝'
           : n.kind === 'strength' ? '💪'
           : n.kind === 'friend' ? '👋'
+          : n.kind === 'meeting' ? '🕐'
           : '💬';
 
         /* ⚠️ A highlight used to fall through to "answered your post",
@@ -285,6 +291,19 @@ export default function Rows({ initial, askPush: askPushInitial }) {
             ? (n.detail === 'accepted'
                 ? `${n.who} accepted your friend request`
                 : `${n.who} sent you a friend request`)
+          /* 🔴 NO ACTOR, AND NO MEETING NAME.
+
+             No actor: a meeting reminder is the app keeping a promise you
+             made to yourself, so there is nobody to name. Without this
+             branch it would fall through to "Someone answered your post" —
+             `who` COALESCEs to 'Someone' — which is the highlight bug
+             exactly: a row describing something that did not happen.
+
+             No meeting name: this list is read on a phone that other
+             people can see, and "Step Up Not Out starts in 10 minutes" in
+             a notification list tells a reader what the owner of the phone
+             is in recovery from. The page it opens says which one. */
+          : n.kind === 'meeting' ? 'A meeting you marked starts in 10 minutes'
           : `${n.who} answered your post`;
 
         const body = (
