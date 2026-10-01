@@ -379,3 +379,46 @@
   text-decoration:none; background:transparent;
 }
 .mt-care:hover{ border-style:solid; border-color:var(--gm); }
+
+/* ---- THE PASSCODE, 1 Oct 2026 ---------------------------------------
+   It used to render as `PW 050181`, raw, below a divider, at the bottom of
+   the card. Unlabelled digits from a feed. Nothing told a member those were
+   the characters Zoom was about to demand, and on a phone there was no way
+   to copy them without a text selection.
+
+   ⚠️ It sits ABOVE the Join button now. Zoom asks for the passcode the
+   instant you arrive, and the old position was below the part of the card
+   you had already scrolled past.
+
+   ⚠️ Not monospace-small like .mt-id. These are characters a person is
+   retyping, under time pressure, possibly at 2am, possibly not sober-eyed.
+   15px, bold, letter-spaced, with the 0/O and 1/l distinction that Courier
+   Prime actually draws. */
+.mt-key{
+  margin-top:10px; padding-top:10px; border-top:1px solid var(--line);
+}
+.mt-card.now .mt-key{ border-top-color:var(--gm); }
+.mt-keyrow{ display:flex; align-items:center; gap:9px; }
+.mt-keyl{
+  font-size:11px; letter-spacing:.07em; text-transform:uppercase;
+  color:var(--soft); flex:none;
+}
+.mt-keyv{
+  font-family:'Courier Prime',ui-monospace,monospace;
+  font-weight:700; font-size:15px; letter-spacing:.06em;
+  color:var(--body); word-break:break-all;
+  /* Selectable on purpose — the Copy button is the fast path, not the
+     only one. */
+  user-select:all; -webkit-user-select:all;
+}
+.mt-copy{
+  margin-left:auto; flex:none;
+  background:var(--paper2); border:1px solid var(--line); border-radius:8px;
+  padding:7px 11px; font-family:inherit; font-size:11.5px;
+  color:var(--gm-t); cursor:pointer;
+  /* 44px of tappable height, same rule as .mt-cantget — the Aug 18 audit
+     found 20px targets on the controls people actually use. */
+  min-height:44px;
+}
+.mt-copy:hover{ border-color:var(--gm); }
+.mt-copy.on{ background:var(--gl); border-color:var(--gm); color:var(--gt); font-weight:600; }
