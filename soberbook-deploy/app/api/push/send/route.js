@@ -67,8 +67,14 @@ export async function POST(req) {
 
   /* Where tapping it should land. ⚠️ A PATH ONLY, and the service worker
      re-checks the shape before using it. */
+  /* ⚠️ A kind with no branch here lands on /wall. That is the fourteen-
+     times-repeated bug in this codebase under a different hat: the row
+     exists, the push fires, and it drops the member somewhere that has
+     nothing to do with why their phone buzzed. A new kind is not finished
+     until it appears on this line. */
   const to = n.kind === 'message' ? (n.thread_id ? `/chat/${n.thread_id}` : '/chat')
            : n.kind === 'friend'  ? '/friends'
+           : n.kind === 'meeting' ? '/meetings'
            : '/wall';
 
   const { data: subs } = await admin
