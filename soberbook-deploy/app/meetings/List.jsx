@@ -502,6 +502,11 @@ export default function List({ meetings, fetchedAt, source, going: initialGoing 
      If it showed up top AND below, you'd see the same meeting twice and
      have to work out which one is real. Lifting it out is what makes the
      top section a place rather than a duplicate. */
+  /* ⚠️ From liveNow, which has already removed closed meetings, ones
+     flagged as needing a Zoom account, and ones with no link. The big
+     number must only count doors that will actually open. */
+  const openCount = liveNow.length;
+
   const withPeople = visible.filter((m) => peopleFor(m).length > 0);
   const rest       = visible.filter((m) => peopleFor(m).length === 0);
 
@@ -520,8 +525,39 @@ export default function List({ meetings, fetchedAt, source, going: initialGoing 
     const faces = others.slice(0, 4);
     const { pass, rest: noteRest } = splitNote(m.note);
 
+    /* ⭐ THE RAIL — 1 Oct 2026. The register grammar from Fluorescent
+       Quiet: "numbered increments running along an edge like a scale on an
+       instrument". It carries the WHEN so the body can carry the WHAT.
+
+       ⚠️ Built from m.when.t, the label the clock already produced, rather
+       than re-deriving the time here. Two places computing the same minute
+       is how two parts of a screen start disagreeing — and this page has
+       already shipped one four-hour timezone bug. */
+    const railMins = String(m.when?.t || '').match(/In (\d+) min/);
+    const railHr   = String(m.when?.t || '').match(/(\d+):(\d\d)/);
+
+    /* ⚠️ Tally marks, NOT a count, and only when somebody is actually
+       going. The file's own rule two hundred lines up is "names, not a
+       count — Jacoby and Ivy is a reason to go; 2 going is a statistic
+       about strangers". The names stay in the body where they always were.
+       These marks are rhythm, not information, which is why they are
+       aria-hidden and capped: nobody should be reading them as a number. */
+    const tally = others.length ? '▌'.repeat(Math.min(others.length, 6)) : null;
+
     return (
-      <div className={inPanel ? 'mt-pcard' : 'mt-card' + (m.when.live ? ' now' : '')}>
+      <div className={inPanel ? 'mt-pcard' : 'mt-item' + (live ? ' live' : '')}>
+
+        {!inPanel && (
+          <div className="mt-rail" aria-hidden="true">
+            {live ? (<>NOW<b>·</b>{m.minutes ? `${m.minutes}m` : ''}</>)
+             : railMins ? (<>{railMins[1]}<b>min</b></>)
+             : railHr   ? (<>{railHr[1]}<b>:{railHr[2]}</b></>)
+             : (<b>·</b>)}
+            {tally && <span className="mt-tally">{tally}</span>}
+          </div>
+        )}
+
+        <div className={inPanel ? 'mt-pinner' : 'mt-ibody'}>
 
         {/* In the panel, WHO comes first — that's the reason you're reading
             this card. In the main list, WHEN comes first, because there the
@@ -535,7 +571,10 @@ export default function List({ meetings, fetchedAt, source, going: initialGoing 
           </div>
         )}
 
-        {!inPanel && <div className="mt-when">{m.when.t}</div>}
+        {/* ⚠️ Kept for the panel only. In the main list the rail carries
+            the time, and printing it twice makes the card look like it
+            is saying two different things. */}
+        {false && !inPanel && <div className="mt-when">{m.when.t}</div>}
         <div className="mt-name">{m.name}</div>
         {inPanel && <div className="mt-pwhen">{m.when.t}</div>}
 
@@ -700,6 +739,7 @@ export default function List({ meetings, fetchedAt, source, going: initialGoing 
             {m.phone  && <div className="mt-id">☎ {m.phone}</div>}
           </div>
         )}
+        </div>
       </div>
     );
   }
@@ -708,19 +748,48 @@ export default function List({ meetings, fetchedAt, source, going: initialGoing 
     <div className="pad">
 
       {/* One tap, before anything else on the page. */}
-      {rightNow ? (
-        <a className="mt-now" href={onPhone ? rightNow.link : webClientHref(rightNow.link)} target="_blank" rel="noopener noreferrer">
-          <span className="mt-nowh">Take me to a meeting now</span>
-          <span className="mt-nows">
-            {rightNow.name} · going on right now
-          </span>
-        </a>
+      {/* =================================================================
+          ⭐ THE HOUR — 1 Oct 2026.
+
+          🔴 THE FIRST DRAFT OF THIS COUNTED DOWN TO THE NEXT MEETING, AND
+          THE REAL DATA KILLED IT. The mock said "next door opens in 29
+          min". Then I read the live list: SIX meetings were running at
+          that moment, and that is the ordinary state of this page, not the
+          exception. A countdown to a door that is already open is nonsense,
+          and at 2am it is worse than nonsense — it tells somebody to wait
+          when they could walk in now.
+
+          So the numeral answers the question actually being asked: HOW MANY
+          ARE OPEN. The countdown is the FALLBACK, for the genuinely empty
+          hours — which is the moment this page exists for.
+
+          ⚠️ openCount comes from liveNow, not from `visible`. liveNow has
+          already dropped closed meetings, meetings somebody reported as
+          needing a Zoom account, and meetings with no link — so the number
+          counts doors this member can actually walk through. A count that
+          includes a door that will turn them away is a lie with a big
+          typeface on it. */}
+      {openCount > 0 ? (
+        <>
+          <div className="mt-hero">
+            <span className="mt-kick">Rooms open right now</span>
+            <span className="mt-num">{openCount}<span className="mt-unit">OPEN</span></span>
+            <div className="mt-heroname">
+              {rightNow ? rightNow.name : ''}{openCount > 1 ? ` · and ${openCount - 1} more` : ''}
+            </div>
+          </div>
+          {rightNow && (
+            <a className="mt-herogo" href={onPhone ? rightNow.link : webClientHref(rightNow.link)}
+               target="_blank" rel="noopener noreferrer">TAKE ME INTO ONE ↗</a>
+          )}
+        </>
       ) : (
-        /* ⚠️ Says WHY there's nothing, and still offers the list. An empty
-           promise here reads as "even this doesn't want me". */
-        <div className="mt-now mt-nownone">
-          <span className="mt-nowh">Nothing running this minute</span>
-          <span className="mt-nows">The next one is below — or the 24/7 rooms always have someone.</span>
+        /* ⚠️ Still says WHY there is nothing, and still offers the list. An
+           empty promise here reads as "even this doesn't want me". */
+        <div className="mt-hero mt-heronone">
+          <span className="mt-kick">Nothing running this minute</span>
+          <span className="mt-num mt-numq">—</span>
+          <div className="mt-heroname">The next one is below. The 24/7 rooms always have someone.</div>
         </div>
       )}
 
