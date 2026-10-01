@@ -168,9 +168,30 @@ self.addEventListener('push', (event) => {
     if (typeof d.to === 'string' && /^\/[A-Za-z0-9/_-]*$/.test(d.to)) to = d.to;
   } catch { /* keep the default */ }
 
+  /* ⚠️ THE WORDING COMES FROM THE PATH, AND ONLY FROM THE PATH.
+
+     Both locks above stay exactly as they were: the payload still carries
+     no handle, no words and no kind, and these strings are still constants
+     in this file. A path is not personal information — "/meetings" says
+     nothing about who you are or what you said.
+
+     This exists because the single line "Somebody answered you." became a
+     lie the moment a reminder could fire. Nobody answered anything; you
+     asked to be told about a meeting. That is the same mistake as the
+     highlight row that said "answered your post" — a notification
+     confidently describing something that did not happen.
+
+     ⚠️ A meeting reminder NEVER names the meeting. On a lock screen, in
+     front of a partner who doesn't know, "Step Up Not Out starts in 10
+     minutes" is this app outing somebody. The name waits until they have
+     opened the app. */
+  const body = to === '/meetings' ? 'A meeting you marked starts soon.'
+             : to.startsWith('/chat') ? 'Somebody sent you a message.'
+             : 'Somebody answered you.';
+
   event.waitUntil(
     self.registration.showNotification('Sober Book', {
-      body: 'Somebody answered you.',
+      body,
       icon: '/icon-192.png',
       badge: '/icon-192.png',
       /* ⚠️ One tag, so a second notification REPLACES the first rather
