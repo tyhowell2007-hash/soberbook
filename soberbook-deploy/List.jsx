@@ -341,8 +341,37 @@ export default function List({ meetings, fetchedAt, source, going: initialGoing 
       }
       out.sort((a, b) => a.ts - b.ts);
       out.sort((a, b) => a.ts - b.ts);
+      /* 🔴 RUNNING MEETINGS GO TO THE TOP, AND THIS IS NOT COSMETIC.
+
+         `ts` is the NEXT start. A meeting that began forty minutes ago and
+         runs for ninety is STILL RUNNING, but its next start is a week
+         away — so it sorted to the very bottom and fell off the end of the
+         60-row cap. The file already knew this; the comment on `allRows`
+         says the "right now" button must search all of them, not the page.
+
+         That was survivable while the page made no promise. It stopped
+         being survivable the moment the hero started announcing
+         "8 ROOMS OPEN RIGHT NOW" in 118px type: the number came from
+         allRows, the list came from the capped rows, and a member read a
+         promise of eight open doors above a list where every single row
+         said "opens in 6 min". The page contradicting itself at 2am is
+         worse than the page saying nothing.
+
+         ⚠️ The window test is duplicated here rather than calling
+         runningAt(), which is declared further down the component. Same
+         arithmetic, deliberately kept identical — if one ever changes the
+         other must too. */
+      const WK = 7 * 24 * 60 * 60 * 1000;
+      const isRunning = (r) => {
+        const dur = (r.minutes || 60) * 60000;
+        const win = (start) => start <= now && now < start + dur;
+        return win(r.ts) || win(r.ts - WK);
+      };
+      const running = out.filter(isRunning);
+      const later   = out.filter((r) => !isRunning(r));
+
       setAllRows(out);
-      setRows(out.slice(0, 60));
+      setRows([...running, ...later].slice(0, 60));
     };
     compute();
     /* Re-run every minute so "In 12 min" doesn't quietly become a lie while
