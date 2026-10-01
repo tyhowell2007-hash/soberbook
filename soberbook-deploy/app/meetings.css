@@ -422,3 +422,175 @@
 }
 .mt-copy:hover{ border-color:var(--gm); }
 .mt-copy.on{ background:var(--gl); border-color:var(--gm); color:var(--gt); font-weight:600; }
+
+/* =====================================================================
+   THE CLOCK AND THE REGISTER — 1 October 2026
+   Ty: "make it brighter, more colorful, and fun to be in."
+
+   ⚠️ THIS IS NOT A NEW PALETTE. It is Fluorescent Quiet, switched back on
+   for one page. theme-green.css reassigned --acid from #D6FF2E to a pale
+   wash, for a stated and correct reason: acid AS TEXT on bone measures
+   1.01:1 and is invisible. That rule is not broken here. Every signal
+   colour below is a FILL with dark ink on top, which is what the
+   philosophy always asked for — "the colours announce; the space beneath
+   them holds steady".
+
+   MEASURED, every pair that ships:
+     acid #D6FF2E + ink #141800 ............ 15.69:1
+     signal #FF6A13 + ink #2A1200 ...........  6.18:1
+     near-black #0A0A09 + acid ............. 17.17:1
+     near-black #0A0A09 + rail ink ..........  6.67:1
+     near-black + bone ..................... 17.37:1
+   All pass AA for normal text, not just large.
+
+   ⚠️ --mt-signal is declared HERE and nowhere else. It is the only
+   non-green, non-gold colour in the app and it belongs to this page. Gold
+   stays reserved for milestones; nothing here touches it.
+   ===================================================================== */
+.mt-hero, .mt-item, .mt-herogo{
+  --mt-acid:#D6FF2E;
+  --mt-acid-ink:#141800;
+  --mt-signal:#FF6A13;
+  --mt-signal-ink:#2A1200;
+  --mt-rail-ink:#8C9A84;
+  --mt-near:#0A0A09;
+}
+
+/* ---- THE HOUR -------------------------------------------------------
+   Type as architecture. One numeral large enough to stop being language.
+   ⚠️ The number is how many rooms are OPEN, never a countdown — see the
+   comment in List.jsx. The real list had six running when this was built,
+   and that is the ordinary state of this page. */
+.mt-hero{
+  background:var(--mt-near); color:var(--paper);
+  margin:10px 0 0; padding:16px 15px 0; overflow:hidden;
+}
+.mt-kick{
+  display:block;
+  font-family:'Courier Prime',ui-monospace,monospace;
+  font-size:10px; letter-spacing:.2em; text-transform:uppercase;
+  color:var(--mt-rail-ink);
+}
+.mt-num{
+  display:block; color:var(--mt-acid);
+  font-size:clamp(84px, 30vw, 118px); font-weight:900;
+  line-height:.78; letter-spacing:-.065em;
+  margin:10px 0 -4px;
+  /* ⚠️ Tabular figures. A 6 and an 8 must occupy the same width or the
+     number visibly jumps every time a meeting opens or closes. */
+  font-variant-numeric:tabular-nums;
+}
+.mt-numq{ color:var(--mt-rail-ink); }
+.mt-unit{
+  font-size:15px; font-weight:700; color:var(--paper);
+  margin-left:6px; letter-spacing:0; vertical-align:baseline;
+}
+.mt-heroname{
+  font-size:14.5px; font-weight:600; line-height:1.35;
+  padding:12px 0 15px; margin-top:15px;
+  border-top:1px solid #2A2A24;
+}
+.mt-heronone .mt-heroname{ font-weight:400; color:#CFCCC2; }
+.mt-herogo{
+  display:block; text-align:center; text-decoration:none;
+  background:var(--mt-acid); color:var(--mt-acid-ink);
+  padding:14px 12px; font-weight:800; font-size:14.5px;
+  letter-spacing:.01em;
+  /* 44px+ tappable, same rule as every other control on this page. */
+  min-height:48px;
+}
+.mt-herogo:hover{ background:#E4FF5E; }
+
+/* ---- THE REGISTER ---------------------------------------------------
+   The counting grammar: "numbered increments running along an edge like a
+   scale on an instrument". The rail carries WHEN so the body carries WHAT.
+   ⚠️ Replaces .mt-card in the main list only. The "where people are
+   going" panel still uses .mt-pcard and is deliberately untouched — it
+   answers a different question and the rail would be noise there. */
+.mt-item{
+  display:flex; align-items:stretch;
+  background:var(--paper2);
+  border:1px solid var(--line); border-top:0;
+  margin:0;
+}
+.mt-item:first-of-type{ border-top:1px solid var(--line); }
+.mt-rail{
+  flex:0 0 52px; background:var(--mt-near); color:var(--mt-rail-ink);
+  font-family:'Courier Prime',ui-monospace,monospace;
+  font-size:9.5px; letter-spacing:.04em; line-height:1.3;
+  padding:12px 2px; text-align:center;
+  display:flex; flex-direction:column; align-items:center; gap:2px;
+}
+.mt-rail b{ display:block; color:var(--mt-acid); font-size:14px; font-weight:700; letter-spacing:-.01em; }
+/* 🔴 The live row is the one gesture of impossible brightness. It only
+   detonates against stillness, so exactly one row can ever carry it at a
+   time in the eye's path — and that is the row you can walk into now. */
+.mt-item.live .mt-rail{ background:var(--mt-acid); color:var(--mt-acid-ink); }
+.mt-item.live .mt-rail b{ color:var(--mt-acid-ink); }
+.mt-ibody{ flex:1; min-width:0; padding:12px 13px; }
+/* ⚠️ min-width:0 is load-bearing. "Harlem Virtual Step Study Night Time"
+   is a real 35-character meeting name, and without it a flex child refuses
+   to shrink and pushes the rail off the screen. */
+.mt-ibody .mt-name{ overflow-wrap:anywhere; }
+.mt-tally{
+  font-family:'Courier Prime',ui-monospace,monospace;
+  font-size:9px; letter-spacing:.14em; opacity:.85; margin-top:2px;
+}
+
+/* ---- the access tags, in signal colour ------------------------------
+   ⚠️ The loudest colour on the page lands on the CLOSED meeting, and that
+   is on purpose. A closed meeting is for people who have the addiction
+   themselves; the member who most needs to notice it is the one who came
+   here for somebody else and would be asked to leave at the door. Orange
+   is a warning, not a decoration.
+   ⚠️ 'unknown' stays quiet and stays unknown. Never rounded up to open. */
+.mt-item .mt-tag.open{   background:var(--mt-acid);   color:var(--mt-acid-ink);   font-weight:700; border:0; }
+.mt-item .mt-tag.closed{ background:var(--mt-signal); color:var(--mt-signal-ink); font-weight:700; border:0; }
+.mt-item .mt-tag.unk{    background:var(--paper2);    color:var(--soft); border:1px solid var(--line); }
+.mt-item .mt-tag{
+  font-family:'Courier Prime',ui-monospace,monospace;
+  font-size:9.5px; letter-spacing:.07em; text-transform:uppercase;
+  border-radius:0;
+}
+
+/* ---- ⭐ OUR OWN ROOMS GET THE BRIGHT TREATMENT TOO -------------------
+   Ty, mid-build: "we also need to save space in there for virtual meetings
+   for each other to go into and meet each other."
+
+   He is right, and the old layout was quietly burying them: page.jsx puts
+   <Rooms/> above the NA list precisely because ours are one tap and cannot
+   turn anybody away — and then the new hero arrived underneath it and took
+   all the light.
+
+   ⚠️ So this block is NOT styled down to match the list. It is given the
+   same near-black-and-acid language as the hero, so the first thing on the
+   page reads as "this is OUR room" and the numeral below reads as
+   "and here is everywhere else". The order in page.jsx does not change. */
+.rmwrap{ margin:0 0 4px; }
+.rmsec{
+  background:var(--mt-near, #0A0A09); color:var(--mt-acid, #D6FF2E);
+  font-family:'Courier Prime',ui-monospace,monospace;
+  font-size:10px; letter-spacing:.2em; text-transform:uppercase;
+  padding:9px 13px; margin:10px 0 0; font-weight:700;
+}
+.rmempty{
+  background:var(--paper2); border:1px solid var(--line); border-top:0;
+  padding:13px; font-size:13px; color:var(--soft);
+}
+.rmstart{
+  background:var(--paper2); border:1px solid var(--line); border-top:0;
+  padding:13px;
+}
+/* The "Start a room" button is the one invitation on this page, so it gets
+   the acid rather than the green. ⚠️ Fill + dark ink, never acid as text. */
+.rmstart .btn{
+  background:#D6FF2E; color:#141800; font-weight:800; border:0;
+  min-height:48px; letter-spacing:.01em;
+}
+.rmstart .btn:hover{ background:#E4FF5E; color:#141800; }
+.rmstart .btn:disabled{ background:var(--line); color:var(--soft); }
+
+@media (max-width: 340px){
+  .mt-rail{ flex-basis:44px; font-size:9px; }
+  .mt-num{ font-size:76px; }
+}
