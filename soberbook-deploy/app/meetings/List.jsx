@@ -114,6 +114,74 @@ function whenLabel(ts, nowMs) {
   return { t: `${d.toLocaleDateString([], { weekday: 'long' })} ${time}`, live: false };
 }
 
+/* One tap instead of a long-press and a drag. Falls back to selecting the
+   text if the clipboard API is unavailable or refused — some in-app
+   browsers (Facebook's, Instagram's) block it, and a member who arrived
+   from a shared link is exactly who would hit that.
+   ⚠️ Says "Copied" for two seconds and then goes back. A button that
+   permanently changes label leaves you unsure whether a second tap worked. */
+function CopyBtn({ value }) {
+  const [done, setDone] = useState(false);
+  return (
+    <button
+      type="button"
+      className={'mt-copy' + (done ? ' on' : '')}
+      aria-label={'Copy passcode ' + value}
+      onClick={async (e) => {
+        try {
+          await navigator.clipboard.writeText(value);
+        } catch {
+          /* No clipboard. Select the digits so one long-press copies them. */
+          try {
+            const node = e.currentTarget.parentNode.querySelector('.mt-keyv');
+            const r = document.createRange(); r.selectNodeContents(node);
+            const sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(r);
+          } catch {}
+        }
+        setDone(true);
+        setTimeout(() => setDone(false), 2000);
+      }}
+    >
+      {done ? 'Copied' : 'Copy'}
+    </button>
+  );
+}
+
+/* =====================================================================
+   THE PASSCODE, PULLED OUT OF THE FEED'S NOTE.
+
+   The feed hands us one free-text line per meeting. In practice it looks
+   like "PW 050181", or "Zoom ID: 309 956 7222, Password: None".
+
+   Until today that string rendered RAW at the bottom of the card, under a
+   divider, with no label — `PW 050181` and nothing else. A member had no
+   way to know those digits were the thing Zoom was about to ask them for,
+   and on a phone no way to copy them without a text selection.
+
+   ⚠️ "None" IS NOT A PASSCODE. Several meetings publish "Password: None",
+   which means there isn't one. Rendering a labelled Passcode block saying
+   "None" would be the app inventing a door that isn't there — so a value
+   of none/n/a/no is treated as absent and nothing is shown.
+
+   ⚠️ The REST of the note still renders below, exactly as before. The
+   meeting ID and dial-in digits live in there too and they have not
+   stopped mattering. We lift the passcode out; we do not swallow the line.
+   ===================================================================== */
+function splitNote(note) {
+  if (!note) return { pass: null, rest: null };
+  const m = note.match(/(?:pass\s?code|password|passwd|pwd|pw)\s*[:#]?\s*([A-Za-z0-9._-]{2,24})/i);
+  if (!m) return { pass: null, rest: note };
+  const val = m[1];
+  if (/^(none|n\/?a|no|null)$/i.test(val)) return { pass: null, rest: note };
+  /* Take the matched fragment out of the leftover line, then tidy the
+     punctuation it was sitting between so we don't leave ", ," behind. */
+  const rest = note.replace(m[0], '')
+    .replace(/\s*[,;·]\s*[,;·]\s*/g, ', ')
+    .replace(/^[\s,;·]+|[\s,;·]+$/g, '')
+    .trim();
+  return { pass: val, rest: rest || null };
+}
+
 /* Names, not a count. "Jacoby and Ivy" is a reason to go; "2 going" is a
    statistic about strangers. */
 function nameList(others) {
@@ -304,8 +372,26 @@ export default function List({ meetings, fetchedAt, source, going: initialGoing 
         (r) => !(r.meeting_id === m.id && r.occurs_on === m.onDate && r.is_mine)
       ));
     } else {
+      /* ⭐ starts_at — ADDED 1 Oct 2026, AND IT IS WHY REMINDERS CAN EXIST.
+
+         The database has never known when a meeting starts. It stores a
+         source, an id and a date; the actual clock time is computed HERE,
+         in the browser, out of the feed's weekday + hour + the meeting's
+         own timezone (see nextStart/zonedToUtc above). A cron job inside
+         Postgres cannot see any of that.
+
+         So the moment somebody marks a meeting, we write the instant we
+         already worked out. ⚠️ It is a real UTC timestamp, not a wall
+         clock — the member who tapped it may be in a different zone from
+         the meeting, and both must agree about the same moment.
+
+         ⚠️ Nullable on purpose. A row written by an older client, or for a
+         meeting with no timezone we trust, simply never gets a reminder.
+         It must not block the mark itself — being listed as going is the
+         older, more important half of this feature. */
       const { error } = await supabase.from('meeting_going').insert({
         member_id: user.id, source: source.id, meeting_id: m.id, occurs_on: m.onDate,
+        starts_at: Number.isFinite(m.ts) ? new Date(m.ts).toISOString() : null,
       });
       if (error) { setErr('Couldn’t update that. Try again.'); setBusy(null); return; }
       setGoing((g) => [...g, {
@@ -432,6 +518,7 @@ export default function List({ meetings, fetchedAt, source, going: initialGoing 
        can never disagree about what "open" means. */
     const live = runningAt(m);
     const faces = others.slice(0, 4);
+    const { pass, rest: noteRest } = splitNote(m.note);
 
     return (
       <div className={inPanel ? 'mt-pcard' : 'mt-card' + (m.when.live ? ' now' : '')}>
@@ -471,6 +558,24 @@ export default function List({ meetings, fetchedAt, source, going: initialGoing 
             <span className="mt-goingt">
               {mine ? `You and ${names} are going` : `${names} ${others.length === 1 ? 'is' : 'are'} going`}
             </span>
+          </div>
+        )}
+
+        {/* ⭐ ABOVE the buttons, not below them. You need the passcode in
+            the second AFTER you tap Join — Zoom asks immediately — and the
+            old position was under the part of the card you had already
+            scrolled past by then.
+
+            ⚠️ Absent when there is no passcode. No empty row, no
+            "Passcode: none". Same rule as the "where people are going"
+            panel: absence says nothing, presence says something. */}
+        {pass && (
+          <div className="mt-key">
+            <div className="mt-keyrow">
+              <span className="mt-keyl">Passcode</span>
+              <span className="mt-keyv">{pass}</span>
+              <CopyBtn value={pass} />
+            </div>
           </div>
         )}
 
@@ -586,10 +691,13 @@ export default function List({ meetings, fetchedAt, source, going: initialGoing 
             2am, a sign-up wall and a paywall feel identical — they close the
             phone. So the meeting ID and dial-in get real weight. The phone
             number matters most: it skips smartphones altogether. */}
-        {(m.note || m.phone) && (
+        {/* ⚠️ noteRest, not m.note — the passcode has been lifted out and
+            shown above. Everything else in the feed's line (the meeting ID,
+            the dial-in digits) still renders here untouched. */}
+        {(noteRest || m.phone) && (
           <div className="mt-how">
-            {m.note  && <div className="mt-id">{m.note}</div>}
-            {m.phone && <div className="mt-id">☎ {m.phone}</div>}
+            {noteRest && <div className="mt-id">{noteRest}</div>}
+            {m.phone  && <div className="mt-id">☎ {m.phone}</div>}
           </div>
         )}
       </div>
