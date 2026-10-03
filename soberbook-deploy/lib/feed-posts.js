@@ -68,14 +68,42 @@ function merge(...lists) {
    2. There are hundreds of them, so "the newest 40" no longer finds the
       ones on screen. Pass `itemIds` (the cards actually being shown) and
       exactly those posts are fetched; without it, the newest AD_FETCH. */
+/* 🔴 3 Oct 2026 — A MILESTONE CELEBRATION LEAVES THE WALL AFTER 24 HOURS.
+   Before this there was no limit of any kind. pickCelebrations takes the three
+   newest milestone posts regardless of age and there have only ever been four,
+   so three celebrations sat pinned to the top of every wall for a MONTH — one
+   of them reading "90 days today." six days after the day, and a "30 days
+   today!" seventeen days after it. The post was never wrong; its permanence was.
+
+   ⚠️ THE POST IS NOT DELETED AND NOT EDITED. It is excluded from the two wall
+   queries below, and from nothing else:
+     · /me still shows the member their own milestone (app/me/page.jsx reads
+       feed_posts filtered by is_mine and does not come through here).
+     · The permalink still opens, with every reply on it, because Thread.jsx
+       fetches the post by id and does not come through here either. The four
+       existing milestones carry 27 replies and 138 reactions between them and
+       none of that is lost — it just stops living on the wall.
+     · /friends' milestone list is built from profiles, not posts. Untouched.
+
+   ⚠️ BOTH QUERIES NEED THE BOUND, NOT ONE. `recent` would carry a stale
+   milestone back in while it is inside the newest-60 window; `milestones`
+   exists precisely to float one from OUTSIDE that window, so on its own it
+   would keep an old celebration pinned forever. Cut one and the bug survives
+   in the other. */
+export const CELEBRATION_WINDOW_MS = 24 * 60 * 60 * 1000;
+
 export async function fetchFeedPosts(supabase, table = 'feed_posts', itemIds = null) {
   const ids = Array.isArray(itemIds) ? itemIds.filter(Boolean).slice(0, 300) : null;
+  const freshFrom = new Date(Date.now() - CELEBRATION_WINDOW_MS).toISOString();
   const [recent, milestones, ads] = await Promise.all([
     supabase.from(table).select('*')
       .is('content_item_id', null)
+      /* not a milestone, OR a milestone from the last 24h */
+      .or(`milestone_days.is.null,created_at.gte.${freshFrom}`)
       .order('created_at', { ascending: false }).limit(FEED_WINDOW),
     supabase.from(table).select('*')
       .not('milestone_days', 'is', null)
+      .gte('created_at', freshFrom)
       .order('created_at', { ascending: false }).limit(MAX_CELEBRATIONS),
     ids && ids.length
       ? supabase.from(table).select('*').in('content_item_id', ids)
