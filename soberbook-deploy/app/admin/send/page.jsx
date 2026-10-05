@@ -63,6 +63,21 @@ const LIVE = [
       three and a half minutes, because <b>our own page said fourteen</b> for days
       over a 3:29 film.</>,
   },
+  /* ⭐ 5 Oct, Ty's call. Thanks first — his brief was warm, thanking
+     people for joining and believing in it, and breaking the stigma
+     together — then the thing we owed them: replies and messages were
+     recorded and almost never passed on.
+     ⚠️ It states NO count. 340 unread replies/mentions/messages across
+     283 members is 1.2 each, not the "29.6" the prototype claimed — that
+     figure counted 12,028 highlight rows from our own past broadcasts.
+     ⚠️ And it stays conditional ("if somebody answered you"), because
+     134 of the 409 recipients have never been answered by anyone. */
+  {
+    name: 'replies',
+    blurb: <>Thanks for joining, then the notifications gap. Links to{' '}
+      <Link href="/notifications">soberbook.app/notifications</Link>. <b>No number in
+      it</b> &mdash; most people have one reply waiting, not a pile.</>,
+  },
 ];
 
 export default async function SendPage() {
@@ -112,13 +127,21 @@ export default async function SendPage() {
 
           ⚠️ It is replaced rather than deleted, because the promise it
           was protecting is real and still owed to 151 people. */}
+      {/* 🔴 UPDATED 5 Oct, BECAUSE A FOURTH IS NOW ON THIS PAGE. Leaving
+          the old wording up would make this screen say "this one breaks it
+          twice" above four buttons — the same dishonesty as the survey
+          heading describing the walkthrough, one level up. The promise it
+          protects is still real and still owed, so it is rewritten rather
+          than removed. */}
       <p className="hint" style={{ marginTop: 32 }}>
         The 1 Sept walkthrough email said it was <b>the only one like it</b>{' '}
-        anybody would get. The survey broke that once and said so. This one
-        breaks it twice &mdash; so it opens by naming that, gives a concrete
-        reason (we had the runtime wrong on our own page), and promises quiet
-        afterwards. <b>Every further broadcast spends credibility we are
-        running low on.</b> The next one needs a better reason than a good idea.
+        anybody would get. The survey broke that once and said so. The
+        walkthrough re-run broke it twice and said so. <b>This is the
+        fourth</b>, and it says so too. Its reason is not a feature: people
+        were being answered here and never told, and the thanks was overdue.
+        <b> Every further broadcast spends credibility we are running low
+        on.</b> The next one needs a better reason than a good idea &mdash;
+        and after four, better than this one had.
       </p>
     </div>
   );

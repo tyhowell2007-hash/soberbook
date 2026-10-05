@@ -1,6 +1,7 @@
 import { tourEmail,   TOUR_BROADCAST_KEY }   from './broadcast-tour';
 import { surveyEmail, SURVEY_BROADCAST_KEY } from './broadcast-survey';
 import { tour2Email,  TOUR2_BROADCAST_KEY }  from './broadcast-tour2';
+import { repliesEmail, REPLIES_BROADCAST_KEY } from './broadcast-replies';
 
 /* =====================================================================
    THE CAMPAIGN ALLOWLIST.
@@ -41,6 +42,16 @@ const CAMPAIGNS = {
     key:   TOUR2_BROADCAST_KEY,
     build: tour2Email,
     label: 'The walkthrough, again (the length was wrong)',
+  },
+  /* ⚠️ Appended, like every entry before it. 5 Oct. The comment on
+     'tour2' explains why a campaign is never an edit of an existing one:
+     changing a key would make broadcast_progress report the old campaign
+     as never sent, and the rows that stop those people getting a
+     duplicate would stop matching anything. */
+  replies: {
+    key:   REPLIES_BROADCAST_KEY,
+    build: repliesEmail,
+    label: 'Thank you, and the replies nobody was told about',
   },
 };
 
