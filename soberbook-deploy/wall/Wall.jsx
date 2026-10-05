@@ -5,21 +5,34 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { browserClient } from '../../lib/supabase-browser';
 import Thread from './Thread';
+import InlineReply from './InlineReply';
 import PostMenu from './PostMenu';
 import PhotoUpload from '../components/PhotoUpload';
+import { openPhoto } from '../components/photoBig';
+import StreamVideo from '../components/StreamVideo';
 import { Body, Player } from '../components/Linked';
 import EmojiPicker from '../friends/EmojiPicker';
 import { fetchPreviews, PREVIEW_COUNT } from '../../lib/previews';
 import { fetchDrops } from '../../lib/drops';
 import { fetchTags, attachTags } from '../../lib/tags';
-import { buildIndex, findMentions, activeQuery, suggest } from '../../lib/mentions';
+import { fetchBroadcasts } from '../../lib/highlights';
+import { buildIndex, findMentions, activeQuery, suggest, saysHighlight } from '../../lib/mentions';
 import { mixFeed } from '../../lib/mix';
 import ContentCard from '../components/ContentCard';
+/* 🔴 The wall's post list is fetched in ONE place now — see lib/feed-posts.js.
+   These three client re-fetches used to be plain limit(60) queries, which
+   silently threw away the celebrations and the ads on the first refresh. */
+import { fetchFeedPosts } from '../../lib/feed-posts';
 import DropCard from '../components/DropCard';
 import DropSheet from './DropSheet';
 import PushAsk from '../components/PushAsk';
+import InviteAsk from './InviteAsk';
 import TourCard from '../components/TourCard';
 import Pledge from '../components/Pledge';
+import Gratitude from '../components/Gratitude';
+import MilestoneCard from './MilestoneCard';
+import { markLabel } from '../../lib/milestones';
+import ArtistCheck from '../components/ArtistCheck';
 
 function ago(iso) {
   const mins = Math.floor((Date.now() - new Date(iso).getTime()) / 60000);
@@ -69,6 +82,13 @@ function loneliest(list) {
   const now = Date.now();
   const waiting = list.filter(
     (p) => !p.milestone_days
+        /* 🔴 AN ADVERT IS NEVER THE LONELY POST (0164). Without this line an
+           ad with no replies after two hours gets promoted by the one
+           mechanic this wall has — "nobody's answered this one yet" printed
+           over a poster. That sentence exists for a person who wrote
+           something hard and heard nothing back, and spending it on a
+           business is the single most grotesque thing this file could do. */
+        && !p.content_item_id
         && p.comment_count === 0
         && now - new Date(p.created_at).getTime() > TWO_HOURS
   );
@@ -86,6 +106,11 @@ function loneliest(list) {
    second one out loud, and only to other people. */
 function unanswered(p) {
   return !p.milestone_days
+    /* 🔴 And never an advert — same reason as loneliest() above (0164).
+       The two are separate questions and BOTH have to be guarded: one
+       chooses the promoted post, this one prints the sentence. Guarding
+       only one leaves the wall silently saying it about an ad. */
+    && !p.content_item_id
     && p.comment_count === 0
     && Date.now() - new Date(p.created_at).getTime() > TWO_HOURS;
 }
@@ -109,9 +134,14 @@ function unanswered(p) {
 function who(p) {
   if (!p.author_handle) return p.display_name;
   return (
-    <Link href={`/u/${p.author_handle}`} className="wholink">
-      {p.display_name}
-    </Link>
+    <>
+      <Link href={`/u/${p.author_handle}`} className="wholink">
+        {p.display_name}
+      </Link>
+      {/* Gold checkmark for verified artists. Keyed on author_handle,
+          which is NULL on anonymous posts — see ArtistCheck. */}
+      <ArtistCheck handle={p.author_handle} />
+    </>
   );
 }
 
@@ -120,6 +150,7 @@ function who(p) {
    you a greeting, never a blank page. */
 export default function Wall({ initial, me = { name: null, avatar: null, handle: null }, mark = null,
                                photoUrls = {}, previews = {}, tags: tags0 = {},
+                               broadcast: broadcast0 = [],
                                content = [], thumbBase = '',
                                drops = {}, dropUrls = {}, canHide = false }) {
   const router = useRouter();
@@ -141,7 +172,42 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
      the whole server page re-renders, so a tag added a second ago
      wouldn't appear until a full reload. */
   const [tags, setTags] = useState(tags0);
+  /* ⭐ WHICH POSTS ACTUALLY ANNOUNCED THEMSELVES (0139), in state for the
+     same reason tags are: a prop only changes when the whole server page
+     re-renders, so an announcement made a second ago would show no
+     confirmation until a full reload — which is the precise bug that made
+     Ty send the same announcement twice on 31 Aug.
+
+     ⚠️ An ARRAY in transit, a Set at the point of use. React cannot
+     serialise a Set from a server component to a client one. */
+  const [bcast, setBcast] = useState(broadcast0);
+  const didBroadcast = new Set(bcast);
   const [text, setText] = useState('');
+
+  /* ⭐ 26 Sept — SEEDED FROM THE READINGS PAGE, and from nowhere else.
+     "Say something about this" on /readings puts the passage reference
+     in sessionStorage and comes here; this picks it up once and the key
+     is gone immediately after.
+
+     ⚠️ ONE SHOT, AND IT IS NOT A DRAFT STORE. It is a handoff between
+     two pages. If the member never arrives, the key dies with the tab.
+
+     ⚠️ It only fires when the box is EMPTY. Somebody who is halfway
+     through writing something and taps back to the wall does not get
+     their sentence replaced by a Bible reference.
+
+     ⚠️ Nothing is posted. The composer is seeded and the member still
+     has to write and send it themselves. */
+  useEffect(() => {
+    let seed = null;
+    try {
+      seed = window.sessionStorage.getItem('sb_wall_seed');
+      if (seed) window.sessionStorage.removeItem('sb_wall_seed');
+    } catch (e) {
+      /* private mode or blocked storage: nothing to seed, carry on */
+    }
+    if (seed) setText((t) => (t ? t : seed));
+  }, []);
   const [anon, setAnon] = useState(false);
   /* 'open' | 'friends'. Resets to open after every post — a sticky
      audience is how somebody posts to four people believing they
@@ -301,7 +367,14 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
 
   /* ⭐ @highlight — one post, everybody hears it. Ty's call, 31 Aug, made
      after being shown the argument for gating it to the owner: every
-     member gets this, three a day each.
+     member gets this.
+
+     🔴 THIS COMMENT USED TO END "three a day each" AND THAT RULE IS GONE
+     (0138, 5 Sept — Ty asked for it removed entirely, the same call he
+     made about the tagging cap hours earlier). There is now NOTHING
+     limiting how often anybody can push a notification to every member.
+     Said here as well as in the migration because this is the file
+     somebody reads when they wonder why the room got shouted at.
 
      ⚠️ IT IS A RESERVED WORD, NOT A MEMBER. There is no profile with the
      handle "highlight", so findMentions correctly fails to match it and
@@ -314,7 +387,7 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
      ⚠️ \b after the word, so "@highlighted" and "@highlightreel" are not
      it. And no anonymous broadcast — the database refuses one too, but
      asking is worse than not asking. */
-  const wantsHighlight = !anon && /(^|\s)@highlight\b/i.test(text);
+  const wantsHighlight = !anon && saysHighlight(text);
 
   /* The Facebook menu — null most of the time, which is the point. */
   const q = anon ? null : activeQuery(text, caret);
@@ -587,6 +660,7 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
      Second pass finds nothing and stops. */
   useEffect(() => { signMissing(posts); /* eslint-disable-line */ }, [posts]);
 
+
   /* 🔴🔴 THIS USED TO MARK EVERY REPLY READ ON MOUNT, AND IT IS THE
      MECHANISM BEHIND THE QUIETEST DAY THIS APP HAS HAD.
 
@@ -615,11 +689,84 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
      the dot telling the truth for the first time. */
 
   const [busy, setBusy] = useState(false);
-  /* The notification card, shown once, right after a first post. Set by
-     post(); PushAsk clears it via onDone once the person has answered
-     either way. Kept in state rather than derived so it survives the
-     re-read of the feed that happens in the same breath. */
-  const [askPush, setAskPush] = useState(false);
+  /* 🔴 THE NOTIFICATION CARD. Was a boolean set only by post(); now holds
+     the two sentences to show, or null — 5 Oct, and the reason is a
+     number.
+
+     Measured: 422 members, 26 ever asked, 20 said yes. **A 77% yes rate,
+     offered to 6% of the room.** 286 members qualify today and have never
+     been asked once, because the only trigger on this page was a
+     successful post and 362 of 422 have never posted. The gate was never
+     the problem — push_ask_due() has qualified "somebody answered you"
+     since 0099. The ask was behind the one behaviour the silent majority
+     never performs.
+
+     So it is now set from two places, and they need different sentences:
+
+       post()        -> "That's up there now."    / the wall's question
+       on mount      -> "Somebody answered you."  / wording B
+
+     ⚠️ WHICH SENTENCE IS NOT THIS COMPONENT'S CALL. push_ask_reason()
+     (0167) says 'answered' or 'posted' and this picks accordingly. On
+     'posted' at mount there is NO honest line — "that's up there now"
+     about a post from last Tuesday is nonsense, and "somebody answered
+     you" when nobody did is a claim the app has no business making — so
+     it shows nothing and waits for their next post. Measured 5 Oct: 0 of
+     the 286 are in that branch. It is here for the first person who is.
+
+     ⚠️ Still null until something sets it, so a member who is not due
+     sees no card and nothing renders differently from today. */
+  const [askPush, setAskPush] = useState(null);   // null | { intro, question }
+
+  /* 🔴 ASK ON ARRIVAL — BUT ONLY WHEN SOMEBODY HAS ACTUALLY ANSWERED.
+     5 Oct. This is the whole change, and it is deliberately narrow.
+
+     ⚠️ Rows.jsx says, about 31 Aug: "It did NOT move to 'on arrival',
+     which was the obvious fix and the wrong one. On day one the honest
+     answer to 'notify me about what?' is nothing." That note is right and
+     this does not overrule it. push_ask_reason() returns 'answered' only
+     when a reply, mention or message is already sitting there waiting —
+     so the question has a true answer before it is asked. On 'posted',
+     and on anything else, nothing renders.
+
+     ⭐ The one thing the bell has that this doesn't: there, the reply is
+     on screen UNDER the card. Here the evidence is in the sentence
+     instead of in the pixels. That is a real difference and it is the
+     weakest part of this change — flagged to Ty rather than buried.
+
+     ⚠️ ASKS ON MOUNT, LIKE InviteAsk, NOT LIKE THE POST HANDLER. The
+     wall holds a flag for the post card because it witnesses the post.
+     "Somebody answered you" happened at some other time on somebody
+     else's phone; there is no event here to hang it off. Same reasoning,
+     same shape — copied from InviteAsk on purpose.
+
+     ⚠️ `=== 'answered'` on purpose, not a truthy check. A failed RPC
+     returns undefined, and a function that ever came back with a row or
+     an unexpected string would sail through a truthy test and put a card
+     in front of somebody who was never due it.
+
+     ⚠️ Fails silently. If this RPC errors the wall loses a card. It must
+     never lose the wall — the same stance as InviteAsk, the open-room
+     read, and signPhotoPaths degrading to no-photos rather than 500ing.
+
+     ⚠️ `[]`, so it runs once per mount and never again. It must not
+     become a dependency on `posts`, which is replaced on every like. */
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      try {
+        const { data: reason } = await supabase.rpc('push_ask_reason');
+        if (!alive || reason !== 'answered') return;
+        /* ⚠️ `(prev) => prev || …` for the same reason as in post():
+           whichever sentence got there first stays. */
+        setAskPush((prev) => prev || {
+          intro: 'Somebody answered you.',
+          question: 'Want to know when that happens?',
+        });
+      } catch { /* no card, and the wall is fine */ }
+    })();
+    return () => { alive = false; };
+  }, []);
   const [open, setOpen] = useState(null);     // the post whose thread is open
   const [menu, setMenu] = useState(null);     // the post whose ⋯ menu is open
   // post ids with a like request in the air. Without this, an impatient
@@ -632,8 +779,7 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
   // their post and moves it to whoever has been waiting next longest.
   // The layout is the promise.
   async function refresh() {
-    const { data } = await supabase
-      .from('feed_posts').select('*').order('created_at', { ascending: false }).limit(60);
+    const { posts: data } = await fetchFeedPosts(supabase, 'feed_posts', content.map((c) => c.id));
     if (data) {
       setPosts(data);
       setOpen((o) => (o ? data.find((p) => p.id === o.id) || o : o));
@@ -649,6 +795,7 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
          cost nothing. */
       setConvo(await fetchPreviews(supabase, data.map((p) => p.id)));
       setTags(await fetchTags(supabase, data.map((p) => p.id)));
+      setBcast(await fetchBroadcasts(supabase, data.map((p) => p.id)));
       const freshDrops = await fetchDrops(supabase, data.map((p) => p.id));
       setRecs(freshDrops);
       signMissing(Object.values(freshDrops).map((d) => ({
@@ -666,6 +813,43 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
      The trade is that for a moment the screen shows something that isn't
      true yet. That's fine for a heart. It would NOT be fine for anything
      with consequences — a post, a payment, a sign-out. */
+  /* ⭐ SUPPORT / STRENGTH. Migration 0149-0150.
+
+     ⚠️ GOES THROUGH THE RPC, NOT A TABLE WRITE — unlike like() above,
+     which inserts into `likes` directly. Members hold NO grant on
+     post_reactions on purpose, so who reacted is unreachable rather
+     than merely unlisted, and react_to_post() is the only door. It also
+     asks feed_posts whether the post is visible instead of restating
+     that rule here (0056).
+
+     🔴 THE PENDING KEY IS post+kind, not post. You can tap Support and
+     Strength on the same post, and keying on the post alone would make
+     the second tap a no-op that looks like the button is broken. */
+  async function react(p, kind) {
+    const key = `${p.id}:${kind}`;
+    if (pending.has(key)) return;
+    const isSup = kind === 'support';
+    const nowOn = !(isSup ? p.supported_by_me : p.strengthed_by_me);
+    const bump  = (x) => isSup
+      ? { ...x, supported_by_me: nowOn,  support_count:  (x.support_count  || 0) + (nowOn ? 1 : -1) }
+      : { ...x, strengthed_by_me: nowOn, strength_count: (x.strength_count || 0) + (nowOn ? 1 : -1) };
+    const undo  = (x) => isSup
+      ? { ...x, supported_by_me: !nowOn,  support_count:  (x.support_count  || 0) + (nowOn ? -1 : 1) }
+      : { ...x, strengthed_by_me: !nowOn, strength_count: (x.strength_count || 0) + (nowOn ? -1 : 1) };
+
+    setPending((s) => new Set(s).add(key));
+    setPosts((list) => list.map((x) => (x.id === p.id ? bump(x) : x)));
+    try {
+      const { error } = await supabase.rpc('react_to_post',
+        { p_post: p.id, p_kind: kind });
+      if (error) throw error;
+    } catch (e) {
+      setPosts((list) => list.map((x) => (x.id === p.id ? undo(x) : x)));
+    } finally {
+      setPending((s) => { const n = new Set(s); n.delete(key); return n; });
+    }
+  }
+
   async function like(p) {
     if (pending.has(p.id)) return;                 // already in flight
     const nowLiked = !p.liked_by_me;
@@ -740,8 +924,7 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
         });
         if (error) throw error;
 
-        const { data } = await supabase
-          .from('feed_posts').select('*').order('created_at', { ascending: false }).limit(60);
+        const { posts: data } = await fetchFeedPosts(supabase, 'feed_posts', content.map((c) => c.id));
         setPosts(data || []);
       }
 
@@ -795,7 +978,15 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
          that knows the shape the table expects. */
       const attached   = anon ? [] : media;
       const photoPaths = attached.filter((m) => !m.isVideo).map((m) => m.path);
-      const videoPath  = (attached.find((m) => m.isVideo) || {}).path || null;
+      const vid        = attached.find((m) => m.isVideo) || {};
+      const videoPath  = vid.path || null;
+      /* ☁️ 10 Sept — a video may now live on Cloudflare instead of in our
+         own bucket, and the two are mutually exclusive by construction:
+         PhotoUpload takes exactly one of the two roads per file and fills
+         in exactly one of these. 0144's CHECK refuses both at once, and
+         0144's CHECK also refuses either on an anonymous post — which is
+         why `attached` is already empty above when anon is true. */
+      const streamUid  = vid.streamUid || null;
       /* ⚠️ Anonymous forces the audience back to open, for the same
          belt-and-braces reason as the photo above — 0045 has a CHECK that
          refuses anonymous + friends-only outright, and this line is so a
@@ -836,7 +1027,11 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
                      empty array: the constraint treats an empty array as
                      invalid, and "no photos" is genuinely absence. */
                   photo_urls: photoPaths.length ? photoPaths : null,
-                  video_url: videoPath });
+                  video_url: videoPath,
+                  /* ⚠️ 0144 granted INSERT **and** SELECT on this column
+                     together. Granting only one is the 0113 → 0114 outage:
+                     the write path looks fine while the read path dies. */
+                  stream_uid: streamUid });
       if (error) throw error;
 
       /* 🔴 THE DROP IS INSERTED SECOND, AND THE ORDER MATTERS. If this
@@ -867,15 +1062,16 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
 
       /* ⭐ @highlight LAST, AND IT CANNOT LOSE THE POST EITHER.
          Same reasoning as the tags above: by the time this runs the post
-         is saved. If the three-a-day cap refuses, the post stays and the
-         person is told why — losing what somebody wrote because they used
-         one word too many times today would be indefensible.
+         is saved. If the database refuses — an anonymous post, or one
+         that isn't yours — the post stays and the person is told why.
+         Losing what somebody wrote because of the word they put at the
+         end of it would be indefensible.
 
          ⚠️ The refusal message comes from the DATABASE, not from a copy of
-         the rule here. highlight_post() raises with the number and the
-         window in it ("that's 3 in 24 hours"), so there is exactly one
-         place that knows what the limit is. A second copy in this file is
-         how it ends up saying 3 while the database enforces 5. */
+         the rule here, so there is exactly one place that knows what the
+         rules are. A second copy in this file is how the screen ends up
+         stating a limit the database stopped enforcing — which is what
+         0138 just made true of the three-a-day cap. */
       if (wantsHighlight) {
         const { data: reached, error: hErr } = await supabase
           .rpc('highlight_post', { p_post_id: postId });
@@ -886,14 +1082,17 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
         }
       }
       setText('');
+      /* ⚠️ The box is sized by inline style, so clearing the TEXT does not
+         clear the HEIGHT — without this, posting a six-line thought leaves
+         a six-line empty box sitting over the feed until reload. */
+      if (boxRef.current) boxRef.current.style.height = '';
       setRec(null);
       setRecDropped(false);
       setMedia([]);
       setPhotoDropped(false);
       setAudience('open');
       // re-read through the VIEW, never the base table
-      const { data } = await supabase
-        .from('feed_posts').select('*').order('created_at', { ascending: false }).limit(60);
+      const { posts: data } = await fetchFeedPosts(supabase, 'feed_posts', content.map((c) => c.id));
       setPosts(data || []);
       /* ⚠️ The record has to be re-read HERE, in the same breath as the
          posts. router.refresh() also refetches it, eventually — and
@@ -924,7 +1123,15 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
          appear; it must never be able to take down a successful post. */
       try {
         const { data: due } = await supabase.rpc('push_ask_due');
-        if (due === true) setAskPush(true);
+        /* ⚠️ `(prev) => prev || …`, not a bare set. The mount effect may
+           already have put the card up with wording B; replacing it
+           mid-sitting would swap the sentence under somebody's thumb
+           while they were reading it. First one to arrive wins, and
+           either sentence is true of a person who just posted. */
+        if (due === true) setAskPush((prev) => prev || {
+          intro: 'That’s up there now.',
+          question: 'Want us to tell you when somebody answers?',
+        });
       } catch { /* no card, and the post still went up */ }
     } catch (e2) {
       /* ⚠️ Was alert(). On a phone an alert covers the screen and tells you
@@ -1032,6 +1239,24 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
           done is just furniture between you and the room. */}
       <Pledge />
 
+      {/* ---- ONE GOOD THING ----
+          🔴 DIRECTLY UNDER THE PLEDGE, AND NEVER ABOVE IT. Ty: "we want to
+          keep the check-in pledge, but also add gratitude." The pledge is
+          the thing 55+ members already open this app to do; anything that
+          pushes it down the screen is taking from the one feature that is
+          working to pay for a new one.
+
+          ⭐ ONE COMPONENT, TWO MOUNTS — the same file renders on
+          /gratitude. Not a copy. A rule restated in two places drifts; a
+          component rendered in two places cannot, because there is only
+          one of it (0046 -> 0047 -> 0049).
+
+          ⚠️ It returns null until the server answers, so it cannot flash
+          the ask at somebody who already wrote this morning — and once
+          they have, it becomes a two-line record rather than more
+          furniture between them and the room. */}
+      <Gratitude />
+
       {/* ---- THE COMPOSER, MOVED TO THE TOP ----
           It used to sit under the wall. Two reasons it belongs here:
 
@@ -1066,13 +1291,70 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
 
       <form className="composer" onSubmit={post}>
         <div className="ctop">
-          <input ref={boxRef} value={text} maxLength={5000}
+          {/* 📝 12 Sept — THIS WAS AN <input> UNTIL A MEMBER REPORTED IT.
+              "When you post in the news feed, you can't see any of the
+              text." Exactly right, and the cause was structural, not
+              colour: a single-line <input> carrying maxLength 5000. Text
+              in an input does not wrap — it scrolls sideways out of view,
+              so on a phone about 27 characters were visible and the rest
+              was gone. No wrap, no scrollback, no way to read your own
+              post before sending it.
+              ⭐ SIXTEENTH "everything built except the way in": posting,
+              tagging, photos and video all worked. The box was never
+              sized for a post.
+              ⚠️ ENTER NOW MAKES A NEWLINE, and that falls out of the tag
+              rather than needing code — inside a <form>, Enter on an
+              <input> submits, on a <textarea> it does not. The @menu's
+              Enter-to-pick is UNAFFECTED because that branch returns
+              early while options are open. Ty's call, told to him first:
+              you cannot write a paragraph if Enter fires the post.
+              ⚠️ Its own class, never `.composer textarea` — PhotoUpload
+              renders a file input inside this same form, and the Aug 16
+              `.composer` collision is why every selector here is narrow. */}
+          <textarea ref={boxRef} value={text} maxLength={5000} rows={3} className="cbox"
                  aria-label="Write something for the wall"
                  /* ⚠️ The caret is read on EVERY interaction, not just on
                     change. Tapping into the middle of what you already
                     wrote moves the caret without changing a character —
                     and the @menu has to follow the caret, not the text. */
-                 onChange={(e) => { setText(e.target.value); setCaret(e.target.selectionStart); setPick(0); }}
+                 /* ⚠️ The box grows to fit what you wrote, then STOPS at
+                    150px (~6 lines) and scrolls inside itself. Uncapped,
+                    a long post would push the feed off the top of the
+                    screen — the composer is position:fixed at the bottom,
+                    so it grows UPWARD over the conversation.
+                    ⚠️ height must be reset to 'auto' BEFORE reading
+                    scrollHeight, or the box can only ever get taller:
+                    scrollHeight of an already-tall box includes the
+                    height we set last time, so deleting text would never
+                    shrink it back. */
+                 /* 🔴 12 Sept — THE CAP IS NOT WRITTEN HERE, AND THAT IS THE
+                    WHOLE POINT. This used to say Math.min(scrollHeight, 150)
+                    while the stylesheet ALSO said max-height. Two copies of
+                    one rule, and the moment the CSS was raised to 40vh the
+                    box still stopped at 150 — because the JS, which sets the
+                    height, had never heard about it. Measured live: the CSS
+                    rule read 375.6px and the box was 150px.
+                    ⭐ The 0046 → 0049 lesson, in CSS this time: write the
+                    rule ONCE. The JS now asks for exactly the height the
+                    content needs, and `max-height` in wall.css is the only
+                    thing that says no. */
+                 onChange={(e) => {
+                   setText(e.target.value); setCaret(e.target.selectionStart); setPick(0);
+                   e.target.style.height = 'auto';
+                   /* 🔴 THE BORDER HAS TO BE ADDED BACK, AND IT IS NOT A
+                      FUDGE FACTOR. `box-sizing: border-box` means `height`
+                      sets the OUTER box, while `scrollHeight` reports the
+                      CONTENT height — so height = scrollHeight leaves the
+                      border eating into the text, and the last line stays
+                      clipped. Measured live: scrollHeight 262, clientHeight
+                      256, hidden by exactly 6px = the 3px acid border top
+                      and bottom. Read from computed style, never hardcoded,
+                      so changing the border in CSS cannot silently re-break
+                      this. */
+                   const bs = getComputedStyle(e.target);
+                   const edge = parseFloat(bs.borderTopWidth) + parseFloat(bs.borderBottomWidth);
+                   e.target.style.height = (e.target.scrollHeight + edge) + 'px';
+                 }}
                  onKeyUp={(e) => setCaret(e.target.selectionStart)}
                  onClick={(e) => setCaret(e.target.selectionStart)}
                  onBlur={() => setTimeout(() => setCaret(-1), 150)}
@@ -1124,10 +1406,34 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
                             only one video per post, and letting somebody
                             choose a second means uploading a file we are
                             about to refuse. Cheaper to not offer it. */
-                         accept={canAddVideo ? 'image/*,video/mp4,video/quicktime' : 'image/*'}
-                         label={media.length ? `+${media.length}` : '📷'}
+                         /* ☁️ 10 Sept — WIDENED FROM `video/mp4,video/quicktime`
+                            TO `video/*`. That narrow pair was the file
+                            picker refusing to even SHOW somebody their own
+                            work: an .mkv, an .avi, an .mxf, a ProRes export
+                            named anything unusual — all greyed out, with no
+                            message, which reads as "my file is broken".
+                            Cloudflare takes anything ffmpeg understands, so
+                            the picker no longer has to have an opinion. */
+                         /* ☁️ The Wall is the ONE composer wired for Cloudflare
+                            tonight: it reads the 4th onDone argument and writes
+                            stream_uid. Every other composer leaves this off and
+                            keeps the old road until it is wired on purpose. */
+                         allowStream
+                         accept={canAddVideo ? 'image/*,video/*' : 'image/*'}
+                         /* 12 Sept - THE WORDS MOVED INSIDE THE BUTTON.
+                            Ty: "we just need one box for media that takes
+                            care of videos and pictures." It already WAS one
+                            picker, but the words lived in a separate span
+                            sitting beside the icon, so it read as two
+                            controls - and that span was one of the things
+                            crushing the text box on a phone.
+                            The sentence is KEPT, not dropped: video has worked
+                            since 18 Aug and the 5 Sept finding was that nobody
+                            knew, which is why the caption exists at all. One
+                            control, still saying what it takes. */
+                         label={media.length ? `+${media.length}` : '📷 Photo or video'}
                          onBusy={setUploading}
-                         onDone={(path, preview, isVideo) => {
+                         onDone={(path, preview, isVideo, streamUid) => {
                            setMedia((m) => {
                              /* ⚠️ Guard here as well as in the picker. The
                                 upload is async — two quick taps can both
@@ -1136,9 +1442,15 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
                                 raw constraint error. */
                              if (isVideo && m.some((x) => x.isVideo)) return m;
                              if (!isVideo && m.filter((x) => !x.isVideo).length >= MAX_PHOTOS) return m;
-                             return [...m, { path, preview, isVideo }];
+                             return [...m, { path, preview, isVideo, streamUid }];
                            });
-                           setFreshUrls((u) => ({ ...u, [path]: preview }));
+                           /* ⚠️ A Cloudflare video has NO path — it is not in
+                              our storage and there is nothing to sign. Writing
+                              `{ null: '' }` into freshUrls would put a literal
+                              "null" key in the map that urlFor() could later
+                              match against, which is the quiet kind of bug
+                              that shows up as somebody else's picture. */
+                           if (path) setFreshUrls((u) => ({ ...u, [path]: preview }));
                            setPostErr('');
                          }} />
           )}
@@ -1159,9 +1471,6 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
               the tray below shows exactly what you picked, and a hint
               that keeps telling you what you have already done is
               wallpaper. */}
-          {!anon && !rec && media.length === 0 && (
-            <span className="cmedia">photo or<br />video</span>
-          )}
           {/* 🙂 Ty, 5 Sept: emoji in every box. The rooms and chat have had
               this since August; the Wall — the box most people type in
               first — never did.
@@ -1187,8 +1496,24 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
             mean losing nine good pictures to remove one bad one — and the
             bad one is usually the reason you looked. */}
         {media.map((m, i) => (
-          <div className="cphoto" key={m.path}>
-            {m.isVideo ? (
+          /* ⚠️ IDENTITY IS `path OR streamUid`. A Cloudflare video has no
+             path, so keying on `m.path` alone would give every one of them
+             the key `null` — React would reuse the wrong tile, and the ×
+             below (which removes by the same value) would take off the
+             wrong attachment. */
+          <div className="cphoto" key={m.path || m.streamUid}>
+            {m.isVideo && !m.preview ? (
+              /* ☁️ No local preview, and that is not a gap — the browser
+                 may be physically unable to draw a frame of this file
+                 (ProRes, DNxHD, anything an editor exports). Saying so is
+                 better than an empty black box that looks like a failure.
+                 The real thing is on Cloudflare and will play for
+                 everybody once it has finished encoding. */
+              <div className="cvidcloud">
+                <span className="cvidtick" aria-hidden="true">☁️</span>
+                <span>Video ready to post</span>
+              </div>
+            ) : m.isVideo ? (
               /* ⚠️ `controls` and nothing else. No autoplay on the preview —
                  this is the thing you are about to say to people, and it
                  should not start talking at you in a quiet room while
@@ -1219,7 +1544,8 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
                     /* ⚠️ Remove by PATH, not by index. Indexes shift the
                        moment anything else is removed, so a second tap on
                        a stale render would take off the wrong picture. */
-                    onClick={() => setMedia((s) => s.filter((x) => x.path !== m.path))}>×</button>
+                    onClick={() => setMedia((s) => s.filter(
+                      (x) => (x.path || x.streamUid) !== (m.path || m.streamUid)))}>×</button>
           </div>
         ))}
 
@@ -1414,7 +1740,27 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
 
           Only ever rendered when push_ask_due() came back true, which is
           once, on a first post. */}
-      {askPush && <PushAsk onDone={() => setAskPush(false)} />}
+      {askPush && (
+        <PushAsk
+          intro={askPush.intro}
+          question={askPush.question}
+          onDone={() => setAskPush(null)}
+        />
+      )}
+
+      {/* ⭐ BRING ONE PERSON. Renders NOTHING unless invite_ask_due()
+          comes back true, so there is no state here to keep in step with
+          it — the walkthrough card's shape, not PushAsk's. PushAsk hangs
+          off an action the wall witnesses (you just posted); a reply
+          arrived at some other time on somebody else's phone, so there is
+          no event here to hang this off.
+
+          ⚠️ Sits below PushAsk deliberately. On the rare render where a
+          member is due both, the notification ask is the one that has to
+          land — it is what makes the NEXT reply reach them at all. */}
+      <InviteAsk hold={!!askPush} />
+
+
 
       {/* ⭐ THE WALKTHROUGH CARD. Above the wall, below the composer.
           It decides for itself whether to render — it asks the server
@@ -1457,6 +1803,12 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
                                 pinned={!!row.pinned} />;
           }
           const p = row.post;
+          /* 📌 AN AD ARRIVES AS A POST ROW CARRYING ITS ITEM (0164). The
+             mixer decides WHERE it sits — this only decides what is drawn
+             inside it. Everything else on the article below (header, ⋯,
+             reactions, replies) is the ordinary post chrome, untouched,
+             which is the entire reason an ad was made a post. */
+          const adItem = row.item || null;
           const w = weight(p, p.id === lonelyId);
           return (
             <article
@@ -1482,20 +1834,52 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
                     photo option. All three live in feed_posts, so there is
                     nothing for this markup to decide. It renders whatever
                     it was given, and what it was given is already safe. */}
-                {!p.is_anonymous && urlFor(p.display_avatar_photo) ? (
-                  <img className="pa pa-photo" src={urlFor(p.display_avatar_photo)}
-                       onError={() => reSign(p.display_avatar_photo)}
-                       alt="" aria-hidden="true" />
-                ) : (
-                  <span className="pa" aria-hidden="true">
-                    {p.is_anonymous ? '🤫' : (p.display_avatar || '🌱')}
-                  </span>
-                )}
+                {/* 🔴 THE FACE IS A DOOR NOW (8 Sept). Ty: *"you should be
+                    able to tap on the person's face or emoji and go
+                    directly to their page profile… the only way you can
+                    get to their profile now is if they post something at
+                    home in the feed."*
+
+                    ⚠️ THE GATE IS `p.author_handle`, THE SAME EXPRESSION
+                    who() ALREADY USES — not a new test of my own. An
+                    anonymous post has no handle, so its face stays inert
+                    for free, and if the anonymity rule ever moves, it
+                    moves in one place and both the name and the face
+                    follow it. A second condition that MEANT the same
+                    thing today is exactly how the two drift apart later.
+
+                    ⚠️ aria-hidden stays on the picture and the label goes
+                    on the link, or a screen reader announces a link with
+                    no name. */}
+                {(() => {
+                  const face = (!p.is_anonymous && urlFor(p.display_avatar_photo)) ? (
+                    <img className="pa pa-photo" src={urlFor(p.display_avatar_photo)}
+                         onError={() => reSign(p.display_avatar_photo)}
+                         alt="" aria-hidden="true" />
+                  ) : (
+                    <span className="pa" aria-hidden="true">
+                      {p.is_anonymous ? '🤫' : (p.display_avatar || '🌱')}
+                    </span>
+                  );
+                  if (!p.author_handle) return face;
+                  return (
+                    <Link href={`/u/${p.author_handle}`} className="palink"
+                          aria-label={`${p.display_name}’s page`}>
+                      {face}
+                    </Link>
+                  );
+                })()}
                 <span className="hw">
                   <span className="nm">
                     {who(p)}
+                    {/* ⚠️ markLabel, NEVER the raw integer. This used to read
+                        "🪙 1096 days" beside a card that now says "3 years" —
+                        two different names for one milestone, eight lines
+                        apart, on the one screen where that stings most. The
+                        label is written once in lib/milestones.js and both
+                        call it. */}
                     {p.milestone_days ? (
-                      <span className="mbadge">🪙 {p.milestone_days} days</span>
+                      <span className="mbadge">🪙 {markLabel(p.milestone_days)}</span>
                     ) : null}
                   </span>
                   <span className="mt">
@@ -1534,16 +1918,27 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
                 />
               )}
 
+              {/* 📌 THE AD ITSELF. Same move as the drop above: the card IS
+                  the post, so the body is suppressed rather than stacked on
+                  top of it. ⚠️ `pinned` is passed from the mixer, never read
+                  off item.pinned_at — several items are pinned and only one
+                  opens the feed; reading the column here would be a second
+                  implementation of that choice (0046 → 0049 → 0072). */}
+              {adItem && (
+                <ContentCard item={adItem} thumbBase={thumbBase}
+                             canHide={canHide} pinned={!!row.pinned} />
+              )}
+
               {/* A photo-only post has an empty body. Rendering the empty
                   paragraph anyway leaves a blank gap above the picture that
                   looks like text failed to load. */}
-              {p.body && !recs[p.id] ? <p className="bd"><Body text={p.body} tags={tags[p.id]} /></p> : null}
+              {p.body && !recs[p.id] && !adItem ? <p className="bd"><Body text={p.body} tags={tags[p.id]} hl={didBroadcast.has(p.id)} /></p> : null}
 
               {/* ⭐ Aug 23. A member posted his music and the link came out
                   as plain text you had to copy and leave for. It plays
                   here now. ⚠️ Nothing loads until somebody taps — see
                   components/Linked.jsx. */}
-              {p.body && !recs[p.id] ? <Player text={p.body} /> : null}
+              {p.body && !recs[p.id] && !adItem ? <Player text={p.body} /> : null}
 
               {/* ---- who's tagged (0067) ----
                   ⚠️ "with" rather than "tagged": the word tagged belongs
@@ -1593,11 +1988,36 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
                    carry one, and making them all become a grid to support
                    the rare ten would change every existing post on the wall
                    to solve a problem none of them have. */
+                /* ⭐ TAP IT AND SEE IT WHOLE (18 Sept). Ty: "just like
+                   Facebook... click on it and see the bigger picture at
+                   its fullity." The group travels with the tap, so the
+                   arrows in the viewer walk this post's other pictures
+                   rather than dead-ending on the one that was pressed.
+                   ⚠️ The PATH goes too, not just the url — a signed link
+                   is an hour old at most and 0078 hands out a cached one
+                   for fifty minutes of that, so a photo sitting on a wall
+                   somebody left open is often tapped after its link died.
+                   See components/photoBig.js. */
+                const big = shots.map((s) => ({ path: s, url: urlFor(s) }));
+
                 if (shots.length === 1) {
                   return (
                     <div className="pphoto">
+                      {/* ⚠️ onError STAYS DIRECTLY AFTER loading="lazy".
+                          check-lazy-images.py finds the repair path with
+                          `<img[^>]*loading="lazy"[^>]*>`, and the `>` inside
+                          an `=>` ends that match — so an arrow-function
+                          handler placed above onError hides it from the
+                          checker and the guard silently stops guarding. */}
                       <img src={urlFor(shots[0])} alt="" loading="lazy"
-                           onError={() => reSign(shots[0])} />
+                           onError={() => reSign(shots[0])}
+                           className="pzoom" role="button" tabIndex={0}
+                           onClick={() => openPhoto(big, 0)}
+                           onKeyDown={(e) => {
+                             if (e.key === 'Enter' || e.key === ' ') {
+                               e.preventDefault(); openPhoto(big, 0);
+                             }
+                           }} />
                     </div>
                   );
                 }
@@ -1610,8 +2030,16 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
                 return (
                   <div className="pgrid" data-n={Math.min(shots.length, 4)}>
                     {shots.map((s, i) => (
+                      /* onError directly after loading="lazy" — see above. */
                       <img key={s} src={urlFor(s)} loading="lazy"
                            onError={() => reSign(s)}
+                           className="pzoom" role="button" tabIndex={0}
+                           onClick={() => openPhoto(big, i)}
+                           onKeyDown={(e) => {
+                             if (e.key === 'Enter' || e.key === ' ') {
+                               e.preventDefault(); openPhoto(big, i);
+                             }
+                           }}
                            /* ⚠️ alt="" everywhere else, but with several
                               pictures a screen reader otherwise hears
                               nothing at all where sighted people see six
@@ -1657,23 +2085,76 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
                 </div>
               )}
 
-              {/* THE CHIP — the only gold in the app.
+              {/* ☁️ THE SAME RESTRAINT, A DIFFERENT HOUSE (0144/0145).
+
+                  A video that went to Cloudflare is played by their
+                  iframe — but only after a tap, for the reason above and
+                  one more: an iframe fires on RENDER, so mounting it here
+                  would tell a third party that this member's browser was
+                  on this page before a single frame played. That is the
+                  23 Aug rule about song embeds, and it matters more for a
+                  recovery app than it did for Spotify.
+
+                  ⚠️ The two are mutually exclusive on a row — 0144's CHECK
+                  sees to that — so this never renders alongside the one
+                  above. Both are listed anyway rather than an if/else,
+                  because an if/else would quietly hide the day that
+                  constraint is ever relaxed. */}
+              {p.stream_uid && <StreamVideo uid={p.stream_uid} />}
+
+              {/* 🏅 THE MILESTONE CELEBRATION — the only gold in the app.
 
                   It's the actual object: the thing people carry in a
                   pocket and turn over with a thumb. Nobody has ever
                   screenshotted a progress bar; people have photographed
                   that coin on a kitchen table for seventy years.
 
-                  ⚠️ This renders ONLY when milestone_days is set, and
-                  nothing sets it yet — sharing a milestone is a deliberate
-                  tap that hasn't been built. Which means: gold appears on
-                  this wall only because somebody chose to put it there.
-                  Never because the app noticed a date and announced it. */}
+                  ⚠️ IT RENDERS ONLY WHEN milestone_days IS SET, and the only
+                  thing that sets it is a deliberate tap — the app asks
+                  first and takes no for an answer (0015). So gold appears
+                  on this wall because somebody CHOSE to put it there, never
+                  because the app noticed a date and announced it.
+
+                  🔴 THE COMMENT THAT USED TO SIT HERE SAID "nothing sets it
+                  yet — sharing a milestone is a deliberate tap that hasn't
+                  been built." That was false: the ask ships above (see the
+                  milestone offer in this same file) and two posts already
+                  carry one. A note claiming a feature does not exist is the
+                  most expensive kind to get wrong, because it stops the next
+                  person looking — the same mistake as the "there is no
+                  /p/<post> route" line corrected on 1 Sept.
+
+                  ⚠️ POSITION IS THE DESIGN. It sits after the member's own
+                  words and media and BEFORE the reactions and the replies,
+                  so the order reads: they said it · here is the medal ·
+                  now answer them. Support and Strength are directly
+                  underneath, which is the ask — so this card deliberately
+                  carries no button and no second prompt of its own. */}
+              {/* 🎉 16 SEPT — THE CARD NOW CARRIES WHOSE DAY IT IS.
+
+                  It floats to the top of the wall the day somebody accepts
+                  their milestone (pickCelebrations in lib/mix.js), and at
+                  the top of a feed the post header is no longer doing the
+                  work of saying who: a reader arriving at a medal above
+                  everything else needs the name ON it.
+
+                  ⚠️ display_avatar, NEVER display_avatar_photo. A signed
+                  photo URL dies after an hour and this is the first thing
+                  on the page, so a stale one would be the first broken
+                  image anybody sees — the 5 Sept expiry bug, landing in
+                  the worst possible spot. The emoji cannot expire.
+
+                  ⚠️ A milestone post is never anonymous (0015 refuses it in
+                  answerMilestone), so display_name here is always a real
+                  handle or display name — there is no alias case to
+                  handle, and adding a branch for one would be a rule this
+                  file invents that the database already forbids. */}
               {p.milestone_days ? (
-                <div className="chipcard">
-                  <span className="coin" aria-hidden="true">🦅</span>
-                  <span className="chiplbl">{p.milestone_days}-day chip</span>
-                </div>
+                <MilestoneCard
+                  days={p.milestone_days}
+                  name={p.display_name}
+                  face={p.display_avatar}
+                />
               ) : null}
 
               {/* ---- THE CONVERSATION, ON THE WALL ----
@@ -1718,33 +2199,100 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
                 </div>
               )}
 
-              <div className="ft">
-                {/* aria-pressed is what tells a screen reader this is a
-                    toggle that's currently on, rather than just a button. */}
-                <button
-                  className={'heart' + (p.liked_by_me ? ' on' : '')}
-                  aria-pressed={!!p.liked_by_me}
-                  aria-label={p.liked_by_me ? 'Undo like' : 'Like this'}
-                  onClick={() => like(p)}
-                >
-                  {p.liked_by_me ? '♥' : '♡'} {p.like_count}
-                </button>
-                {/* The reply count is the tap target. Deliberately worded as
-                    an invitation when it's zero — that's the post that most
-                    needs someone, and it's the one already sized biggest. */}
-                {/* ⚠️ THE WORDING CHANGED WHEN THE REPLIES BECAME VISIBLE.
-                    It used to read "3 replies", which was the only clue
-                    a conversation existed at all. Now the conversation is
-                    sitting right above it, and a button that counts what
-                    you can already see is dead weight in the one spot
-                    where the invitation should be.
+              {/* ---------------- SUPPORT / STRENGTH ----------------
+                  ⭐ Ty, off a competitor's feed: "I like how they had their
+                  news feed with the boxes that says support and strength."
 
-                    So: nothing there → "say something". Something there →
-                    "join in". The number moved to the "N earlier replies"
-                    link, where it's still doing a job. */}
-                <button className="replies" onClick={() => setOpen(p)}>
-                  {p.comment_count === 0 ? 'say something' : 'join in'}
-                </button>
+                  ⭐ THE REASON IT IS THE RIGHT FEATURE, measured first: of
+                  123 posts, 50 had no reply and 15 had NOTHING AT ALL. A
+                  heart is the wrong instrument for a hard post — you
+                  cannot "like" somebody saying they sat outside a bar for
+                  an hour — so the posts that most needed answering were
+                  the ones getting silence, because the only options were
+                  an inappropriate heart or finding words.
+
+                  ⚠️ THE NAMES ARE TY'S, CHOSEN OVER MY RECOMMENDATION of
+                  "Been there" / "I'm here". Recorded in 0149 with the
+                  argument, so nobody re-opens it thinking it was missed.
+
+                  🔴 ITS OWN ROW, NOT SQUEEZED INTO .ft. The footer already
+                  carries the heart, the reply invitation and the ⋯; two
+                  more on a 375px phone is how you get a wrapped, unusable
+                  row. Ty said "boxes", and boxes need width.
+
+                  🔴 NEVER SHOW A ZERO — the same rule as the room hearts
+                  and the open-room card. "Support 0" under somebody's
+                  worst night is worse than no number at all.
+
+                  🔴 ON YOUR OWN POST THEY ARE NOT BUTTONS, THEY ARE THE
+                  COUNTS. react_to_post() refuses your own post anyway, but
+                  the author is exactly who needs to see that three people
+                  showed up — that is the entire point of the feature. */}
+              {p.is_mine ? (
+                (p.support_count > 0 || p.strength_count > 0) && (
+                  <div className="reactrow reactmine">
+                    {p.support_count > 0 && (
+                      <span>{p.support_count} sent support</span>)}
+                    {p.strength_count > 0 && (
+                      <span>{p.strength_count} sent strength</span>)}
+                  </div>
+                )
+              ) : (
+                <div className="reactrow">
+                  <button
+                    className={'react' + (p.supported_by_me ? ' on' : '')}
+                    aria-pressed={!!p.supported_by_me}
+                    onClick={() => react(p, 'support')}
+                  >
+                    ❤️ Support{p.support_count > 0 ? ` ${p.support_count}` : ''}
+                  </button>
+                  <button
+                    className={'react' + (p.strengthed_by_me ? ' on' : '')}
+                    aria-pressed={!!p.strengthed_by_me}
+                    onClick={() => react(p, 'strength')}
+                  >
+                    🤝 Strength{p.strength_count > 0 ? ` ${p.strength_count}` : ''}
+                  </button>
+                </div>
+              )}
+
+              {/* 💬 THE INVITATION IS A REAL FIELD NOW.
+
+                  "Join in" used to make somebody tap, wait for the sheet,
+                  and then find the place to type. The field below sends a
+                  text reply without leaving the wall, which is the Facebook
+                  shape Will asked for.
+
+                  ⚠️ It still receives the shared tag list and calls the same
+                  sendComment() path as Thread. Anonymous state, mentions,
+                  generated ids and @highlight therefore keep the existing
+                  database rules. The + and conversation link open Thread for
+                  photos, emoji, reply hearts and moderation; this does not
+                  strand the capabilities that lived behind the old button. */}
+              <InlineReply
+                post={p}
+                people={friends}
+                face={me.avatar}
+                onSent={refresh}
+                onOpen={() => setOpen(p)}
+              />
+
+              <div className="ft">
+                {/* 🔴 THE OLD ♥ LIKE BUTTON WAS RETIRED HERE ON 7 SEPT, and
+                    its 207 hearts were COPIED into post_reactions as
+                    support (migration: the_heart_retires_into_support).
+
+                    Ty asked for a ❤️ on Support, which put a second heart
+                    two inches from this one meaning something different.
+                    Two hearts under one post is the app contradicting
+                    itself, so this one goes and Support owns the heart.
+
+                    ⚠️ NOTHING WAS DELETED. The `likes` table is intact and
+                    like() below still works — it is simply no longer
+                    reachable from here, which makes this reversible by
+                    putting the button back. 27 self-likes were NOT copied,
+                    because a reaction cannot be your own, and they are
+                    still in `likes` if they are ever wanted. */}
                 {/* is_mine, never author_id — an anonymous post still shows
                     the author their own controls without exposing them */}
                 {/* ⚠️ THE ⋯ NOW APPEARS ON YOUR OWN POSTS, and this is a bug

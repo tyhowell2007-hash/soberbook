@@ -1,0 +1,384 @@
+'use client';
+
+import { useState } from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { browserClient } from '../../lib/supabase-browser';
+import PushAsk from '../components/PushAsk';
+
+/* =====================================================================
+   THE BELL'S LIST, AND THE BROOM.  31 Aug.
+
+   Ty: "if they get too cluttered up, we need a way for them to disappear
+   as well, like a delete button."
+
+   ---------------------------------------------------------------------
+   ⚠️ WHY THIS IS A CLIENT COMPONENT AT ALL.
+
+   The page is a server component and stays one — it does the read, which
+   is where the anonymity handling lives. This owns nothing but the local
+   copy of the list, so a dismissed row can leave the screen the instant
+   it's tapped instead of after a round trip and a re-render.
+
+   ⚠️ DISMISSING IS OPTIMISTIC. BLOCKING IS NOT, AND THAT DIFFERENCE IS
+   DELIBERATE. A dismiss that silently failed puts a notification back on
+   the next refresh — mildly annoying, self-correcting, and visible. The
+   19 Aug rule about blocks (never optimistic, wait for the database)
+   exists because a block that only LOOKS like it worked leaves somebody
+   believing they're safe. Clearing a doormat is not that.
+
+   ⭐ AND NOTHING HERE DELETES WHAT THE NOTIFICATION WAS ABOUT. The reply
+   is still on the post, the message is still in the thread. This clears
+   the record that it arrived, not the thing that arrived.
+   ===================================================================== */
+
+/* ⚠️ WHOLE DAYS, NEVER CLOCK TIMES. Same rule as the friends list: "2:14
+   AM" published on a page somebody else can see over your shoulder tells
+   a story about your night that a day count doesn't. Also honest — we
+   don't know their timezone. */
+function whenWord(iso) {
+  const then = new Date(iso);
+  const days = Math.floor((Date.now() - then.getTime()) / 86400000);
+  if (days <= 0) return 'today';
+  if (days === 1) return 'yesterday';
+  if (days < 7) return `${days} days ago`;
+  if (days < 14) return 'last week';
+  return `${Math.floor(days / 7)} weeks ago`;
+}
+
+export default function Rows({ initial, askPush: askPushInitial }) {
+  const router = useRouter();
+  const [list, setList] = useState(initial || []);
+  const [askPush, setAskPush] = useState(!!askPushInitial);
+  const [busy, setBusy] = useState(false);
+
+  async function dismiss(id) {
+    /* Off the screen first. If the call fails the row comes back on the
+       next load, which is the correct failure: nothing was lost. */
+    setList((rows) => rows.filter((r) => r.id !== id));
+    try {
+      await browserClient().rpc('notification_dismiss', { p_id: id });
+    } catch { /* it'll be here next time */ }
+  }
+
+  /* ⭐ READ ONE, NOT ALL OF THEM — 3 Sept, and this function is the
+     whole of Ty's fix.
+
+     Ty: "if somebody has five notifications and they click one, and that
+     clears all of them, that's not good… That way people can keep tabs
+     on everything."
+
+     What used to happen: MarkSeen.jsx ran notifications_mark_read() on
+     mount for 'reply' and 'mention'. It was careful about the KIND and
+     had no concept of an ITEM, so simply LOOKING at this page marked
+     every one of them read. The `fresh` class two hundred lines below
+     has been rendering since the bell shipped and was dead about a
+     second after every page load.
+
+     ⚠️ Optimistic, like dismiss and unlike block. The failure is that a
+     row stays bold one refresh longer. Nothing is lost and nobody is
+     told they are safe when they are not.
+
+     🔴 MESSAGES ARE DELIBERATELY NOT MARKED HERE. A message row says
+     "Kenny K sent you a message" and never the message, so tapping it is
+     not reading it — app/chat/[id]/Convo.jsx clears that thread when the
+     words are actually on screen. That is 0027's rule and it survives
+     this change intact. Marking it in both places would be the same rule
+     written twice, and the second copy is the one that drifts. */
+  async function markRead(id) {
+    setList((rows) => rows.map((r) => (r.id === id ? { ...r, unread: false } : r)));
+    try {
+      await browserClient().rpc('notification_mark_read', { p_id: id });
+    } catch { /* still bold next load, which is the honest failure */ }
+  }
+
+  /* 🔴 THIS ONE IS NOT OPTIMISTIC, AND THE REASON SURVIVED A REWRITE.
+
+     My first version filtered the local list by `!unread` to match what
+     the function deletes, and that was wrong for a reason that has now
+     changed underneath it: MarkSeen used to run on this very page and
+     mark every reply and mention read IN THE DATABASE while the copy in
+     this component still said unread, so the filter kept rows the
+     database had just deleted.
+
+     ⚠️ MarkSeen is gone as of 3 Sept, so that particular trap is gone
+     with it — but the conclusion is unchanged and this stays as it is.
+     markRead() above updates one row locally the moment it's tapped, so
+     this component's idea of `unread` is still a copy that can drift
+     from the database by however long the round trip takes.
+
+     ⭐ The fix is to stop predicting. router.refresh() re-runs the server
+     read, so what appears afterwards is what actually survived. Same
+     lesson as 0046 → 0049: don't restate a rule in a second place, ask
+     the one thing that owns it. */
+  async function clearSeen() {
+    setBusy(true);
+    try {
+      await browserClient().rpc('notifications_clear_seen');
+      router.refresh();
+    } catch { /* leave the list alone; a reload will tell the truth */ }
+    setBusy(false);
+  }
+
+  /* 🔴 THIS HAD TO CHANGE WITH MarkSeen, AND IT WOULD HAVE SHIPPED
+     BROKEN — 3 Sept.
+
+     It used to count everything except an unread MESSAGE, and that was
+     right only because MarkSeen had already marked the replies read
+     behind our backs. Take MarkSeen away and rows arrive genuinely
+     unread — so the old sum would draw a Clear button over a list that
+     notifications_clear_seen() will not touch, because that function
+     deletes `read_at is not null` and nothing else.
+
+     ⚠️ The rule it was already breaking on paper is right here in the
+     old comment: a control that does nothing when tapped is worse than
+     an absent one. Now it counts what is actually read, which is
+     precisely what the button can remove. */
+  const clearable = list.filter((r) => !r.unread).length;
+
+  return (
+    <>
+      {/* ⭐ THE ASK MOVED HERE FROM THE WALL, 31 Aug, and the reason is a
+          number: 125 members, 3 who could receive a notification, and 124
+          who had never been asked. The old gate fired only after a first
+          post, and 107 of 125 have never posted — so the question was
+          locked behind the exact thing that isn't happening.
+
+          🔴 It did NOT move to "on arrival", which was the obvious fix
+          and the wrong one. On day one the honest answer to "notify me
+          about what?" is nothing. Here there is a real reply from a real
+          person sitting underneath the card. That's the whole difference,
+          and it's why push_ask_due() asks about replies rather than just
+          letting everybody through.
+
+          ⚠️ Still a SOFT ask — "Not now" never touches the browser
+          permission. See PushAsk. */}
+      {/* ⭐ WORDING B, 5 Oct. `question` passed explicitly for the first
+          time — and `intro` has been passed here since 31 Aug while
+          PushAsk quietly ignored it, so until 0167 this card actually read
+          "That's up there now." over a list of other people's replies.
+          Fixed in PushAsk.jsx; see the note on its signature. */}
+      {askPush && (
+        <PushAsk
+          intro="Somebody answered you."
+          question="Want to know when that happens?"
+          onDone={() => setAskPush(false)}
+        />
+      )}
+
+      {list.length === 0 && (
+        /* ⚠️ Says the room is quiet FOR YOU, not that the room is quiet.
+           At 125 members the wall is busy; an empty bell means nobody has
+           answered you yet, and those are very different sentences to
+           read on your first day. */
+        <p className="ntfempty">
+          Nothing yet. When somebody answers you or sends you a message,
+          it turns up here.
+        </p>
+      )}
+
+      {list.map((n) => {
+        /* ⭐ EVERY ROW IS A LINK — 31 Aug, the change Ty asked for:
+           tapping a notification takes you to the thing, the way Facebook
+           does it. /p/[id] was built for exactly this, because the 20 Aug
+           rule says a link that loads the right page and does the wrong
+           thing is worse than a broken one. The fix was to build the
+           destination, not to soften the link. */
+        /* 🔴 'highlight' AND 'drop' WERE MISSING FROM THIS LIST, AND THAT
+           WAS THE WHOLE BUG — 3 Sept.
+
+           A kind with no href renders as a plain <div> a few lines below,
+           with no onClick — so markRead() could never run on it. There is
+           no "mark this read" gesture anywhere else on the page. The row
+           was therefore unread FOREVER, and my_nav_dots counts 'highlight'
+           toward the Home dot.
+
+           Measured before the fix: 381 unread highlights across 127 of
+           190 members, from three @highlight broadcasts on 1 Sept — two
+           of which literally say "Just testing". Every one of those
+           people had a green dot on Home that NOTHING IN THE APP COULD
+           PUT OUT. Ty answered a message, watched the dot stay, and
+           reasonably concluded chat was broken. It wasn't; the dot was
+           never about a message.
+
+           ⭐ Twelfth "everything built except the way in" in this file.
+           The destination (/p/[id]) and the reader (notification_mark_read)
+           both already existed and were already correct. Only the link
+           between them was missing.
+
+           ⚠️ THE RULE, so the next kind added doesn't repeat this: a new
+           notification kind is not finished when the trigger writes the
+           row. It is finished when the row has somewhere to GO. If a kind
+           can't have a destination, it must not be in my_nav_dots — a dot
+           you cannot clear trains people to ignore the dot, which costs
+           far more than the notification was ever worth. */
+        /* 🔴 AND IT HAPPENED AGAIN, ONE KIND ALONG — 6 Sept.
+
+           0131 let members tag each other inside a talk room. A room
+           mention has NO post: notify_mention_in() writes post_id NULL
+           and talk_room_id = the room. So it fell past both branches
+           above, rendered as a plain <div>, and became exactly the dot
+           this comment was written about — unread forever, counted by
+           my_nav_dots.home, with nothing anywhere able to clear it.
+
+           Measured today: 2 unread room mentions, both belonging to one
+           member (theproducermicro), both from 5 Sept. Twenty-eight
+           hours of a green dot he could do nothing with.
+
+           ⭐ THE ADDRESS ALREADY EXISTED. /friends?room=<slug> was built
+           on 2 Sept so a creator could link straight into the 7-OH room,
+           and my_notifications has returned room_slug since 0132. The
+           only missing piece was this branch and the column in page.jsx's
+           select. FOURTEENTH "everything built except the way in".
+
+           ⚠️ So the rule in this file needs its second half stated: a
+           kind is not finished when the row has somewhere to go IN
+           PRINCIPLE. It is finished when the query actually FETCHES the
+           field that points there. A destination nobody selected is the
+           same as no destination at all. */
+        const href =
+          n.kind === 'message' && n.thread_id ? `/chat/${n.thread_id}` :
+          (n.kind === 'reply' || n.kind === 'mention' ||
+           n.kind === 'highlight' || n.kind === 'drop' ||
+           n.kind === 'support' || n.kind === 'strength') && n.post_id
+            ? `/p/${n.post_id}` :
+          n.kind === 'mention' && n.room_slug ? `/friends?room=${n.room_slug}` :
+          /* ⚠️ A friend row goes to the PERSON, and that is the whole
+             design of it: Accept and Ignore live on their profile, side
+             by side and the same size, so answering means having looked
+             at who is asking. An Accept button in this list would let you
+             let somebody in without ever seeing them. */
+          n.kind === 'friend' && n.who_handle ? `/u/${n.who_handle}` :
+          /* ⚠️ Static, and it needs no field from the query — which is the
+             first kind here that doesn't. The meeting's identity is not in
+             the notification on purpose (see the line below); the page
+             itself puts the one that is starting at the top. */
+          n.kind === 'meeting' ? '/meetings' :
+          null;
+
+        const icon = n.kind === 'message' ? '✉️'
+          : n.kind === 'mention' ? '@'
+          : n.kind === 'highlight' ? '📣'
+          : n.kind === 'drop' ? '🎵'
+          : n.kind === 'support' ? '🤝'
+          : n.kind === 'strength' ? '💪'
+          : n.kind === 'friend' ? '👋'
+          : n.kind === 'meeting' ? '🕐'
+          : '💬';
+
+        /* ⚠️ A highlight used to fall through to "answered your post",
+           which was simply untrue — nobody answered anything, it is an
+           announcement to everybody. A drop would have said it too, the
+           first time somebody's release fired. Same family as every other
+           claim this app has had to stop making on somebody's behalf: the
+           "verified, real people" pill, and the drop card that said
+           "Sober Book first" over an already-released song. */
+        const line = n.kind === 'message' ? `${n.who} sent you a message`
+          : n.kind === 'mention' ? `${n.who} mentioned you`
+          : n.kind === 'highlight' ? `${n.who} posted an announcement`
+          : n.kind === 'drop' ? `${n.who}’s record is out`
+          /* ⚠️ "sent you support", not "supported your post". The thing
+             that happened is between two people, not between a person and
+             a post — and at 2am the sentence that helps is the one with a
+             human in it. */
+          : n.kind === 'support' ? `${n.who} sent you support`
+          : n.kind === 'strength' ? `${n.who} sent you strength`
+          /* 🔴 TWO DIFFERENT EVENTS, ONE KIND. `detail` is the only thing
+             that tells them apart, and getting it wrong here would be the
+             highlight bug again — a row confidently describing something
+             that did not happen.
+
+             ⚠️ "sent you a friend request" is the honest sentence and it
+             was NOT true between 29 Aug and tonight: 0087 made Add friend
+             instant and one-sided, so for eleven days people were being
+             added without being asked and without being told. 0153 put
+             the ask back. */
+          : n.kind === 'friend'
+            ? (n.detail === 'accepted'
+                ? `${n.who} accepted your friend request`
+                : `${n.who} sent you a friend request`)
+          /* 🔴 NO ACTOR, AND NO MEETING NAME.
+
+             No actor: a meeting reminder is the app keeping a promise you
+             made to yourself, so there is nobody to name. Without this
+             branch it would fall through to "Someone answered your post" —
+             `who` COALESCEs to 'Someone' — which is the highlight bug
+             exactly: a row describing something that did not happen.
+
+             No meeting name: this list is read on a phone that other
+             people can see, and "Step Up Not Out starts in 10 minutes" in
+             a notification list tells a reader what the owner of the phone
+             is in recovery from. The page it opens says which one. */
+          : n.kind === 'meeting' ? 'A meeting you marked starts in 10 minutes'
+          : `${n.who} answered your post`;
+
+        const body = (
+          <>
+            <span className="ntfav" aria-hidden="true">{icon}</span>
+            <span className="ntfmid">
+              <span className="ntfline">{line}</span>
+              {/* ⚠️ The excerpt is of YOUR OWN post — the thing being
+                  answered — not of their reply. Showing their words here
+                  would leak the content of an anonymous reply into a list
+                  that names nobody. */}
+              {n.about && <span className="ntfabout">“{n.about}”</span>}
+              <span className="ntfwhen">{whenWord(n.created_at)}</span>
+            </span>
+          </>
+        );
+
+        return (
+          /* ⚠️ THE ✕ SITS OUTSIDE THE LINK, not inside it. An <a> wrapping
+             a <button> is invalid HTML and, worse, a tap near the edge of
+             the ✕ would navigate instead of dismissing — on the one
+             control whose whole job is to make something go away. */
+          <div key={n.id} className={'ntfitem' + (n.unread ? ' fresh' : '')}>
+            {href ? (
+              <Link href={href} className="ntfrow"
+                    onClick={() => { if (n.kind !== 'message') markRead(n.id); }}>
+                {body}
+              </Link>
+            ) : (
+              <div className="ntfrow">{body}</div>
+            )}
+            {/* 🔴 ALWAYS VISIBLE, NOT HIDDEN BEHIND AN EDIT MODE.
+                Facebook buries its per-item control under a ⋯. This file
+                has eleven separate entries where something was built and
+                the way in was buried — log out, delete-your-post, "Say
+                hi", the bell itself. A quiet grey ✕ costs a little
+                tidiness and cannot become the twelfth.
+                ⚠️ 44px, because it sits beside a link. */}
+            <button
+              type="button"
+              className="ntfx"
+              aria-label="Remove this notification"
+              onClick={() => dismiss(n.id)}
+            >
+              ✕
+            </button>
+          </div>
+        );
+      })}
+
+      {clearable > 0 && (
+        <div className="ntfclearwrap">
+          <button
+            type="button"
+            className="ntfclear"
+            disabled={busy}
+            onClick={clearSeen}
+          >
+            {busy ? 'Clearing…' : 'Clear what I’ve seen'}
+          </button>
+        </div>
+      )}
+
+      {list.length > 0 && (
+        <p className="ntffoot">
+          Replies, messages and mentions. Nothing else — there are no
+          likes here, and there never will be.
+        </p>
+      )}
+    </>
+  );
+}

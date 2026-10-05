@@ -48,7 +48,30 @@ import { enablePush, pushSupport } from '../../lib/push';
    rules, and this codebase has three separate scars from a rule being
    restated somewhere else and drifting (0046 → 0047 → 0049). One
    component, one sentence swapped. */
-export default function PushAsk({ onDone, intro = 'That’s up there now.' }) {
+/* 🔴 `question` IS A PROP TOO NOW — 5 Oct, AND THE NOTE ABOVE WAS A LIE
+   FOR FIVE WEEKS.
+
+   "One component, one sentence swapped" is what this file said it did. It
+   did not. `intro` was threaded through the signature on 31 Aug and then
+   used in exactly ONE branch — the iPhone-not-installed-yet branch, forty
+   lines down. The main ask branch, the one almost everybody sees,
+   hardcoded the string.
+
+   So Rows.jsx has been passing intro="Somebody answered you." since 31 Aug
+   and the bell has been rendering "That's up there now." over a list of
+   other people's replies ever since — the exact sentence this file's own
+   comment calls "nonsense on the bell". Nobody caught it because the prop
+   was wired, spelled right, and silently ignored.
+
+   ⚠️ A prop that is declared and unused is worse than no prop. It makes the
+   call site read as if it works. Both lines are parameters now, both are
+   actually rendered, and the defaults are the wall's wording so the
+   post-triggered card is unchanged. */
+export default function PushAsk({
+  onDone,
+  intro = 'That’s up there now.',
+  question = 'Want us to tell you when somebody answers?',
+}) {
   const [state, setState] = useState('ask');   // ask | busy | on | blocked | unsupported | no
   const [why, setWhy] = useState('');
 
@@ -141,8 +164,12 @@ export default function PushAsk({ onDone, intro = 'That’s up there now.' }) {
 
   return (
     <div className="pask">
-      <p className="paskh">That’s up there now.</p>
-      <p className="paskq">Want us to tell you when somebody answers?</p>
+      {/* 🔴 {intro} and {question}, NOT literals. These two lines were
+          hardcoded here until 5 Oct while `intro` sat unused in the
+          signature. See the note on the signature — the bell has been
+          showing the wrong sentence since 31 Aug because of this. */}
+      <p className="paskh">{intro}</p>
+      <p className="paskq">{question}</p>
       <p className="paskp">
         Replies and messages only. Nothing else, ever — no reminders, no
         streaks, no nudges to come back.
