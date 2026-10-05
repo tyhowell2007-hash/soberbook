@@ -39,7 +39,24 @@ import { shareInvite, INVITE_URL } from '../../lib/invite';
 
    🔴 THE TWO BUTTONS ARE THE SAME SIZE. Copied from PushAsk on purpose.
    ===================================================================== */
-export default function InviteAsk() {
+/* 🔴 `hold` ADDED 5 Oct, AND THIS FILE'S OWN HEADER IS WHY.
+
+   "Stacking two asks on one moment is a mugging" — written here on
+   9 Sept about the first post, and it was true of a moment that almost
+   never came up. It comes up constantly now: PushAsk renders on wall
+   LOAD for anyone who has been answered, and this card's trigger is
+   also "somebody answered you". They are now due together by default,
+   not rarely.
+
+   ⚠️ Wall.jsx already said which one wins: "the notification ask is the
+   one that has to land — it is what makes the NEXT reply reach them at
+   all." So when the push card is up, this renders nothing and nothing is
+   spent — invite_ask_done() is never called, so the one ask survives
+   intact for a later sitting. Yielding, not losing.
+
+   ⚠️ The RPC is still skipped entirely while held, so a held render
+   costs nothing. */
+export default function InviteAsk({ hold = false }) {
   const [state, setState] = useState('ask');   // ask | busy | shared | copied | manual | no
   const [show, setShow] = useState(false);
 
@@ -60,6 +77,11 @@ export default function InviteAsk() {
      card. It must never lose the wall — the same stance as the open-room
      read and signPhotoPaths degrading to no-photos rather than 500ing. */
   useEffect(() => {
+    /* ⚠️ `hold` is in the dependency list, so when the push card is
+       dismissed this asks then — the invite ask is deferred, not lost.
+       `show` is never set back to false: once this card is up it stays
+       up for the sitting, even if a push card somehow arrives after. */
+    if (hold) return;
     let alive = true;
     (async () => {
       try {
@@ -68,7 +90,7 @@ export default function InviteAsk() {
       } catch { /* no card, and the wall is fine */ }
     })();
     return () => { alive = false; };
-  }, []);
+  }, [hold]);
 
   /* ⚠️ Marks the ask SPENT before anything else can go wrong, and never
      blocks on it. Idempotent in the database (invite_ask_done's WHERE

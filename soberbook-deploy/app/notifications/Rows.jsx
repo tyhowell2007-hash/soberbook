@@ -153,9 +153,15 @@ export default function Rows({ initial, askPush: askPushInitial }) {
 
           ⚠️ Still a SOFT ask — "Not now" never touches the browser
           permission. See PushAsk. */}
+      {/* ⭐ WORDING B, 5 Oct. `question` passed explicitly for the first
+          time — and `intro` has been passed here since 31 Aug while
+          PushAsk quietly ignored it, so until 0167 this card actually read
+          "That's up there now." over a list of other people's replies.
+          Fixed in PushAsk.jsx; see the note on its signature. */}
       {askPush && (
         <PushAsk
           intro="Somebody answered you."
+          question="Want to know when that happens?"
           onDone={() => setAskPush(false)}
         />
       )}

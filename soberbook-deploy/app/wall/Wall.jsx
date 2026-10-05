@@ -660,6 +660,7 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
      Second pass finds nothing and stops. */
   useEffect(() => { signMissing(posts); /* eslint-disable-line */ }, [posts]);
 
+
   /* 🔴🔴 THIS USED TO MARK EVERY REPLY READ ON MOUNT, AND IT IS THE
      MECHANISM BEHIND THE QUIETEST DAY THIS APP HAS HAD.
 
@@ -688,11 +689,84 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
      the dot telling the truth for the first time. */
 
   const [busy, setBusy] = useState(false);
-  /* The notification card, shown once, right after a first post. Set by
-     post(); PushAsk clears it via onDone once the person has answered
-     either way. Kept in state rather than derived so it survives the
-     re-read of the feed that happens in the same breath. */
-  const [askPush, setAskPush] = useState(false);
+  /* 🔴 THE NOTIFICATION CARD. Was a boolean set only by post(); now holds
+     the two sentences to show, or null — 5 Oct, and the reason is a
+     number.
+
+     Measured: 422 members, 26 ever asked, 20 said yes. **A 77% yes rate,
+     offered to 6% of the room.** 286 members qualify today and have never
+     been asked once, because the only trigger on this page was a
+     successful post and 362 of 422 have never posted. The gate was never
+     the problem — push_ask_due() has qualified "somebody answered you"
+     since 0099. The ask was behind the one behaviour the silent majority
+     never performs.
+
+     So it is now set from two places, and they need different sentences:
+
+       post()        -> "That's up there now."    / the wall's question
+       on mount      -> "Somebody answered you."  / wording B
+
+     ⚠️ WHICH SENTENCE IS NOT THIS COMPONENT'S CALL. push_ask_reason()
+     (0167) says 'answered' or 'posted' and this picks accordingly. On
+     'posted' at mount there is NO honest line — "that's up there now"
+     about a post from last Tuesday is nonsense, and "somebody answered
+     you" when nobody did is a claim the app has no business making — so
+     it shows nothing and waits for their next post. Measured 5 Oct: 0 of
+     the 286 are in that branch. It is here for the first person who is.
+
+     ⚠️ Still null until something sets it, so a member who is not due
+     sees no card and nothing renders differently from today. */
+  const [askPush, setAskPush] = useState(null);   // null | { intro, question }
+
+  /* 🔴 ASK ON ARRIVAL — BUT ONLY WHEN SOMEBODY HAS ACTUALLY ANSWERED.
+     5 Oct. This is the whole change, and it is deliberately narrow.
+
+     ⚠️ Rows.jsx says, about 31 Aug: "It did NOT move to 'on arrival',
+     which was the obvious fix and the wrong one. On day one the honest
+     answer to 'notify me about what?' is nothing." That note is right and
+     this does not overrule it. push_ask_reason() returns 'answered' only
+     when a reply, mention or message is already sitting there waiting —
+     so the question has a true answer before it is asked. On 'posted',
+     and on anything else, nothing renders.
+
+     ⭐ The one thing the bell has that this doesn't: there, the reply is
+     on screen UNDER the card. Here the evidence is in the sentence
+     instead of in the pixels. That is a real difference and it is the
+     weakest part of this change — flagged to Ty rather than buried.
+
+     ⚠️ ASKS ON MOUNT, LIKE InviteAsk, NOT LIKE THE POST HANDLER. The
+     wall holds a flag for the post card because it witnesses the post.
+     "Somebody answered you" happened at some other time on somebody
+     else's phone; there is no event here to hang it off. Same reasoning,
+     same shape — copied from InviteAsk on purpose.
+
+     ⚠️ `=== 'answered'` on purpose, not a truthy check. A failed RPC
+     returns undefined, and a function that ever came back with a row or
+     an unexpected string would sail through a truthy test and put a card
+     in front of somebody who was never due it.
+
+     ⚠️ Fails silently. If this RPC errors the wall loses a card. It must
+     never lose the wall — the same stance as InviteAsk, the open-room
+     read, and signPhotoPaths degrading to no-photos rather than 500ing.
+
+     ⚠️ `[]`, so it runs once per mount and never again. It must not
+     become a dependency on `posts`, which is replaced on every like. */
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      try {
+        const { data: reason } = await supabase.rpc('push_ask_reason');
+        if (!alive || reason !== 'answered') return;
+        /* ⚠️ `(prev) => prev || …` for the same reason as in post():
+           whichever sentence got there first stays. */
+        setAskPush((prev) => prev || {
+          intro: 'Somebody answered you.',
+          question: 'Want to know when that happens?',
+        });
+      } catch { /* no card, and the wall is fine */ }
+    })();
+    return () => { alive = false; };
+  }, []);
   const [open, setOpen] = useState(null);     // the post whose thread is open
   const [menu, setMenu] = useState(null);     // the post whose ⋯ menu is open
   // post ids with a like request in the air. Without this, an impatient
@@ -1049,7 +1123,15 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
          appear; it must never be able to take down a successful post. */
       try {
         const { data: due } = await supabase.rpc('push_ask_due');
-        if (due === true) setAskPush(true);
+        /* ⚠️ `(prev) => prev || …`, not a bare set. The mount effect may
+           already have put the card up with wording B; replacing it
+           mid-sitting would swap the sentence under somebody's thumb
+           while they were reading it. First one to arrive wins, and
+           either sentence is true of a person who just posted. */
+        if (due === true) setAskPush((prev) => prev || {
+          intro: 'That’s up there now.',
+          question: 'Want us to tell you when somebody answers?',
+        });
       } catch { /* no card, and the post still went up */ }
     } catch (e2) {
       /* ⚠️ Was alert(). On a phone an alert covers the screen and tells you
@@ -1658,7 +1740,13 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
 
           Only ever rendered when push_ask_due() came back true, which is
           once, on a first post. */}
-      {askPush && <PushAsk onDone={() => setAskPush(false)} />}
+      {askPush && (
+        <PushAsk
+          intro={askPush.intro}
+          question={askPush.question}
+          onDone={() => setAskPush(null)}
+        />
+      )}
 
       {/* ⭐ BRING ONE PERSON. Renders NOTHING unless invite_ask_due()
           comes back true, so there is no state here to keep in step with
@@ -1670,7 +1758,7 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
           ⚠️ Sits below PushAsk deliberately. On the rare render where a
           member is due both, the notification ask is the one that has to
           land — it is what makes the NEXT reply reach them at all. */}
-      <InviteAsk />
+      <InviteAsk hold={!!askPush} />
 
 
 
