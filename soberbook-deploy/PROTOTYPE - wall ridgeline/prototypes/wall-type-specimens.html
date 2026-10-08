@@ -1,0 +1,199 @@
+<title>Wall type</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,800&family=Chivo:wght@400;900&family=Courier+Prime:wght@400;700&family=Plus+Jakarta+Sans:wght@400;600;800&family=Space+Grotesk:wght@400;500;700&display=swap">
+
+<style>
+/* Layout: five complete type systems, each shown as the same dark wall screen,
+   stacked down one column. The reference is dark, so the specimens are dark;
+   the page around them follows the reader's theme. */
+:root{
+  --paper:#F7FAF8; --card:#FFFFFF; --line:#DCE7E1; --mint:#E8F4ED;
+  --deep:#0F3D2A; --green:#2E8B5F; --ink:#1C2320; --soft:#63716A; --flag:#B2470F;
+  --ui:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  /* the dark screen the specimens live on — fixed, it is the subject */
+  --s-bg:#0B0E0D; --s-card:#171C1A; --s-ink:#F2F5F3; --s-dim:#8C9A93; --s-acc:#4FBF86;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#101713; --card:#18211C; --line:#2A362F; --mint:#1C2E24;
+    --deep:#BFE6CF; --green:#5FBD8A; --ink:#E8F0EA; --soft:#93A49A; --flag:#F0915C;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#101713; --card:#18211C; --line:#2A362F; --mint:#1C2E24;
+  --deep:#BFE6CF; --green:#5FBD8A; --ink:#E8F0EA; --soft:#93A49A; --flag:#F0915C;
+  color-scheme:dark;
+}
+
+*{box-sizing:border-box}
+body{margin:0; background:var(--paper); color:var(--ink); font-family:var(--ui);
+  -webkit-font-smoothing:antialiased}
+.page{max-width:720px; margin:0 auto; padding-inline:16px; padding-block:34px 70px}
+
+h1{margin:0 0 7px; font-size:26px; letter-spacing:-.01em; text-wrap:balance}
+.lede{margin:0; font-size:14.5px; line-height:1.6; color:var(--soft); max-width:62ch}
+.note{margin:18px 0 30px; padding:13px 15px; border-radius:12px; background:var(--mint);
+  border:1px solid var(--line); font-size:13.5px; line-height:1.6}
+.note b{color:var(--deep)}
+
+.opt{margin-top:30px}
+.hd{display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; margin-bottom:5px}
+.num{font-family:'Courier Prime',ui-monospace,monospace; font-size:12px; color:var(--green); font-weight:700}
+.ttl{font-size:16.5px; font-weight:700; letter-spacing:-.005em}
+.tag{font-size:10px; letter-spacing:.08em; text-transform:uppercase; font-weight:700;
+  padding:2px 7px; border-radius:999px; background:var(--mint); color:var(--deep)}
+.chip{margin-left:auto; font-size:10.5px; font-weight:700; color:var(--green)}
+.chip.bad{color:var(--flag)}
+.why{margin:0 0 13px; font-size:13.5px; line-height:1.6; color:var(--soft); max-width:62ch}
+.why b{color:var(--ink); font-weight:600}
+
+/* --- the dark wall screen --- */
+.screen{background:var(--s-bg); border-radius:18px; padding:16px 14px 14px; min-width:0;
+  border:1px solid #232A27}
+.bar{display:flex; align-items:center; gap:9px; padding:0 4px 14px}
+.lg{color:var(--s-ink); line-height:1}
+.day{margin-left:auto; color:var(--s-dim)}
+.pc{background:var(--s-card); border-radius:15px; padding:15px 16px 14px; margin-bottom:10px}
+.who{display:flex; align-items:center; gap:10px}
+.av{width:38px; height:38px; border-radius:50%; background:#1F5F43; color:#CFEFDD;
+  display:grid; place-items:center; font-size:13px; font-weight:700; flex:none}
+.nm{color:var(--s-ink)}
+.mt{color:var(--s-dim)}
+.bd{margin:10px 0 0; color:var(--s-ink)}
+.rx{margin-top:11px; display:flex; gap:16px; color:var(--s-dim)}
+.kick{display:inline-block; background:#13211A; color:var(--s-acc); border-radius:8px;
+  padding:7px 10px; margin-bottom:10px}
+
+footer{margin-top:44px; padding-top:18px; border-top:1px solid var(--line);
+  font-size:13px; line-height:1.65; color:var(--soft)}
+</style>
+
+<div class="page">
+
+<h1>Wall type</h1>
+<p class="lede">Your screenshot&rsquo;s structure &mdash; big text, heavy names, one family, dark ground &mdash; with the bite dialled up five different ways. Same Sober Book post in every one.</p>
+<p class="note" id="probe">Checking whether the faces are really loading&hellip;</p>
+
+<div id="out"></div>
+
+<footer>
+  Pick a number. Then I will put it into the wall prototype and write the real CSS.
+</footer>
+
+</div>
+
+<script>
+var OPTS = [
+  { n:"01", t:"Straight off your screenshot", tag:"no bite added",
+    why:"The reference as-is. <b>Plus Jakarta Sans</b> for everything — names, posts, timestamps — just different sizes and greys. No typewriter type anywhere. This is the control: if the others do not beat it, the size was the whole fix.",
+    body:"'Plus Jakarta Sans',system-ui,sans-serif", disp:"'Plus Jakarta Sans',system-ui,sans-serif",
+    mono:"'Plus Jakarta Sans',system-ui,sans-serif",
+    lgW:800, lgS:21, lgT:"none", lgL:"-.01em", nmW:700, bdW:400, mtS:12.5, kickFam:null },
+
+  { n:"02", t:"Same shape, stranger face", tag:"a little bite",
+    why:"<b>Space Grotesk</b>, which is already in the app on the warm door. Same big clean structure, but the terminals are cut at angles and the digits are odd. Reads modern rather than polite, and nothing about the layout changes.",
+    body:"'Space Grotesk',system-ui,sans-serif", disp:"'Space Grotesk',system-ui,sans-serif",
+    mono:"'Space Grotesk',system-ui,sans-serif",
+    lgW:700, lgS:21, lgT:"none", lgL:"-.02em", nmW:700, bdW:400, mtS:12.5, kickFam:null },
+
+  { n:"03", t:"Squared off", tag:"more bite",
+    why:"<b>Chivo</b>, at 900 for the wordmark. Flat sides, short curves, newsprint weight. The heads hit hard and the body stays plain. This is the one that feels like something printed rather than something designed.",
+    body:"'Chivo',system-ui,sans-serif", disp:"'Chivo',system-ui,sans-serif",
+    mono:"'Chivo',system-ui,sans-serif",
+    lgW:900, lgS:20, lgT:"uppercase", lgL:"-.01em", nmW:700, bdW:400, mtS:12.5, kickFam:null },
+
+  { n:"04", t:"Deliberately irregular", tag:"most bite",
+    why:"<b>Bricolage Grotesque</b>. The letterforms do not quite agree with each other — widths and joins are intentionally uneven. Still perfectly readable at 18px, but it never looks like a template. The riskiest one here and the one with the most character.",
+    body:"'Bricolage Grotesque',system-ui,sans-serif", disp:"'Bricolage Grotesque',system-ui,sans-serif",
+    mono:"'Bricolage Grotesque',system-ui,sans-serif",
+    lgW:800, lgS:21, lgT:"none", lgL:"-.015em", nmW:800, bdW:400, mtS:12.5, kickFam:null },
+
+  { n:"05", t:"Keep Sober Book shouting", tag:"our own bite",
+    why:"The reference&rsquo;s body and scale, but <b>Anton</b> stays on the masthead and the headings and <b>Courier Prime</b> stays on the day count and the kicker. The bite is the collision — clean big posts under a wordmark that is still yelling. It is the only option here that sounds like the app you already built.",
+    body:"'Plus Jakarta Sans',system-ui,sans-serif", disp:"'Anton',Impact,sans-serif",
+    mono:"'Courier Prime',ui-monospace,monospace",
+    lgW:400, lgS:23, lgT:"uppercase", lgL:".02em", nmW:700, bdW:400, mtS:11, kickFam:"'Courier Prime',ui-monospace,monospace" }
+];
+
+function screen(o){
+  var mono = o.mono;
+  return '<div class="screen" style="font-family:' + o.body + '">' +
+    '<div class="bar">' +
+      '<span class="lg" style="font-family:' + o.disp + '; font-weight:' + o.lgW +
+        '; font-size:' + o.lgS + 'px; text-transform:' + o.lgT + '; letter-spacing:' + o.lgL + '">&#127793; Sober Book</span>' +
+      '<span class="day" style="font-family:' + mono + '; font-size:' + o.mtS +
+        'px; letter-spacing:' + (o.kickFam ? '.13em' : '.02em') + '">DAY 1124 &rsaquo;</span>' +
+    '</div>' +
+    '<span class="kick" style="font-family:' + (o.kickFam || o.disp) + '; font-size:' +
+      (o.kickFam ? '9.5px; letter-spacing:.11em' : '11px; font-weight:700; letter-spacing:.02em') + '">&#9834; ARTISTS ON SOBER BOOK</span>' +
+    '<div class="pc">' +
+      '<div class="who"><span class="av">IV</span><div>' +
+        '<div class="nm" style="font-weight:' + o.nmW + '; font-size:16px">Ivyblue</div>' +
+        '<div class="mt" style="font-family:' + mono + '; font-size:' + o.mtS + 'px">5h</div>' +
+      '</div></div>' +
+      '<p class="bd" style="font-weight:' + o.bdW + '; font-size:18.5px; line-height:1.42">' +
+        'Day 12. Slept through the night for once. First time in a long while that I woke up and did not immediately feel behind.</p>' +
+      '<div class="rx" style="font-family:' + mono + '; font-size:13px">' +
+        '<span>&#9825; 7</span><span>2 replies</span></div>' +
+    '</div>' +
+    '<div class="pc">' +
+      '<div class="who"><span class="av">RO</span><div>' +
+        '<div class="nm" style="font-weight:' + o.nmW + '; font-size:16px">Rossiter125</div>' +
+        '<div class="mt" style="font-family:' + mono + '; font-size:' + o.mtS + 'px">2h</div>' +
+      '</div></div>' +
+      '<p class="bd" style="font-weight:' + o.bdW + '; font-size:18.5px; line-height:1.42">' +
+        'Rough morning but I&rsquo;m still here. Not much else to report and that is alright.</p>' +
+    '</div>' +
+  '</div>';
+}
+
+var html = '';
+for (var i = 0; i < OPTS.length; i++){
+  var o = OPTS[i];
+  html += '<section class="opt">' +
+    '<div class="hd"><span class="num">' + o.n + '</span><span class="ttl">' + o.t + '</span>' +
+    '<span class="tag">' + o.tag + '</span>' +
+    '<span class="chip" data-stacks="' + [o.body,o.disp,o.mono].join('|').replace(/"/g,'&quot;') + '"></span></div>' +
+    '<p class="why">' + o.why + '</p>' + screen(o) + '</section>';
+}
+document.getElementById('out').innerHTML = html;
+
+/* 🔴 A webfont that fails to load falls back in silence and two options then
+   look identical. Measure each stack against the SAME stack with only its
+   first family swapped for one that cannot exist — matching the fallback
+   chain is the point, or the comparison measures the fallback, not the face. */
+function widthIn(stack){
+  var d = document.createElement('span');
+  d.style.cssText = 'position:absolute;left:-9999px;top:-9999px;white-space:nowrap;font-size:80px;font-family:' + stack;
+  d.textContent = 'Handgloves 123';
+  document.body.appendChild(d);
+  var w = d.getBoundingClientRect().width;
+  d.parentNode.removeChild(d);
+  return w;
+}
+function check(){
+  var chips = document.querySelectorAll('.chip'), bad = 0, seen = {};
+  for (var i = 0; i < chips.length; i++){
+    var stacks = chips[i].getAttribute('data-stacks').split('|'), dead = [];
+    for (var j = 0; j < stacks.length; j++){
+      var st = stacks[j];
+      if (!/^'/.test(st)) continue;
+      var name = st.split("'")[1];
+      if (seen[name] === undefined){
+        seen[name] = Math.abs(widthIn(st) - widthIn(st.replace(/^'[^']*'/, "'Zzz No Such Face'"))) < 0.5;
+      }
+      if (seen[name] && dead.indexOf(name) < 0) dead.push(name);
+    }
+    chips[i].textContent = dead.length ? 'not loading: ' + dead.join(', ') : 'loading';
+    chips[i].className = dead.length ? 'chip bad' : 'chip';
+    if (dead.length) bad++;
+  }
+  var n = document.getElementById('probe');
+  n.innerHTML = bad === 0
+    ? '<b>Every face is loading.</b> What you see is what members would see.'
+    : '<b>' + bad + ' of ' + chips.length + ' are showing a fallback</b> instead of the typeface named. Reload once; if the flag stays, judge the unflagged ones only.';
+}
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(function(){ setTimeout(check, 250); });
+else setTimeout(check, 1500);
+</script>

@@ -104,6 +104,14 @@ import '../milestone.css';
    Nothing on any other route renders a sty- class. */
 import '../stories.css';
 
+/* 🔴 THE RIDGELINE, AND IT MUST STAY LAST.
+   theme-green.css (imported at the top of this file) sets `.item{background:#fff}`
+   and this sheet reshapes it. Every rule in wall-ridge.css also beats it on
+   specificity, so order is the belt to that braces — but move this import up
+   and the next person to add a sheet below it will quietly win instead.
+   Scoped to the wall and held off [data-theme="black"] inside the file. */
+import '../wall-ridge.css';
+
 import NavBar from '../components/NavBar';
 
 export default function WallLayout({ children }) {

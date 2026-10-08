@@ -1,0 +1,99 @@
+/* ============================================================================
+   SOBER BOOK — WALL RIDGELINE.  Prototype, 5 Oct 2026. NOT SHIPPED.
+   Append to app/theme-green.css. Nothing else changes.
+
+   ⭐ PURE CSS. No component edits, no JavaScript, no database. The artwork is
+   an inline SVG data URI — about 2KB, no image file, nothing to download, and
+   it stays sharp at any size.
+
+   🔴 SCOPED WITH :has(.wall), AND THAT IS THE WHOLE SAFETY STORY.
+   `.wall` exists only on the wall page. Everything here hangs off it, so
+   /chat, /me, /notifications, the rooms and every other page render
+   byte-identically to today. Nothing can leak sideways later.
+
+   ⚠️ WHAT MEASURING THE REAL PAGE CHANGED.
+   The mockup had the art as a tall header the feed scrolled over. The real
+   wall cannot do that: `.wall` starts 2,356px down the page — the feed is the
+   bottom half, and above it sit the masthead, the Right now / Check in / Ask
+   Sage bar, the Gratitude / Tenth step / Readings / Your plan bar, stories,
+   the artists strip and the seasons card. There is no empty top to put a
+   picture in. A header would have pushed every one of those below the fold.
+
+   ⭐ So it is a BAND behind the chrome that is already there, 232px, with the
+   masthead and the two bars going translucent over it. Nothing moves. Nothing
+   is pushed down. From the stories rail downward the page is untouched.
+   ============================================================================ */
+
+body:has(.wall)::before{
+  content:''; position:fixed; left:0; right:0; top:0; height:232px;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 900 300' preserveAspectRatio='xMidYMax slice'><defs><linearGradient id='b' x1='0' y1='0' x2='0' y2='1'><stop offset='0' stop-color='%23F0C274'/><stop offset='.45' stop-color='%23E79F57'/><stop offset='.78' stop-color='%23CE7050'/><stop offset='1' stop-color='%238E5352'/></linearGradient><radialGradient id='q' cx='50%25' cy='50%25' r='50%25'><stop offset='0' stop-color='%23FBEFC8' stop-opacity='.95'/><stop offset='.68' stop-color='%23F5DCA4' stop-opacity='.45'/><stop offset='1' stop-color='%23EFCE92' stop-opacity='0'/></radialGradient></defs><rect width='900' height='300' fill='url(%23b)'/><circle cx='690' cy='150' r='92' fill='url(%23q)'/><circle cx='690' cy='150' r='54' fill='%23FAEAC0' opacity='.95'/><path d='M0 214L104 150L190 206L286 132L380 198L470 140L560 200L660 152L760 206L860 158L900 188L900 300L0 300Z' fill='%239E6E60' opacity='.6'/><path d='M0 246L120 190L232 242L348 180L452 238L566 186L672 240L790 192L900 236L900 300L0 300Z' fill='%236F4B51' opacity='.8'/><path d='M0 276L140 232L268 274L404 226L530 272L660 230L790 274L900 244L900 300L0 300Z' fill='%234A3440'/></svg>");
+  background-size:cover; background-position:center bottom;
+  z-index:-2; pointer-events:none;
+}
+
+/* The fade into the page's own paper. Without it the band ends on a hard
+   line across the screen. */
+body:has(.wall)::after{
+  content:''; position:fixed; left:0; right:0; top:0; height:232px;
+  background:linear-gradient(to bottom,
+    rgba(247,250,248,0) 0%, rgba(247,250,248,.35) 62%, #F7FAF8 100%);
+  z-index:-1; pointer-events:none;
+}
+
+/* ⚠️ Required. The body paints its own background over the fixed layers
+   otherwise, and nothing shows at all. */
+body:has(.wall){ background:transparent !important; }
+
+body:has(.wall) .mast{
+  background:rgba(255,255,255,.2) !important;
+  backdrop-filter:blur(12px) saturate(160%);
+  -webkit-backdrop-filter:blur(12px) saturate(160%);
+  border-bottom:1px solid rgba(255,255,255,.32) !important;
+}
+
+/* 🔴 71% WHITE, AND THE NUMBER IS MEASURED, NOT CHOSEN BY EYE.
+   These two bars carry #0F3D2A text on a #E8F4ED fill — 10.80:1 today. Put
+   them on glass over the band and the contrast depends on what is behind:
+
+       30% white over the dark ridge .....  2.65:1   FAILS
+       51% white over the dark ridge .....  4.50:1   the bare minimum
+       71% white over the dark ridge .....  7.13:1   chosen
+       71% white over the bright sky ..... 10.57:1
+
+   The band reads clearly through them at 71% and the words never move. */
+body:has(.wall) .bar-doors,
+body:has(.wall) .bar-today{
+  background:rgba(255,255,255,.71) !important;
+  backdrop-filter:blur(13px) saturate(165%);
+  -webkit-backdrop-filter:blur(13px) saturate(165%);
+  border-color:rgba(255,255,255,.3) !important;
+}
+body:has(.wall) .bar-doors a, body:has(.wall) .bar-doors button,
+body:has(.wall) .bar-today a, body:has(.wall) .bar-today button{
+  text-shadow:0 1px 2px rgba(255,255,255,.55);
+}
+
+body:has(.wall) .sty-rail{ background:transparent !important; }
+
+
+/* ============================================================================
+   NOT DONE YET — read before shipping
+   ============================================================================
+   * THE BLACK THEME. None of this is in theme-black.css, so on the dark
+     theme the band simply does not appear. That is the safe failure, but it
+     is not finished. It needs its own band (dusk, not sunrise) and its own
+     measured tints — the numbers above are for white glass over light text
+     and do not transfer.
+
+   * PHONE. Verified on a 1344px desktop only; the browser would not resize
+     below that here. On a phone there are no side margins, so the band shows
+     ONLY through the masthead and the two bars — a strip of colour behind the
+     top chrome rather than the open sky in the mockup. Much subtler. Worth
+     looking at on a real phone before deciding it is worth shipping at all.
+
+   * :has() needs a 2023+ browser. Older ones get today's wall exactly, which
+     is a clean fallback rather than a broken page.
+
+   * prefers-reduced-transparency is not handled. Some people turn glass off
+     at the OS level and should get the opaque bars back.
+   ============================================================================ */

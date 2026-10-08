@@ -194,9 +194,18 @@ export default async function RootLayout({ children }) {
              looking like Facebook is the opposite of the thing that makes
              somebody show it to a friend.
 
+
+             ---------------------------------------------------------------
+             ⭐ PLUS JAKARTA SANS added 7 Oct, Ty's call after looking at
+             another recovery app's feed. It sets the POSTS on /wall only —
+             app/wall-ridge.css names it explicitly on the handful of
+             elements that use it. It is NOT a body default, so nothing
+             outside the wall moves, and the device font still carries the
+             rest of the app exactly as the note above describes.
+
              🔴 REVERTING IS PUTTING THE FAMILY BACK IN THIS ONE LINE.
              Nothing else has to change. */
-          href="https://fonts.googleapis.com/css2?family=Anton&family=Courier+Prime:wght@400;700&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400&family=Permanent+Marker&family=Space+Grotesk:wght@400;500;700&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Anton&family=Courier+Prime:wght@400;700&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400&family=Permanent+Marker&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;700&display=swap"
           rel="stylesheet"
         />
       </head>

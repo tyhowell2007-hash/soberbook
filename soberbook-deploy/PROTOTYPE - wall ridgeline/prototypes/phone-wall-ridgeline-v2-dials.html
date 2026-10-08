@@ -1,0 +1,542 @@
+<title>Wall ridgeline</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Bebas+Neue&family=Staatliches&family=Archivo+Black&family=Chivo:wght@900&family=Space+Grotesk:wght@700&family=Inter:wght@400;500;600;700&family=Figtree:wght@400;500;600;700&family=Source+Sans+3:wght@400;500;600;700&family=Nunito+Sans:wght@400;500;600;700&family=Anton&family=Bebas+Neue&family=Oswald:wght@500;600&family=Archivo+Black&family=Alfa+Slab+One&family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Courier+Prime:wght@400;700&family=Space+Mono:wght@400;700&family=JetBrains+Mono:wght@400;700&family=IBM+Plex+Mono:wght@400;700&display=swap">
+<style>
+/* Layout: the wall's real chrome at phone width, with the ridgeline band
+   behind the masthead and the two bars. Structure and heights are taken from
+   the live page: mast 71px, bar-doors 50px, bar-today 53px, stories 98px,
+   artists strip 229px, then the seasons card, then the feed. */
+:root{
+  color-scheme: light;
+  --paper:#F7FAF8; --paper2:#FFFFFF; --line:#DCE7E1; --mint:#E8F4ED;
+  --gm:#2E8B5F; --gm-t:#256F4C; --gd:#1B6B4A; --deep:#0F3D2A;
+  --x:#1C2320; --soft:#63716A;
+  --mono:'Courier Prime', ui-monospace, monospace;
+  --body:'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --disp:'Anton', Impact, sans-serif;
+  --wash:.30;
+}
+*{box-sizing:border-box}
+html,body{margin:0; height:100%}
+body{font-family:var(--body); color:var(--x); background:#E7ECE9}
+.phone{background:var(--paper)}
+
+.stage{min-height:100%; display:flex; align-items:center; justify-content:center}
+.phone{position:relative; width:100%; height:100svh; overflow:hidden; background:var(--paper)}
+@media (min-width:760px){
+  .stage{padding:34px 16px}
+  .phone{width:392px; height:812px; border-radius:46px; border:11px solid #14181A;
+    box-shadow:0 30px 70px rgba(14,20,17,.4)}
+  .notch{position:absolute; top:0; left:50%; transform:translateX(-50%);
+    width:132px; height:26px; background:#14181A; border-radius:0 0 16px 16px; z-index:40}
+}
+.notch{display:none}
+@media (min-width:760px){ .notch{display:block} }
+
+.app{position:absolute; inset:0; overflow-y:auto; background:transparent}
+
+/* ---- THE PICTURE AS THE WALL'S BACKGROUND ----
+   Starts under the masthead — everything from the Right now bar down sits on
+   it — and is FIXED, so the feed scrolls over a picture that stays put.
+   The masthead above it and the footer below it are untouched. */
+/* ⚠️ fixed, not absolute. Inside a scrolling container an absolute layer
+   scrolls away with the content; fixed is what makes the picture stay put
+   while the feed moves over it — which is the whole point. */
+.wallbg{position:fixed; left:0; right:0; top:0; bottom:var(--wb,0px); z-index:0; overflow:hidden}
+@media (min-width:760px){ .wallbg{position:absolute} }
+.wallbg::before{
+  content:''; position:absolute; inset:0;
+  background-image:var(--art);
+  background-size:100% 100%; background-position:center bottom; background-repeat:no-repeat;
+}
+/* A wash over the picture so the white cards do not look pasted on. */
+.wallbg::after{content:''; position:absolute; inset:0; background:rgba(247,250,248,var(--wash))}
+.page{position:relative; z-index:1}
+.below{background:transparent}
+
+/* ---- the real chrome ---- */
+.mast{height:71px; display:flex; align-items:center; gap:13px; padding:0 14px;
+  background:var(--paper2); border-bottom:1px solid var(--line)}
+.mast .burger{font-size:19px; color:#243029}
+.mast .logo{font-family:var(--disp); font-weight:400; font-size:20px; letter-spacing:.02em;
+  text-transform:uppercase; color:var(--deep)}
+.mast .ic{font-size:14px; opacity:.85}
+.mast .day{margin-left:auto; font-family:var(--mono); font-size:10px; letter-spacing:.13em;
+  color:var(--soft)}
+
+/* 🔴 71% white — measured, not chosen. At 30% the #0F3D2A text falls to
+   2.65:1 over the dark ridge; 51% is the 4.5 minimum; 71% gives 7.13:1. */
+.bar{display:flex; align-items:stretch; background:var(--mint);
+  border-bottom:1px solid var(--line)}
+.bar-doors{height:50px}
+.bar-today{height:53px}
+.bar > *{flex:1; display:grid; place-items:center; gap:1px; text-align:center;
+  color:var(--deep); border-right:1px solid rgba(255,255,255,.6)}
+.bar > *:last-child{border-right:0}
+.bar-doors span{font-size:13.5px; font-weight:600}
+.bar-doors span.hot{color:#9B3A2E}
+.bar-today .g{font-size:14px; line-height:1}
+.bar-today .l{font-size:10.5px; font-weight:500}
+
+.sty{height:98px; display:flex; align-items:center; padding:0 14px; gap:7px}
+.sty .av{width:52px; height:52px; border-radius:50%; border:2px solid var(--gm);
+  background:var(--mint); display:grid; place-items:center; font-weight:700; color:var(--gm-t)}
+.sty .cap{font-size:10.5px; color:#2A2320; font-weight:600; text-shadow:0 1px 3px rgba(255,255,255,.75)}
+.styw{display:grid; justify-items:center; gap:4px}
+
+.strip{margin:0 14px 12px; border-radius:13px; overflow:hidden; border:1px solid var(--line)}
+.strip h2{margin:0; background:rgba(20,64,47,calc(var(--glass,.72) * .9 + .1)); color:#EAF6EF;
+  font-family:var(--kickF,var(--mono)); font-size:var(--kickS,10.5px);
+  font-weight:var(--kickW,400); letter-spacing:var(--kickT,.12em);
+  padding:11px 13px; display:flex; align-items:center}
+/* The Hide button keeps the body font. Bebas and Staatliches have no
+   lowercase, so letting it inherit turned the button into HIDE. */
+.strip h2 .hide{margin-left:auto; border:1px solid rgba(255,255,255,.5); border-radius:999px;
+  padding:3px 10px; font-size:10px; font-family:var(--body); font-weight:600;
+  letter-spacing:.01em}
+.strip .row{display:flex; gap:9px; padding:11px; background:rgba(255,255,255,var(--glass,.72)); overflow:hidden}
+.strip .a{min-width:104px; border:1px solid var(--line); border-radius:10px; padding:9px; background:rgba(255,255,255,.30)}
+.strip .d{width:38px; height:38px; border-radius:50%; background:var(--mint); margin-bottom:6px}
+.strip .n{font-size:11.5px; font-weight:600}
+.strip .t{font-size:9.5px; color:var(--soft); line-height:1.35}
+
+.card{margin:0 14px 12px; background:rgba(255,255,255,var(--glass,.72)); border:1px solid var(--line);
+  border-radius:14px; padding:13px 14px}
+.card h3{margin:0 0 3px; font-family:var(--disp); font-weight:400; font-size:19px;
+  letter-spacing:.01em; text-transform:uppercase}
+.card .sub{font-size:12.5px; color:var(--soft); margin:0 0 10px}
+.card .quote{background:#14402F; color:#DCEFE4; border-radius:10px; padding:10px 12px;
+  font-size:12px; line-height:1.5; margin-bottom:11px}
+.seasrow{display:flex; justify-content:space-between; font-size:12.5px; margin-bottom:4px}
+.meter{height:7px; border-radius:4px; background:var(--mint); margin-bottom:10px; overflow:hidden}
+.meter i{display:block; height:100%; background:var(--gd)}
+
+.post{margin:0 14px 11px; background:rgba(255,255,255,var(--glass,.72)); border:1px solid var(--line);
+  border-radius:14px; padding:12px 14px}
+.ph{display:flex; align-items:baseline; gap:8px; margin-bottom:5px}
+.pn{font-size:16px; font-weight:700; letter-spacing:-.005em}
+.pt{font-size:11px; font-family:var(--mono); color:var(--soft); letter-spacing:.04em}
+.pb{margin:0; font-size:18.5px; line-height:1.42}
+.pm{margin-top:11px; font-size:13px; color:var(--soft); display:flex; gap:17px}
+.pad{height:90px}
+
+.tabs{position:absolute; left:0; right:0; bottom:0; z-index:30;
+  display:flex; justify-content:space-around; padding:8px 6px calc(8px + env(safe-area-inset-bottom,0px));
+  background:rgba(255,255,255,.9); border-top:1px solid var(--line);
+  backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px)}
+.tab{display:grid; justify-items:center; gap:2px; color:#63716A; font-size:9.5px}
+.tab .g{font-size:16px; line-height:1}
+.tab.on{color:var(--gm-t); font-weight:600}
+
+/* ---- the dials (desktop only; they are not part of the app) ---- */
+.stage{gap:26px; flex-wrap:wrap}
+.dials{display:none}
+@media (min-width:760px){
+  .dials{display:block; width:270px; background:#fff; border:1px solid #D9E2DD;
+    border-radius:16px; padding:18px 18px 16px; box-shadow:0 10px 30px rgba(14,20,17,.10);
+    font-family:var(--body)}
+  .dials h3{margin:0 0 3px; font-size:14px; color:#0F3D2A; letter-spacing:.01em}
+  .dials .hint{margin:0 0 16px; font-size:11.5px; line-height:1.5; color:#63716A}
+  .dials label{display:block; margin:0 0 14px}
+  .dials .lw{display:flex; justify-content:space-between; align-items:baseline;
+    font-size:12px; font-weight:600; color:#1C2320; margin-bottom:5px}
+  .dials .v{font-family:var(--mono); font-size:11px; color:#2E8B5F; font-weight:700}
+  .dials input[type=range]{width:100%; accent-color:#2E8B5F; margin:0}
+  .dials .seg{display:flex; gap:6px; margin:2px 0 14px}
+  .dials .seg button{flex:1; padding:7px 4px; font-family:var(--body); font-size:11.5px;
+    font-weight:600; border:1px solid #D9E2DD; background:#fff; color:#63716A;
+    border-radius:9px; cursor:pointer}
+  .dials .seg button[aria-pressed=true]{background:#E8F4ED; border-color:#2E8B5F; color:#17603F}
+  .dials .rst{width:100%; margin-top:2px; padding:8px; font-family:var(--body); font-size:11.5px;
+    font-weight:600; border:1px solid #D9E2DD; background:#F7FAF8; color:#1C2320;
+    border-radius:9px; cursor:pointer}
+  .dials .num{margin-top:12px; padding-top:12px; border-top:1px solid #EAF0ED;
+    font-family:var(--mono); font-size:10.5px; line-height:1.7; color:#63716A;
+    white-space:pre-wrap; word-break:break-word}
+}
+
+  .peek .page{opacity:.10; transition:opacity .18s}
+  .peek .tabs{opacity:.28; transition:opacity .18s}
+  .page,.tabs{transition:opacity .18s}
+
+  /* Everything from the artists strip down is glass. The masthead, the two
+     bars and "Your story" are untouched. The blur is what keeps the body text
+     legible where a dark ridge runs under a card. */
+  .strip, .card, .post{
+    -webkit-backdrop-filter:blur(13px) saturate(1.06);
+    backdrop-filter:blur(13px) saturate(1.06)}
+  @media (prefers-reduced-transparency: reduce){
+    .strip .row, .card, .post{background:var(--paper2)}
+    .strip h2{background:#14402F}
+    .strip .a{background:var(--paper)}
+    .strip, .card, .post{-webkit-backdrop-filter:none; backdrop-filter:none}
+  }
+
+  @media (min-width:760px){
+    .dials .typ{margin:4px 0 14px; padding-top:12px; border-top:1px solid #EAF0ED}
+    .dials .pk{display:block; margin:9px 0 0}
+    .dials .pk > span{display:block; font-size:11px; font-weight:600; color:#63716A; margin-bottom:4px}
+    .dials .pk select{width:100%; padding:7px 8px; font-family:var(--body); font-size:11.5px;
+      border:1px solid #D9E2DD; border-radius:9px; background:#fff; color:#1C2320}
+    .dials .fnote{margin:10px 0 0; font-size:10.5px; line-height:1.55; color:#8A9699}
+  }
+</style>
+
+<div class="stage"><div class="phone"><div class="notch"></div>
+  <div class="wallbg"></div>
+  <div class="app">
+    <div class="page">
+
+      <div class="mast">
+        <span class="burger">&#9776;</span>
+        <span class="logo">&#127793; SOBER BOOK</span>
+        <span class="ic">&#9834;</span><span class="ic">&#9906;</span><span class="ic">&#128276;</span>
+        <span class="day">DAY 1124 &rsaquo;</span>
+      </div>
+
+      <div class="bar bar-doors">
+        <div><span class="hot">Right now</span></div>
+        <div><span>Check in</span></div>
+        <div><span>&#9670; Ask Sage</span></div>
+      </div>
+
+      <div class="bar bar-today">
+        <div><span class="g">&#128591;</span><span class="l">Gratitude</span></div>
+        <div><span class="g">&#128287;</span><span class="l">Tenth step</span></div>
+        <div><span class="g">&#128214;</span><span class="l">Readings</span></div>
+        <div><span class="g">&#129517;</span><span class="l">Your plan</span></div>
+      </div>
+
+      <div class="sty"><div class="styw"><div class="av">Y</div><span class="cap">Your story</span></div></div>
+
+      <div class="below">
+        <div class="strip">
+          <h2>&#9834; ARTISTS ON SOBER BOOK <span class="hide">Hide</span></h2>
+          <div class="row">
+            <div class="a"><div class="d"></div><div class="n">jordan cruz</div><div class="t">dark-pop / alt.rock</div></div>
+            <div class="a"><div class="d"></div><div class="n">Matt Keegan</div><div class="t">Alternative rap</div></div>
+            <div class="a"><div class="d"></div><div class="n">Produkt</div><div class="t">R&amp;B / Hip-hop</div></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Where everyone is</h3>
+          <p class="sub">You&rsquo;re in &#9728; steady</p>
+          <div class="quote">Seasons turn. Everybody here has been through one. Pick the one that fits &mdash; change it any time, and nobody is told when you do.</div>
+          <div class="seasrow"><span>&#9728; steady</span><span>41 people</span></div>
+          <div class="meter"><i style="width:100%"></i></div>
+          <div class="seasrow"><span>&#127810; rebuilding</span><span>29 people</span></div>
+          <div class="meter"><i style="width:71%"></i></div>
+          <div class="seasrow"><span>&#129309; giving it back</span><span>27 people</span></div>
+          <div class="meter"><i style="width:66%"></i></div>
+        </div>
+
+        <article class="post">
+          <div class="ph"><span class="pn">Ivyblue</span><span class="pt">5h</span></div>
+          <p class="pb">Day 12. Slept through the night for once. First time in a long while that I woke up and did not immediately feel behind.</p>
+          <div class="pm"><span>&#9825; 7</span><span>2 replies</span></div>
+        </article>
+        <article class="post">
+          <div class="ph"><span class="pn">Rossiter125</span><span class="pt">2h</span></div>
+          <p class="pb">Rough morning but I&rsquo;m still here. Not much else to report and that is alright.</p>
+          <div class="pm"><span>&#9825; 4</span><span>3 replies</span></div>
+        </article>
+        <article class="post">
+          <div class="ph"><span class="pn">Marchand</span><span class="pt">9h</span></div>
+          <p class="pb">Thank you to whoever answered me last night. I did not expect anyone to be awake.</p>
+          <div class="pm"><span>&#9825; 11</span><span>1 reply</span></div>
+        </article>
+        <div class="pad"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="tabs">
+    <span class="tab on"><span class="g">&#127968;</span>Home</span>
+    <span class="tab"><span class="g">&#128172;</span>Chat</span>
+    <span class="tab"><span class="g">&#128106;</span>Meetings</span>
+    <span class="tab"><span class="g">&#128075;</span>People</span>
+    <span class="tab"><span class="g">&#128512;</span>You</span>
+    <span class="tab"><span class="g">&#8943;</span>More</span>
+  </div>
+</div>
+  <div class="dials">
+    <h3>Dials</h3>
+    <p class="hint">Live. Drag until it looks right, then tell me the numbers at the bottom &mdash; that is what gets written into the app.</p>
+
+    <label><span class="lw">Sky above the ridges <span class="v" id="vSky"></span></span>
+      <input type="range" id="sky" min="-120" max="420" step="10"></label>
+
+    <label><span class="lw">Sun height <span class="v" id="vSunY"></span></span>
+      <input type="range" id="suny" min="260" max="980" step="10"></label>
+
+    <label><span class="lw">Sun size <span class="v" id="vSunR"></span></span>
+      <input type="range" id="sunr" min="60" max="190" step="5"></label>
+
+    <label><span class="lw">Wash over the picture <span class="v" id="vWash"></span></span>
+      <input type="range" id="wash" min="0" max="55" step="1"></label>
+
+    <label><span class="lw">Cards see-through <span class="v" id="vGlass"></span></span>
+      <input type="range" id="glass" min="0" max="70" step="1"></label>
+
+    <span class="lw">Bottom of the picture</span>
+    <div class="seg">
+      <button type="button" id="bFoot" aria-pressed="true">At the footer</button>
+      <button type="button" id="bUnder" aria-pressed="false">Under it</button>
+    </div>
+
+    <div class="typ">
+      <span class="lw">Type</span>
+
+      <label class="pk"><span>Posts and body</span>
+        <select id="fBody">
+          <option value="'Plus Jakarta Sans', system-ui, sans-serif">Plus Jakarta Sans &mdash; the pick</option>
+          <option value="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif">Your phone&rsquo;s own font &mdash; what ships today</option>
+          <option value="'Archivo', system-ui, sans-serif">Archivo &mdash; what it was before 31 Aug</option>
+          <option value="'Inter', system-ui, sans-serif">Inter</option>
+          <option value="'Figtree', system-ui, sans-serif">Figtree</option>
+          <option value="'Source Sans 3', system-ui, sans-serif">Source Sans 3</option>
+          <option value="'Nunito Sans', system-ui, sans-serif">Nunito Sans</option>
+        </select></label>
+
+      <label class="pk"><span>Masthead and headings</span>
+        <select id="fDisp">
+          <option value="'Anton', Impact, sans-serif">Anton &mdash; what ships today</option>
+          <option value="'Bebas Neue', Impact, sans-serif">Bebas Neue</option>
+          <option value="'Oswald', Impact, sans-serif">Oswald</option>
+          <option value="'Archivo Black', Impact, sans-serif">Archivo Black</option>
+          <option value="'Alfa Slab One', Georgia, serif">Alfa Slab One</option>
+          <option value="'Fraunces', Georgia, serif">Fraunces &mdash; already in the app, on the door</option>
+        </select></label>
+
+      <label class="pk"><span>Timestamps and labels</span>
+        <select id="fMono">
+          <option value="'Courier Prime', ui-monospace, monospace">Courier Prime &mdash; what ships today</option>
+          <option value="'Space Mono', ui-monospace, monospace">Space Mono</option>
+          <option value="'JetBrains Mono', ui-monospace, monospace">JetBrains Mono</option>
+          <option value="'IBM Plex Mono', ui-monospace, monospace">IBM Plex Mono</option>
+          <option value="ui-monospace, SFMono-Regular, Menlo, monospace">Your phone&rsquo;s own mono</option>
+        </select></label>
+
+      <label class="pk"><span>The ARTISTS bar</span>
+        <select id="fKick">
+          <option value="0">Courier Prime &mdash; what shipped before</option>
+          <option value="1" selected>Anton &mdash; same as the masthead</option>
+          <option value="2">Plus Jakarta Sans 800 &mdash; same as the posts</option>
+          <option value="3">Bebas Neue</option>
+          <option value="4">Staatliches</option>
+          <option value="5">Archivo Black</option>
+          <option value="6">Chivo 900</option>
+          <option value="7">Space Grotesk 700</option>
+        </select></label>
+
+      <p class="fnote" id="fnote"></p>
+    </div>
+
+    <span class="lw">While you judge it</span>
+    <div class="seg">
+      <button type="button" id="bPeek" aria-pressed="false">See the picture on its own</button>
+    </div>
+
+    <button type="button" class="rst" id="reset">Back to the 5 Oct version</button>
+    <div class="num" id="readout"></div>
+  </div>
+</div>
+
+<script>
+(function(){
+  var DEFS   = "<defs><linearGradient id='sky' x1='0' y1='0' x2='0' y2='1'><stop offset='0' stop-color='#FBD894'/><stop offset='.20' stop-color='#F8C57C'/><stop offset='.40' stop-color='#F2A866'/><stop offset='.56' stop-color='#E88A5C'/><stop offset='.70' stop-color='#D4705C'/><stop offset='.84' stop-color='#A85A5E'/><stop offset='1' stop-color='#7B4659'/></linearGradient><radialGradient id='sun' cx='50%' cy='50%' r='50%'><stop offset='0' stop-color='#FFFBEB' stop-opacity='1'/><stop offset='.26' stop-color='#FFF0C6' stop-opacity='.9'/><stop offset='.52' stop-color='#FDD89B' stop-opacity='.48'/><stop offset='.76' stop-color='#F7B87E' stop-opacity='.18'/><stop offset='1' stop-color='#EFA172' stop-opacity='0'/></radialGradient><linearGradient id='haze' x1='0' y1='0' x2='0' y2='1'><stop offset='0' stop-color='#FBDFB4' stop-opacity='0'/><stop offset='.55' stop-color='#FADCB2' stop-opacity='.55'/><stop offset='1' stop-color='#F8D5A8' stop-opacity='.9'/></linearGradient></defs>";
+  var RIDGES = "<path d='M0 662C1 663 6 663 9 664C12 664 14 664 17 665C20 665 23 665 26 666C29 666 32 666 35 667C38 667 40 667 43 667C46 668 49 668 52 668C55 668 58 669 61 669C63 669 66 670 69 670C72 671 75 671 78 672C81 672 84 673 87 674C89 674 92 675 95 676C98 677 101 678 104 679C107 680 110 682 112 683C115 684 118 686 121 688C124 689 127 691 130 693C133 695 136 697 138 700C141 702 144 704 147 706C150 709 153 711 156 714C159 717 162 719 164 722C167 725 170 728 173 731C176 733 179 736 182 739C185 742 188 745 190 747C193 750 196 753 199 756C202 758 205 761 208 764C211 766 213 769 216 771C219 773 222 775 225 777C228 780 231 781 234 783C237 785 239 787 242 788C245 790 248 791 251 793C254 794 257 795 260 796C262 797 265 798 268 799C271 799 274 800 277 801C280 801 283 802 286 802C288 802 291 803 294 803C297 803 300 804 303 804C306 804 309 804 312 805C314 805 317 805 320 805C323 805 326 806 329 806C332 806 335 806 338 807C340 807 343 807 346 808C349 808 352 808 355 809C358 809 361 810 363 810C366 810 369 811 372 811C375 812 378 812 381 813C384 813 387 814 389 814C392 815 395 815 398 815C401 816 404 816 407 816C410 816 412 816 415 817C418 817 421 817 424 816C427 816 430 816 433 816C436 815 438 815 441 815C444 814 447 813 450 813C453 812 456 811 459 810C462 809 464 808 467 807C470 806 473 805 476 804C479 803 482 801 485 800C488 799 490 797 493 796C496 795 499 794 502 792C505 791 508 790 511 789C513 787 516 786 519 785C522 784 525 783 528 782C531 781 534 780 537 780C539 779 542 778 545 778C548 777 551 777 554 777C557 776 560 776 562 776C565 776 568 776 571 776C574 776 577 777 580 777C583 778 586 778 588 779C591 779 594 780 597 780C600 781 603 782 606 782C609 783 612 784 614 784C617 785 620 786 623 786C626 787 629 787 632 788C635 788 638 789 640 789C643 789 646 790 649 790C652 790 655 790 658 790C661 790 663 790 666 790C669 789 672 789 675 789C678 788 681 787 684 787C687 786 689 785 692 785C695 784 698 783 701 782C704 781 707 780 710 778C712 777 715 776 718 775C721 774 724 773 727 771C730 770 733 769 736 768C738 766 741 765 744 764C747 763 750 762 753 761C756 760 759 758 762 757C764 756 767 755 770 754C773 754 776 753 779 752C782 751 785 750 788 749C790 748 793 748 796 747C799 746 802 745 805 745C808 744 811 743 813 742C816 742 819 741 822 740C825 739 828 738 831 737C834 736 837 735 839 734C842 733 845 732 848 731C851 729 854 728 857 726C860 725 862 723 865 722C868 720 871 718 874 716C877 714 880 713 883 710C886 708 888 706 891 704C894 702 899 698 900 697L900 1400 L0 1400 Z' fill='#C79A80' opacity='0.5'/><path d='M0 758C1 759 6 759 9 760C12 760 14 760 17 761C20 761 23 761 26 762C29 762 32 762 35 763C38 763 40 763 43 763C46 764 49 764 52 764C55 764 58 765 61 765C63 765 66 766 69 766C72 767 75 767 78 768C81 768 84 769 87 770C89 770 92 771 95 772C98 773 101 774 104 775C107 776 110 778 112 779C115 780 118 782 121 784C124 785 127 787 130 789C133 791 136 793 138 796C141 798 144 800 147 802C150 805 153 807 156 810C159 813 162 815 164 818C167 821 170 824 173 827C176 829 179 832 182 835C185 838 188 841 190 843C193 846 196 849 199 852C202 854 205 857 208 860C211 862 213 865 216 867C219 869 222 871 225 873C228 876 231 877 234 879C237 881 239 883 242 884C245 886 248 887 251 889C254 890 257 891 260 892C262 893 265 894 268 895C271 895 274 896 277 897C280 897 283 898 286 898C288 898 291 899 294 899C297 899 300 900 303 900C306 900 309 900 312 901C314 901 317 901 320 901C323 901 326 902 329 902C332 902 335 902 338 903C340 903 343 903 346 904C349 904 352 904 355 905C358 905 361 906 363 906C366 906 369 907 372 907C375 908 378 908 381 909C384 909 387 910 389 910C392 911 395 911 398 911C401 912 404 912 407 912C410 912 412 912 415 913C418 913 421 913 424 912C427 912 430 912 433 912C436 911 438 911 441 911C444 910 447 909 450 909C453 908 456 907 459 906C462 905 464 904 467 903C470 902 473 901 476 900C479 899 482 897 485 896C488 895 490 893 493 892C496 891 499 890 502 888C505 887 508 886 511 885C513 883 516 882 519 881C522 880 525 879 528 878C531 877 534 876 537 876C539 875 542 874 545 874C548 873 551 873 554 873C557 872 560 872 562 872C565 872 568 872 571 872C574 872 577 873 580 873C583 874 586 874 588 875C591 875 594 876 597 876C600 877 603 878 606 878C609 879 612 880 614 880C617 881 620 882 623 882C626 883 629 883 632 884C635 884 638 885 640 885C643 885 646 886 649 886C652 886 655 886 658 886C661 886 663 886 666 886C669 885 672 885 675 885C678 884 681 883 684 883C687 882 689 881 692 881C695 880 698 879 701 878C704 877 707 876 710 874C712 873 715 872 718 871C721 870 724 869 727 867C730 866 733 865 736 864C738 862 741 861 744 860C747 859 750 858 753 857C756 856 759 854 762 853C764 852 767 851 770 850C773 850 776 849 779 848C782 847 785 846 788 845C790 844 793 844 796 843C799 842 802 841 805 841C808 840 811 839 813 838C816 838 819 837 822 836C825 835 828 834 831 833C834 832 837 831 839 830C842 829 845 828 848 827C851 825 854 824 857 822C860 821 862 819 865 818C868 816 871 814 874 812C877 810 880 809 883 806C886 804 888 802 891 800C894 798 899 794 900 793L900 1400 L0 1400 Z' fill='url(#haze)' opacity='0.42'/><path d='M0 757C1 758 6 761 9 763C12 765 14 767 17 769C20 771 23 773 26 776C29 778 32 780 35 782C38 784 40 786 43 788C46 790 49 791 52 793C55 794 58 796 61 797C63 798 66 799 69 799C72 800 75 801 78 801C81 801 84 801 87 801C89 801 92 801 95 801C98 801 101 800 104 800C107 799 110 799 112 798C115 798 118 797 121 797C124 796 127 796 130 795C133 795 136 795 138 794C141 794 144 794 147 794C150 794 153 795 156 795C159 796 162 796 164 797C167 798 170 798 173 799C176 800 179 801 182 803C185 804 188 805 190 806C193 808 196 809 199 810C202 812 205 813 208 814C211 816 213 817 216 818C219 819 222 821 225 822C228 823 231 824 234 825C237 825 239 826 242 827C245 828 248 828 251 829C254 829 257 830 260 830C262 831 265 831 268 832C271 832 274 833 277 833C280 834 283 835 286 835C288 836 291 837 294 838C297 839 300 841 303 842C306 843 309 845 312 847C314 849 317 851 320 853C323 855 326 858 329 860C332 863 335 866 338 868C340 871 343 875 346 878C349 881 352 884 355 887C358 891 361 894 363 897C366 901 369 904 372 907C375 910 378 914 381 916C384 919 387 922 389 925C392 927 395 930 398 932C401 934 404 936 407 938C410 939 412 941 415 942C418 943 421 944 424 945C427 945 430 946 433 946C436 946 438 946 441 946C444 946 447 945 450 945C453 945 456 944 459 943C462 943 464 942 467 941C470 941 473 940 476 939C479 938 482 938 485 937C488 936 490 935 493 935C496 934 499 933 502 933C505 932 508 932 511 931C513 930 516 930 519 929C522 928 525 928 528 927C531 926 534 925 537 924C539 923 542 922 545 921C548 920 551 919 554 917C557 915 560 914 562 912C565 910 568 908 571 906C574 903 577 901 580 898C583 895 586 893 588 890C591 887 594 883 597 880C600 877 603 874 606 870C609 867 612 863 614 860C617 857 620 853 623 850C626 847 629 843 632 840C635 837 638 834 640 831C643 828 646 826 649 823C652 821 655 819 658 817C661 815 663 813 666 812C669 811 672 809 675 808C678 807 681 807 684 806C687 806 689 805 692 805C695 805 698 805 701 805C704 805 707 805 710 805C712 805 715 805 718 806C721 806 724 806 727 806C730 806 733 806 736 806C738 806 741 806 744 806C747 805 750 805 753 805C756 804 759 803 762 803C764 802 767 801 770 800C773 799 776 798 779 797C782 796 785 795 788 794C790 793 793 792 796 791C799 790 802 789 805 788C808 788 811 787 813 786C816 785 819 785 822 784C825 784 828 783 831 783C834 783 837 783 839 783C842 783 845 783 848 783C851 784 854 784 857 784C860 785 862 785 865 785C868 786 871 786 874 787C877 787 880 787 883 787C886 788 888 788 891 788C894 788 899 787 900 787L900 1400 L0 1400 Z' fill='#B07F72' opacity='0.62'/><path d='M0 853C1 854 6 857 9 859C12 861 14 863 17 865C20 867 23 869 26 872C29 874 32 876 35 878C38 880 40 882 43 884C46 886 49 887 52 889C55 890 58 892 61 893C63 894 66 895 69 895C72 896 75 897 78 897C81 897 84 897 87 897C89 897 92 897 95 897C98 897 101 896 104 896C107 895 110 895 112 894C115 894 118 893 121 893C124 892 127 892 130 891C133 891 136 891 138 890C141 890 144 890 147 890C150 890 153 891 156 891C159 892 162 892 164 893C167 894 170 894 173 895C176 896 179 897 182 899C185 900 188 901 190 902C193 904 196 905 199 906C202 908 205 909 208 910C211 912 213 913 216 914C219 915 222 917 225 918C228 919 231 920 234 921C237 921 239 922 242 923C245 924 248 924 251 925C254 925 257 926 260 926C262 927 265 927 268 928C271 928 274 929 277 929C280 930 283 931 286 931C288 932 291 933 294 934C297 935 300 937 303 938C306 939 309 941 312 943C314 945 317 947 320 949C323 951 326 954 329 956C332 959 335 962 338 964C340 967 343 971 346 974C349 977 352 980 355 983C358 987 361 990 363 993C366 997 369 1000 372 1003C375 1006 378 1010 381 1012C384 1015 387 1018 389 1021C392 1023 395 1026 398 1028C401 1030 404 1032 407 1034C410 1035 412 1037 415 1038C418 1039 421 1040 424 1041C427 1041 430 1042 433 1042C436 1042 438 1042 441 1042C444 1042 447 1041 450 1041C453 1041 456 1040 459 1039C462 1039 464 1038 467 1037C470 1037 473 1036 476 1035C479 1034 482 1034 485 1033C488 1032 490 1031 493 1031C496 1030 499 1029 502 1029C505 1028 508 1028 511 1027C513 1026 516 1026 519 1025C522 1024 525 1024 528 1023C531 1022 534 1021 537 1020C539 1019 542 1018 545 1017C548 1016 551 1015 554 1013C557 1011 560 1010 562 1008C565 1006 568 1004 571 1002C574 999 577 997 580 994C583 991 586 989 588 986C591 983 594 979 597 976C600 973 603 970 606 966C609 963 612 959 614 956C617 953 620 949 623 946C626 943 629 939 632 936C635 933 638 930 640 927C643 924 646 922 649 919C652 917 655 915 658 913C661 911 663 909 666 908C669 907 672 905 675 904C678 903 681 903 684 902C687 902 689 901 692 901C695 901 698 901 701 901C704 901 707 901 710 901C712 901 715 901 718 902C721 902 724 902 727 902C730 902 733 902 736 902C738 902 741 902 744 902C747 901 750 901 753 901C756 900 759 899 762 899C764 898 767 897 770 896C773 895 776 894 779 893C782 892 785 891 788 890C790 889 793 888 796 887C799 886 802 885 805 884C808 884 811 883 813 882C816 881 819 881 822 880C825 880 828 879 831 879C834 879 837 879 839 879C842 879 845 879 848 879C851 880 854 880 857 880C860 881 862 881 865 881C868 882 871 882 874 883C877 883 880 883 883 883C886 884 888 884 891 884C894 884 899 883 900 883L900 1400 L0 1400 Z' fill='url(#haze)' opacity='0.36'/><path d='M0 921C1 922 6 925 9 927C12 929 14 931 17 933C20 935 23 937 26 939C29 941 32 943 35 945C38 947 40 949 43 952C46 954 49 956 52 959C55 961 58 964 61 967C63 969 66 972 69 975C72 977 75 980 78 982C81 985 84 987 87 989C89 991 92 993 95 994C98 996 101 997 104 998C107 999 110 999 112 999C115 999 118 999 121 999C124 998 127 998 130 996C133 995 136 994 138 993C141 991 144 990 147 988C150 987 153 985 156 984C159 982 162 981 164 979C167 978 170 977 173 976C176 975 179 975 182 974C185 974 188 974 190 974C193 974 196 975 199 975C202 976 205 977 208 978C211 979 213 980 216 981C219 982 222 983 225 984C228 985 231 987 234 987C237 988 239 989 242 990C245 990 248 991 251 991C254 991 257 991 260 991C262 991 265 991 268 990C271 990 274 989 277 988C280 988 283 987 286 986C288 985 291 984 294 984C297 983 300 982 303 982C306 981 309 981 312 980C314 980 317 980 320 980C323 980 326 980 329 980C332 980 335 981 338 981C340 981 343 981 346 981C349 982 352 982 355 982C358 981 361 981 363 981C366 980 369 979 372 978C375 977 378 975 381 973C384 971 387 969 389 966C392 964 395 960 398 957C401 954 404 950 407 946C410 943 412 938 415 934C418 930 421 926 424 922C427 917 430 913 433 909C436 905 438 901 441 897C444 893 447 890 450 886C453 883 456 880 459 877C462 874 464 872 467 870C470 867 473 865 476 864C479 862 482 860 485 859C488 858 490 857 493 855C496 854 499 853 502 852C505 851 508 850 511 849C513 848 516 847 519 846C522 845 525 844 528 843C531 841 534 840 537 839C539 838 542 837 545 836C548 835 551 834 554 833C557 832 560 831 562 831C565 831 568 831 571 831C574 831 577 832 580 832C583 833 586 835 588 836C591 838 594 840 597 842C600 844 603 847 606 850C609 853 612 856 614 859C617 862 620 866 623 869C626 872 629 876 632 879C635 882 638 886 640 889C643 892 646 894 649 897C652 900 655 902 658 904C661 906 663 908 666 909C669 911 672 912 675 913C678 914 681 914 684 915C687 915 689 916 692 916C695 916 698 916 701 917C704 917 707 917 710 917C712 918 715 918 718 919C721 919 724 920 727 921C730 922 733 923 736 924C738 925 741 926 744 928C747 929 750 931 753 932C756 934 759 936 762 937C764 939 767 940 770 942C773 943 776 944 779 946C782 947 785 948 788 948C790 949 793 950 796 950C799 951 802 951 805 951C808 951 811 951 813 951C816 951 819 951 822 951C825 950 828 950 831 950C834 950 837 950 839 951C842 951 845 952 848 953C851 953 854 954 857 956C860 957 862 959 865 961C868 963 871 965 874 968C877 970 880 973 883 976C886 979 888 982 891 985C894 988 899 993 900 994L900 1400 L0 1400 Z' fill='#946267' opacity='0.74'/><path d='M0 1017C1 1018 6 1021 9 1023C12 1025 14 1027 17 1029C20 1031 23 1033 26 1035C29 1037 32 1039 35 1041C38 1043 40 1045 43 1048C46 1050 49 1052 52 1055C55 1057 58 1060 61 1063C63 1065 66 1068 69 1071C72 1073 75 1076 78 1078C81 1081 84 1083 87 1085C89 1087 92 1089 95 1090C98 1092 101 1093 104 1094C107 1095 110 1095 112 1095C115 1095 118 1095 121 1095C124 1094 127 1094 130 1092C133 1091 136 1090 138 1089C141 1087 144 1086 147 1084C150 1083 153 1081 156 1080C159 1078 162 1077 164 1075C167 1074 170 1073 173 1072C176 1071 179 1071 182 1070C185 1070 188 1070 190 1070C193 1070 196 1071 199 1071C202 1072 205 1073 208 1074C211 1075 213 1076 216 1077C219 1078 222 1079 225 1080C228 1081 231 1083 234 1083C237 1084 239 1085 242 1086C245 1086 248 1087 251 1087C254 1087 257 1087 260 1087C262 1087 265 1087 268 1086C271 1086 274 1085 277 1084C280 1084 283 1083 286 1082C288 1081 291 1080 294 1080C297 1079 300 1078 303 1078C306 1077 309 1077 312 1076C314 1076 317 1076 320 1076C323 1076 326 1076 329 1076C332 1076 335 1077 338 1077C340 1077 343 1077 346 1077C349 1078 352 1078 355 1078C358 1077 361 1077 363 1077C366 1076 369 1075 372 1074C375 1073 378 1071 381 1069C384 1067 387 1065 389 1062C392 1060 395 1056 398 1053C401 1050 404 1046 407 1042C410 1039 412 1034 415 1030C418 1026 421 1022 424 1018C427 1013 430 1009 433 1005C436 1001 438 997 441 993C444 989 447 986 450 982C453 979 456 976 459 973C462 970 464 968 467 966C470 963 473 961 476 960C479 958 482 956 485 955C488 954 490 953 493 951C496 950 499 949 502 948C505 947 508 946 511 945C513 944 516 943 519 942C522 941 525 940 528 939C531 937 534 936 537 935C539 934 542 933 545 932C548 931 551 930 554 929C557 928 560 927 562 927C565 927 568 927 571 927C574 927 577 928 580 928C583 929 586 931 588 932C591 934 594 936 597 938C600 940 603 943 606 946C609 949 612 952 614 955C617 958 620 962 623 965C626 968 629 972 632 975C635 978 638 982 640 985C643 988 646 990 649 993C652 996 655 998 658 1000C661 1002 663 1004 666 1005C669 1007 672 1008 675 1009C678 1010 681 1010 684 1011C687 1011 689 1012 692 1012C695 1012 698 1012 701 1013C704 1013 707 1013 710 1013C712 1014 715 1014 718 1015C721 1015 724 1016 727 1017C730 1018 733 1019 736 1020C738 1021 741 1022 744 1024C747 1025 750 1027 753 1028C756 1030 759 1032 762 1033C764 1035 767 1036 770 1038C773 1039 776 1040 779 1042C782 1043 785 1044 788 1044C790 1045 793 1046 796 1046C799 1047 802 1047 805 1047C808 1047 811 1047 813 1047C816 1047 819 1047 822 1047C825 1046 828 1046 831 1046C834 1046 837 1046 839 1047C842 1047 845 1048 848 1049C851 1049 854 1050 857 1052C860 1053 862 1055 865 1057C868 1059 871 1061 874 1064C877 1066 880 1069 883 1072C886 1075 888 1078 891 1081C894 1084 899 1089 900 1090L900 1400 L0 1400 Z' fill='url(#haze)' opacity='0.3'/><path d='M0 1094C1 1094 6 1096 9 1096C12 1096 14 1096 17 1095C20 1095 23 1093 26 1092C29 1091 32 1090 35 1089C38 1088 40 1086 43 1085C46 1084 49 1083 52 1082C55 1081 58 1080 61 1080C63 1079 66 1079 69 1078C72 1078 75 1078 78 1077C81 1077 84 1076 87 1076C89 1075 92 1075 95 1074C98 1072 101 1071 104 1070C107 1068 110 1066 112 1064C115 1063 118 1060 121 1058C124 1056 127 1053 130 1051C133 1049 136 1046 138 1044C141 1042 144 1040 147 1039C150 1037 153 1036 156 1035C159 1034 162 1034 164 1033C167 1033 170 1034 173 1034C176 1035 179 1035 182 1036C185 1037 188 1038 190 1039C193 1040 196 1041 199 1041C202 1042 205 1042 208 1042C211 1042 213 1041 216 1041C219 1040 222 1038 225 1037C228 1035 231 1033 234 1031C237 1028 239 1026 242 1023C245 1020 248 1017 251 1014C254 1011 257 1008 260 1006C262 1003 265 1000 268 998C271 996 274 993 277 991C280 989 283 988 286 986C288 984 291 983 294 981C297 980 300 978 303 977C306 975 309 973 312 971C314 970 317 968 320 965C323 963 326 961 329 958C332 955 335 952 338 950C340 947 343 944 346 941C349 938 352 935 355 933C358 931 361 929 363 927C366 925 369 924 372 923C375 923 378 923 381 923C384 924 387 925 389 926C392 928 395 930 398 932C401 935 404 938 407 941C410 944 412 948 415 951C418 954 421 958 424 961C427 964 430 968 433 971C436 974 438 977 441 979C444 982 447 984 450 987C453 989 456 991 459 993C462 995 464 997 467 999C470 1001 473 1003 476 1005C479 1007 482 1010 485 1012C488 1015 490 1017 493 1020C496 1023 499 1026 502 1029C505 1032 508 1036 511 1039C513 1042 516 1045 519 1048C522 1050 525 1053 528 1055C531 1057 534 1059 537 1061C539 1062 542 1063 545 1064C548 1064 551 1064 554 1064C557 1064 560 1063 562 1062C565 1061 568 1060 571 1058C574 1057 577 1056 580 1055C583 1054 586 1052 588 1052C591 1051 594 1050 597 1050C600 1050 603 1050 606 1051C609 1051 612 1052 614 1053C617 1054 620 1056 623 1057C626 1059 629 1060 632 1062C635 1064 638 1065 640 1067C643 1068 646 1069 649 1071C652 1072 655 1072 658 1073C661 1074 663 1074 666 1074C669 1074 672 1074 675 1074C678 1073 681 1073 684 1073C687 1072 689 1072 692 1072C695 1072 698 1071 701 1071C704 1072 707 1072 710 1072C712 1073 715 1073 718 1074C721 1075 724 1076 727 1076C730 1077 733 1078 736 1079C738 1079 741 1080 744 1080C747 1080 750 1079 753 1078C756 1078 759 1076 762 1074C764 1073 767 1070 770 1067C773 1065 776 1061 779 1057C782 1054 785 1050 788 1045C790 1041 793 1036 796 1032C799 1027 802 1023 805 1018C808 1014 811 1010 813 1006C816 1002 819 998 822 995C825 992 828 989 831 986C834 983 837 981 839 979C842 976 845 975 848 973C851 971 854 969 857 967C860 966 862 964 865 962C868 960 871 958 874 957C877 955 880 953 883 951C886 948 888 946 891 944C894 942 899 940 900 939L900 1400 L0 1400 Z' fill='#774D60' opacity='0.85'/><path d='M0 1190C1 1190 6 1192 9 1192C12 1192 14 1192 17 1191C20 1191 23 1189 26 1188C29 1187 32 1186 35 1185C38 1184 40 1182 43 1181C46 1180 49 1179 52 1178C55 1177 58 1176 61 1176C63 1175 66 1175 69 1174C72 1174 75 1174 78 1173C81 1173 84 1172 87 1172C89 1171 92 1171 95 1170C98 1168 101 1167 104 1166C107 1164 110 1162 112 1160C115 1159 118 1156 121 1154C124 1152 127 1149 130 1147C133 1145 136 1142 138 1140C141 1138 144 1136 147 1135C150 1133 153 1132 156 1131C159 1130 162 1130 164 1129C167 1129 170 1130 173 1130C176 1131 179 1131 182 1132C185 1133 188 1134 190 1135C193 1136 196 1137 199 1137C202 1138 205 1138 208 1138C211 1138 213 1137 216 1137C219 1136 222 1134 225 1133C228 1131 231 1129 234 1127C237 1124 239 1122 242 1119C245 1116 248 1113 251 1110C254 1107 257 1104 260 1102C262 1099 265 1096 268 1094C271 1092 274 1089 277 1087C280 1085 283 1084 286 1082C288 1080 291 1079 294 1077C297 1076 300 1074 303 1073C306 1071 309 1069 312 1067C314 1066 317 1064 320 1061C323 1059 326 1057 329 1054C332 1051 335 1048 338 1046C340 1043 343 1040 346 1037C349 1034 352 1031 355 1029C358 1027 361 1025 363 1023C366 1021 369 1020 372 1019C375 1019 378 1019 381 1019C384 1020 387 1021 389 1022C392 1024 395 1026 398 1028C401 1031 404 1034 407 1037C410 1040 412 1044 415 1047C418 1050 421 1054 424 1057C427 1060 430 1064 433 1067C436 1070 438 1073 441 1075C444 1078 447 1080 450 1083C453 1085 456 1087 459 1089C462 1091 464 1093 467 1095C470 1097 473 1099 476 1101C479 1103 482 1106 485 1108C488 1111 490 1113 493 1116C496 1119 499 1122 502 1125C505 1128 508 1132 511 1135C513 1138 516 1141 519 1144C522 1146 525 1149 528 1151C531 1153 534 1155 537 1157C539 1158 542 1159 545 1160C548 1160 551 1160 554 1160C557 1160 560 1159 562 1158C565 1157 568 1156 571 1154C574 1153 577 1152 580 1151C583 1150 586 1148 588 1148C591 1147 594 1146 597 1146C600 1146 603 1146 606 1147C609 1147 612 1148 614 1149C617 1150 620 1152 623 1153C626 1155 629 1156 632 1158C635 1160 638 1161 640 1163C643 1164 646 1165 649 1167C652 1168 655 1168 658 1169C661 1170 663 1170 666 1170C669 1170 672 1170 675 1170C678 1169 681 1169 684 1169C687 1168 689 1168 692 1168C695 1168 698 1167 701 1167C704 1168 707 1168 710 1168C712 1169 715 1169 718 1170C721 1171 724 1172 727 1172C730 1173 733 1174 736 1175C738 1175 741 1176 744 1176C747 1176 750 1175 753 1174C756 1174 759 1172 762 1170C764 1169 767 1166 770 1163C773 1161 776 1157 779 1153C782 1150 785 1146 788 1141C790 1137 793 1132 796 1128C799 1123 802 1119 805 1114C808 1110 811 1106 813 1102C816 1098 819 1094 822 1091C825 1088 828 1085 831 1082C834 1079 837 1077 839 1075C842 1072 845 1071 848 1069C851 1067 854 1065 857 1063C860 1062 862 1060 865 1058C868 1056 871 1054 874 1053C877 1051 880 1049 883 1047C886 1044 888 1042 891 1040C894 1038 899 1036 900 1035L900 1400 L0 1400 Z' fill='url(#haze)' opacity='0.24'/><path d='M0 1122C1 1120 6 1113 9 1108C12 1104 14 1100 17 1096C20 1092 23 1089 26 1086C29 1084 32 1081 35 1079C38 1077 40 1075 43 1074C46 1072 49 1071 52 1069C55 1067 58 1066 61 1064C63 1062 66 1060 69 1058C72 1056 75 1054 78 1052C81 1050 84 1048 87 1047C89 1046 92 1045 95 1044C98 1044 101 1044 104 1045C107 1045 110 1047 112 1048C115 1050 118 1053 121 1055C124 1057 127 1060 130 1062C133 1065 136 1067 138 1069C141 1071 144 1072 147 1074C150 1075 153 1075 156 1075C159 1076 162 1075 164 1075C167 1074 170 1073 173 1072C176 1072 179 1071 182 1070C185 1070 188 1069 190 1069C193 1069 196 1070 199 1070C202 1071 205 1072 208 1074C211 1075 213 1076 216 1078C219 1079 222 1081 225 1082C228 1084 231 1085 234 1086C237 1087 239 1087 242 1088C245 1088 248 1089 251 1089C254 1090 257 1090 260 1091C262 1091 265 1092 268 1094C271 1096 274 1098 277 1100C280 1103 283 1106 286 1110C288 1113 291 1118 294 1122C297 1126 300 1131 303 1135C306 1140 309 1144 312 1148C314 1152 317 1156 320 1159C323 1162 326 1164 329 1166C332 1168 335 1169 338 1170C340 1171 343 1171 346 1171C349 1171 352 1171 355 1171C358 1171 361 1170 363 1170C366 1170 369 1170 372 1170C375 1169 378 1169 381 1169C384 1169 387 1169 389 1168C392 1167 395 1166 398 1165C401 1164 404 1162 407 1159C410 1157 412 1154 415 1150C418 1147 421 1143 424 1139C427 1134 430 1130 433 1126C436 1122 438 1117 441 1114C444 1110 447 1106 450 1104C453 1101 456 1098 459 1097C462 1095 464 1094 467 1093C470 1092 473 1092 476 1092C479 1092 482 1092 485 1092C488 1092 490 1092 493 1091C496 1091 499 1090 502 1089C505 1089 508 1087 511 1086C513 1085 516 1083 519 1081C522 1080 525 1078 528 1077C531 1076 534 1075 537 1074C539 1073 542 1073 545 1073C548 1073 551 1073 554 1073C557 1074 560 1074 562 1074C565 1075 568 1075 571 1075C574 1075 577 1074 580 1073C583 1072 586 1071 588 1069C591 1067 594 1065 597 1062C600 1060 603 1057 606 1054C609 1052 612 1049 614 1047C617 1045 620 1043 623 1041C626 1040 629 1040 632 1039C635 1039 638 1040 640 1041C643 1042 646 1044 649 1046C652 1048 655 1050 658 1053C661 1055 663 1057 666 1060C669 1062 672 1064 675 1067C678 1069 681 1071 684 1073C687 1075 689 1076 692 1079C695 1081 698 1083 701 1085C704 1088 707 1091 710 1094C712 1097 715 1101 718 1105C721 1109 724 1114 727 1118C730 1123 733 1128 736 1132C738 1137 741 1141 744 1145C747 1149 750 1153 753 1155C756 1158 759 1160 762 1162C764 1163 767 1164 770 1164C773 1164 776 1164 779 1163C782 1162 785 1161 788 1160C790 1159 793 1158 796 1157C799 1156 802 1155 805 1154C808 1153 811 1153 813 1153C816 1152 819 1152 822 1152C825 1152 828 1152 831 1151C834 1151 837 1150 839 1150C842 1149 845 1147 848 1146C851 1144 854 1142 857 1140C860 1138 862 1136 865 1134C868 1132 871 1129 874 1128C877 1126 880 1124 883 1123C886 1122 888 1121 891 1121C894 1121 899 1122 900 1122L900 1400 L0 1400 Z' fill='#5C3A56' opacity='0.93'/><path d='M0 1218C1 1216 6 1209 9 1204C12 1200 14 1196 17 1192C20 1188 23 1185 26 1182C29 1180 32 1177 35 1175C38 1173 40 1171 43 1170C46 1168 49 1167 52 1165C55 1163 58 1162 61 1160C63 1158 66 1156 69 1154C72 1152 75 1150 78 1148C81 1146 84 1144 87 1143C89 1142 92 1141 95 1140C98 1140 101 1140 104 1141C107 1141 110 1143 112 1144C115 1146 118 1149 121 1151C124 1153 127 1156 130 1158C133 1161 136 1163 138 1165C141 1167 144 1168 147 1170C150 1171 153 1171 156 1171C159 1172 162 1171 164 1171C167 1170 170 1169 173 1168C176 1168 179 1167 182 1166C185 1166 188 1165 190 1165C193 1165 196 1166 199 1166C202 1167 205 1168 208 1170C211 1171 213 1172 216 1174C219 1175 222 1177 225 1178C228 1180 231 1181 234 1182C237 1183 239 1183 242 1184C245 1184 248 1185 251 1185C254 1186 257 1186 260 1187C262 1187 265 1188 268 1190C271 1192 274 1194 277 1196C280 1199 283 1202 286 1206C288 1209 291 1214 294 1218C297 1222 300 1227 303 1231C306 1236 309 1240 312 1244C314 1248 317 1252 320 1255C323 1258 326 1260 329 1262C332 1264 335 1265 338 1266C340 1267 343 1267 346 1267C349 1267 352 1267 355 1267C358 1267 361 1266 363 1266C366 1266 369 1266 372 1266C375 1265 378 1265 381 1265C384 1265 387 1265 389 1264C392 1263 395 1262 398 1261C401 1260 404 1258 407 1255C410 1253 412 1250 415 1246C418 1243 421 1239 424 1235C427 1230 430 1226 433 1222C436 1218 438 1213 441 1210C444 1206 447 1202 450 1200C453 1197 456 1194 459 1193C462 1191 464 1190 467 1189C470 1188 473 1188 476 1188C479 1188 482 1188 485 1188C488 1188 490 1188 493 1187C496 1187 499 1186 502 1185C505 1185 508 1183 511 1182C513 1181 516 1179 519 1177C522 1176 525 1174 528 1173C531 1172 534 1171 537 1170C539 1169 542 1169 545 1169C548 1169 551 1169 554 1169C557 1170 560 1170 562 1170C565 1171 568 1171 571 1171C574 1171 577 1170 580 1169C583 1168 586 1167 588 1165C591 1163 594 1161 597 1158C600 1156 603 1153 606 1150C609 1148 612 1145 614 1143C617 1141 620 1139 623 1137C626 1136 629 1136 632 1135C635 1135 638 1136 640 1137C643 1138 646 1140 649 1142C652 1144 655 1146 658 1149C661 1151 663 1153 666 1156C669 1158 672 1160 675 1163C678 1165 681 1167 684 1169C687 1171 689 1172 692 1175C695 1177 698 1179 701 1181C704 1184 707 1187 710 1190C712 1193 715 1197 718 1201C721 1205 724 1210 727 1214C730 1219 733 1224 736 1228C738 1233 741 1237 744 1241C747 1245 750 1249 753 1251C756 1254 759 1256 762 1258C764 1259 767 1260 770 1260C773 1260 776 1260 779 1259C782 1258 785 1257 788 1256C790 1255 793 1254 796 1253C799 1252 802 1251 805 1250C808 1249 811 1249 813 1249C816 1248 819 1248 822 1248C825 1248 828 1248 831 1247C834 1247 837 1246 839 1246C842 1245 845 1243 848 1242C851 1240 854 1238 857 1236C860 1234 862 1232 865 1230C868 1228 871 1225 874 1224C877 1222 880 1220 883 1219C886 1218 888 1217 891 1217C894 1217 899 1218 900 1218L900 1400 L0 1400 Z' fill='url(#haze)' opacity='0.17'/><path d='M0 1170C1 1171 6 1175 9 1178C12 1181 14 1186 17 1190C20 1194 23 1199 26 1204C29 1208 32 1213 35 1217C38 1221 40 1224 43 1227C46 1229 49 1231 52 1232C55 1234 58 1234 61 1234C63 1234 66 1234 69 1234C72 1234 75 1233 78 1233C81 1233 84 1234 87 1234C89 1234 92 1234 95 1234C98 1234 101 1234 104 1233C107 1233 110 1232 112 1230C115 1228 118 1226 121 1224C124 1221 127 1218 130 1216C133 1213 136 1211 138 1209C141 1207 144 1205 147 1205C150 1204 153 1204 156 1204C159 1204 162 1205 164 1206C167 1206 170 1207 173 1208C176 1208 179 1209 182 1208C185 1208 188 1207 190 1205C193 1204 196 1202 199 1200C202 1198 205 1196 208 1194C211 1192 213 1190 216 1188C219 1186 222 1185 225 1184C228 1183 231 1182 234 1180C237 1179 239 1178 242 1176C245 1174 248 1172 251 1169C254 1167 257 1164 260 1160C262 1157 265 1153 268 1150C271 1147 274 1143 277 1141C280 1139 283 1137 286 1136C288 1135 291 1135 294 1136C297 1136 300 1138 303 1140C306 1141 309 1144 312 1146C314 1148 317 1151 320 1153C323 1155 326 1157 329 1159C332 1160 335 1162 338 1164C340 1166 343 1167 346 1170C349 1172 352 1175 355 1178C358 1181 361 1184 363 1188C366 1191 369 1195 372 1199C375 1202 378 1206 381 1209C384 1211 387 1214 389 1215C392 1216 395 1217 398 1217C401 1217 404 1216 407 1216C410 1215 412 1214 415 1213C418 1213 421 1212 424 1212C427 1212 430 1212 433 1213C436 1214 438 1215 441 1216C444 1217 447 1218 450 1219C453 1220 456 1221 459 1222C462 1222 464 1222 467 1222C470 1222 473 1222 476 1221C479 1221 482 1221 485 1221C488 1221 490 1221 493 1222C496 1222 499 1224 502 1225C505 1226 508 1228 511 1229C513 1231 516 1232 519 1233C522 1233 525 1233 528 1232C531 1232 534 1230 537 1227C539 1225 542 1222 545 1219C548 1215 551 1211 554 1208C557 1204 560 1200 562 1197C565 1194 568 1191 571 1188C574 1186 577 1183 580 1181C583 1179 586 1177 588 1174C591 1172 594 1169 597 1167C600 1164 603 1161 606 1158C609 1155 612 1152 614 1149C617 1146 620 1144 623 1142C626 1140 629 1139 632 1139C635 1139 638 1140 640 1141C643 1142 646 1144 649 1147C652 1149 655 1152 658 1154C661 1157 663 1159 666 1161C669 1163 672 1164 675 1166C678 1167 681 1167 684 1168C687 1169 689 1169 692 1170C695 1170 698 1171 701 1172C704 1173 707 1175 710 1176C712 1178 715 1180 718 1182C721 1183 724 1185 727 1187C730 1188 733 1189 736 1190C738 1190 741 1190 744 1190C747 1190 750 1189 753 1189C756 1188 759 1187 762 1188C764 1188 767 1188 770 1189C773 1190 776 1192 779 1195C782 1197 785 1200 788 1203C790 1207 793 1210 796 1213C799 1217 802 1220 805 1222C808 1225 811 1227 813 1229C816 1230 819 1232 822 1233C825 1234 828 1234 831 1235C834 1236 837 1236 839 1237C842 1238 845 1239 848 1240C851 1241 854 1243 857 1243C860 1244 862 1245 865 1244C868 1244 871 1243 874 1241C877 1239 880 1237 883 1234C886 1230 888 1226 891 1222C894 1218 899 1212 900 1209L900 1400 L0 1400 Z' fill='#43294A' opacity='0.98'/><path d='M0 1266C1 1267 6 1271 9 1274C12 1277 14 1282 17 1286C20 1290 23 1295 26 1300C29 1304 32 1309 35 1313C38 1317 40 1320 43 1323C46 1325 49 1327 52 1328C55 1330 58 1330 61 1330C63 1330 66 1330 69 1330C72 1330 75 1329 78 1329C81 1329 84 1330 87 1330C89 1330 92 1330 95 1330C98 1330 101 1330 104 1329C107 1329 110 1328 112 1326C115 1324 118 1322 121 1320C124 1317 127 1314 130 1312C133 1309 136 1307 138 1305C141 1303 144 1301 147 1301C150 1300 153 1300 156 1300C159 1300 162 1301 164 1302C167 1302 170 1303 173 1304C176 1304 179 1305 182 1304C185 1304 188 1303 190 1301C193 1300 196 1298 199 1296C202 1294 205 1292 208 1290C211 1288 213 1286 216 1284C219 1282 222 1281 225 1280C228 1279 231 1278 234 1276C237 1275 239 1274 242 1272C245 1270 248 1268 251 1265C254 1263 257 1260 260 1256C262 1253 265 1249 268 1246C271 1243 274 1239 277 1237C280 1235 283 1233 286 1232C288 1231 291 1231 294 1232C297 1232 300 1234 303 1236C306 1237 309 1240 312 1242C314 1244 317 1247 320 1249C323 1251 326 1253 329 1255C332 1256 335 1258 338 1260C340 1262 343 1263 346 1266C349 1268 352 1271 355 1274C358 1277 361 1280 363 1284C366 1287 369 1291 372 1295C375 1298 378 1302 381 1305C384 1307 387 1310 389 1311C392 1312 395 1313 398 1313C401 1313 404 1312 407 1312C410 1311 412 1310 415 1309C418 1309 421 1308 424 1308C427 1308 430 1308 433 1309C436 1310 438 1311 441 1312C444 1313 447 1314 450 1315C453 1316 456 1317 459 1318C462 1318 464 1318 467 1318C470 1318 473 1318 476 1317C479 1317 482 1317 485 1317C488 1317 490 1317 493 1318C496 1318 499 1320 502 1321C505 1322 508 1324 511 1325C513 1327 516 1328 519 1329C522 1329 525 1329 528 1328C531 1328 534 1326 537 1323C539 1321 542 1318 545 1315C548 1311 551 1307 554 1304C557 1300 560 1296 562 1293C565 1290 568 1287 571 1284C574 1282 577 1279 580 1277C583 1275 586 1273 588 1270C591 1268 594 1265 597 1263C600 1260 603 1257 606 1254C609 1251 612 1248 614 1245C617 1242 620 1240 623 1238C626 1236 629 1235 632 1235C635 1235 638 1236 640 1237C643 1238 646 1240 649 1243C652 1245 655 1248 658 1250C661 1253 663 1255 666 1257C669 1259 672 1260 675 1262C678 1263 681 1263 684 1264C687 1265 689 1265 692 1266C695 1266 698 1267 701 1268C704 1269 707 1271 710 1272C712 1274 715 1276 718 1278C721 1279 724 1281 727 1283C730 1284 733 1285 736 1286C738 1286 741 1286 744 1286C747 1286 750 1285 753 1285C756 1284 759 1283 762 1284C764 1284 767 1284 770 1285C773 1286 776 1288 779 1291C782 1293 785 1296 788 1299C790 1303 793 1306 796 1309C799 1313 802 1316 805 1318C808 1321 811 1323 813 1325C816 1326 819 1328 822 1329C825 1330 828 1330 831 1331C834 1332 837 1332 839 1333C842 1334 845 1335 848 1336C851 1337 854 1339 857 1339C860 1340 862 1341 865 1340C868 1340 871 1339 874 1337C877 1335 880 1333 883 1330C886 1326 888 1322 891 1318C894 1314 899 1308 900 1305L900 1400 L0 1400 Z' fill='url(#haze)' opacity='0.1'/><path d='M0 1243C1 1243 6 1243 9 1243C12 1244 14 1245 17 1245C20 1246 23 1246 26 1247C29 1247 32 1248 35 1249C38 1250 40 1251 43 1253C46 1255 49 1258 52 1261C55 1264 58 1268 61 1272C63 1275 66 1279 69 1282C72 1284 75 1287 78 1288C81 1290 84 1290 87 1291C89 1291 92 1291 95 1291C98 1291 101 1291 104 1291C107 1292 110 1293 112 1294C115 1294 118 1295 121 1296C124 1296 127 1296 130 1296C133 1296 136 1295 138 1294C141 1294 144 1292 147 1292C150 1291 153 1291 156 1291C159 1292 162 1293 164 1294C167 1295 170 1297 173 1298C176 1299 179 1301 182 1301C185 1301 188 1301 190 1300C193 1299 196 1298 199 1296C202 1294 205 1292 208 1290C211 1288 213 1286 216 1285C219 1283 222 1282 225 1280C228 1278 231 1277 234 1274C237 1272 239 1269 242 1266C245 1263 248 1260 251 1256C254 1253 257 1250 260 1247C262 1245 265 1243 268 1242C271 1241 274 1242 277 1242C280 1243 283 1244 286 1246C288 1247 291 1248 294 1249C297 1251 300 1251 303 1252C306 1253 309 1253 312 1254C314 1255 317 1256 320 1258C323 1259 326 1261 329 1263C332 1266 335 1268 338 1270C340 1272 343 1274 346 1275C349 1276 352 1276 355 1276C358 1276 361 1275 363 1275C366 1274 369 1273 372 1273C375 1273 378 1274 381 1275C384 1276 387 1278 389 1280C392 1282 395 1284 398 1286C401 1288 404 1289 407 1291C410 1292 412 1293 415 1294C418 1295 421 1295 424 1296C427 1298 430 1299 433 1300C436 1302 438 1304 441 1306C444 1308 447 1310 450 1311C453 1312 456 1312 459 1312C462 1311 464 1309 467 1307C470 1305 473 1302 476 1299C479 1297 482 1293 485 1291C488 1288 490 1286 493 1284C496 1282 499 1280 502 1278C505 1276 508 1275 511 1273C513 1271 516 1268 519 1266C522 1263 525 1260 528 1258C531 1256 534 1254 537 1253C539 1252 542 1252 545 1252C548 1252 551 1254 554 1255C557 1256 560 1258 562 1259C565 1259 568 1260 571 1260C574 1260 577 1260 580 1259C583 1259 586 1257 588 1257C591 1256 594 1256 597 1256C600 1256 603 1256 606 1257C609 1257 612 1258 614 1258C617 1259 620 1259 623 1259C626 1259 629 1259 632 1258C635 1258 638 1257 640 1258C643 1258 646 1258 649 1260C652 1261 655 1263 658 1266C661 1269 663 1272 666 1276C669 1279 672 1283 675 1286C678 1289 681 1291 684 1293C687 1296 689 1297 692 1298C695 1300 698 1301 701 1302C704 1303 707 1304 710 1306C712 1307 715 1308 718 1309C721 1310 724 1311 727 1311C730 1311 733 1310 736 1308C738 1307 741 1304 744 1302C747 1299 750 1296 753 1293C756 1291 759 1288 762 1286C764 1285 767 1284 770 1283C773 1282 776 1282 779 1282C782 1281 785 1281 788 1280C790 1279 793 1278 796 1277C799 1275 802 1274 805 1272C808 1271 811 1270 813 1270C816 1269 819 1269 822 1269C825 1269 828 1270 831 1270C834 1270 837 1270 839 1269C842 1268 845 1267 848 1265C851 1263 854 1260 857 1258C860 1255 862 1252 865 1250C868 1248 871 1247 874 1246C877 1245 880 1245 883 1245C886 1245 888 1246 891 1246C894 1247 899 1248 900 1248L900 1400 L0 1400 Z' fill='#2E1C39' opacity='1.0'/><g fill='#1F1526' opacity='.9'><circle cx='348' cy='1300' r='24'/><rect x='324' y='1327' width='48' height='128' rx='24'/><circle cx='420' cy='1320' r='18'/><rect x='402' y='1340' width='36' height='110' rx='18'/><circle cx='490' cy='1290' r='27'/><rect x='463' y='1320' width='54' height='136' rx='27'/><circle cx='562' cy='1318' r='19'/><rect x='543' y='1339' width='38' height='112' rx='19'/></g>";
+
+  // The ridge stack, in the artwork's own units: crests start at 662,
+  // the four figures' feet end at 1456.
+  var TOP = 662, FEET = 1456, W = 900;
+
+  var D = { sky:60, suny:380, sunr:116, wash:24, glass:70, foot:true };          // the new look
+  var OLD = { sky:-56, suny:690, sunr:116, wash:30, glass:0, foot:false };      // 5 Oct, for the reset
+  var s = Object.assign({}, D);
+
+
+  // ---- the small grey text has to darken as the glass opens ----
+  // #63716A on solid white is only 5.12:1 — it has almost no headroom, so the
+  // moment a card goes see-through the timestamps and "2 replies" fall under
+  // 4.5 long before the body text does. SURF is the measured worst-case card
+  // surface (darkest ridge under the last post, rendered at a true 420x900).
+  var SURF = [[0,1.000],[20,0.740],[30,0.628],[40,0.523],[44,0.484],
+              [50,0.434],[58,0.364],[65,0.311],[70,0.277]];
+  function surfaceAt(g){
+    if (g <= SURF[0][0]) return SURF[0][1];
+    for (var i=1;i<SURF.length;i++){
+      if (g <= SURF[i][0]){
+        var a=SURF[i-1], b=SURF[i], t=(g-a[0])/(b[0]-a[0]);
+        return a[1] + t*(b[1]-a[1]);
+      }
+    }
+    return SURF[SURF.length-1][1];
+  }
+  function chan(v){ v/=255; return v<=0.03928 ? v/12.92 : Math.pow((v+0.055)/1.055,2.4); }
+  function lum(r,g,b){ return 0.2126*chan(r)+0.7152*chan(g)+0.0722*chan(b); }
+  function softFor(glass){
+    var target = (surfaceAt(glass)+0.05)/4.7 - 0.05;       // 4.7, so 8-bit rounding still lands over the 4.5 floor
+    var base = [99,113,106];                                // #63716A
+    if (lum(base[0],base[1],base[2]) <= target) return 'rgb(99,113,106)';
+    var lo=0, hi=1;
+    for (var i=0;i<24;i++){                                 // walk it toward black on its own hue
+      var k=(lo+hi)/2, c=base.map(function(v){ return v*k; });
+      if (lum(c[0],c[1],c[2]) > target) hi=k; else lo=k;
+    }
+    var c = base.map(function(v){ return Math.round(v*lo); });
+    return 'rgb(' + c[0] + ',' + c[1] + ',' + c[2] + ')';
+  }
+
+  var bg = document.querySelector('.wallbg');
+  var tabs = document.querySelector('.tabs');
+  var $ = function(id){ return document.getElementById(id); };
+
+  function art(ARTH, shift){
+    return "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 " + W + " " + ARTH + "'"
+      + " preserveAspectRatio='none'>"
+      + DEFS
+      + "<rect width='" + W + "' height='" + ARTH + "' fill='url(#sky)'/>"
+      + "<circle cx='606' cy='" + s.suny + "' r='" + (s.sunr*2) + "' fill='url(#sun)'/>"
+      + "<circle cx='606' cy='" + s.suny + "' r='" + Math.round(s.sunr*0.672) + "' fill='#FFF9E8' opacity='.97'/>"
+      + "<g transform='translate(0," + shift + ")'>" + RIDGES + "</g>"
+      + "</svg>";
+  }
+
+  function render(){
+    var fh = s.foot ? (tabs ? tabs.offsetHeight : 56) : 0;
+    bg.style.setProperty('--wb', fh + 'px');
+
+    var w = bg.clientWidth, h = bg.clientHeight;
+    if (!w || !h) return;
+
+    // The frame is cut to the shape of the space it sits in, so the picture
+    // always fills it exactly: nothing cropped, no bars down the sides.
+    var ARTH  = Math.round(W * h / w);
+    var shift = Math.round(ARTH - FEET + s.sky);
+
+    bg.style.setProperty('--art',
+      'url("data:image/svg+xml,' + encodeURIComponent(art(ARTH, shift)).replace(/"/g,'%22') + '")');
+    document.documentElement.style.setProperty('--wash', (s.wash/100).toFixed(2));
+    document.documentElement.style.setProperty('--glass', (1 - s.glass/100).toFixed(2));
+    document.documentElement.style.setProperty('--soft', softFor(s.glass));
+
+    var ridgeTop = TOP + shift;
+    var sunBottom = s.suny + s.sunr*2;
+    if ($('vSky')) {
+      $('vSky').textContent  = s.sky > 0 ? '+' + s.sky : String(s.sky);
+      $('vSunY').textContent = s.suny;
+      $('vSunR').textContent = s.sunr;
+      $('vWash').textContent = s.wash + '%';
+      $('vGlass').textContent = s.glass + '%';
+      $('readout').textContent =
+        'sky ' + s.sky + '   sun y ' + s.suny + '   sun r ' + s.sunr +
+        '   wash ' + s.wash + '%   glass ' + s.glass + '%   bottom ' + (s.foot ? 'at footer' : 'under footer') +
+        '\nframe 900x' + ARTH + '  shift ' + shift +
+        '\nridgeline at ' + ridgeTop + '  sun clears it by ' + (ridgeTop - sunBottom) +
+        '\nsmall grey text ' + softFor(s.glass) + ' (held at 4.5:1)';
+    }
+  }
+
+  function bind(id, key){
+    var el = $(id); if (!el) return;
+    el.value = s[key];
+    el.addEventListener('input', function(){ s[key] = +el.value; render(); });
+  }
+  bind('sky','sky'); bind('suny','suny'); bind('sunr','sunr'); bind('wash','wash'); bind('glass','glass');
+
+  function foot(on){
+    s.foot = on;
+    if ($('bFoot')) { $('bFoot').setAttribute('aria-pressed', String(on));
+                      $('bUnder').setAttribute('aria-pressed', String(!on)); }
+    render();
+  }
+  if ($('bFoot'))  $('bFoot').addEventListener('click', function(){ foot(true); });
+  if ($('bUnder')) $('bUnder').addEventListener('click', function(){ foot(false); });
+  if ($('reset'))  $('reset').addEventListener('click', function(){
+    s = Object.assign({}, OLD);
+    ['sky','suny','sunr','wash','glass'].forEach(function(k){ if ($(k)) $(k).value = s[k]; });
+    foot(s.foot);
+  });
+
+  var peek = false;
+  if ($('bPeek')) $('bPeek').addEventListener('click', function(){
+    peek = !peek;
+    document.querySelector('.phone').classList.toggle('peek', peek);
+    $('bPeek').setAttribute('aria-pressed', String(peek));
+    $('bPeek').textContent = peek ? 'Put the feed back' : 'See the picture on its own';
+  });
+
+  // ---- type ----
+  function pick(id, prop){
+    var el = $(id); if (!el) return;
+    el.addEventListener('change', function(){
+      document.documentElement.style.setProperty(prop, el.value);
+      probe();
+    });
+  }
+  pick('fBody','--body'); pick('fDisp','--disp'); pick('fMono','--mono');
+
+  // The ARTISTS bar. Each option carries its own size, weight and tracking —
+  // a display face at Courier's 10.5px/.12em reads as a mistake, not a choice.
+  var KICK = [
+    ["'Courier Prime',ui-monospace,monospace", "10.5px", 700, ".12em"],
+    ["'Anton',Impact,sans-serif",              "13.5px", 400, ".07em"],
+    ["'Plus Jakarta Sans',system-ui,sans-serif","11px",  800, ".09em"],
+    ["'Bebas Neue',Impact,sans-serif",         "14.5px", 400, ".10em"],
+    ["'Staatliches',Impact,sans-serif",        "14px",   400, ".09em"],
+    ["'Archivo Black',Impact,sans-serif",      "10px",   400, ".08em"],
+    ["'Chivo',Impact,sans-serif",              "10.5px", 900, ".09em"],
+    ["'Space Grotesk',system-ui,sans-serif",   "11.5px", 700, ".10em"]
+  ];
+  function setKick(i){
+    var k = KICK[i], r = document.documentElement.style;
+    r.setProperty('--kickF', k[0]); r.setProperty('--kickS', k[1]);
+    r.setProperty('--kickW', String(k[2])); r.setProperty('--kickT', k[3]);
+    probe();
+  }
+  if ($('fKick')) $('fKick').addEventListener('change', function(){ setKick(+this.value); });
+  setKick(1);   // Anton — Ty's pick, 7 Oct
+
+  // 🔴 A webfont that fails to load falls back silently and every option looks
+  // the same. Measure a string in the chosen family against a family that
+  // cannot exist: identical widths mean nothing is loading and the picker is
+  // lying to you.
+  function widthIn(fam){
+    var d = document.createElement('span');
+    d.style.cssText = 'position:absolute;left:-9999px;white-space:nowrap;font-size:72px;font-family:' + fam;
+    d.textContent = 'Handgloves 123';
+    document.body.appendChild(d);
+    var w = d.getBoundingClientRect().width;
+    d.parentNode.removeChild(d);
+    return w;
+  }
+  function probe(){
+    var n = $('fnote'); if (!n) return;
+    var names = [["body", $('fBody')], ["display", $('fDisp')], ["mono", $('fMono')]];
+    if ($('fKick')) names.push(["artists bar", { value: KICK[+$('fKick').value][0] }]);
+    var dead = [];
+    names.forEach(function(pair){
+      var v = pair[1] ? pair[1].value : '';
+      if (/^(system-ui|ui-monospace)/.test(v)) return;      // device fonts, nothing to load
+      // ⚠️ The control has to carry the SAME fallback chain. Comparing Anton
+      // (falls back to Impact) against a nonsense face that falls back to
+      // serif gives two different widths whether or not Anton ever loaded —
+      // which is how this check said "all loading" in a renderer where
+      // nothing was. Swap only the first family, keep the rest.
+      var ctl = v.replace(/^'[^']*'/, "'Zzz No Such Face'");
+      if (Math.abs(widthIn(v) - widthIn(ctl)) < 0.5) dead.push(pair[0]);
+    });
+    n.textContent = dead.length
+      ? '\u26A0 not loading: ' + dead.join(', ') + ' \u2014 falling back, so this is not what it would look like'
+      : 'All three faces are loading. What you see is what members would see.';
+    n.style.color = dead.length ? '#B2470F' : '#8A9699';
+  }
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(probe); else setTimeout(probe, 1200);
+
+  window.addEventListener('resize', render);
+  render();
+})();
+</script>
