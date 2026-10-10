@@ -319,6 +319,47 @@
   letter-spacing:.18em; text-transform:uppercase; color:#3A4200; margin-top:8px;
 }
 
+/* =====================================================================
+   THE RUNNING CLOCK — hours, minutes, seconds under the day number.
+   9 Oct 2026, Ty's option B2.
+
+   ⚠️ INK ON ACID IN HERE, WHITE IN theme-green.css. Same rule the rest
+   of this slab already lives by: .cl is #3A4200 here and #FFFFFF there,
+   .mbar is --acid-ink here and white there. The count is a pale wash in
+   the base palette and dark green in the theme that actually ships, so
+   anything written on it needs both halves or it goes invisible in one
+   of them. That is the mistake this file has made more than once.
+
+   🔴 tabular-nums IS NOT POLISH. Without it the row jogs sideways every
+   time 9 becomes 10 and again when 59 becomes 00, because proportional
+   digits are different widths. A clock that twitches once a second reads
+   as broken. The fixed max-width on .col does the same job for the
+   column itself.
+   ===================================================================== */
+.count .cols{
+  display:flex; justify-content:center;
+  margin-top:14px; padding-top:14px;
+  border-top:1px solid rgba(15,61,42,.22);
+}
+.count .col{ flex:1 1 0; max-width:90px; padding:0 2px; min-width:0; }
+.count .col + .col{ border-left:1px solid rgba(15,61,42,.22); }
+.count .col .v{
+  font-family:'Anton',Impact,sans-serif; font-size:30px; line-height:1;
+  color:var(--acid-ink);
+  font-variant-numeric:tabular-nums; font-feature-settings:"tnum" 1;
+}
+.count .col .k{
+  font-family:'Courier Prime',monospace; font-size:9px; font-weight:700;
+  letter-spacing:.13em; text-transform:uppercase; color:#3A4200; margin-top:5px;
+}
+
+/* Somebody else's page uses .count.small — their number is not the
+   headline of your app, and nor is their clock. */
+.count.small .cols{ margin-top:10px; padding-top:10px; }
+.count.small .col{ max-width:74px; }
+.count.small .col .v{ font-size:23px; }
+.count.small .col .k{ font-size:8.5px; }
+
 h2.sec{
   font-family:'Anton',Impact,sans-serif; font-weight:400; font-size:22px;
   text-transform:uppercase; color:var(--x); letter-spacing:.01em;

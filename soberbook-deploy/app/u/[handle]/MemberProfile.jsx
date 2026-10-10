@@ -55,7 +55,8 @@ export default function MemberProfile({ profile, posts, photos, facePhoto,
           </div>
           <div className="ucount">
             <Milestones since={sinceFromCount(p.day_count)} days={p.day_count}
-                        sub={p.day_count === 1 ? 'day' : 'days'} small />
+                        sub={p.day_count === 1 ? 'day' : 'days'}
+                        secsIntoDay={p.secs_into_day ?? null} small />
           </div>
         </div>
 

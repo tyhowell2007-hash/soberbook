@@ -71,6 +71,12 @@ export default async function ProfilePage({ params }) {
   const { data: p } = await supabase
     .from(assertReadable('public_profiles'))
     .select('handle, display_name, display_avatar, display_avatar_photo, day_count, ' +
+            /* secs_into_day — how far into THEIR day it is, for the clock
+               under the number. Gated inside the view by the same
+               can_see_day_count() check day_count already uses, so
+               somebody who has hidden their count hands out no clock
+               either. ⚠️ 0182 again: named here or it arrives undefined. */
+            'secs_into_day, ' +
             'anthem_url, anthem_title, anthem_art, anthem_preview, anthem_youtube, ' +
             'anthem_spotify, ' +
             'is_mine, joined_at, total_days, ' +
@@ -408,6 +414,7 @@ export default async function ProfilePage({ params }) {
               since={sinceFromCount(p.day_count)}
               days={p.day_count}
               sub={p.day_count === 1 ? 'day' : 'days'}
+              secsIntoDay={p.secs_into_day ?? null}
               small
             />
           </div>

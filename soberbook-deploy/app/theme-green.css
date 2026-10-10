@@ -794,6 +794,18 @@ body{
   background:#FFFFFF;
 }
 
+/* ---- the running clock, on the dark green slab (9 Oct 2026) ----
+
+   The base rules in wall.css are ink-on-pale-wash. Here the slab is
+   --gd dark green, so every one of them has to flip to white, exactly
+   as .cl and .mbar above already do. Written out rather than inherited
+   because that is the failure this stylesheet keeps catching: the
+   component was right and the theme was one rule short. */
+.count .cols{ border-top-color:rgba(255,255,255,.22); }
+.count .col + .col{ border-left-color:rgba(255,255,255,.22); }
+.count .col .v{ color:#FFFFFF; }
+.count .col .k{ color:#FFFFFF; opacity:.8; }
+
 /* =====================================================================
    ROOM FOR THE PERSONAL DETAILS CARD (Ty's call, Aug 18)
 

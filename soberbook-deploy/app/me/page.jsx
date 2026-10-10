@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation';
+import { soberNow } from '../../lib/sober-clock';
 import { serverClient, assertReadable } from '../../lib/supabase-server';
 import { adminClient, adminConfigured } from '../../lib/supabase-admin';
 import { signPhotoPaths } from '../../lib/sign-photos';
@@ -20,10 +21,28 @@ export default async function MePage({ searchParams }) {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('handle, display_name, sober_since, date_prompt_off, privacy_mode, created_at, anthem_url, anthem_title, anthem_art, anthem_preview, anthem_youtube, anthem_spotify, autoplay_songs, lifetime_days, show_lifetime, bio, town, state, show_location, programs, interests, sponsor_status, avatar, avatar_kind, avatar_photo, findable_by_name, has_sponsor, will_sponsor, sponsor_na, paths, path_other, theme, day_count_visibility, private_paths, show_bio, show_interests, show_sponsoring, cover, accent, sections')
+    .select('handle, display_name, sober_since, timezone, date_prompt_off, privacy_mode, created_at, anthem_url, anthem_title, anthem_art, anthem_preview, anthem_youtube, anthem_spotify, autoplay_songs, lifetime_days, show_lifetime, bio, town, state, show_location, programs, interests, sponsor_status, avatar, avatar_kind, avatar_photo, findable_by_name, has_sponsor, will_sponsor, sponsor_na, paths, path_other, theme, day_count_visibility, private_paths, show_bio, show_interests, show_sponsoring, cover, accent, sections')
     .eq('id', user.id)
     .maybeSingle();
   if (!profile) redirect('/welcome');
+
+  /* ---- how long, in THEIR time ----
+
+     🔴 COMPUTED HERE, ON THE SERVER, AND PASSED DOWN. Two reasons, and
+     both of them are bugs this app has already paid for.
+
+     One: dayCount() measures from UTC midnight, which rolls over at 8pm
+     in Ohio. From 8pm to midnight every night, this page showed a number
+     one higher than the truth. soberNow() asks the member's own timezone
+     instead. (Verified 9 Oct 2026, 21:21 Eastern: the database said 1529
+     by current_date and 1528 by America/New_York for the same member.)
+
+     Two: the clock under the number must never be rendered from a clock
+     read during render. The server computes the pair once, both renders
+     use those numbers, and only then does the browser start ticking. See
+     the long note in components/LiveClock.jsx — this is the same bug that
+     was discarding the whole of /wall on 9 Oct. */
+  const sober = soberNow(profile.sober_since, profile.timezone);
 
   /* ---- your own face, signed ----
      ⚠️ Signed DIRECTLY rather than through signPhotoPaths(), and the
@@ -125,6 +144,7 @@ export default async function MePage({ searchParams }) {
         postPhotoUrls={postPhotoUrls}
         about={about}
         friends={friends || []}
+        sober={sober}
       />
     );
   }

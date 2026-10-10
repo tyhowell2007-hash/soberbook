@@ -30,10 +30,16 @@ function ago(iso) {
    without receiving an author id or teaching any public profile who wrote
    them. Do not replace that server-side filter with author_id. */
 export default function MeProfile({ profile, posts, avatarUrl, postPhotoUrls = {},
-                                    about = null, friends = [] }) {
+                                    about = null, friends = [], sober = null }) {
   const anonymous = profile.privacy_mode === 'anonymous';
   const since = profile.sober_since || '';
-  const days = dayCount(since);
+  /* ⚠️ `sober` comes from the server (soberNow, in page.jsx) and is
+     measured from THIS member's own midnight, not UTC. dayCount() is kept
+     as the fallback for the one case the server pair cannot cover — it is
+     null for a date that has not arrived yet, which is exactly the branch
+     startsInDays() handles two lines down. Both agree for every real
+     date except in the evening, which was the bug. */
+  const days = sober ? sober.days : dayCount(since);
   const startsIn = startsInDays(since);
   const cover = coverCss(profile.cover);
   const facePhoto = !anonymous && profile.avatar_kind === 'photo' ? avatarUrl : null;
@@ -71,7 +77,8 @@ export default function MeProfile({ profile, posts, avatarUrl, postPhotoUrls = {
           {since && startsIn === null && (
             <div className="ucount">
               <Milestones since={since} days={days}
-                          sub={days === 1 ? 'day' : 'days'} />
+                          sub={days === 1 ? 'day' : 'days'}
+                          secsIntoDay={sober ? sober.secsIntoDay : null} />
             </div>
           )}
         </div>

@@ -550,6 +550,13 @@ html[data-theme="black"] .mecream .ppempty p{ color:#A8B8AE; }
 [data-theme="black"] .mstone{ background:#241E12; }
 [data-theme="black"] .mstone-body p{ color:#E8C87A; }
 [data-theme="black"] .count .mnext{ color:#E8C87A; }
+
+/* the running clock on black — figures stay white, labels take the same
+   gold .cl and .mnext use, so the row reads as one piece (9 Oct 2026) */
+[data-theme="black"] .count .col .v{ color:#FFFFFF; }
+[data-theme="black"] .count .col .k{ color:#E8C87A; opacity:.9; }
+[data-theme="black"] .count .cols{ border-top-color:rgba(255,255,255,.18); }
+[data-theme="black"] .count .col + .col{ border-left-color:rgba(255,255,255,.18); }
 [data-theme="black"] .facepick:hover{ background:#241E12; }
 [data-theme="black"] .cbar input, [data-theme="black"] .cbar textarea{ background:#241E12; }
 [data-theme="black"] .dchip.m-copper{ background:#0F1512; color:#E8EFE9; border-color:#5E7A69; }

@@ -1,4 +1,5 @@
 import { progress, chipRow } from '../../lib/milestones';
+import LiveClock from './LiveClock';
 
 /* =====================================================================
    The count, the bar, and the chips.
@@ -18,7 +19,13 @@ import { progress, chipRow } from '../../lib/milestones';
    no broken chip. The row shows what you've earned and the one you're
    walking toward, and that is all it is ever allowed to show.
    ===================================================================== */
-export default function Milestones({ since, days, sub, small = false }) {
+/* `secsIntoDay` is how far into the member's OWN day it is, computed on
+   the server by soberNow() and handed down. Null or missing means no
+   clock and this component renders exactly as it did before — which is
+   why Me.jsx, which renders Milestones inside the settings hero and was
+   deliberately left alone, needs no change at all. */
+export default function Milestones({ since, days, sub, small = false,
+                                     secsIntoDay = null }) {
   const p = since ? progress(since) : null;
   const chips = since ? chipRow(since) : [];
 
@@ -34,6 +41,10 @@ export default function Milestones({ since, days, sub, small = false }) {
           <>
             <div className="cn">{days.toLocaleString()}</div>
             <div className="cl">{sub}</div>
+
+            {/* The clock. Renders nothing when secsIntoDay is absent, so
+                every existing caller keeps its current output. */}
+            <LiveClock days={days} secsIntoDay={secsIntoDay} />
 
             {p && p.next && (
               <>
