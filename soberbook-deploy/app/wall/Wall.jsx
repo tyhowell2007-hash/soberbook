@@ -1198,6 +1198,32 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
         <p>You made it. Pull up a chair.</p>
       </div>
 
+      {/* ---- 📌 THE TEAM'S NOTE, AT THE TOP OF THE PAGE (0191) ----
+
+          Ty: "that pin needs to go up on the wall at the very top. That
+          way people can see it."
+
+          It used to sit directly above the feed, which sounded like the
+          top and was not: the composer, the milestone offer, the pledge,
+          the gratitude line, the notifications ask, the invite ask and
+          the tour card all render before it. On a day when two of those
+          are showing, an announcement was most of a screen down and
+          nobody would ever have reported it missing — they would just
+          never have seen it.
+
+          ⚠️ BELOW THE GREETING, NOT ABOVE IT, and that is the one line
+          of this I did not take literally. The note above explains why
+          "Welcome home" is first every time: the moment somebody opens
+          this app is often not a good moment, and the first thing they
+          read should be a chair being pulled out rather than an
+          announcement. So the pin goes directly under it — first thing
+          after hello, above everything else on the page. Say the word
+          and it moves above the greeting too.
+
+          ⚠️ It renders NOTHING when there is no note, so a quiet week
+          leaves this page byte-for-byte what it was. */}
+      <TeamUpdate update={teamUpdate} />
+
       {/* ---- THE MILESTONE OFFER ----
 
           A CARD, NOT A MODAL. A modal on the morning you hit 90 days is
@@ -1796,15 +1822,6 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
             The rules that protect the wall's promise live in that file, not
             here — chiefly that a card never sits directly above the post
             the wall has singled out for being unanswered. */}
-        {/* 📌 0191 — ABOVE the mixer, never inside it. mixFeed decides
-            where ads and content cards land among the posts, and this is
-            not one of those: it is a notice that sits above the feed
-            until the team replaces it. Feeding it through the mixer
-            would make "where does the pin go" a question with two
-            answers in two files, which is the 0046 → 0049 → 0072 shape
-            the mixer's own comment warns about. */}
-        <TeamUpdate update={teamUpdate} />
-
         {mixFeed(posts, content, { lonelyId }).map((row) => {
           if (row.type === 'content') {
             /* ⚠️ `pinned` is passed, not derived from item.pinned_at.

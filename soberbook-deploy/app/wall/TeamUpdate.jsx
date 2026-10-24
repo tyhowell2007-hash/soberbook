@@ -31,11 +31,20 @@ export default function TeamUpdate({ update }) {
       <div className="tutag">
         <span className="tupin" aria-hidden="true">📌</span>
         <span>From the team</span>
-        <span className="tuwhen">{when(update.created_at)}</span>
+        {/* ⚠️ The word PINNED, not the time. Ty pointed at the prototype
+            and said "this is what I want" — and the right-hand slot
+            there says what the card IS, not when it was written. The
+            time moved to the footer where it reads as context rather
+            than as the headline. */}
+        <span className="tuwhen">Pinned</span>
       </div>
       <div className="tubody">
         <div className="tuwho">
-          <span className="tuav" aria-hidden="true">🌱</span>
+          {/* SB rather than the sprout, matching the prototype. The
+              sprout is the app's mark and appears in the masthead six
+              lines above this card; two of them on one screen reads as
+              a repeat rather than as an identity. */}
+          <span className="tuav" aria-hidden="true">SB</span>
           <span className="tuname">
             Sober Book
             {/* The seal. Deliberately NOT the gold check verified people
@@ -56,6 +65,15 @@ export default function TeamUpdate({ update }) {
             has an injection point on it. Line breaks survive through
             `white-space: pre-line` in the stylesheet instead. */}
         <p className="tutext">{body}</p>
+        {/* The footer line from the prototype. It answers the question a
+            notice at the top of a feed always raises — "why is this
+            here and when does it go away" — without anybody having to
+            ask. ⚠️ No handle line above: there is no @TeamSoberBook
+            account to resolve to, and a handle that cannot be tapped,
+            searched or followed is a promise the app does not keep. */}
+        <p className="tufoot">
+          {when(update.created_at)} · stays up here until we replace it
+        </p>
       </div>
     </article>
   );

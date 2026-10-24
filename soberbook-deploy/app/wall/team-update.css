@@ -38,3 +38,10 @@
 .tutext{ font-size:15px; white-space:pre-line; }
 
 [data-theme="black"] .tupd{ background:var(--card, #15171A); }
+
+/* The footer line, and the avatar as two letters rather than an emoji. */
+.tufoot{ font-size:12px; color:var(--soft); margin-top:9px; }
+.tuav{
+  font-family:'Anton',Impact,sans-serif; font-size:16px;
+  color:var(--acid, #D6FF2E); letter-spacing:.02em;
+}
