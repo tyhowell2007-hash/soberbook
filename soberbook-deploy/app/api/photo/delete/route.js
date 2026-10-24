@@ -75,6 +75,60 @@ export async function POST(req) {
   }
 
   /* ---------------------------------------------------------------
+     A2 · TAKE ONE PICTURE OFF MY PROFILE (0190)
+     ---------------------------------------------------------------
+     ⚠️ THIS ONE TAKES A PATH FROM THE CALLER AND THE AVATAR BRANCH
+     ABOVE DOES NOT, so it is worth saying why that is still safe.
+
+     An avatar is ONE file, so "mine" names it unambiguously and the
+     route never has to be told which. An album holds up to ten, so the
+     caller has to say which one — and the protection is that the path is
+     then checked against the member's OWN row before anything happens.
+     A path that is not in your gallery is answered exactly as a path
+     that does not exist: nothing to delete. So the caller may name a
+     file, but may only ever name one of their own.
+
+     ⚠️ Row first, file second — the same ordering the long note at the
+     top of this file argues for. If the file removal fails, an orphan
+     sits in a private bucket with nothing pointing at it and the
+     sweeper tidies it up later. If the ORDER were reversed and the row
+     update failed, the member would have been told the picture was gone
+     while their profile still showed a broken frame where it was. */
+  if (body?.kind === 'gallery') {
+    const path = typeof body?.path === 'string' ? body.path : '';
+
+    const { data: mine } = await supabase
+      .from('profiles').select('gallery').eq('id', user.id).maybeSingle();
+    const have = Array.isArray(mine?.gallery) ? mine.gallery : [];
+
+    /* Same reply whether it is somebody else's photo or no photo at all.
+       Two different messages here would let anyone test which paths are
+       real, which is the same rule the post branch below lives by. */
+    if (!path || !have.includes(path)) {
+      return NextResponse.json({ error: 'Nothing to delete.' }, { status: 404 });
+    }
+
+    const left = have.filter((p) => p !== path);
+    const { error } = await supabase.from('profiles')
+      .update({ gallery: left }).eq('id', user.id);
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 400 });
+    }
+
+    /* 🔴 THE FILE ITSELF, NOT JUST THE LINK TO IT. The bucket is private
+       for exactly this: on a public bucket, taking a photo off your
+       profile would leave it reachable forever by anyone who ever had
+       the link. For somebody who put up a picture and then thought
+       better of it, "it's off the app but still online" is the worst
+       outcome this app could produce. */
+    await adminClient().storage.from('profile-photos').remove([path]);
+
+    /* Hand back what is left, so the editor redraws from the server's
+       answer rather than from its own guess about what just happened. */
+    return NextResponse.json({ ok: true, gallery: left });
+  }
+
+  /* ---------------------------------------------------------------
      B · DELETE ONE OF MY POSTS, AND ITS PHOTO WITH IT
      --------------------------------------------------------------- */
   const postId = typeof body?.postId === 'string' ? body.postId : null;

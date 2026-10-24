@@ -89,6 +89,16 @@ const KINDS = {
      nobody will ever look at twice, on a project whose egress has
      already touched 159% of the free tier once. */
   story:  { bucket: 'story-photos', prefix: 'stories', max: 1400, quality: 80 },
+  /* 🖼 A PICTURE ON SOMEBODY'S PROFILE (0190), and the same argument one
+     more time: the prefix picks the view. `gallery/` sends the signer to
+     `public_profiles`. Put these in post-photos and every path would
+     start `posts/`, so the signer would ask `feed_posts` — which has
+     never heard of them — and the pictures would silently never appear.
+
+     ⚠️ 1600/80, the same as a post photo rather than the avatar's
+     512/82. An avatar is drawn at 72px and never opens; these open full
+     screen on a tap, so they need the resolution a post photo has. */
+  gallery:{ bucket: 'profile-photos', prefix: 'gallery', max: 1600, quality: 80 },
 };
 
 /* =====================================================================
@@ -404,10 +414,19 @@ export async function POST(req) {
            gives: a refusal that describes the wrong screen is a refusal
            nobody can act on. `room` and `dm` have LEFT this list because
            they now take video — and `comment` has joined it. */
+        /* ⚠️ `gallery` joined this list in the same change that added it
+           to KINDS, for the reason the note above gives: a new kind is
+           not finished until every message that names a kind knows about
+           it. Without this line, dropping a video into your profile
+           photos would say "A profile picture has to be a photo" — which
+           names the avatar, a different control on a different part of
+           the screen, and sends somebody to fix the wrong thing. */
         error: body?.kind === 'comment'
           ? 'A reply takes pictures, not video. Put a video on the wall instead.'
           : body?.kind === 'dropart'
           ? 'Cover art has to be a picture.'
+          : body?.kind === 'gallery'
+          ? 'Your profile photos are pictures, not video. Put a video on the wall instead.'
           : 'A profile picture has to be a photo.',
       }, { status: 415 });
     }

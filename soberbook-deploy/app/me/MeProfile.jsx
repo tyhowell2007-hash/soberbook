@@ -4,6 +4,7 @@ import Shot from '../components/Shot';
 import { dayCount, startsInDays } from '../../lib/milestones';
 import { coverCss, accentHex } from '../../lib/look';
 import ProfileTabs from '../u/[handle]/ProfileTabs';
+import Gallery from '../components/Gallery';
 /* 26 Sept — both of these were built, styled and then never imported.
    me/layout.jsx has been loading pledge.css and the .pp* grid in
    me-cream.css the whole time; only these two lines were missing. */
@@ -30,21 +31,29 @@ function ago(iso) {
    without receiving an author id or teaching any public profile who wrote
    them. Do not replace that server-side filter with author_id. */
 export default function MeProfile({ profile, posts, avatarUrl, postPhotoUrls = {},
-                                    about = null, friends = [], sober = null }) {
+                                    about = null, friends = [],
+                                    gallery = [], galleryUrls = {} }) {
   const anonymous = profile.privacy_mode === 'anonymous';
   const since = profile.sober_since || '';
-  /* ⚠️ `sober` comes from the server (soberNow, in page.jsx) and is
-     measured from THIS member's own midnight, not UTC. dayCount() is kept
-     as the fallback for the one case the server pair cannot cover — it is
-     null for a date that has not arrived yet, which is exactly the branch
-     startsInDays() handles two lines down. Both agree for every real
-     date except in the evening, which was the bug. */
-  const days = sober ? sober.days : dayCount(since);
+  const days = dayCount(since);
   const startsIn = startsInDays(since);
   const cover = coverCss(profile.cover);
   const facePhoto = !anonymous && profile.avatar_kind === 'photo' ? avatarUrl : null;
   const face = anonymous ? '🤫' : (profile.avatar || '🌱');
   const name = anonymous ? profile.handle : (profile.display_name || profile.handle);
+
+  /* 🖼 0190 — your own album.
+
+     ⚠️ Shown here even when you are anonymous, and that is deliberate.
+     The paths were signed off your OWN row rather than through
+     public_profiles (see the note in page.jsx), so this is the one
+     screen in the app where an anonymous member's photos appear. They
+     are yours and this page is only ever yours. Everywhere else the view
+     hands back an empty array and the tab is not drawn at all. */
+  const shownPhotos = (Array.isArray(gallery) ? gallery : []).filter((x) => galleryUrls[x]);
+  const photoPane = shownPhotos.length
+    ? <Gallery paths={shownPhotos} urls={galleryUrls} mine />
+    : null;
 
   return (
     <>
@@ -77,8 +86,7 @@ export default function MeProfile({ profile, posts, avatarUrl, postPhotoUrls = {
           {since && startsIn === null && (
             <div className="ucount">
               <Milestones since={since} days={days}
-                          sub={days === 1 ? 'day' : 'days'}
-                          secsIntoDay={sober ? sober.secsIntoDay : null} />
+                          sub={days === 1 ? 'day' : 'days'} />
             </div>
           )}
         </div>
@@ -101,7 +109,7 @@ export default function MeProfile({ profile, posts, avatarUrl, postPhotoUrls = {
             person who can open this page is the person it is about. */}
         <People friends={friends} />
 
-        <ProfileTabs about={about} posts={(
+        <ProfileTabs about={about} photos={photoPane} posts={(
           <div className="ublk">
           <h2 className="sec">What you&apos;ve put up</h2>
           {posts.length === 0 ? (

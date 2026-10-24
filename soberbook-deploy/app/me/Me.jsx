@@ -22,6 +22,9 @@ import { coverCss, accentHex } from '../../lib/look';
 import { SponsorPair, PathPicker, NightSwitch, DayCountVisibility,
          HandleEditor, Eye } from './ProfileBits';
 import PhotoUpload from '../components/PhotoUpload';
+/* 🖼 0190 — your profile photos. A DEFAULT import of a client component
+   from another client component, which is the ordinary case. */
+import GalleryEdit from './GalleryEdit';
 import DeleteAccount from './DeleteAccount';
 import Blocked from './Blocked';
 import PushSwitch from '../components/PushSwitch';
@@ -106,6 +109,11 @@ function Section({ title, open = false, tint, eye, id, children }) {
 
 export default function Me({ email, profile, initialAvatarUrl,
                              pendingTags = [],
+                             /* 🖼 0190 — your profile photos and the urls the
+                                server already signed for them, so the grid
+                                draws on first paint instead of popping in. */
+                             initialGallery = [],
+                             initialGalleryUrls = {},
                              /* 0186 — null for almost everybody. See the section below. */
                              artistStatus = null }) {
   const router = useRouter();
@@ -1184,6 +1192,24 @@ export default function Me({ email, profile, initialAvatarUrl,
           </p>
 
           {/* ---- privacy ---- */}
+        </Section>
+
+        {/* 🖼 0190 — YOUR PHOTOS, A SECTION OF THEIR OWN.
+
+            ⚠️ Not folded into "Your name and face" above, even though
+            both are pictures. That section's Save button writes four
+            fields at once and this grid writes itself the moment you
+            touch it — two different save models inside one card is how
+            somebody ends up pressing Save and wondering which half of
+            the card it applied to. Separate cards, separate promises.
+
+            ⚠️ It sits directly ABOVE "How you show up", where the
+            anonymous switch lives, so the sentence at the bottom of the
+            editor about what anonymous does to these photos is next to
+            the control it is talking about rather than nine sections
+            away from it. */}
+        <Section title="🖼 Your photos" tint="mint">
+          <GalleryEdit initial={initialGallery} initialUrls={initialGalleryUrls} />
         </Section>
         <Section title="👀 How you show up" tint="sky">
           <button type="button"

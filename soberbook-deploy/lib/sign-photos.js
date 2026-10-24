@@ -136,6 +136,12 @@ export async function signPhotoPaths(supabase, wanted) {
      the other bucket. */
   const storyPics   = asked.filter((p) => p.startsWith('stories/'));
   const storyVids   = asked.filter((p) => p.startsWith('storyvids/'));
+  /* 🖼 A PICTURE ON SOMEBODY'S PROFILE (0190). Its own prefix and its own
+     bucket, not `avatars/` — the avatar is one file the view vouches for
+     through display_avatar_photo, these are an array it vouches for
+     through `gallery`, and 0135's lesson says a shared prefix lets one
+     live file vouch for a dead one in the other bucket. */
+  const galleryPics = asked.filter((p) => p.startsWith('gallery/'));
 
   const allowed = new Set();
 
@@ -319,6 +325,34 @@ export async function signPhotoPaths(supabase, wanted) {
     (data || []).forEach((r) => r.video_url && allowed.add(r.video_url));
   }
 
+  /* 🖼 SOMEBODY'S PROFILE PHOTOS (0190). Asked of `public_profiles`, the
+     same view the avatar goes through — which already returns nothing at
+     all for a suspended member, a deleted one, or either side of a block,
+     and which returns `gallery` as an empty array for anybody in
+     anonymous mode. So a profile photo inherits every one of those rules
+     without this file knowing what any of them are, and switching to
+     anonymous takes the whole album off every other member's screen the
+     same moment it takes the bio and the face.
+
+     ⚠️ askedSet for the same reason as posts, rooms, DMs and replies:
+     `.overlaps()` hands back the row's WHOLE array, so without the
+     intersection we would sign pictures nobody asked about. Nothing
+     leaks — if the profile is visible so is the album — but a permission
+     control should return exactly what it was asked and nothing more.
+
+     ⚠️ The MEMBER'S OWN page does not come through here. /me signs its
+     own gallery directly off the member's own row, for the same reason
+     the avatar does: this view nulls an anonymous member's photos, which
+     is right for everybody else and wrong for the person looking at
+     their own settings. See the note in app/me/page.jsx. */
+  if (galleryPics.length) {
+    const askedSet = new Set(galleryPics);
+    const { data } = await supabase
+      .from('public_profiles').select('gallery').overlaps('gallery', galleryPics);
+    (data || []).forEach((r) =>
+      (r.gallery || []).forEach((p) => { if (askedSet.has(p)) allowed.add(p); }));
+  }
+
   if (avatarPaths.length) {
     const { data } = await supabase
       .from('public_profiles')
@@ -340,7 +374,8 @@ export async function signPhotoPaths(supabase, wanted) {
                                   ['room-videos',    'roomvids/'],
                                   ['dm-videos',      'dmvids/'],
                                   ['story-photos',   'stories/'],
-                                  ['story-videos',   'storyvids/']]) {
+                                  ['story-videos',   'storyvids/'],
+                                  ['profile-photos', 'gallery/']]) {
     const paths = [...allowed].filter((p) => p.startsWith(prefix));
     if (!paths.length) continue;
 
@@ -379,6 +414,10 @@ export function collectPaths(rows) {
        second through tenth pictures are never signed — which renders as
        broken images rather than as an error, so nobody reports it. */
     if (Array.isArray(r.photo_urls)) out.push(...r.photo_urls.filter(Boolean));
+    /* 🖼 A profile's own album (0190). Same trap as photo_urls above: miss
+       this and every picture after the first renders as a broken frame
+       rather than as an error, so nobody reports it. */
+    if (Array.isArray(r.gallery))    out.push(...r.gallery.filter(Boolean));
     if (r.photo_url)            out.push(r.photo_url);
     if (r.video_url)            out.push(r.video_url);
     if (r.display_avatar_photo) out.push(r.display_avatar_photo);

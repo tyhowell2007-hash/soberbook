@@ -143,6 +143,18 @@ const BUCKETS = [
      existed rather than through a new job somebody has to remember. */
   { bucket: 'story-photos', prefix: 'stories',   grace: GRACE_HOURS },
   { bucket: 'story-videos', prefix: 'storyvids', grace: GRACE_HOURS },
+  /* 🖼 PROFILE PHOTOS (0190), and the ordering rule above was followed:
+     referenced_media() learned about profiles.gallery in the migration
+     that created the column, BEFORE this line existed. Listing the
+     bucket first would have reported every member's album as an orphan
+     and offered to delete it — 0063's lesson, which is the reason that
+     note is written where it is.
+
+     ⚠️ Two things orphan a profile photo and both are ordinary: an
+     upload whose array write failed, and a removal whose file delete
+     failed. The grace period covers the first; this list covers the
+     second. */
+  { bucket: 'profile-photos', prefix: 'gallery', grace: GRACE_HOURS },
 ];
 
 /* Supabase's list() is paginated and folder-scoped. It also returns a

@@ -71,12 +71,6 @@ export default async function ProfilePage({ params }) {
   const { data: p } = await supabase
     .from(assertReadable('public_profiles'))
     .select('handle, display_name, display_avatar, display_avatar_photo, day_count, ' +
-            /* secs_into_day — how far into THEIR day it is, for the clock
-               under the number. Gated inside the view by the same
-               can_see_day_count() check day_count already uses, so
-               somebody who has hidden their count hands out no clock
-               either. ⚠️ 0182 again: named here or it arrives undefined. */
-            'secs_into_day, ' +
             'anthem_url, anthem_title, anthem_art, anthem_preview, anthem_youtube, ' +
             'anthem_spotify, ' +
             'is_mine, joined_at, total_days, ' +
@@ -94,7 +88,13 @@ export default async function ProfilePage({ params }) {
                back to the default by design, so the page looked like a
                member who had simply never picked anything.
                ⚠️ Add a column to public_profiles, add it here. */
-            'cover, accent, sections')
+            /* 🖼 0190 — their photos. ⚠️ ADDED TO THIS STRING AS WELL AS
+               TO THE VIEW, for the exact reason the note above gives:
+               an unasked-for column arrives as undefined, `(undefined ||
+               [])` is an empty array, and the Photos tab would simply
+               never be drawn. Nothing would error. The 20 Sept look bug
+               in one line. */
+            'cover, accent, sections, gallery')
     .eq('handle_key', handle.toLowerCase())
     .maybeSingle();
 
@@ -150,8 +150,14 @@ export default async function ProfilePage({ params }) {
     .order('created_at', { ascending: false })
     .limit(30);
 
+  /* 🖼 0190 — their album, signed in the SAME pass as the face and the
+     post pictures. A second signing round trip per page is the cost this
+     whole function exists to avoid. */
+  const theirGallery = Array.isArray(p.gallery) ? p.gallery.filter(Boolean) : [];
+
   const photos = await signPhotoPaths(supabase, [
     ...(p.display_avatar_photo ? [p.display_avatar_photo] : []),
+    ...theirGallery,
     /* ⚠️ Spread photo_urls in (0065) — otherwise photos 2..10 are never
        signed and render as broken frames on somebody else's profile. */
     ...(theirPosts || []).flatMap((x) => [
@@ -188,6 +194,7 @@ export default async function ProfilePage({ params }) {
         profile={p}
         posts={theirPosts || []}
         photos={photos}
+        gallery={theirGallery}
         facePhoto={facePhoto}
         coverBackground={coverBg}
         accent={accent}
@@ -414,7 +421,6 @@ export default async function ProfilePage({ params }) {
               since={sinceFromCount(p.day_count)}
               days={p.day_count}
               sub={p.day_count === 1 ? 'day' : 'days'}
-              secsIntoDay={p.secs_into_day ?? null}
               small
             />
           </div>
