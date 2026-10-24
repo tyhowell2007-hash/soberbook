@@ -1,0 +1,103 @@
+/* =====================================================================
+   HOW IT WORKS — the tutorial page.  23 Sept 2026.
+
+   Ty: "There's a lot of people not understanding this app. And I can
+   understand, with so much being packed into it."
+
+   ⭐ THE PAGE IS ORDERED BY WHAT SOMEBODY NEEDS FIRST, NOT BY WHAT THE
+   APP IS PROUD OF. The first card answers the only question a confused
+   member actually has — what do I do right now — in four lines. Every
+   section after it is reference, for whenever they want it. Somebody who
+   reads the first card and closes the page has got what they came for.
+
+   ⚠️ All classes prefixed hw-, checked against every stylesheet in the
+   app before being written — `.composer` collided in August, `.sheetwrap`
+   on the 29th, and `.rmwrap` collided while that was being fixed.
+
+   ⚠️ THE PAGE WEARS THE ORDINARY CREAM, like /help. It is not a place to
+   settle into; it is a page you arrive at stuck, take one thing from, and
+   leave. It should look like the rest of the app so nothing about the
+   page itself needs working out.
+   ===================================================================== */
+
+.hw-wrap{ padding-bottom:18px; }
+
+.hw-lede{
+  font-size:14.5px; line-height:1.7; color:var(--body);
+  margin:0 0 4px; max-width:52ch;
+}
+
+/* ---------- the first card: the only part most people read ---------- */
+.hw-first{
+  background:var(--paper2); border:1px solid var(--line);
+  border-radius:12px; padding:16px 16px 6px; margin:14px 0 4px;
+}
+.hw-first h2{
+  font-size:17px; margin:0 0 2px; color:var(--gd); letter-spacing:.01em;
+}
+.hw-first .hw-sub{ font-size:12.5px; color:var(--gm-t); margin:0 0 10px; }
+
+.hw-q{ list-style:none; margin:0; padding:0; counter-reset:hwq; }
+.hw-q li{
+  counter-increment:hwq; display:grid; grid-template-columns:24px 1fr; gap:11px;
+  padding:11px 0; border-top:1px solid var(--line); font-size:14px; line-height:1.6;
+}
+.hw-q li:first-child{ border-top:0; }
+.hw-q li::before{
+  content:counter(hwq); font-size:14px; font-weight:700; color:var(--gl);
+  line-height:1.6; font-variant-numeric:tabular-nums;
+}
+.hw-q b{ color:var(--gd); font-weight:700; }
+
+/* ---------- section headers ---------- */
+.hw-sec{
+  font-family:'Courier Prime',monospace;
+  font-size:11.5px; letter-spacing:.09em; text-transform:uppercase;
+  color:var(--gm-t); margin:28px 0 6px; font-weight:400;
+}
+.hw-h{ font-size:19px; margin:0 0 2px; color:var(--gd); }
+.hw-note{ font-size:12.5px; color:var(--gm-t); margin:0 0 10px; }
+.hw-p{ font-size:14.5px; line-height:1.72; color:var(--body); margin:10px 0; max-width:54ch; }
+.hw-p b{ color:var(--gd); font-weight:700; }
+
+/* ---------- the do-this box ---------- */
+/* 🔴 A REAL BORDER ON THE LEFT, NOT --line. This box is the one thing on
+   a section people scan for, and --line against --paper measured too
+   faint to find at a glance on a phone in daylight. */
+.hw-do{
+  background:var(--paper2); border:1px solid var(--line);
+  border-left:3px solid var(--gl); border-radius:0 10px 10px 0;
+  padding:12px 14px; margin:12px 0 0;
+}
+.hw-do .hw-dot{
+  font-family:'Courier Prime',monospace; font-size:11px; letter-spacing:.09em;
+  text-transform:uppercase; color:var(--gd); display:block; margin-bottom:5px;
+}
+.hw-do ul{ margin:0; padding-left:17px; }
+.hw-do li{ font-size:14px; line-height:1.62; color:var(--body); margin:4px 0; }
+.hw-do li b{ color:var(--gd); font-weight:700; }
+
+/* ---------- the green panel at the end ---------- */
+.hw-safe{
+  background:var(--gd); color:#E6F1E8; border-radius:12px;
+  padding:18px 16px; margin:26px 0 0;
+}
+.hw-safe h2{ color:#fff; font-size:18px; margin:0 0 4px; }
+.hw-safe ul{ margin:10px 0 0; padding-left:17px; }
+.hw-safe li{ font-size:14px; line-height:1.62; margin:8px 0; color:#D7E5DA; }
+.hw-safe li b{ color:var(--acid); font-weight:600; }
+
+.hw-foot{
+  margin-top:24px; padding-top:12px; border-top:1px solid var(--line);
+  font-size:12.5px; line-height:1.6; color:var(--gm-t);
+}
+
+/* ⚠️ The tour row is a LINK OUT to a 3½ minute video, and it says so.
+   A row that looks like the others and then starts playing video on a
+   phone data plan is the kind of surprise that gets an app closed. */
+.hw-tour{
+  display:block; text-decoration:none; background:var(--paper2);
+  border:1px solid var(--line); border-radius:12px; padding:14px 16px; margin:14px 0 0;
+}
+.hw-tour .hw-tt{ display:block; font-size:15px; font-weight:700; color:var(--gd); }
+.hw-tour .hw-ts{ display:block; font-size:12.5px; color:var(--gm-t); margin-top:3px; }
