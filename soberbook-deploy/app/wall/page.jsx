@@ -194,6 +194,30 @@ export default async function WallPage() {
      decides where a pin goes. */
   const content = [...(pinned || []), ...(clips || [])];
 
+  /* 📌 0191 — the team's pinned note, if there is one.
+
+     🔴 DELIBERATELY TOLERANT OF THE VIEW NOT EXISTING, and that is not
+     defensive programming for its own sake — it is the 23 Oct lesson
+     written into the code. The profile-photos change shipped with page
+     selects that named a column by name; the migration had failed on an
+     error nobody read, and because the select could not tolerate a
+     missing column, /me sent every member to /welcome and every profile
+     404'd. The feature and the whole screen went down together.
+
+     ⭐ Here the worst case is that the card does not appear. `error` is
+     swallowed and `teamUpdate` stays null, so this file is safe to
+     deploy before the migration, after it, or without it ever running.
+     A wall with no notice on it is a working wall.
+
+     ⚠️ maybeSingle(), because the view is `limit 1` — it returns one row
+     or none, and single() would treat none as an error. */
+  let teamUpdate = null;
+  try {
+    const { data: tu } = await supabase
+      .from('live_team_update').select('id, body, created_at').maybeSingle();
+    teamUpdate = tu || null;
+  } catch { /* see above — a missing view must never cost the wall */ }
+
   /* 0179: the posts that carry these exact cards (hearts + replies on
      podcasts and ads). fetchFeedPosts above ran before the cards were
      known, so fill in any it didn't find. Plain posts are untouched. */
@@ -469,6 +493,7 @@ export default async function WallPage() {
             canHide={!!profile.is_admin}
             drops={drops}
             dropUrls={dropUrls}
+            teamUpdate={teamUpdate}
           />}
     </>
   );

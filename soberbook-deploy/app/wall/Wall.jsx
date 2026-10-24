@@ -18,6 +18,8 @@ import { fetchTags, attachTags } from '../../lib/tags';
 import { fetchBroadcasts } from '../../lib/highlights';
 import { buildIndex, findMentions, activeQuery, suggest, saysHighlight } from '../../lib/mentions';
 import { mixFeed } from '../../lib/mix';
+/* 📌 0191 — the team's pinned note. Renders nothing when there isn't one. */
+import TeamUpdate from './TeamUpdate';
 import ContentCard from '../components/ContentCard';
 /* 🔴 The wall's post list is fetched in ONE place now — see lib/feed-posts.js.
    These three client re-fetches used to be plain limit(60) queries, which
@@ -152,7 +154,10 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
                                photoUrls = {}, previews = {}, tags: tags0 = {},
                                broadcast: broadcast0 = [],
                                content = [], thumbBase = '',
-                               drops = {}, dropUrls = {}, canHide = false }) {
+                               drops = {}, dropUrls = {}, canHide = false,
+                               /* 📌 0191 — null on a quiet week, and the
+                                  card draws nothing at all for null. */
+                               teamUpdate = null }) {
   const router = useRouter();
   const supabase = browserClient();
   /* The milestone landing today, if there is one and it hasn't been
@@ -1791,6 +1796,15 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
             The rules that protect the wall's promise live in that file, not
             here — chiefly that a card never sits directly above the post
             the wall has singled out for being unanswered. */}
+        {/* 📌 0191 — ABOVE the mixer, never inside it. mixFeed decides
+            where ads and content cards land among the posts, and this is
+            not one of those: it is a notice that sits above the feed
+            until the team replaces it. Feeding it through the mixer
+            would make "where does the pin go" a question with two
+            answers in two files, which is the 0046 → 0049 → 0072 shape
+            the mixer's own comment warns about. */}
+        <TeamUpdate update={teamUpdate} />
+
         {mixFeed(posts, content, { lonelyId }).map((row) => {
           if (row.type === 'content') {
             /* ⚠️ `pinned` is passed, not derived from item.pinned_at.

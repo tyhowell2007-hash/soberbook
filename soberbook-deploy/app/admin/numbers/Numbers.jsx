@@ -195,6 +195,10 @@ export default function Numbers({ initial }) {
         <Link href="/admin/traffic" className="btn">Traffic &amp; analytics</Link>
         <Link href="/admin/growth" className="btn">Growth &amp; retention</Link>
         <Link href="/admin/artists" className="btn">Artists</Link>
+        {/* 📌 0191 — the team's pinned note. It lives beside Artists
+            because this row is already where the back rooms are listed,
+            and a screen nobody can find is a screen nobody uses. */}
+        <Link href="/admin/update" className="btn">Team update</Link>
         <Link href="/admin" className="btn">
           {s.reports_open > 0
             ? `${s.reports_open} report${s.reports_open === 1 ? '' : 's'} waiting`
