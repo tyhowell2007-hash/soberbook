@@ -1,0 +1,81 @@
+TEAM UPDATE PIN — 24 October 2026
+
+
+WHAT IT IS
+
+  A note from Sober Book that sits at the top of everybody's wall until
+  you replace it or take it down. Dark green header strip with a pin,
+  the Sober Book name with the official seal under it, and your words.
+
+  You post it from /admin/update — there is a "Team update" button on
+  the admin numbers screen next to Artists.
+
+
+WHAT IT IS NOT, AND WHY
+
+  No account, no profile page, no login. You said the pin was the part
+  you wanted, and an account would have brought a password for two
+  people to share, a row in the member count, replies and friend
+  requests nothing is listening to, and a name people tap through to an
+  empty page. All of that is machinery built to hold one sentence.
+
+  The name on the card is deliberately not a link. There is nowhere for
+  it to go, and a name that looks tappable and isn't reads as broken.
+  If you ever do want the profile page, that is where the link goes.
+
+
+TWO ORDERS, EITHER IS FINE
+
+  1. "STEP 1 - RUN THIS IN SUPABASE.sql"
+  2. Drag the  app  folder to GitHub
+
+  ⭐ Unlike last time, the order genuinely does not matter. The wall
+  code is written to work whether or not the database half has run — if
+  the view isn't there, the card just doesn't appear and nothing else
+  changes. That is the 23 October lesson built into the code rather
+  than into a warning at the top of a file.
+
+  Target: https://github.com/tyhowell2007-hash/soberbook/upload/main/soberbook-deploy
+  Breadcrumb must read  soberbook / soberbook-deploy
+
+
+THE 8 FILES, ALL UNDER app/
+
+  NEW   app/wall/TeamUpdate.jsx        the pinned card
+  NEW   app/wall/team-update.css       its styles
+  NEW   app/admin/update/page.jsx      the admin screen
+  NEW   app/admin/update/Update.jsx    the box you type in
+  NEW   app/admin/update/update.css    its styles
+        app/wall/Wall.jsx              draws the card above the feed
+        app/wall/page.jsx              reads the live note
+        app/admin/numbers/Numbers.jsx  a "Team update" button
+
+
+HOW IT BEHAVES
+
+  · One pin at a time. Posting a new one clears the old one in the same
+    database statement, so there is never a moment with two or none.
+  · Nothing is deleted. Cleared notes stay in the table with the time
+    they came down and which admin posted them.
+  · No notification goes out. People see it next time they open the
+    wall. An outage is worth waking 449 phones for; a feature is not.
+  · 800 characters. It is a notice, not a blog post.
+  · Plain text only — never markup. That string renders on 449 people's
+    wall, and the day it accepts HTML is the day the wall has an
+    injection point on it. Line breaks still survive.
+
+
+CHECKED BEFORE HANDOVER
+
+  next build                    green on 14.2.35
+  all 8 files parse
+  /admin/update route built     present in the build manifest
+  the CSS actually ships        .tupd lands in the wall's stylesheet and
+                                .tuadmin / .tucur in the admin screen's,
+                                each loaded on exactly the right route;
+                                a made-up class name found nothing
+  check-bucket-map.py           12 buckets, 0 disagreements
+
+  NOT checked: the wall rendering with a real pinned note, since nothing
+  has been posted yet. Run step 1, post one from /admin/update, and look
+  at the wall — that is the test.

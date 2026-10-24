@@ -1,0 +1,35 @@
+/* The team-note admin screen (0191).
+
+   ⚠️ Everything it needs is defined HERE, under .tuadmin, rather than
+   borrowed from whichever stylesheet happens to be loaded. app/admin's
+   layout imports theme-green, photos and admin.css and nothing else —
+   `.sec`, `.fld` and a styled textarea are not in any of them, and a
+   class that resolves to nothing throws no error and logs nothing. It
+   just renders a cheap-looking screen. That is the 5 Sept emoji-picker
+   bug, and check-css-coverage.py exists because of it.
+
+   .btn and .hint ARE global (app/globals.css), so those are left alone. */
+.tuadmin h2{
+  font-family:'Anton',Impact,sans-serif; font-size:15px;
+  text-transform:uppercase; letter-spacing:.06em; margin:20px 0 8px;
+}
+.tuadmin .fld{
+  display:block; margin:14px 0 6px;
+  font-family:'Anton',Impact,sans-serif; font-size:13px;
+  text-transform:uppercase; letter-spacing:.05em;
+}
+.tuadmin textarea{
+  width:100%; min-height:120px; resize:vertical;
+  border:3px solid var(--x); background:var(--boxfill, #F2EFE6);
+  color:var(--body); padding:10px;
+  font-family:'Archivo',system-ui,sans-serif; font-size:15px; line-height:1.5;
+}
+.tuadmin textarea:focus-visible{ outline:3px solid var(--x); outline-offset:2px; }
+.tuadmin .row{ margin-top:14px; }
+.tuadmin .gerr{ color:#8C1A1A; font-size:13px; margin-top:10px; }
+
+/* What is pinned at this moment, shown the way a member sees it is
+   worded rather than as a row in a table — so the person about to
+   replace it reads the thing they are replacing. */
+.tucur{ border:3px solid var(--x); background:var(--paper2); padding:12px 13px; }
+.tucurbody{ font-size:15px; white-space:pre-line; margin-bottom:12px; }

@@ -1,0 +1,108 @@
+PROFILE PHOTOS — 23 October 2026 — ✅ SHIPPED
+
+
+WHERE THIS STANDS
+
+  ✅ Code on GitHub           commit 88c9959
+  ✅ Database step applied    23 Oct, migration 0190
+  ✅ Verified with controls   see below
+
+  Nothing left for you to do. The feature is live.
+
+
+WHY IT TOOK THREE GOES — AND IT WAS MY BUG, NOT YOURS
+
+  You ran the SQL. All three times. It failed every time on the same
+  line, and I did not see it because I was only checking the RESULT
+  (is the column there?) instead of asking what the editor said.
+
+  The check constraint was written as:
+
+      check ( ... not exists (select 1 from unnest(gallery) ...) )
+
+  Postgres refuses a subquery inside a check constraint —
+  "0A000: cannot use subquery in check constraint". The SQL editor runs
+  a pasted script as ONE transaction, so that one error rolled back
+  every statement before it, including the column. The run ended, the
+  screen looked finished, and nothing had changed. Then I reported "it
+  still hasn't run", which read like you hadn't done it. You had.
+
+  ⭐ THE LESSON, written down so it does not happen again: when a result
+  check says nothing happened, ASK WHAT THE ERROR WAS before concluding
+  the step was skipped. A failed transaction and a step nobody ran look
+  identical from the outside, and only one of them has a message
+  attached.
+
+  The fix: the test moved into an IMMUTABLE function,
+  public.gallery_paths_ok(text[]), which a check constraint IS allowed
+  to call. Same rule, legal place.
+
+
+WHAT IS IN THE DATABASE NOW
+
+  profiles.gallery              text[], default '{}', not null
+  profiles_gallery_sane         check — ten max, every entry must look
+                                like gallery/<name>
+  grants                        SELECT and UPDATE for members. BOTH —
+                                2 Sept, UPDATE without SELECT took /me
+                                down for everyone and looked like a
+                                missing account for hours
+  public_profiles.gallery       empty array for anyone anonymous,
+                                otherwise their list
+  referenced_media()            now counts profile photos as live, so
+                                the sweeper will not delete them
+  profile-photos bucket         private, webp only, 5MB a file
+
+
+VERIFIED, EACH WITH A CONTROL THAT HAD TO FIRE
+
+  column, grants, constraint, view column, bucket     all present
+  the view masks anonymous members                    exact CASE read
+                                                      back out of the
+                                                      live definition
+  the shape rule actually refuses things              rejects a posts/
+                                                      prefix, an 11th
+                                                      photo, an empty
+                                                      string, and a
+                                                      ../ traversal
+  a path in nobody's gallery is not vouched for       0 — and the
+                                                      control proved the
+                                                      lookup works at all
+  the app's own query runs                            returns [] per
+                                                      member, as it
+                                                      should with nobody
+                                                      having photos yet
+
+
+STILL UNEXERCISED ON REAL DATA
+
+  Nobody has put a photo up yet, so the anonymous-masking rule is
+  verified from the view's definition rather than from a live album.
+  Put one picture on your own profile, flip yourself to anonymous and
+  back, and I will watch it from the database end — that closes the
+  last gap.
+
+
+THE app AND lib FOLDERS
+
+  The same 14 files already on GitHub. Kept as a copy. You do not need
+  to drag them again.
+
+
+WHAT THE FEATURE DOES
+
+  Up to ten pictures on any member's profile — themselves, their dog,
+  the view out the window. A "Photos" tab beside Posts and About, three
+  across, tap one for full size with arrows. Anybody signed in sees
+  them, same as posts.
+
+  Add and remove on /me?edit=1, "Your photos", above "How you show up".
+  It saves as you go — no second Save button.
+
+  · Going anonymous takes the album off your public profile the same
+    moment it takes your name, face and bio. Nothing is deleted; it
+    comes back if you switch open again, and you always see it on your
+    own screen.
+
+  · Taking a photo down deletes the FILE, not just the link. The bucket
+    is private for exactly that reason.

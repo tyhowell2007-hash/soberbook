@@ -1,0 +1,187 @@
+import { redirect } from 'next/navigation';
+import { serverClient, assertReadable } from '../../lib/supabase-server';
+import { adminClient, adminConfigured } from '../../lib/supabase-admin';
+import { signPhotoPaths } from '../../lib/sign-photos';
+import Me from './Me';
+import MeProfile from './MeProfile';
+import { aboutPane } from '../u/[handle]/about';
+
+export const dynamic = 'force-dynamic';
+
+/* Your own route has two explicit states. /me is deliberately a small profile:
+   its header followed only by this member's posts. /me?edit=1 is the settings
+   screen. Keeping that boundary in the server page means profile visits do
+   not fetch notifications, friends or settings-only support data. */
+export default async function MePage({ searchParams }) {
+  const supabase = serverClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect('/login');
+  const editing = searchParams?.edit === '1';
+
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('handle, display_name, sober_since, date_prompt_off, privacy_mode, created_at, anthem_url, anthem_title, anthem_art, anthem_preview, anthem_youtube, anthem_spotify, autoplay_songs, lifetime_days, show_lifetime, bio, town, state, show_location, programs, interests, sponsor_status, avatar, avatar_kind, avatar_photo, findable_by_name, has_sponsor, will_sponsor, sponsor_na, paths, path_other, theme, day_count_visibility, private_paths, show_bio, show_interests, show_sponsoring, cover, accent, sections, gallery')
+    .eq('id', user.id)
+    .maybeSingle();
+  if (!profile) redirect('/welcome');
+
+  /* ---- your own face, signed ----
+     ⚠️ Signed DIRECTLY rather than through signPhotoPaths(), and the
+     reason is a bug I would otherwise have shipped.
+
+     signPhotoPaths asks `public_profiles` whether a photo may be shown.
+     That view nulls display_avatar_photo for anyone in anonymous mode —
+     correctly, because an anonymous member has no public face. But this
+     page is not the public view. Routed through it, an anonymous member
+     would open their own settings and find their photo apparently gone,
+     with no way to tell whether it had been deleted.
+
+     The authorisation here is simpler and stronger than the view's: the
+     path came out of their OWN row, read a moment ago with their OWN
+     session. There is nobody else's photo it could possibly be. */
+  let initialAvatarUrl = null;
+  if (profile.avatar_photo && adminConfigured()) {
+    const { data: signed } = await adminClient()
+      .storage.from('avatars').createSignedUrl(profile.avatar_photo, 3600);
+    initialAvatarUrl = signed?.signedUrl || null;
+  }
+
+  /* ---- your own photos, signed the same way and for the same reason ----
+     🖼 0190.
+
+     ⚠️ DIRECTLY, NOT THROUGH signPhotoPaths(), and this is the avatar
+     bug one row down. That function asks `public_profiles` whether a
+     picture may be shown, and the view returns an EMPTY ARRAY for
+     anybody in anonymous mode — correctly, because an anonymous member
+     has no public album. Routed through it, an anonymous member would
+     open their own settings and find every photo they had put up
+     apparently deleted, with no way to tell whether it had actually
+     happened. They would reasonably conclude the app had lost their
+     pictures.
+
+     The authorisation here is simpler and stronger than the view's: the
+     paths came out of their OWN row, read a moment ago with their OWN
+     session. There is nobody else's photo they could possibly be.
+
+     ⚠️ One createSignedUrls call for the lot, never a loop — ten round
+     trips to draw one grid. */
+  const myGallery = Array.isArray(profile.gallery) ? profile.gallery.filter(Boolean) : [];
+  const myGalleryUrls = {};
+  if (myGallery.length && adminConfigured()) {
+    const { data: signedMany } = await adminClient()
+      .storage.from('profile-photos').createSignedUrls(myGallery, 3600);
+    (signedMany || []).forEach((r) => { if (r.signedUrl) myGalleryUrls[r.path] = r.signedUrl; });
+  }
+
+  if (!editing) {
+  /* Your own posts — WITHOUT ever asking the database "whose posts are
+     these?". `is_mine` is computed inside the view by comparing author_id
+     to auth.uid() and is the only ownership signal that ever reaches a
+     browser. So this returns your anonymous posts too, and still never
+     tells the client who wrote them.
+
+     Doing this the obvious way — .eq('author_id', user.id) on the posts
+     table — would work, and would quietly hand the browser the exact
+     column the whole anonymity design exists to withhold. */
+  const { data: mine } = await supabase
+    .from(assertReadable('feed_posts'))
+    /* ⭐ support_count/strength_count added 7 Sept. Your own posts show
+       the COUNTS — you cannot react to yourself, and the author is
+       exactly who needs to see that somebody showed up. */
+    .select('id, body, photo_url, photo_urls, video_url, created_at, is_anonymous, support_count, strength_count, comment_count')
+    .eq('is_mine', true)
+    .order('created_at', { ascending: false })
+    .limit(50);
+
+  /* Your own posts, with their pictures. Signed here on the server for the
+     same reason the Wall does it: the list arrives whole rather than
+     popping images in afterwards. */
+  /* Photos AND videos, in one signing pass. flatMap not map: a post
+     contributes zero, one or two paths and Boolean() drops the nulls. */
+  const postPhotoUrls = await signPhotoPaths(
+    supabase,
+    /* ⚠️ Spread photo_urls in (0065). */
+    (mine || []).flatMap((p) => [
+      ...(Array.isArray(p.photo_urls) ? p.photo_urls : []), p.photo_url, p.video_url,
+    ]).filter(Boolean));
+
+  /* The normal route ends here: profile header, then only this member's
+     posts. Settings use an explicit query string so none of their support
+     queries can quietly turn /me back into a dashboard. */
+  /* 22 Sept — the About tab. Read from public_profiles, NOT from the row
+     above, so your own About shows exactly what other members see: the
+     view applies your show_* switches, anonymous mode and every gate.
+     Rebuilding that from raw settings here would be a second copy of the
+     privacy rules, and the two would drift. */
+  const { data: pub } = await supabase
+    .from(assertReadable('public_profiles'))
+    .select('handle, display_name, is_mine, total_days, bio, location, programs, ' +
+            'interests, sponsor_open, sponsor_has, sponsor_looking, sections, ' +
+            'anthem_url, anthem_title, anthem_art, anthem_preview, anthem_youtube, anthem_spotify')
+    .eq('handle_key', String(profile.handle || '').toLowerCase())
+    .maybeSingle();
+  const pubSong = pub?.anthem_url ? {
+    anthem_url: pub.anthem_url, anthem_title: pub.anthem_title, anthem_art: pub.anthem_art,
+    anthem_preview: pub.anthem_preview, anthem_youtube: pub.anthem_youtube,
+    anthem_spotify: pub.anthem_spotify,
+  } : null;
+  const about = pub ? aboutPane(pub, pubSong, profile.autoplay_songs) : null;
+
+  /* ---- your people (26 Sept) ----
+     ⚠️ This is the ONE support query the profile route makes, and it is
+     a deliberate reversal of the note above. People.jsx was written in
+     September to give friends a home on your own page and was then never
+     imported, so the only place friends existed was a list nineteen
+     thousand pixels down the Community page. A grid nobody can reach is
+     not a feature.
+
+     🔴 THROUGH THE FUNCTION, NEVER A TABLE READ. my_friends() takes no
+     argument, so there is no shape of this call that returns somebody
+     else's friends — the same rule my_pending_tags() lives by. It also
+     returns quietest-first, which is the whole point of the grid.
+
+     ⚠️ It stays out of the settings branch: that screen is already
+     heavy, and your people belong on the page that is about you. */
+  const { data: friends } = await supabase.rpc('my_friends');
+
+    return (
+      <MeProfile
+        profile={profile}
+        posts={mine || []}
+        avatarUrl={initialAvatarUrl}
+        postPhotoUrls={postPhotoUrls}
+        about={about}
+        friends={friends || []}
+        gallery={myGallery}
+        galleryUrls={myGalleryUrls}
+      />
+    );
+  }
+
+  /* 0186: are they a verified artist? One call, and null for almost
+     everybody — artist_mine() returns a status or nothing. The settings
+     screen needs it only to decide whether to show the artist editor. */
+  const { data: artistMine } = await supabase.rpc('artist_mine');
+
+  /* Tags waiting on you (0082).
+
+     ⚠️ Through the function, never a table read — my_pending_tags() takes
+     no argument, so it can only ever return the caller's own. There is no
+     shape of this call that returns somebody else's pending tags.
+
+     ⭐ It lives on /me rather than a page of its own because this is the
+     one screen that is already about you and nobody else. */
+  const { data: pending } = await supabase.rpc('my_pending_tags');
+
+  return (
+    <Me
+      email={user.email}
+      profile={profile}
+      initialAvatarUrl={initialAvatarUrl}
+      initialGallery={myGallery}
+      initialGalleryUrls={myGalleryUrls}
+      pendingTags={pending || []}
+      artistStatus={artistMine?.status || null}
+    />
+  );
+}

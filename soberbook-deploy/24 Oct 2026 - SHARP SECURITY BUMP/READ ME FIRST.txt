@@ -1,0 +1,43 @@
+SHARP SECURITY BUMP — 24 October 2026
+
+ONE FILE. ONE LINE CHANGED.
+
+    "sharp": "^0.33.5"   →   "sharp": "^0.35.5"
+
+Nothing else in package.json is touched — I diffed it, exactly two
+lines differ and they are that one line before and after.
+
+
+WHY IT MATTERS
+
+  sharp 0.33.5 carries three CVEs — two high, one critical — coming out
+  of libvips, libheif and librsvg underneath it. Four route handlers
+  import it, including app/api/photo/upload/route.js and
+  app/api/photo/finalize/route.js. So every photo any of the 449
+  members uploads is decoded by those versions.
+
+  It is not theoretical in the way most dependency warnings are: the
+  vulnerable code is the thing reading a stranger's image file.
+
+
+RE-VERIFIED TODAY, NOT JUST YESTERDAY
+
+  sharp 0.35.5 installs clean          libvips 8.18.7
+  the app's exact pipeline passes      metadata() → rotate() → resize()
+                                       → webp() → withMetadata() →
+                                       toBuffer(), with limitInputPixels
+  control                              garbage bytes are rejected, so
+                                       the test can actually fail
+  next build                           green (checked 23 Oct on the
+                                       same package set)
+
+
+HOW TO DO IT
+
+  Drag package.json to
+  https://github.com/tyhowell2007-hash/soberbook/upload/main/soberbook-deploy
+
+  Breadcrumb must read  soberbook / soberbook-deploy
+
+  No database step. No other files. Vercel reinstalls on deploy and
+  picks up the new version by itself.

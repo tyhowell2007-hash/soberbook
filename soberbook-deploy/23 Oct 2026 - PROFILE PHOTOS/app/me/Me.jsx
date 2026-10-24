@@ -1,0 +1,1637 @@
+'use client';
+
+import { useEffect, useRef, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { browserClient } from '../../lib/supabase-browser';
+import { plainError } from '../../lib/plain-error';
+import SongPicker from './SongPicker';
+import SongPlayer from '../components/SongPlayer';
+import Milestones from '../components/Milestones';
+import DatePick from '../components/DatePick';
+import { dayCount, startsInDays } from '../../lib/milestones';
+/* ⚠️ THE SAME cleanHandle THE SIGN-UP BOX USES. Not a second copy —
+   a restatement is a second implementation and the second one drifts
+   (0046 → 0049). If the handle rules ever change, they change once. */
+import { cleanHandle } from '../../lib/first-run';
+/* The new profile controls. Split out of this file rather than added to
+   it — see the note at the top of ProfileBits.jsx. */
+import LookPicker from '../components/LookPicker';
+/* Plain module, no 'use client' — the same lists /u/[handle] reads. */
+import { coverCss, accentHex } from '../../lib/look';
+import { SponsorPair, PathPicker, NightSwitch, DayCountVisibility,
+         HandleEditor, Eye } from './ProfileBits';
+import PhotoUpload from '../components/PhotoUpload';
+/* 🖼 0190 — your profile photos. A DEFAULT import of a client component
+   from another client component, which is the ordinary case. */
+import GalleryEdit from './GalleryEdit';
+import DeleteAccount from './DeleteAccount';
+import Blocked from './Blocked';
+import PushSwitch from '../components/PushSwitch';
+import EmailSwitch from '../components/EmailSwitch';
+import PendingTags from './PendingTags';
+
+/* The faces you can pick from.
+
+   A FIXED LIST, not a free text box. A text field accepts anything —
+   a paragraph, or something ugly spelled out in symbols — and whatever
+   goes in renders at 60px on every post that person ever made, on other
+   people's screens. Fifty-four choices is not a limitation worth
+   arguing about; it's the moderation queue nobody has to staff.
+
+   ⚠️ WHAT'S DELIBERATELY MISSING, and it isn't squeamishness:
+   🥴 reads as drunk. 🥳 comes with a party hat. 🍻 🍷 🚬 💊 are obvious.
+   Every one of those is a normal emoji somewhere else and a bad joke
+   here, and the person it lands worst on is somebody four days in
+   scrolling their first thread. */
+const FACE_GROUPS = [
+  { name: 'Faces',   items: ['🙂','😀','😎','😌','🙃','🤔','😴','🥲','😇','🫡','🤠','😤'] },
+  { name: 'Animals', items: ['🐺','🦊','🐻','🦌','🦅','🦉','🐢','🐧','🐬','🐝',
+                             '🦋','🐎','🐕','🐈','🐟','🦁','🐘','🦔'] },
+  { name: 'Outside', items: ['🌱','🌿','🍀','🌵','🌻','🌲','🌊','🌙','☀️','⭐','🔥','🗻'] },
+  { name: 'Things',  items: ['⚓','🧭','🕯','☕','📻','🎧','🎸','🥁','🎣','🎮','🚂','🛠'] },
+];
+
+/* ⚠️ There was a private days() here doing its own date maths — the third
+   copy of dayCount(). It didn't clamp, so this page showed "-130" to a
+   member whose sober date hadn't arrived. Deleted rather than fixed: a
+   repaired copy is still a copy, and the next screen would drift too. */
+
+/* =====================================================================
+   ONE COLLAPSIBLE SECTION OF THE EDITOR.
+
+   ⚠️ THIS IS <details>, NOT A useState TOGGLE, AND THAT IS THE POINT.
+
+   The obvious build is `const [open,setOpen]=useState(false)` per
+   section, or one `openSection` variable. Both are worse:
+
+     · Nine pieces of state that can disagree with what's on screen.
+     · Nothing works before the JavaScript loads. On a bad phone signal
+       that's a page of headings that don't respond to taps — which
+       reads as broken, not as loading.
+     · You'd have to rebuild keyboard support, focus, and the
+       screen-reader announcement of expanded/collapsed by hand, and
+       most hand-rolled versions quietly skip all three.
+
+   <details> is the browser's own dropdown. It opens with no JavaScript
+   at all, Space and Enter work, and a screen reader says "expanded" or
+   "collapsed" without being told to. Zero state, zero bugs of the kind
+   above.
+
+   ⭐ Same rule as avatar_kind further down this file: one fact, one
+   home. Here the fact is "is this open", and the browser already owns
+   it — so we don't keep a second copy.
+   ===================================================================== */
+/* `tint` — 2 Sept, the cream skin (me-cream.css). Each section is a
+   pastel card with a black border and a hard shadow, and the colour is
+   named HERE rather than picked by nth-child in CSS, so reordering the
+   sections (which happened tonight, for the date) can't silently swap
+   every colour. A section with no tint gets cream. */
+function Section({ title, open = false, tint, eye, id, children }) {
+  return (
+    <details className="msec" id={id} open={open} data-tint={tint}>
+      <summary className="msum">
+        <span>{title}</span>
+        {/* The eye sits in the heading, beside the thing it governs —
+            not on a settings page somewhere else. Every time a control
+            in this app has lived away from the thing it controls,
+            nobody has found it. */}
+        {eye}
+        {/* aria-hidden: <details> already announces its own state, so
+            letting a screen reader read this arrow would say the state
+            twice, in two different vocabularies. */}
+        <span className="mchev" aria-hidden="true">›</span>
+      </summary>
+      <div className="mbody">{children}</div>
+    </details>
+  );
+}
+
+export default function Me({ email, profile, initialAvatarUrl,
+                             pendingTags = [],
+                             /* 🖼 0190 — your profile photos and the urls the
+                                server already signed for them, so the grid
+                                draws on first paint instead of popping in. */
+                             initialGallery = [],
+                             initialGalleryUrls = {},
+                             /* 0186 — null for almost everybody. See the section below. */
+                             artistStatus = null }) {
+  const router = useRouter();
+  const supabase = browserClient();
+
+  /* 🔴 20 SEPT — "IT TAKES HIM TO A SOBER COUNT."
+     Produkt tapped the picture button on his artist page and landed at
+     the TOP of this page, with the face control several screens below,
+     past his notifications and his details card. He concluded, four
+     times, that the app was broken. It wasn't; the link just had no
+     destination.
+
+     A <details> does not open itself for a hash, and the browser cannot
+     scroll to something inside a collapsed one — so both have to be done
+     by hand. Any section given an id can now be linked to as /me#<id>.
+
+     ⚠️ requestAnimationFrame, not a bare call: the accordion has to be
+     open and laid out before scrollIntoView can find where it ended up.
+     Without the frame it scrolls to where the section was while still
+     collapsed, which is the same bug wearing a different hat. */
+  useEffect(() => {
+    const id = typeof window === 'undefined' ? '' : window.location.hash.slice(1);
+    if (!id) return;
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (el.tagName === 'DETAILS') el.open = true;
+    requestAnimationFrame(() => {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  }, []);
+
+  /* 0182 — the look, held here rather than only in the picker so the
+     card at the top of this page changes the instant a member taps a
+     cover, not after a round trip. LookPicker still owns the saving;
+     this is only the echo. */
+  const [look, setLook] = useState({
+    cover: profile.cover || 'none',
+    accent: profile.accent || 'green',
+  });
+  const [privacy, setPrivacy] = useState(profile.privacy_mode);
+  const [since, setSince] = useState(profile.sober_since || '');
+
+  /* ⭐ THE INVITATION, AND THE WAY OUT OF IT. Aug 29.
+     ---------------------------------------------------------------------
+     Ty: "It should be a very easy procedure to put your sober date in.
+     And if you don't have a sober date, you shouldn't have to put one in
+     at all."
+
+     8 of 18 members have no date, and the reason turned out to be the
+     usual one: the editor exists, it is good, and it is behind the profile's
+     Edit button. The line that says you don't have to set one is already
+     written — buried where only somebody already editing would read it.
+
+     'shut' = the member said no, this session or in the database.
+     'open' = the little picker is showing. */
+  const [dateAsk, setDateAsk] = useState(profile.date_prompt_off ? 'shut' : 'closed');
+  /* The whole song, as one object. It used to be two loose strings the
+     member had to fill in by hand; now the search hands back all four
+     fields at once and this just holds them until Save. */
+  const [song, setSong] = useState({
+    anthem_url: profile.anthem_url || null,
+    anthem_title: profile.anthem_title || null,
+    anthem_art: profile.anthem_art || null,
+    anthem_preview: profile.anthem_preview || null,
+    anthem_youtube: profile.anthem_youtube || null,
+    anthem_spotify: profile.anthem_spotify || null,
+  });
+  const [auto, setAuto] = useState(!!profile.autoplay_songs);
+  const [note, setNote] = useState('');       // the one status line, shared
+  const [err, setErr] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [confirmOut, setConfirmOut] = useState(false);
+
+  /* ---- the lifetime total ---- */
+  const [lifetime, setLifetime] = useState(profile.lifetime_days || 0);
+  const [showLife, setShowLife] = useState(!!profile.show_lifetime);
+  /* 🔴 EDITING THE SECOND NUMBER — 1 Sept. Ty: "You should be able to change
+     the sober clock both ways, the top one and the bottom months. Otherwise
+     it just doesn't make sense."
+     He was right, and it was worse than not-editable: `lifetime_days` was
+     written in exactly ONE place — inside the started-over flow — and the
+     whole card was gated behind `lifetime > 0`, so somebody who arrived with
+     eight years already behind them and never relapsed here could not see it,
+     let alone set it. The database has granted UPDATE on this column the
+     whole time. Thirteenth time in this project that something was fully
+     built with no way in. */
+  const [lifeAsk, setLifeAsk] = useState('closed');
+  const [lyY, setLyY] = useState('');
+  const [lyM, setLyM] = useState('');
+  const [lyD, setLyD] = useState('');
+  /* ⚠️ Years/months/days, not a raw day count. Nobody knows their total in
+     days; everybody knows it in years. Months are 30 and years 365 — an
+     approximation, and deliberately so: this is somebody's own account of
+     their own life, not a figure the app is entitled to be precise about. */
+  const lifeEntered = Math.max(0, Math.min(40000,
+    (parseInt(lyY, 10) || 0) * 365 + (parseInt(lyM, 10) || 0) * 30 + (parseInt(lyD, 10) || 0)));
+  /* 'no'  — nothing to ask
+     'ask' — moved the date forward, we don't know why yet
+     'run' — they said they started over; now naming the run's length */
+  const [reset, setReset] = useState('no');
+  const [runLen, setRunLen] = useState('');
+
+  /* ---- the rest of the profile (0011) ---- */
+  const [bio, setBio] = useState(profile.bio || '');
+  const [town, setTown] = useState(profile.town || '');
+  const [state, setState] = useState(profile.state || '');
+  const [showLoc, setShowLoc] = useState(!!profile.show_location);
+  const [programs, setPrograms] = useState(profile.programs || '');
+  const [interests, setInterests] = useState(profile.interests || '');
+  const [sponsor, setSponsor] = useState(profile.sponsor_status || 'private');
+
+  /* 🔴 SPONSORING IS TWO FACTS NOW, NOT ONE — 2 Sept, 0113.
+     The old model was a single exclusive pick, so the app could not
+     say "has a sponsor AND willing to sponsor" — which is most
+     sponsors, since nearly every sponsor has one. `sponsor` above is
+     kept only so the old code paths still compile during the change;
+     nothing new writes it. */
+  const [hasSp,  setHasSp]  = useState(profile.has_sponsor  || 'unsaid');
+  const [willSp, setWillSp] = useState(profile.will_sponsor || 'unsaid');
+  const [spNA,   setSpNA]   = useState(profile.sponsor_na   === true);
+
+  /* Your path — a multi-select over a fixed list, plus one free-text
+     line for anything the list never thought of. */
+  const [paths, setPaths]         = useState(profile.paths || []);
+  const [pathOther, setPathOther] = useState(profile.path_other || '');
+  const [theme, setTheme]         = useState(profile.theme || 'cream');
+  const [dcv, setDcv]             = useState(profile.day_count_visibility || 'everyone');
+  const [handle, setHandle]       = useState(profile.handle || '');
+
+  /* ⭐ WHAT PEOPLE SEE — 2 Sept, 0116. Ty: "make it so you can choose
+     what you want people to see on your profile … all the way down
+     through."
+     ⚠️ Every default is SHOWN, matching what the page already did. The
+     control is new; the disclosure is not moved on anybody's behalf. */
+  const [privatePaths, setPrivatePaths] = useState(profile.private_paths || []);
+  const [showBio,   setShowBio]   = useState(profile.show_bio        !== false);
+  const [showInt,   setShowInt]   = useState(profile.show_interests  !== false);
+  const [showSp,    setShowSp]    = useState(profile.show_sponsoring !== false);
+  const [findable, setFindable] = useState(!!profile.findable_by_name);
+
+  /* ---- name and face (0012) ---- */
+  const [dname, setDname] = useState(profile.display_name || '');
+  const [avatar, setAvatar] = useState(profile.avatar || '');
+
+  /* ---- a real photo (0022) ----
+     Three pieces of state for one picture, and each earns its place:
+
+       photoPath  what is stored — a path like 'avatars/9f3c.webp'
+       photoUrl   a signed link, because the bucket is private and the
+                  path alone will not load
+       photoKind  whether the photo or the emoji is the one being used
+
+     ⚠️ photoPath and photoUrl are kept apart rather than merged because
+     they expire differently. The path is permanent; the link dies in an
+     hour. Collapse them into one field and you get an app that shows
+     everybody's face perfectly until somebody leaves a tab open through
+     lunch, which is the kind of bug that takes a day to reproduce. */
+  const [photoPath, setPhotoPath] = useState(profile.avatar_photo || '');
+  const [photoUrl,  setPhotoUrl]  = useState(initialAvatarUrl || '');
+  const [photoKind, setPhotoKind] = useState(profile.avatar_kind || 'emoji');
+
+  /* ---- PROFILE FIRST, SETTINGS ON PURPOSE (Ty's call, Aug 16) ----
+
+     This page used to be ten open forms stacked on top of each other:
+     name, face, privacy, date, lifetime, bio, location, sponsoring, song,
+     autoplay, account. Every one of them expanded, all shouting at once.
+     Ty: "it's really messy. there's too many drop down windows. it doesn't
+     make any sense."
+
+     He was right, and the reason is that /me was doing two unrelated jobs
+     under identical headings — THIS IS YOUR PAGE (what people see) and
+     THESE ARE YOUR SETTINGS (knobs nobody else will ever look at). Stacked
+     together there was no way to tell which was which.
+
+     The read profile is now MeProfile.jsx at /me. This component is only the
+     explicit /me?edit=1 settings state, so account controls can never drift
+     back into the profile feed. The existing save paths remain here rather
+     than being rewritten alongside the layout. */
+
+  function finishEditing() {
+    router.replace('/me');
+  }
+
+  /* The face picker is CLOSED by default and shuts itself again the moment
+     you choose. Fifty-four squares sitting open is most of the page, and
+     the thing you actually came here to see — the card at the top showing
+     how you look to everyone else — gets pushed off screen by the menu
+     you use once.
+
+     ⚠️ THE REF IS NOT DECORATION. When the panel closes, the button you
+     just clicked stops existing. Browsers respond to focus disappearing by
+     dumping it back to the top of the document, so a keyboard user picks a
+     face and silently loses their place — they're suddenly tabbing through
+     the masthead again with no idea why. Moving focus back to the opener
+     is what makes it a menu instead of a trapdoor.
+
+     Nothing here saves. Picking a face still only stages it; Save is still
+     the thing that writes. Opening and closing a menu must never be the
+     same gesture as committing. */
+  const [faceOpen, setFaceOpen] = useState(false);
+  const faceBtn = useRef(null);
+  /* A counter, not a boolean. Two picks in a row would both set `true`,
+     React would see no change, and the effect wouldn't run the second
+     time — the focus would work once and then quietly stop. */
+  const [refocus, setRefocus] = useState(0);
+
+  /* ⚠️ THIS HAS TO BE useEffect, AND THE FIRST VERSION GOT IT WRONG.
+     I originally called focus() inside requestAnimationFrame, shipped it,
+     and then measured: focus landed on <body>. It looked right in the
+     code and did nothing on the screen.
+
+     The reason is that rAF and React run on different clocks. rAF fires
+     before the next PAINT; React commits its DOM changes on its own
+     schedule. So the callback fired while the old tree was still up, and
+     whatever it focused got thrown away moments later.
+
+     useEffect is the one hook that is guaranteed to run AFTER React has
+     written to the DOM. That's the whole reason to reach for it here. */
+  useEffect(() => {
+    if (refocus) faceBtn.current?.focus();
+  }, [refocus]);
+
+  /* ---- ⚠️ THIS PAGE NO LONGER MARKS ANYTHING READ ----
+
+     It used to, back when a single dot sat on the "You" tab. Ty moved the
+     dots onto Home, Chat and Meetings — where the thing actually is — and
+     that changes who is allowed to put them out.
+
+     If opening your settings cleared the Home dot, you could lose the
+     only signal that somebody answered you, without ever seeing the
+     reply. The tab that holds the thing is the tab that clears it: /wall
+     clears 'reply', the chat inbox clears 'message'.
+
+     So this list is now a record rather than an inbox. Anything still
+     unread keeps its edge until you go and read it. */
+
+  function pickFace(e) {
+    setAvatar(avatar === e ? '' : e);
+    setFaceOpen(false);
+    setRefocus((n) => n + 1);
+  }
+
+  /* ⚠️ Removing a photo does NOT wait for Save, unlike every other field
+     on this page. That inconsistency is deliberate.
+
+     Everything else here is staged so you can change your mind — type a
+     bio, dislike it, navigate away, nothing happened. But "take my face
+     off the internet" is not a preference, it's usually a person who has
+     just realised something and wants it gone NOW. Making them find the
+     Save button first, while the photo is still up, is the app arguing
+     with somebody having a bad minute.
+
+     So it deletes the file and clears the column in one go, server-side.
+     There is no undo, which is the correct amount of undo for this. */
+  async function removePhoto() {
+    setErr(''); setNote(''); setBusy(true);
+    try {
+      const res = await fetch('/api/photo/delete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ kind: 'avatar' }),
+      });
+      if (!res.ok) {
+        const d = await res.json().catch(() => ({}));
+        throw new Error(d.error || "That photo couldn't be removed.");
+      }
+      setPhotoPath(''); setPhotoUrl(''); setPhotoKind(avatar ? 'emoji' : 'none');
+      setNote('Photo removed.');
+      router.refresh();
+    } catch (e) {
+      setErr(e.message);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  const anon = privacy === 'anonymous';
+
+  /* =================================================================
+     WHAT GOES IN THE CIRCLE — decided ONCE.
+
+     ⚠️ THE BUG THIS REPLACES WAS WORSE THAN IT LOOKED. This page drew a
+     face in three places and each one answered the question differently:
+
+       the big circle   →  {avatar || 'TY'}     ← literally the string "TY"
+       the edit card    →  {avatar || '🌱'}
+       the picker       →  the photo
+
+     So the photo showed in one place out of three, which is why it read
+     as "the feature is broken" rather than "one branch is missing".
+
+     And the first one is the bad one: 'TY' is a HARDCODED LITERAL. It is
+     not derived from anybody. Every member with no emoji and no photo saw
+     TY on their own page — Jacoby's profile said TY, Ivyblue's profile
+     said TY. My initials, on other people's accounts, on the one screen
+     that is supposed to be theirs.
+
+     Three copies of a rule is three chances to get it wrong, and the copy
+     that goes wrong is the one nobody re-reads. So: one function, three
+     call sites, no literals.
+     ================================================================= */
+  const initials =
+    ((dname || profile.handle || '').match(/[A-Za-z0-9]/g) || ['?'])
+      .slice(0, 2).join('').toUpperCase();
+
+  /* photo → chosen emoji → initials. Anonymous short-circuits the lot,
+     because on an anonymous profile a face is the thing we are hiding. */
+  function Face({ cls }) {
+    if (!anon && photoKind === 'photo' && photoUrl) {
+      return <img className={`${cls} ${cls}-photo`} src={photoUrl}
+                  alt="" aria-hidden="true" />;
+    }
+    return (
+      <div className={cls} aria-hidden="true">
+        {anon ? '🤫' : (avatar || initials)}
+      </div>
+    );
+  }
+  /* 🔴 TWO DIRTY FLAGS, NOT ONE — 2 Sept. There used to be a single
+     `deetsDirty` covering all five text fields, which is what let one
+     button claim ownership of boxes sitting in a different section
+     below it. See the note on the About-you save button.
+
+     ⚠️ They are deliberately disjoint. If a field ever appears in both,
+     two buttons can write the same column and the second one wins with
+     whatever stale value it happened to be holding. */
+  const aboutDirty =
+    bio !== (profile.bio || '') ||
+    interests !== (profile.interests || '');
+  /* ⚠️ `programs` is deliberately absent. It is derived from `paths`, so it
+     is never dirty from this section — and if it were listed here the Save
+     button would light up for a change this button no longer makes. */
+
+  const whereDirty =
+    town !== (profile.town || '') || state !== (profile.state || '');
+
+  const d = dayCount(since);
+  /* Only ever a number on YOUR page. startsInDays() is never handed to a
+     view, a query or another member — see lib/milestones.js. */
+  const soon = startsInDays(since);
+  const today = new Date().toISOString().slice(0, 10);
+  const savedSince = profile.sober_since || '';
+
+  /* Moving the date FORWARD is the only shape that can mean a relapse:
+     it's the only edit that takes days away. Moving it backward is
+     somebody claiming MORE time — a correction, never a loss — so it
+     saves silently and is never questioned.
+
+     ⚠️ Compared as strings on purpose. These are 'YYYY-MM-DD', which
+     sorts correctly as text, and building Date objects here would drag
+     in the browser's timezone: `new Date('2026-08-09')` is midnight UTC,
+     which in Ohio is the evening of the 8th. Two dates that differ only
+     by that shift would compare wrong for a few hours a day — the kind
+     of bug that reproduces at 9pm and never at noon. */
+  const movedForward = !!savedSince && !!since && since > savedSince;
+
+  /* The pre-filled guess: the gap between the old date and the new one.
+     This is an UPPER bound, because part of that gap was the relapse
+     itself, and only they know where the line was. So it is a starting
+     number in an editable box, never a fact we assert. The alternative
+     was asking somebody to type the date they relapsed, and nobody
+     should have to timestamp the worst week of their year to use a
+     settings page. */
+  const guess = movedForward
+    ? Math.max(0, Math.round((new Date(since + 'T00:00:00')
+        - new Date(savedSince + 'T00:00:00')) / 86400000))
+    : 0;
+
+  const totalNow = lifetime + (d || 0);
+
+  /* =====================================================================
+     THE STARTED-OVER QUESTION — BUILT ONCE, RENDERED TWICE.
+
+     A date can now be moved forward from two places: the full settings
+     section and the edit link under the number. Both must ask
+     the same question, because the answer decides whether a run gets
+     added to the lifetime total — and a lifetime total is the one number
+     in this app that is supposed to survive everything.
+
+     🔴 I nearly shipped this as a dead button. The first version set
+     reset='ask' from the counter, but the question only rendered inside
+     the settings section — so saving a forward date from the counter would
+     have set a flag and shown nothing at all. That is the sixth instance
+     this month of everything-built-except-the-way-in, and this time I
+     wrote it myself. Building it as one variable and dropping it in both
+     places is what makes that impossible rather than merely fixed.
+     ===================================================================== */
+  const resetFlow = reset === 'ask' ? (
+    <div className="ask">
+      <p className="askq">You moved your date forward. Which is it?</p>
+      <button className="btn" type="button" disabled={busy}
+              onClick={() => setReset('run')}>
+        I started over
+      </button>
+      <button className="btn ghost" type="button" disabled={busy}
+              onClick={() => { setReset('no');
+                save({ sober_since: since || null }, 'Date fixed.'); }}>
+        I&apos;m just fixing the date
+      </button>
+      <p className="hint">
+        Nothing you&apos;ve already done gets erased either way. This only
+        decides whether those days get added to your total.
+      </p>
+    </div>
+  ) : reset === 'run' ? (
+    <div className="ask">
+      <p className="askq">How long was that run?</p>
+      <label htmlFor="rl">Days</label>
+      <input id="rl" type="number" inputMode="numeric" min="0" max="40000"
+             value={runLen} disabled={busy}
+             onChange={(e) => setRunLen(e.target.value)} />
+      <p className="hint">
+        We guessed from your old date. Change it if we got it wrong &mdash;
+        you know where the line was and we don&apos;t.
+      </p>
+      <button className="btn" type="button" disabled={busy}
+              onClick={() => {
+                const add = Math.max(0, Math.min(40000, parseInt(runLen, 10) || 0));
+                const next = Math.min(40000, lifetime + add);
+                setLifetime(next);
+                setReset('no');
+                save({ sober_since: since || null, lifetime_days: next },
+                     'Saved. Those ' + add.toLocaleString()
+                     + ' days are yours for good.');
+              }}>
+        {busy ? 'Saving…' : 'Add it and save'}
+      </button>
+      <button className="nvm" type="button" disabled={busy}
+              onClick={() => setReset('ask')}>
+        back
+      </button>
+    </div>
+  ) : null;
+
+  /* ==================================================================
+     THE SECOND NUMBER, BUILT ONCE.
+
+     🔴 I SHIPPED THIS IN THE WRONG ROOM AND TY CAUGHT IT INSIDE AN HOUR.
+     He asked to be able to change "the top one and the bottom months".
+     I made the total editable — and left it inside the settings editor,
+     three taps behind the pencil, while the top number's edit link sits
+     right under the number it edits. So the fix answered half of what he
+     asked and the half it answered was invisible. FOURTEENTH time in this
+     project that something was fully built with no way in, and the second
+     time this week that the missing way in was one I wrote myself.
+
+     ⚠️ IT IS A VARIABLE, NOT A COPY. The same discipline as `resetFlow`
+     directly above: the moment this exists in two places, the copy nobody
+     re-reads is the one that drifts — and what drifts here is somebody's
+     lifetime total, the one number in the app that is meant to survive
+     everything. One definition, rendered where the number lives.
+
+     ⚠️ It renders whether or not there is a sober date. 8 of 18 members
+     have no date; a person with four years behind them who isn't counting
+     days is exactly who this card is for.
+     ================================================================== */
+  const lifeBlock = (
+    <>
+      <div className="total">
+        <span className="tn">{totalNow.toLocaleString()}</span>
+        <span className="tl">days total, all of it</span>
+      </div>
+      <p className="sincerow">
+        <button type="button" className="sincelink" disabled={busy}
+                onClick={() => setLifeAsk(lifeAsk === 'open' ? 'closed' : 'open')}>
+          {lifetime > 0 ? 'edit this number' : 'were you sober before you got here?'}
+        </button>
+      </p>
+
+      {lifeAsk === 'open' && (
+        <div className="datecard">
+          <p className="dc-h">Time you&apos;d already put together</p>
+          <p className="dc-s">
+            Before Sober Book. However you count it &mdash; nobody is
+            checking, and nobody else sees it unless you switch it on.
+          </p>
+          <div className="liferow">
+            {[['Years', lyY, setLyY], ['Months', lyM, setLyM], ['Days', lyD, setLyD]]
+              .map(([lab, val, set]) => (
+              <label key={lab} className="lifefld">
+                <span>{lab}</span>
+                {/* ⚠️ inputMode numeric, not type=number — a spinner on a
+                    phone is a fiddly target and type=number lets people
+                    paste "e" and "-". */}
+                <input inputMode="numeric" value={val} disabled={busy}
+                       aria-label={lab + ' you were already sober'}
+                       onChange={(e) => set(e.target.value.replace(/[^0-9]/g, '').slice(0, 4))} />
+              </label>
+            ))}
+          </div>
+          <div className="dc-row">
+            <button className="btn" type="button"
+                    disabled={busy || lifeEntered === lifetime}
+                    onClick={() => {
+                      setLifetime(lifeEntered);
+                      save({ lifetime_days: lifeEntered },
+                           lifeEntered > 0
+                             ? 'Saved. ' + (lifeEntered + (d || 0)).toLocaleString() + ' days altogether.'
+                             : 'Cleared.');
+                      setLifeAsk('closed');
+                    }}>
+              {busy ? 'Saving…' : lifeEntered > 0
+                ? 'Save — ' + lifeEntered.toLocaleString() + ' days'
+                : 'Save'}
+            </button>
+            <button className="btn ghost" type="button" disabled={busy}
+                    onClick={() => setLifeAsk('closed')}>Cancel</button>
+          </div>
+          {/* ⚠️ Says the resulting number BEFORE they commit. The whole
+              point of this card is that it is theirs; being surprised
+              by what it becomes would undo that. */}
+          {lifeEntered > 0 && (
+            <p className="dc-s">
+              Your total becomes <b>{(lifeEntered + (d || 0)).toLocaleString()}</b> &mdash;
+              that&apos;s this, plus the {(d || 0).toLocaleString()} you have here.
+            </p>
+          )}
+        </div>
+      )}
+    </>
+  );
+
+  /* One save function for every setting on this page. `patch` is just an
+     object of columns → new values.
+
+     ⚠️ THE .eq() IS NOT OPTIONAL, AND I LEARNED THAT THE HARD WAY.
+
+     I originally left it out and argued it was redundant: RLS already
+     restricts every UPDATE to your own row, so a filter would be a comment
+     rather than a control. That security reasoning is correct — and it is
+     also not the layer that matters here.
+
+     PostgREST refuses ANY update without a filter:
+
+         UPDATE requires a WHERE clause
+
+     It's a blanket guard against someone accidentally rewriting a whole
+     table, and it fires before your database rules ever get consulted. So
+     the save silently failed for two days: privacy toggle, sober date, and
+     song, all of them.
+
+     THE LESSON: "the database would stop it anyway" is an argument about
+     safety. It is not an argument about whether the request is well-formed.
+     Two different questions, two different layers, and being right about
+     one told me nothing about the other. */
+  async function save(patch, said) {
+    setErr(''); setNote(''); setBusy(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      const { error } = await supabase.from('profiles').update(patch).eq('id', user.id);
+      if (error) throw error;
+      setNote(said);
+      router.refresh();          // so the Wall picks the change up
+    } catch (e) {
+      /* Translate the database's words into a person's — the Aug 6
+         principle, that an error message is an output channel, so decide
+         what it says instead of letting Postgres decide for you.
+
+         🔴 THIS USED TO BE ITS OWN if/else CHAIN AND IT ENDED IN
+         `setErr(m)`. It knew three constraints by name and handed the
+         raw Postgres string to the member for everything else — proven
+         live on 7 Sept: a mistyped year showed "sober_since cannot be in
+         the future (got 2027-10-12, today is 2026-09-07)", and a long
+         display name showed `violates check constraint
+         "display_name_len"`, on the page where somebody edits their own
+         account.
+
+         ⭐ It was one of THREE partial translators (here, lib/first-run's
+         explainProfileError, and a prefix-stripping regex in Convo.jsx),
+         each covering a different subset of the same rule and each
+         falling through to raw. One rule, three implementations, all
+         incomplete — the 0046 -> 0049 drift. They all call plainError()
+         now, and it passes our own P0001 refusals through untouched. */
+      setErr(plainError(e));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  function choose(mode) {
+    if (mode === privacy || busy) return;
+    setPrivacy(mode);            // move the UI first — the toggle should feel instant
+    save({ privacy_mode: mode },
+         mode === 'open' ? 'Saved. Your name shows now.' : 'Saved. You are anonymous now.');
+  }
+
+  async function signOut() {
+    if (!confirmOut) { setConfirmOut(true); return; }
+    setBusy(true);
+    await supabase.auth.signOut();
+    /* HARD navigation, not router.push, and there are two separate reasons.
+
+       1. Security. router.push is a soft navigation — React stays mounted
+          and Next's client router cache keeps the already-fetched RSC
+          payloads for /wall and /me. Those were rendered for the account
+          that just signed out. Hitting Back could paint the previous
+          member's page from cache on a shared or borrowed phone, which is
+          the worst place for this app to leak. A full load throws all of
+          it away.
+
+       2. The door has to change colour. Sign-out is a green room → grunge
+          door crossing. On a soft navigation the browser keeps the green
+          stylesheet in the document, so /login would render green and the
+          whole grunge-door idea would silently break — no error, nothing
+          in the console, just a wrong-looking page. */
+    window.location.assign('/login');
+  }
+
+  return (
+    <>
+      <div className="mast">
+        <Link href="/wall" className="back" aria-label="Back to the wall">←</Link>
+        <span className="lg">🌱 SOBER BOOK</span>
+        <span className="rt">you</span>
+      </div>
+      <div className="bar">Nothing here is public</div>
+
+      <div className="pad" style={{ '--acc': accentHex(look.accent) }}>
+
+        {/* ===== YOUR PAGE, WEARING YOUR LOOK (0182, 20 Sept) =====
+            Ty, after seeing it on the public page: "everybody's page
+            needs to look like this as well. Except the artists. And the
+            podcasters."
+
+            🔴 THIS IS THE SAME CARD AS /u/[handle]. Same classes, same
+            rules in photos.css — cover, face, name, then the count in
+            the member's colour. Not a copy of it: if the hero changes
+            over there, this changes with it. A second set of rules that
+            merely looked the same would be two things to keep in step,
+            and they would stop being in step.
+
+            ⚠️ ARTIST AND PODCASTER PAGES ARE UNTOUCHED, and that is on
+            /u/[handle], where the `artist` branch never reads the look
+            at all. Nothing here can reach them — this page only ever
+            renders the member reading it.
+
+            ⚠️ THE FACE AND THE NAME MOVED UP HERE OUT OF `.phead`. The
+            bio stayed below it, because a paragraph inside the card
+            pushes the count off the first screen on a small phone. */}
+        <div className="uhero">
+          <div className={'ucover' + (coverCss(look.cover) ? '' : ' flat')}
+               style={coverCss(look.cover) ? { backgroundImage: coverCss(look.cover) } : undefined}
+               aria-hidden="true" />
+          <div className="pcard">
+            <Face cls="pav" />
+            <div className="pwho">
+              <span className="pname">{anon ? profile.handle : (dname || profile.handle)}</span>
+              <span className="phandle">
+                @{profile.handle}
+                {!anon && showLoc && town ? ' \u00B7 ' + town + (state ? ', ' + state : '') : ''}
+              </span>
+            </div>
+          </div>
+          {/* 🔴 NO DATE STILL MEANS NO CARD — see the long note below, it
+              has not changed. The count simply lives inside the hero now
+              instead of above it, and when there is no date the hero is
+              the cover, the face and the name, which is a page rather
+              than a gap. */}
+          {since && soon === null && (
+            <div className="ucount">
+              <Milestones since={since} days={d}
+                          sub={d === 1 ? 'day' : 'days'} />
+            </div>
+          )}
+        </div>
+
+        {/* ---- the count ----
+
+            🔴 A DATE THAT HASN'T ARRIVED GETS A SENTENCE, NOT A NUMBER.
+
+            Somebody can set a sober date in the future — a day they mean
+            to start. The app used to answer that with "-130", and before
+            today's fix the honest-looking alternative was "day 0", which
+            is a lie: day 0 means you started today.
+
+            ⚠️ This line exists ONLY here, on your own page, where you set
+            the date. It is not in public_profiles and it never should be
+            (0064): a public countdown announces that a member is using
+            right now, which is the newcomer-flag problem with a clock on
+            it. Everyone else sees nothing at all — the same as a member
+            who chose not to share a date.
+
+            ⚠️ And no encouragement attached. "You've got this!" on a date
+            somebody may have picked in a bad hour is the app having an
+            opinion about a decision it knows nothing about.
+
+            ⚠️ The style is inline rather than a class because wall.css is
+            71KB and failed to upload on three consecutive deploys last
+            night — adding one rule to it means re-running that gauntlet
+            for a single line.
+
+            ⚠️ AND THIS COMMENT LIVES UP HERE ON PURPOSE. It was first
+            written inside the ternary, directly above the p tag, and the
+            build failed with "Expected ',', got 'style'". A braced JSX
+            comment cannot LEAD a ternary branch: the parser meets the
+            opening brace where it expects an expression and starts
+            reading an object literal, so the very next tag looks like a
+            malformed key. Second time in two days — the same thing
+            happened inside an && last night.
+
+            ⚠️ Then the rewrite broke too, because it quoted a comment
+            marker as an example and the closing star-slash ended THIS
+            comment four lines early. A JSX comment cannot contain the
+            characters that end one. Do not write them here. */}
+        {/* 🔴 NO DATE MEANS NO CARD. Ty, twice: "if they do not wanna put
+            their sober date up, they do not have to."
+
+            Milestones renders "—" and "no date set yet" when days is
+            null. On your own page that placeholder is the app raising the
+            subject every single time you open it — which is exactly what
+            somebody who tapped "I'd rather not" refused. So when there is
+            no date, this renders nothing at all and the invitation card
+            below takes over; once that is dismissed, the space is simply
+            empty. Absence has to actually be absent.
+
+            ⚠️ Milestones itself is UNCHANGED — /u/[handle] renders it too
+            and that page is not mine to alter tonight. The placeholder
+            still exists there, which is its own question. */}
+        {!since ? null : soon !== null ? (
+          <p style={{ margin: '1.2rem 0 1.6rem', fontSize: '15px', lineHeight: 1.6, opacity: 0.85 }}>
+            Your date is set for {new Date(since + 'T00:00:00').toLocaleDateString(
+              undefined, { month: 'long', day: 'numeric', year: 'numeric' })}.
+            {' '}The count starts then.
+          </p>
+        ) : (
+          <>
+            {/* The count moved into the hero at the top of this page. */}
+            {/* ⭐ THE EDIT LINK, NEXT TO THE THING IT EDITS.
+                Ty: "we're gonna need a hyperlink for an edit button
+                somewhere underneath the number."
+
+                ⚠️ It lives HERE, in Me.jsx, and not inside Milestones —
+                /u/[handle] renders that same component, and an edit link
+                on somebody else's profile would be absurd at best.
+
+                The date is spelled out beside it so it is obvious what
+                you are about to change. */}
+            <p className="sincerow">
+              since {new Date(since + 'T00:00:00').toLocaleDateString(
+                undefined, { day: 'numeric', month: 'short', year: 'numeric' })}
+              {' · '}
+              <button type="button" className="sincelink" disabled={busy}
+                      onClick={() => { setDateAsk(dateAsk === 'open' ? 'closed' : 'open'); }}>
+                edit
+              </button>
+            </p>
+
+            {/* The same picker the invitation card uses — one control,
+                two ways in. ⚠️ Save routes through the SAME movedForward
+                check the full editor uses, so editing from here can never
+                skip the "started over or fixing it?" question. Skipping
+                it would quietly drop somebody's lifetime days. */}
+            {dateAsk === 'open' && (
+              <div className="datecard">
+                <DatePick value={since || today} disabled={busy}
+                          idPrefix="edit" onChange={setSince} />
+                <div className="dc-row">
+                  <button className="btn" type="button"
+                          disabled={busy || since === savedSince}
+                          onClick={() => {
+                            /* ⚠️ The picker STAYS OPEN when the date moved
+                               forward — resetFlow renders directly below
+                               it. Closing here is what made the first
+                               version a dead button. */
+                            if (movedForward) { setRunLen(String(guess)); setReset('ask'); return; }
+                            save({ sober_since: since || null }, 'Date saved.');
+                            setDateAsk('closed');
+                          }}>
+                    {busy ? 'Saving…' : 'Save'}
+                  </button>
+                  <button className="btn ghost" type="button" disabled={busy}
+                          onClick={() => { setSince(savedSince); setDateAsk('closed'); }}>
+                    Cancel
+                  </button>
+                </div>
+                <p className="dc-s">
+                  Only used to count days. Nobody else sees the date itself.
+                </p>
+                {resetFlow}
+              </div>
+            )}
+          </>
+        )}
+
+        {/* ⭐ THE SECOND NUMBER, WHERE THE FIRST ONE IS.
+            Built once as `lifeBlock` further up. It sits OUTSIDE the
+            `{!since ? …}` ternary directly above on purpose — a member with
+            no sober date still has a life before this app, and gating the
+            total on a date they declined to set would hide it from exactly
+            the people most likely to have one. */}
+        {lifeBlock}
+
+        {/* =================================================================
+            EVERYTHING BELOW IS THE SETTINGS SIDE. Reached through Edit.
+            ================================================================= */}
+        <>
+        <div className="editbar">
+          <button type="button" className="btn ghost" onClick={finishEditing}>
+            ‹ Done
+          </button>
+        </div>
+
+        <PendingTags initialTags={pendingTags} />
+
+        {/* 🔴 THE DATE COMES FIRST — 2 Sept, Ty asked three times.
+            It used to be the THIRD section, behind name-and-face and
+            "how you show up". The day count is the thing a member opens
+            this page to look at; burying the control for it under two
+            other headings is the same shape as every other bug tonight —
+            the thing that matters sitting below the thing that doesn't. */}
+        <Section title="🌱 Your date" tint="acid" open>
+          <label htmlFor="sd-m">Sober since</label>
+          <DatePick value={since || today} disabled={busy} idPrefix="sd"
+                    onChange={(v) => { setSince(v); setReset('no'); }} />
+          <p className="hint">
+            Only used to count days. Leave it empty if you&apos;d rather not have a number.
+          </p>
+
+          {reset === 'no' && (
+            <button className="btn" type="button" disabled={busy || since === savedSince}
+                    onClick={() => {
+                      if (movedForward) { setRunLen(String(guess)); setReset('ask'); return; }
+                      save({ sober_since: since || null },
+                           since ? 'Date saved.' : 'Date cleared.');
+                    }}>
+              {busy ? 'Saving…' : 'Save date'}
+            </button>
+          )}
+
+          {/* Two questions, never more, and neither of them asks what
+              happened. The app does not need to know.
+
+              ⚠️ RENDERED FROM ONE PLACE, TWO TIMES. `resetFlow` is built
+              once above and dropped in here and in the counter's inline
+              picker. The counter's edit link can move a date forward just
+              like this editor can, and the question that decides whether
+              a run gets added to the lifetime total must be identical in
+              both — a second copy of THIS, of all things, would be the
+              one that drifts and quietly loses somebody's days. */}
+          {resetFlow}
+
+          {/* ---- the total ----
+              🔴 THE NUMBER AND ITS EDITOR ARE NOT HERE ANY MORE. They live
+              under the day count on the page itself, where Ty asked for
+              them — see `lifeBlock`. What stays in settings is the one
+              thing that genuinely IS a setting: whether anybody else can
+              see the total. Changing your own number is not a preference;
+              publishing it to strangers is. */}
+          {(
+            <>
+              <p className="hint">
+                Your total sits under your day count on this page. It only ever
+                goes up on its own &mdash; starting over resets the count at the
+                top; it has never once reset the total.
+              </p>
+              {/* ⚠️ The publish switch stays gated on there BEING a total.
+                  Offering to put a number on your page when the number is
+                  zero is an empty control, and the hint underneath it talks
+                  about what the subtraction reveals — which reveals nothing
+                  at all when there is nothing to subtract. */}
+              {lifetime > 0 && (<>
+              <button type="button"
+                      className={'choice' + (showLife ? ' sel' : '')}
+                      aria-pressed={showLife} disabled={busy}
+                      onClick={() => { const n = !showLife; setShowLife(n);
+                        save({ show_lifetime: n }, n
+                          ? 'Your total is on your page now.'
+                          : 'Hidden. Only you can see it.'); }}>
+                <span className="ct">{showLife ? '👁 On your page' : '🔒 Just for you'}</span>
+                <span className="cd">
+                  {showLife
+                    ? 'Anyone visiting your page sees your total as well as your count.'
+                    : 'Nobody but you sees this number.'}
+                </span>
+              </button>
+              <p className="hint">
+                Worth knowing before you flip it: a total bigger than your
+                current count tells anyone who does the subtraction that you
+                started over once. That&apos;s yours to share, not ours &mdash; which
+                is why it&apos;s off until you say so.
+              </p>
+              </>)}
+            </>
+          )}
+
+          {/* ---- about you ---- */}
+        </Section>
+
+        <Section title="🪪 Your handle" tint="sand">
+          <HandleEditor handle={handle} setHandle={setHandle}
+                        saved={profile.handle} clean={cleanHandle}
+                        save={save} busy={busy} />
+
+          {/* ---- sober date ---- */}
+        </Section>
+
+        {/* ---- name and face ---- */}
+        <Section title="🙂 Your name and face" tint="pink" id="face">
+
+          <div className="pcard">
+            {/* "This is exactly how your card looks to everybody else" — a
+                claim that was false while this drew a seedling and the Wall
+                drew the photo. */}
+            <Face cls="pav" />
+            <div className="pwho">
+              <span className="pname">{anon ? profile.handle : (dname || profile.handle)}</span>
+              <span className="phandle">@{profile.handle}</span>
+            </div>
+          </div>
+          <p className="hint" style={{ marginTop: -12 }}>
+            {anon
+              ? 'You’re Anonymous, so people see your handle and the seedling — the name and face below are saved but not shown.'
+              : 'This is exactly how your card looks to everybody else.'}
+          </p>
+
+          <label htmlFor="dn">What people call you</label>
+          <input id="dn" type="text" maxLength={40} value={dname} disabled={busy}
+                 autoComplete="off"
+                 placeholder={profile.handle}
+                 onChange={(e) => setDname(e.target.value)} />
+          <p className="hint">
+            A first name or a nickname &mdash; whatever you&apos;d say in a room. Leave it
+            empty and people just see @{profile.handle}, which is what everyone has been
+            seeing until now.
+          </p>
+
+          {/* ---- A REAL PHOTO (Ty's call, Aug 17) ----
+
+              ⚠️ The anonymous branch is not a disabled control. When your
+              profile is anonymous there is no upload button here at all,
+              because a greyed-out button invites you to work out how to
+              un-grey it, and the answer would be "give up your anonymity"
+              — which is a trade nobody should be nudged into by UI.
+
+              The line about nothing being deleted matters too. A member who
+              switches to anonymous and sees their photo vanish will assume
+              it's gone. It isn't: avatar_photo is untouched, and
+              public_profiles simply stops serving it. Say so, or they'll
+              re-upload it and wonder why it happened again. */}
+          <label id="photolab">Your photo</label>
+          {anon ? (
+            <p className="hint phoff">
+              Photos are off while your profile is anonymous &mdash; a face is the
+              fastest way to stop being anonymous by accident. Nothing has been
+              deleted. Switch to open above and it comes back.
+            </p>
+          ) : (
+            <div className="phrow">
+              <div className={'phnow' + (photoKind === 'photo' && photoUrl ? ' has' : '')}>
+                {photoKind === 'photo' && photoUrl
+                  ? <img src={photoUrl} alt="Your profile photo" />
+                  : <span aria-hidden="true">{avatar || '🌱'}</span>}
+              </div>
+              <div className="phacts">
+                <PhotoUpload
+                  kind="avatar"
+                  disabled={busy}
+                  label={photoPath ? 'Choose a different one' : 'Use a photo'}
+                  onDone={(path, preview) => {
+                    setPhotoPath(path); setPhotoUrl(preview); setPhotoKind('photo');
+                  }} />
+                {photoPath && photoKind === 'photo' && (
+                  <button type="button" className="btn ghost" disabled={busy}
+                          onClick={() => setPhotoKind(avatar ? 'emoji' : 'none')}>
+                    Show the emoji instead
+                  </button>
+                )}
+                {photoPath && photoKind !== 'photo' && (
+                  <button type="button" className="btn ghost" disabled={busy}
+                          onClick={() => setPhotoKind('photo')}>
+                    Show the photo
+                  </button>
+                )}
+                {photoPath && (
+                  <button type="button" className="btn ghost phdel" disabled={busy}
+                          onClick={removePhoto}>
+                    Remove it
+                  </button>
+                )}
+                <p className="hint phnote">
+                  The location tag phones hide inside photos is stripped off before
+                  it saves &mdash; a picture of your kitchen can&apos;t give away your address.
+                </p>
+              </div>
+            </div>
+          )}
+
+          <label id="facelab">Pick a face</label>
+          {/* Why a fixed list and not a text box: see FACE_GROUPS up top.
+              The emoji is still here and still the default — a photo is an
+              option, not an expectation. Plenty of people in recovery have
+              excellent reasons not to have a face on anything. */}
+          <button type="button" className={'facepick' + (faceOpen ? ' open' : '')}
+                  ref={faceBtn}
+                  aria-expanded={faceOpen}
+                  aria-controls="facegrid"
+                  aria-labelledby="facelab"
+                  disabled={busy}
+                  onClick={() => setFaceOpen(!faceOpen)}>
+            <span className="fpnow" aria-hidden="true">{avatar || '🌱'}</span>
+            <span className="fplab">
+              {avatar ? 'This is your face' : 'No face picked yet'}
+              <span className="fpsub">
+                {faceOpen ? 'Close without changing it'
+                          : avatar ? 'Tap to pick a different one'
+                                   : 'Tap to pick one — the seedling is the default'}
+              </span>
+            </span>
+            <span className="fpcaret" aria-hidden="true">{faceOpen ? '▲' : '▼'}</span>
+          </button>
+
+          {faceOpen && (
+            <div id="facegrid" className="facegrid">
+              {FACE_GROUPS.map((g) => (
+                <div key={g.name}>
+                  <h3 className="facegrp">{g.name}</h3>
+                  <ul className="faces">
+                    {g.items.map((e) => (
+                      <li key={e}>
+                        <button type="button"
+                                className={'face' + (avatar === e ? ' sel' : '')}
+                                aria-label={'Use this as your face'}
+                                aria-pressed={avatar === e}
+                                disabled={busy}
+                                onClick={() => pickFace(e)}>
+                          <span aria-hidden="true">{e}</span>
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+              {/* The way back out. Tapping your own face again also clears it,
+                  but nobody discovers that, and "how do I undo this" is not a
+                  puzzle worth setting on a page about how you appear to
+                  people. */}
+              {avatar && (
+                <button type="button" className="facenone" disabled={busy}
+                        onClick={() => pickFace(avatar)}>
+                  Go back to the seedling
+                </button>
+              )}
+            </div>
+          )}
+
+          {/* ⚠️ avatar_kind is DERIVED here, never stored as a fourth piece
+              of state that has to be kept in step with the other three.
+              Same rule as the sign-up/sign-in door in the Aug 15 session:
+              one fact, one home. A separate kind field would eventually
+              disagree with whether a photo actually exists, and the failure
+              mode is somebody's page rendering a blank circle where their
+              face should be. */}
+          <button className="btn" type="button"
+                  disabled={busy || (dname === (profile.display_name || '')
+                                     && avatar === (profile.avatar || '')
+                                     && photoPath === (profile.avatar_photo || '')
+                                     && photoKind === (profile.avatar_kind || 'emoji'))}
+                  onClick={() => save({
+                    display_name: dname.trim() || null,
+                    avatar: avatar || null,
+                    avatar_photo: photoPath || null,
+                    avatar_kind: (photoKind === 'photo' && photoPath) ? 'photo'
+                               : avatar ? 'emoji' : 'none',
+                  }, 'Saved. That’s you now.')}>
+            {busy ? 'Saving…' : 'Save name and face'}
+          </button>
+
+          {/* The old copy here said "photos are coming". They came, so it
+              goes. ⚠️ A stale promise left in the UI is worse than no copy
+              at all — it teaches people the app is describing a different
+              version of itself than the one they're holding. */}
+          <p className="hint">
+            A photo is your choice and you can take it off whenever you like. Worth
+            knowing before you put one up: anyone who can see it can screenshot it,
+            here or anywhere else. The emoji is a perfectly good answer.
+          </p>
+
+          {/* ---- privacy ---- */}
+        </Section>
+
+        {/* 🖼 0190 — YOUR PHOTOS, A SECTION OF THEIR OWN.
+
+            ⚠️ Not folded into "Your name and face" above, even though
+            both are pictures. That section's Save button writes four
+            fields at once and this grid writes itself the moment you
+            touch it — two different save models inside one card is how
+            somebody ends up pressing Save and wondering which half of
+            the card it applied to. Separate cards, separate promises.
+
+            ⚠️ It sits directly ABOVE "How you show up", where the
+            anonymous switch lives, so the sentence at the bottom of the
+            editor about what anonymous does to these photos is next to
+            the control it is talking about rather than nine sections
+            away from it. */}
+        <Section title="🖼 Your photos" tint="mint">
+          <GalleryEdit initial={initialGallery} initialUrls={initialGalleryUrls} />
+        </Section>
+        <Section title="👀 How you show up" tint="sky">
+          <button type="button"
+                  className={'choice' + (privacy === 'open' ? ' sel' : '')}
+                  aria-pressed={privacy === 'open'} disabled={busy}
+                  onClick={() => choose('open')}>
+            <span className="ct">🌱 Open</span>
+            <span className="cd">Your name shows on anything you post normally.</span>
+          </button>
+
+          <button type="button"
+                  className={'choice dark' + (privacy === 'anonymous' ? ' sel' : '')}
+                  aria-pressed={privacy === 'anonymous'} disabled={busy}
+                  onClick={() => choose('anonymous')}>
+            <span className="ct">🤫 Anonymous</span>
+            <span className="cd">Only your handle shows. No real name, to anyone.</span>
+          </button>
+
+          <p className="hint">
+            This applies to your old posts too, not just new ones — switching to
+            Anonymous pulls your name off things you already wrote. Posts you
+            marked anonymous at the time stay anonymous either way.
+          </p>
+
+          <DayCountVisibility dcv={dcv} setDcv={setDcv} save={save} busy={busy} />
+
+          {/* ---- sober date ---- */}
+        </Section>
+        <Section title="📝 About you" tint="lilac"
+                 eye={<Eye on={showBio} busy={busy} what="your bio" anon={anon}
+                           onToggle={() => { const n = !showBio; setShowBio(n);
+                             save({ show_bio: n }, n ? 'Shown.' : 'Hidden.'); }} />}>
+
+          {/* One notice, stated once, rather than the same warning stapled
+              to five fields. If none of this shows, say so plainly and
+              offer the one tap that changes it — don't just grey things
+              out and let somebody wonder why they typed for nothing. */}
+          {anon && (
+            <div className="err">
+              You&apos;re set to Anonymous, so none of this shows anywhere —
+              your page carries your handle, your count and your song, and
+              nothing else. You can still fill it in and it&apos;ll be waiting
+              if you ever switch to Open.
+            </div>
+          )}
+
+          <label htmlFor="bio">A line about you</label>
+          <textarea id="bio" rows={3} maxLength={200} value={bio} disabled={busy}
+                    placeholder="In recovery and open about it. Here to make real friends."
+                    onChange={(e) => setBio(e.target.value)} />
+          <p className="hint">{200 - bio.length} characters left.</p>
+
+          <PathPicker paths={paths} setPaths={setPaths}
+                      pathOther={pathOther} setPathOther={setPathOther}
+                      savedOther={profile.path_other || ''}
+                      privatePaths={privatePaths} setPrivatePaths={setPrivatePaths}
+                      save={save} busy={busy} anon={anon} />
+
+          <label htmlFor="int">
+            What you&apos;re into
+            <Eye on={showInt} busy={busy} what="what you're into" anon={anon}
+                 onToggle={() => { const n = !showInt; setShowInt(n);
+                   save({ show_interests: n }, n ? 'Shown.' : 'Hidden.'); }} />
+          </label>
+          <input id="int" type="text" maxLength={120} value={interests} disabled={busy}
+                 placeholder="Fishing · Gaming · Podcasts"
+                 onChange={(e) => setInterests(e.target.value)} />
+          <p className="hint">
+            The thing people actually message you about. Worth more than the rest of this put together.
+          </p>
+
+          {/* ⚠️ OFF BY DEFAULT, AND THAT DEFAULT IS THE FEATURE.
+              A handle is a name you invented for this place. Your real
+              name is not. With this on, anybody can type your name and
+              learn you are in recovery — an employer checking a
+              candidate, a relative looking for someone who left. Being
+              visible on your own page and being findable by name are
+              different things, and only you should decide the second.
+              Same pattern as your town, which is also off until you
+              choose otherwise. */}
+          <button type="button"
+                  className={'choice' + (findable ? ' sel' : '')}
+                  aria-pressed={findable} disabled={busy}
+                  onClick={() => { const n = !findable; setFindable(n);
+                    save({ findable_by_name: n }, n
+                      ? 'On. People can find you by your name.'
+                      : 'Off. Only your handle finds you.'); }}>
+            <span className="ct">
+              {findable ? '🔎 Findable by your name' : '🔒 Only your handle finds you'}
+            </span>
+            <span className="cd">
+              {findable
+                ? 'Someone who knows your name can search it and land on your page.'
+                : 'People can still find you by handle — just not by the name you were given.'}
+            </span>
+          </button>
+
+          {/* 🔴🔴 THIS BUTTON USED TO ALSO SAVE town AND state, AND THAT WAS
+              THE BUG — 2 Sept. Reported by Donny, who could not get his
+              details to stay.
+
+              The town and state boxes live in the NEXT section, BELOW this
+              button. So the only control that persisted them was above
+              them, already scrolled past, attached to a different heading.
+              Somebody typed their town, found no way to keep it, tapped
+              the "Showing your town" toggle instead (which saves only
+              show_location), and left. Nothing was written.
+
+              ⭐ TWO THINGS MADE IT INVISIBLE. Every other control on this
+              page — sponsoring, the location toggle, findable-by-name —
+              writes the instant you touch it, so the page teaches you it
+              saves itself. And after the location toggle fires,
+              router.refresh() re-renders while this component keeps its
+              own useState, so the typed town STAYS IN THE BOX. It looks
+              like it worked, right up until you come back tomorrow.
+
+              📉 The data said it before anybody did: 13 members have a
+              bio, 4 have a town. The three fields above this button work.
+              The two below it mostly didn't.
+
+              ⚠️ Now this saves ONLY its own three, and "Where you are" has
+              its own button for its own two. The sets are disjoint on
+              purpose — two buttons writing the same column is how one
+              quietly wipes the other. */}
+          <button className="btn" type="button" disabled={busy || !aboutDirty}
+                  onClick={() => save({
+                    bio: bio.trim() || null,
+                    /* 🔴 `programs` IS NOT SENT, AND THAT IS THE FIX — 2 Sept.
+                       It is DERIVED from `paths` by a trigger now. This button
+                       used to send the `programs` state, which is seeded from
+                       profile.programs at page load — so ticking path chips
+                       derived a fresh value, and then saving your bio wrote
+                       the PAGE-LOAD value straight back over it. Silent, and
+                       it landed on the public page, which reads `programs`.
+                       The comment above this button warned about two buttons
+                       writing one column; the second writer here was a
+                       trigger, which is the same bug wearing a lab coat. */
+                    interests: interests.trim() || null,
+                  }, 'Saved.')}>
+            {busy ? 'Saving…' : 'Save'}
+          </button>
+
+          {/* ---- where you are ---- */}
+        </Section>
+        <Section title="📍 Where you are" tint="mint"
+                 eye={<Eye on={showLoc} busy={busy} what="your town" anon={anon}
+                           onToggle={() => { const n = !showLoc; setShowLoc(n);
+                             save({ show_location: n }, n ? 'Shown.' : 'Hidden.'); }} />}>
+          {/* ⚠️ This section and Sponsoring had NO anonymous notice at all
+              until tonight — only About you did. All three are nulled by
+              the same rule, so all three have to say so. */}
+          {anon && (
+            <div className="err">
+              You&apos;re set to Anonymous, so your town doesn&apos;t show
+              anywhere. Fill it in if you like &mdash; it&apos;ll be waiting
+              if you ever switch to Open.
+            </div>
+          )}
+          <div className="tworow">
+            <div>
+              <label htmlFor="town">Town</label>
+              <input id="town" type="text" maxLength={60} value={town} disabled={busy}
+                     placeholder="Cadiz" onChange={(e) => setTown(e.target.value)} />
+            </div>
+            <div>
+              <label htmlFor="st">State</label>
+              <input id="st" type="text" maxLength={40} value={state} disabled={busy}
+                     placeholder="Ohio" onChange={(e) => setState(e.target.value)} />
+            </div>
+          </div>
+
+          <button type="button"
+                  className={'choice' + (showLoc ? ' sel' : '')}
+                  aria-pressed={showLoc} disabled={busy}
+                  onClick={() => { const n = !showLoc; setShowLoc(n);
+                    save({ show_location: n }, n
+                      ? 'On. Your town shows on your page.'
+                      : 'Off. Nobody sees where you are.'); }}>
+            <span className="ct">{showLoc ? '📍 Showing your town' : '🔒 Town hidden'}</span>
+            <span className="cd">
+              {showLoc
+                ? 'Anyone who opens your page sees the town you typed.'
+                : 'Saved, but not shown to anyone.'}
+            </span>
+          </button>
+          <p className="hint">
+            Off by default, and worth a thought before you turn it on. A handle,
+            a day count and a small town is close enough to a name that somebody
+            could work out who you are &mdash; and in a town this size, that might
+            be your boss. Big city, much less of a problem.
+          </p>
+
+          {/* 🔴 THE MISSING BUTTON — 2 Sept, reported by Donny.
+
+              These two boxes had no way to save. The only control that
+              wrote them lived in the section ABOVE, beside the bio, and by
+              the time you had typed a town you had scrolled past it. The
+              toggle above me saves show_location and nothing else, so
+              tapping it felt like saving and wasn't.
+
+              ⚠️ It writes ONLY town and state. The three fields upstairs
+              have their own button. Overlapping the two sets is how one
+              button silently overwrites the other's work with whatever
+              stale value it was holding.
+
+              ⚠️ Sits AFTER the privacy warning deliberately — the last
+              thing you read before committing a town should be the reason
+              you might not want to. */}
+          <button className="btn" type="button" disabled={busy || !whereDirty}
+                  onClick={() => save({
+                    town: town.trim() || null,
+                    state: state.trim() || null,
+                  }, showLoc
+                       ? 'Saved. Your town shows on your page.'
+                       : 'Saved, and hidden until you turn it on.')}>
+            {busy ? 'Saving…' : 'Save where you are'}
+          </button>
+
+          {/* ---- sponsoring ---- */}
+        </Section>
+        <Section title="🤝 Sponsoring" tint="butter"
+                 eye={<Eye on={showSp} busy={busy} what="your sponsoring answers" anon={anon}
+                           onToggle={() => { const n = !showSp; setShowSp(n);
+                             save({ show_sponsoring: n }, n ? 'Shown.' : 'Hidden.'); }} />}>
+          {anon && (
+            <div className="err">
+              You&apos;re set to Anonymous, so none of these answers show
+              anywhere &mdash; including to anyone looking for a sponsor.
+              Switch to Open in &ldquo;How you show up&rdquo; if you want
+              them seen.
+            </div>
+          )}
+          <SponsorPair hasSp={hasSp} willSp={willSp} spNA={spNA}
+                       setHasSp={setHasSp} setWillSp={setWillSp} setSpNA={setSpNA}
+                       save={save} busy={busy} days={d} />
+
+          {/* ---- your song ---- */}
+        </Section>
+        {/* 🔴 20 SEPT — THE STALE PROMISE IS PAID OFF, NOT RENDERED AS-IS.
+            This block used to be `{false && <ThemePicker …>}` with a note
+            saying to unhide it the day /u/[handle] rendered `theme`. That
+            day came and the answer was NOT to unhide it: ThemePicker wrote
+            to the column Night owns, and seven of its eight themes had no
+            stylesheet. 0182 gives the look its own columns (cover, accent,
+            sections) and LookPicker below is the control that actually
+            changes the page. ThemePicker is no longer imported.
+
+            ⚠️ It is still one Section, in the same place, with the same
+            title — a member who had learned where "how your page looks"
+            lives finds it where they left it. */}
+        {/* 🔴 20 SEPT — THE VERIFIED PAGE HAD NO DOOR FROM HERE.
+            Ty, three times over an afternoon: the public figures can't
+            change their profiles. The editor existed and their own page
+            did carry an "Edit artist page" button — but ONLY there, on
+            /u/<their handle>, and only when they were the one looking.
+            Anybody who went to the You tab for their settings, which is
+            where settings are for all 339 other members, found nothing
+            about their artist page at all.
+
+            ⚠️ A control that lives only on the thing it controls is a
+            control most people never find. Third time this shape has
+            bitten this app — the conversation menu, reporting from a
+            profile, and now this. The fix is always the same: put it
+            where people already go looking.
+
+            Renders for approved artists only. artistStatus is null for
+            everybody else and this is simply absent — no teaser, no
+            "apply to be verified" nag on a page somebody opened to
+            change their bio. /artist is still there for anyone who
+            wants to apply. */}
+        {artistStatus === 'approved' && (
+          <Section title="✅ Your artist page" tint="sand">
+            <p className="hint" style={{ marginTop: 0 }}>
+              Your name, the line under it, your About, your books, your
+              links and your shows — and the cover and colour your page
+              wears. All of it is yours to change.
+            </p>
+            <Link href="/artist" className="btn">Edit your artist page</Link>
+          </Section>
+        )}
+
+        <Section title="🎨 How your page looks" tint="cream">
+          {/* Everything the preview needs comes from state that is
+              ALREADY live on this page — the name, the face and the
+              day count all update as the member edits them further up,
+              so the little page in the picker is the real one, not a
+              second copy that drifts. */}
+          {/* ⚠️ 21 Sept — NO "What shows, and in what order" HERE ANY MORE.
+              PR #8 (Will) made every member's page header + day count +
+              posts, full stop, so the song/total/posts switches stopped
+              changing anything. A switch that does nothing is worse than
+              no switch: people flip it, see no change, and decide the app
+              is broken. showBlocks={false} is the same prop /artist already
+              uses. The `sections` column stays, untouched, in case the
+              blocks ever come back — nothing is deleted. */}
+          <LookPicker profile={profile} days={d} onLook={setLook}
+                      name={dname} avatar={avatar}
+                      avatarUrl={photoKind === 'photo' ? photoUrl : ''}
+                      showBlocks={false} />
+        </Section>
+        <Section title="🎵 Your song" tint="peach">
+          <p className="hint" style={{ marginTop: 0 }}>
+            The one that got you through. It plays on your page —{' '}
+            <Link href={`/u/${profile.handle}`}>see how it looks</Link>.
+          </p>
+
+          <SongPicker value={song} onPick={setSong} disabled={busy} />
+
+          {/* Hear it before you commit to it.
+
+              `key` forces a brand-new player whenever the pick changes.
+              Without it React reuses the same <audio> element, and the
+              audio pipeline is built ONCE per element — so the old preview
+              would keep playing underneath the new artwork. The props
+              moved; the wiring didn't. */}
+          {song.anthem_preview && (
+            <SongPlayer key={song.anthem_preview} song={song} whose="preview" />
+          )}
+
+          <button className="btn" type="button"
+                  disabled={busy || song.anthem_url === (profile.anthem_url || null)
+                            && song.anthem_youtube === (profile.anthem_youtube || null)
+                            /* ⚠️ Without this line Save stays greyed out for
+                               somebody who changed ONLY their Spotify link —
+                               the button is the thing that tells them the edit
+                               counted, so a stale comparison reads as "it
+                               didn't take". */
+                            && song.anthem_spotify === (profile.anthem_spotify || null)}
+                  onClick={() => save(song, song.anthem_url
+                    ? 'Song saved. It\u2019s on your page now.' : 'Song removed.')}>
+            {busy ? 'Saving…' : 'Save song'}
+          </button>
+
+          {song.anthem_url && (
+            <button className="nvm" type="button" disabled={busy}
+                    onClick={() => setSong({ anthem_url: null, anthem_title: null,
+                                             anthem_art: null, anthem_preview: null,
+                                             anthem_youtube: null, anthem_spotify: null })}>
+              take my song off my page
+            </button>
+          )}
+
+          {note && <div className="ok">{note}</div>}
+          {err && <div className="err">{err}</div>}
+
+          {/* ---- autoplay ---- */}
+        </Section>
+        <Section title="🚪 When you visit someone" tint="stone">
+          <button type="button"
+                  className={'choice' + (auto ? ' sel' : '')}
+                  aria-pressed={auto} disabled={busy}
+                  onClick={() => { const n = !auto; setAuto(n);
+                    save({ autoplay_songs: n }, n
+                      ? 'On. Songs will start on their own.'
+                      : 'Off. Nothing plays until you press it.'); }}>
+            <span className="ct">{auto ? '🔊 Songs start on their own' : '🔇 Songs wait for you'}</span>
+            <span className="cd">
+              {auto
+                ? 'When you open somebody\u2019s page their song begins playing.'
+                : 'Nothing on this app makes a sound until you press play.'}
+            </span>
+          </button>
+          <p className="hint">
+            This is your setting, about your own ears &mdash; it has nothing to do with
+            what happens when other people visit <em>you</em>. It&rsquo;s on to start
+            with: open somebody&rsquo;s page and their song begins. You can turn it off
+            here, or from the switch under any song, and it stays off for good.
+          </p>
+
+          {/* ---- the door ----
+              Sign-out lives in settings now rather than on the page you land
+              on. It is the one control here you can't undo by tapping again,
+              and it does not belong next to your own face. */}
+        </Section>
+        <Section title="📱 Phone and notifications" tint="sand">
+          {/* These controls used to sit on /me's read view. That view is now
+              intentionally only the profile and its posts, so device choices
+              belong here with the rest of the member's settings. */}
+          <NightSwitch theme={theme} setTheme={setTheme} save={save} busy={busy} />
+          <PushSwitch />
+          <EmailSwitch />
+        </Section>
+        <Section title="🔑 Account" tint="cream">
+          <p className="hint">Signed in as {email}</p>
+          <button className={'btn out' + (confirmOut ? ' arm' : '')} type="button"
+                  disabled={busy} onClick={signOut}>
+            {confirmOut ? 'Tap again to sign out' : 'Sign out'}
+          </button>
+          {confirmOut && (
+            <button className="nvm" type="button" onClick={() => setConfirmOut(false)}>
+              never mind
+            </button>
+          )}
+
+          {/* Help and the walkthrough stay in the permanent More menu. They
+              are navigation, not account settings, and putting them here
+              would make them harder to find again. */}
+
+          {/* ⚠️ Above delete, below sign-out. It renders NOTHING when you
+              haven't blocked anybody, so for most members this section
+              doesn't exist — a permanent "People you've blocked (0)"
+              invites somebody to wonder who they ought to be blocking. */}
+          <Blocked />
+
+          {/* ⚠️ Below sign-out, not above it, and not behind another menu.
+              Apple asks for account deletion to be easy to find, and hiding
+              it would be wrong anyway — an exit you have to hunt for reads
+              as an app that doesn't want to let you go. But it goes SECOND,
+              because the control people want ninety-nine times in a hundred
+              should be the one their thumb reaches first. */}
+          <div className="delsep" />
+          <DeleteAccount handle={profile.handle} />
+        </Section>
+        <div className="editbar">
+          <button type="button" className="btn" onClick={finishEditing}>
+            Done
+          </button>
+        </div>
+        </>
+
+
+      </div>
+    </>
+  );
+}

@@ -1,0 +1,40 @@
+/* The pinned team note (0191). Built to the prototype Ty approved:
+   a dark header strip with the pin, the name and seal under it, the
+   words, and a hard black border so it reads as a notice rather than as
+   somebody's post. */
+.tupd{
+  border:3px solid var(--x); background:var(--paper2);
+  margin:14px 0 6px;
+}
+.tutag{
+  background:var(--deep, #0F3D2A); color:#DFFFB0;
+  font-family:'Anton',Impact,sans-serif; font-size:11px;
+  letter-spacing:.1em; text-transform:uppercase;
+  padding:6px 10px; display:flex; align-items:center; gap:7px;
+}
+.tupin{ font-size:12px; }
+.tuwhen{
+  margin-left:auto; opacity:.8;
+  font-family:'Archivo',system-ui,sans-serif; letter-spacing:0;
+  font-size:11px; text-transform:none;
+}
+.tubody{ padding:12px 13px; }
+.tuwho{ display:flex; align-items:center; gap:9px; margin-bottom:8px; }
+.tuav{
+  width:36px; height:36px; border:2px solid var(--x);
+  background:var(--deep, #0F3D2A); display:grid; place-items:center;
+  font-size:18px; flex:none;
+}
+.tuname{
+  font-weight:700; font-size:15px;
+  display:inline-flex; align-items:center; gap:5px;
+}
+.tuseal{ width:17px; height:17px; flex:none; }
+.tuseal circle{ fill:var(--deep, #0F3D2A); }
+.tuseal path{ fill:none; stroke:var(--acid, #D6FF2E); stroke-width:3;
+              stroke-linecap:round; stroke-linejoin:round; }
+/* ⚠️ pre-line, so a blank line the admin typed survives without this
+   component ever accepting markup. */
+.tutext{ font-size:15px; white-space:pre-line; }
+
+[data-theme="black"] .tupd{ background:var(--card, #15171A); }
