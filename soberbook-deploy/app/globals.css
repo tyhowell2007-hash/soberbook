@@ -506,3 +506,8 @@ html[data-menu="on"] .mast{ padding-left:59px; }
 }
 .mo-row{ border-top:1px solid var(--line); }
 .mo-row:first-child{ border-top:0; }
+
+/* 988 row at the top of the menu (29 Oct 2026) */
+.mm-crisis{ display:block; margin:0 0 14px; padding:12px 14px; border-radius:14px;
+  background:#0E1F3A; color:#fff; font-weight:700; text-decoration:none; line-height:1.35; }
+.mm-crisis-s{ display:block; font-weight:500; font-size:13px; opacity:.85; margin-top:3px; }

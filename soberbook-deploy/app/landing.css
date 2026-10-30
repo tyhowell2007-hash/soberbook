@@ -351,3 +351,9 @@
 }
 .lp-whoTop a:hover{ text-decoration:underline; }
 
+
+/* ---- crisis bar (29 Oct 2026) — first thing on the page, always visible ---- */
+.lp-crisis{ background:#0E1F3A; color:#fff; text-align:center; padding:10px 16px;
+  font-weight:600; font-size:14px; line-height:1.4; }
+.lp-crisis a{ color:#D0F828; font-weight:800; text-decoration:underline; }
+.lp-crisis-s{ display:block; font-weight:500; opacity:.88; margin-top:2px; }

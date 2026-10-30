@@ -221,6 +221,13 @@ export default function MastMenu({ on = false }) {
                   outbound link on /help. Elsewhere a referrer is a
                   statistic; here it would tell her server's logs that the
                   visitor arrived from a recovery app. */}
+              {/* ⭐ 29 Oct 2026 — 988 on the main screens (CRCC ask). Top of
+                  the menu, above everything, because it is the one row that
+                  cannot wait. Not run by Sober Book. */}
+              <a className="mm-crisis" href="tel:988">
+                Need someone right now? Call or text 988
+                <span className="mm-crisis-s">Illinois Helpline: 833-234-6343 · text HELP to 833234</span>
+              </a>
               <Link href="/find-care" className="mm-feature">
                 <span className="mm-feat-t">Dr. Labor&rsquo;s Recovery Map</span>
                 <span className="mm-feat-s">

@@ -412,6 +412,18 @@ export default function Landing() {
   return (
     <div className="lp">
 
+      {/* ⭐ 29 Oct 2026 — CRISIS LINE ON THE FRONT DOOR. CRCC (Illinois) asked
+          for 988 and the Illinois Helpline to be visible on the public landing
+          page; they had looked and found nothing. Shown to everybody: the app
+          never asks where you are, so it cannot pick a state for you.
+          Neither line is run by Sober Book and nobody pays to be here. */}
+      <div className="lp-crisis" role="note">
+        Need someone right now? Call or text <a href="tel:988">988</a>, any hour.
+        <span className="lp-crisis-s">
+          In Illinois: <a href="tel:18332346343">833-234-6343</a> or text HELP to 833234
+        </span>
+      </div>
+
       <div className="lp-hero">
         <div className="lp-wrap">
           <div className="lp-leaf">🌿</div>
