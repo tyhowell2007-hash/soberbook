@@ -157,6 +157,10 @@
   padding:9px 12px; min-height:44px; box-sizing:border-box;
   border:1px solid var(--soft); border-radius:10px; background:var(--paper2);
 }
+/* ⚠️ A global `label` rule sets Courier Prime, uppercase and letter-spacing
+   (it was found live on 29 Oct). These are sentences somebody reads, not
+   form captions, so all three are reset here. */
+.fc-upd-opt{ font-family:inherit; text-transform:none; letter-spacing:normal; font-weight:400; }
 .fc-upd-opt input{ accent-color:var(--gd); margin:0; }
 /* Fill plus border, same as the filter chips: never colour alone. */
 .fc-upd-opt.is-on{ background:var(--gl); border-color:var(--gm); color:var(--gt); font-weight:600; }
