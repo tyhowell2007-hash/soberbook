@@ -511,3 +511,8 @@ html[data-menu="on"] .mast{ padding-left:59px; }
 .mm-crisis{ display:block; margin:0 0 14px; padding:12px 14px; border-radius:14px;
   background:#0E1F3A; color:#fff; font-weight:700; text-decoration:none; line-height:1.35; }
 .mm-crisis-s{ display:block; font-weight:500; font-size:13px; opacity:.85; margin-top:3px; }
+
+/* Illinois program: words only (29 Oct 2026) */
+.ph-words{ display:inline-block; font-size:12px; line-height:1.35; color:#6B7D72; max-width:260px; }
+.ph-why{ background:none; border:0; padding:0; color:#1B6B4A; font:inherit; font-weight:700; text-decoration:underline; cursor:pointer; }
+.ph-why-t{ display:block; margin-top:4px; color:#4E6157; }

@@ -6,6 +6,7 @@ import { browserClient } from '../../lib/supabase-browser';
 import { makeHandles, createProfile, cleanHandle } from '../../lib/first-run';
 import { isIosApp } from '../../lib/is-ios-app';
 import DatePick from '../components/DatePick';
+import { PROGRAM_FROM_URL } from '../../lib/program';
 
 /* =====================================================================
    THE FRONT DOOR — Ty's warm landing, with real doors in it.
@@ -315,7 +316,19 @@ export default function Landing() {
     e.preventDefault();
     setErr(''); setNote(''); setBusy('up');
     try {
-      const { data, error } = await supabase.auth.signUp({ email: upEmail, password: upPw });
+      /* ⭐ 29 Oct 2026 — CRCC's campaign link is /login?program=illinois.
+         The program rides along as account metadata; migration 0192 copies
+         it into program_members when the profile is created. Read off
+         window.location for the same reason withRoom() is. Anything that
+         isn't a known program is ignored. */
+      let program = null;
+      try {
+        const p = new URLSearchParams(window.location.search).get('program');
+        if (p && PROGRAM_FROM_URL.includes(p)) program = p;
+      } catch { /* no URL, no program */ }
+      const { data, error } = await supabase.auth.signUp(
+        program ? { email: upEmail, password: upPw, options: { data: { program } } }
+                : { email: upEmail, password: upPw });
       if (error) throw error;
 
       /* 🔴 ASK THE RESPONSE WHAT HAPPENED. DO NOT ASSUME THE DASHBOARD SETTING.

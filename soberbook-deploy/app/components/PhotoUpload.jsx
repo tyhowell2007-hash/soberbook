@@ -1,7 +1,8 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { browserClient } from '../../lib/supabase-browser';
+import { myProgram } from '../../lib/program';
 /* ⚠️ NAMED imports out of a plain lib module — shrink-video.js carries no
    'use client' directive on purpose, so this file's server-rendered
    siblings could import it too without the 5 Sept named-export trap. */
@@ -25,6 +26,8 @@ import { looksLikeVideo, streamDoor, putToStream, waitReady,
    nothing is ever served from. Nobody can see the photo, including the
    person who just uploaded it, until step 3 has stripped it.
    ===================================================================== */
+
+let programAsk = null;
 
 export default function PhotoUpload({
   kind,                 // 'post' | 'avatar'
@@ -61,6 +64,18 @@ export default function PhotoUpload({
   busyLabel,
 }) {
   const input = useRef(null);
+  /* ⭐ 29 Oct 2026 — Illinois program members get "words only" instead of
+     this button (CRCC contract). Asked once per page load and shared by
+     every PhotoUpload on the page. The server refuses their uploads too;
+     this only stops the button from promising something it can't do. */
+  const [wordsOnly, setWordsOnly] = useState(false);
+  const [why, setWhy] = useState(false);
+  useEffect(() => {
+    let live = true;
+    if (!programAsk) programAsk = myProgram(browserClient());
+    programAsk.then((p) => { if (live) setWordsOnly(p === 'illinois'); });
+    return () => { live = false; };
+  }, []);
   const [busy, setBusy] = useState(false);
   const [err, setErr]   = useState('');
   /* Which of the three steps we're on, so a big photo on a slow phone
@@ -435,6 +450,22 @@ export default function PhotoUpload({
       setStage('');
       onBusy?.(false);
     }
+  }
+
+  if (wordsOnly) {
+    return (
+      <span className="ph-words">
+        Illinois program: words only.{' '}
+        <button type="button" className="ph-why" onClick={() => setWhy((w) => !w)}>Why?</button>
+        {why && (
+          <span className="ph-why-t">
+            You joined through the Illinois program, and photos and video are
+            turned off there to keep everybody private. Everything else works
+            the same.
+          </span>
+        )}
+      </span>
+    );
   }
 
   return (

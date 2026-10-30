@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { uploadsOff, UPLOADS_OFF_MESSAGE } from '../../../../lib/program';
 import { serverClient } from '../../../../lib/supabase-server';
 import { adminClient } from '../../../../lib/supabase-admin';
 
@@ -82,20 +83,6 @@ const KINDS = {
      upload kind" before any of the agreeing three ever sees it. The
      checker has been widened to cover this file too. */
   story:  { ext: 'bin' },
-  /* 🖼 A PICTURE ON A MEMBER'S OWN PROFILE (0190). Same quarantine road,
-     same stripper, its own bucket — and the prefix `gallery/` is what
-     sends lib/sign-photos.js to `public_profiles` rather than a wall
-     view. That view already nulls everything for an anonymous member, a
-     suspended one, a deleted one and either side of a block, so a
-     profile picture inherits all five rules without one line here
-     knowing what any of them are.
-
-     🔴 THIS ENTRY IS THE ONE STORIES NEARLY DIED WITHOUT. PhotoUpload
-     calls this route FIRST, so a kind missing here never reaches
-     finalize at all and the three files check-bucket-map.py compares
-     still agree perfectly with each other. The upload dies on "Unknown
-     upload kind." and nothing looks broken anywhere else. */
-  gallery:{ ext: 'bin' },
 };
 
 /* What the browser is allowed to say it's sending. ⚠️ This is a HINT, not
@@ -125,6 +112,11 @@ export async function POST(req) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) {
     return NextResponse.json({ error: 'Sign in first.' }, { status: 401 });
+  }
+  /* 🔴 29 Oct 2026 — Illinois program members cannot upload (CRCC contract).
+     Enforced HERE, not just by hiding the button. See lib/program.js. */
+  if (await uploadsOff(supabase)) {
+    return NextResponse.json({ error: UPLOADS_OFF_MESSAGE }, { status: 403 });
   }
 
   let body;

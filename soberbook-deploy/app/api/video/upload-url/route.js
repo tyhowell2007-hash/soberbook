@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { uploadsOff, UPLOADS_OFF_MESSAGE } from '../../../../lib/program';
 import { serverClient } from '../../../../lib/supabase-server';
 import { streamReady, directUploadUrl } from '../../../../lib/cloudflare-stream';
 
@@ -41,6 +42,11 @@ export async function POST(req) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) {
     return NextResponse.json({ error: 'Sign in first.' }, { status: 401 });
+  }
+  /* 🔴 29 Oct 2026 — Illinois program members cannot upload (CRCC contract).
+     Enforced HERE, not just by hiding the button. See lib/program.js. */
+  if (await uploadsOff(supabase)) {
+    return NextResponse.json({ error: UPLOADS_OFF_MESSAGE }, { status: 403 });
   }
 
   /* ⚠️ Degrade honestly. If the account is not wired up yet, say so
