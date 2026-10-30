@@ -1,68 +1,45 @@
 import Link from 'next/link';
-import Pledge from '../components/Pledge';
 
 /* =====================================================================
-   THE CHECK-IN, GIVEN A DOOR.  7 Sept.
+   A CHECK-IN.  0194, 30 Oct 2026.
 
-   Ty, after looking at MyRecoveryPal: "I like how the check-in is built
-   up above too, so it's easy to find and easy to get to."
+   What a member sees when Ty or Kenny presses "Reach out" in the queue.
 
-   ⭐ HE IS POINTING AT THE ONE FEATURE THAT IS ALREADY WORKING, AND THE
-   NUMBERS ARE WHY THIS PAGE EXISTS. 55 of 234 members have pledged, 82
-   pledges in six days, and 67 of those carry words somebody chose to
-   type. Meanwhile 180 of 230 have never posted or replied anywhere in
-   the app. The pledge has more participation than the entire wall — and
-   until today the only way to reach it was to open Home and hope it was
-   still on screen, in a feed of sixty posts sorted by recency.
+   🔴 IT NEVER SAYS THEY WERE REPORTED. Being told "somebody flagged your
+   post" at the worst moment reads as being watched and judged, which is
+   the opposite of the point. It says somebody here noticed and cares,
+   which is true.
 
-   ⚠️ THE CARD STAYS ON THE WALL. IT IS NOT MOVED HERE.
-
-   That is the whole design of this page and it is a rule learned the
-   hard way: on 3 Sept the inbox was reorganised without warning and Ty
-   thought chat was broken, because people navigate a familiar surface by
-   SHAPE AND POSITION, not by reading it. Fifty-five people currently
-   find this card in one place. Taking it away to put it somewhere
-   better is not an improvement to them, it is a loss.
-
-   ⭐ SO THERE IS ONE COMPONENT AND TWO MOUNTS. app/components/Pledge.jsx
-   is rendered by Wall.jsx and by this page. Not a copy — the same file.
-   The rule this schema has been bitten by three times (0046 -> 0047 ->
-   0049) is that a rule restated in two places drifts; a component
-   rendered in two places cannot, because there is only one of it.
-
-   ⚠️ NO redirect and no session check of its own. The middleware already
-   sends an unauthenticated request to /login, and a second gate here
-   would be a second implementation of the same rule. Pledge.jsx renders
-   null until the server answers, so there is nothing to flash.
+   🔴 THE WORDS ARE FIXED. The same page for everyone, written by a person
+   and read by Ty before it shipped. No AI writes to a member here, and
+   nothing on this page is recorded: no "opened" stamp, no counter.
    ===================================================================== */
 
-export const metadata = {
-  title: 'Check in · Sober Book',
-  /* Behind the login wall already, but a check-in page is exactly the
-     sort of URL that should never appear in a search result next to
-     somebody's name. */
-  robots: { index: false, follow: false },
-};
+export const metadata = { title: 'Checking in — Sober Book' };
 
-export default function CheckinPage() {
+export default function Checkin() {
   return (
-    <>
-      <div className="mast">
-        <Link href="/wall" className="back" aria-label="Back to Home">‹</Link>
-        <span className="lg">Check in</span>
-      </div>
-      <div className="pad">
-        <Pledge />
-        {/* ⚠️ Under the card, not above it. Somebody who came here to say
-            one more day should meet the thing they came for first.
-
-            🔴 And it is a LINK, not a repeat of the card. The evening
-            review lives on the same card; duplicating it here would be
-            the second implementation again. */}
-        <p className="pl-priv" style={{ textAlign: 'center' }}>
-          Nobody is ever told whether you checked in.
+    <div className="ck">
+      <div className="ck-card">
+        <h1>Hey. Checking in on you.</h1>
+        <p>
+          Somebody at Sober Book saw what you wrote and wanted you to know
+          you&apos;re not on your own with it. Nobody here needs you to explain
+          anything.
         </p>
+        <p>
+          If things feel like too much right now, you can call or text{' '}
+          <a href="tel:988"><b>988</b></a> any time, day or night. It&apos;s free,
+          and you don&apos;t have to be in crisis to use it.
+          In Illinois you can also call <a href="tel:+18332346343"><b>833-234-6343</b></a>{' '}
+          or text HELP to 833234.
+        </p>
+        <div className="ck-acts">
+          <Link className="ck-btn" href="/now">Open Right now</Link>
+          <Link className="ck-btn ghost" href="/meetings">Find a meeting</Link>
+        </div>
+        <p className="ck-sig">The Sober Book team</p>
       </div>
-    </>
+    </div>
   );
 }

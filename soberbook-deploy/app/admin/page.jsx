@@ -43,6 +43,7 @@ export default async function AdminPage() {
     .from('report_queue')
     .select('*')
     .order('status', { ascending: true })      // open first
+    .order('urgent', { ascending: false })     // 0194: urgent on top
     .order('created_at', { ascending: false });
 
   /* Signed with the service role rather than through signPhotoPaths().

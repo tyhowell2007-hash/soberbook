@@ -211,8 +211,8 @@ export default function ReplyMenu({ reply, onClose, onGone }) {
             <>
               <p className="mnote">
                 {sent === 'concern'
-                  ? 'Thank you for telling someone. Ty looks at these first.'
-                  : 'Thanks. Ty reviews reports himself, usually the same day.'}
+                  ? 'Thank you for telling someone. Ty has been alerted right now and looks at these first.'
+                  : 'Thanks. A person reviews every report, usually within the hour.'}
               </p>
               {/* Shown to the PERSON REPORTING, not the person reported.
                   Someone who just flagged a friend in trouble is often

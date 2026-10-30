@@ -185,8 +185,16 @@ self.addEventListener('push', (event) => {
      front of a partner who doesn't know, "Step Up Not Out starts in 10
      minutes" is this app outing somebody. The name waits until they have
      opened the app. */
+  /* 0194: the three report paths. ⚠️ Still constants, still chosen by
+     the path alone. An urgent report says someone MAY be in danger and
+     never who or what was written, because Kenny's or Ty's phone may be
+     face up on a table too. */
+  const urgent = to === '/admin/urgent';
   const body = to === '/meetings' ? 'A meeting you marked starts soon.'
              : to.startsWith('/chat') ? 'Somebody sent you a message.'
+             : urgent ? 'Urgent report: someone may be in danger. Open the queue.'
+             : to === '/admin' ? 'A new report is waiting. Open the queue when you can.'
+             : to === '/checkin' ? 'Someone here is thinking of you.'
              : 'Somebody answered you.';
 
   event.waitUntil(
@@ -198,8 +206,13 @@ self.addEventListener('push', (event) => {
          than stacking. Waking up to eleven separate buzzes from a
          conversation that happened while you slept is the thing every
          other app does and the thing this one shouldn't. */
-      tag: 'soberbook',
-      renotify: false,
+      /* ⚠️ EXCEPT AN URGENT REPORT. Under the shared tag with renotify
+         false, it would silently REPLACE whatever was showing and never
+         buzz, which is the one notification that must wake somebody up.
+         Its own tag, a fresh buzz, and it stays until it is tapped. */
+      tag: urgent ? 'soberbook-urgent' : 'soberbook',
+      renotify: urgent,
+      requireInteraction: urgent,
       data: { to },
     })
   );

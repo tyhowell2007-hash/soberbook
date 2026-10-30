@@ -5,6 +5,17 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { browserClient } from '../../lib/supabase-browser';
 
+/* 0194: what Sage's label says in the queue. ⚠️ "danger" has no "Sage:"
+   in front, because it is usually NOT Sage's call: a "worried about them"
+   report and the danger-word check both set it before the model is asked. */
+const LABEL = {
+  danger: 'May be in danger',
+  threat: 'Sage: threatens someone',
+  selling: 'Sage: selling',
+  harassment: 'Sage: harassment',
+  routine: 'Sage: routine',
+};
+
 function ago(iso) {
   const m = Math.floor((Date.now() - new Date(iso).getTime()) / 60000);
   if (m < 1)  return 'just now';
@@ -74,6 +85,13 @@ export default function Queue({ rows, urls }) {
       <div className="pad">
         {err && <div className="err">{err}</div>}
 
+        {open.some((r) => r.urgent) && (
+          <p className="mq-sum">
+            {open.filter((r) => r.urgent).length} urgent, at the top. Every button
+            below is still yours. Sage only sorts.
+          </p>
+        )}
+
         {open.length === 0 && (
           <div className="mq-empty">
             <h2>Nothing waiting.</h2>
@@ -90,11 +108,15 @@ export default function Queue({ rows, urls }) {
         )}
 
         {open.map((r) => (
-          <article key={r.report_id} className="mq">
+          <article key={r.report_id} className={'mq' + (r.urgent ? ' mq-urgent' : '')}>
             <div className="mq-top">
+              {r.urgent && <span className="mq-kind mq-red">Urgent</span>}
               <span className={'mq-kind ' + r.kind}>
                 {r.kind === 'concern' ? 'Worried about them' : 'Against the rules'}
               </span>
+              {r.sage_label && LABEL[r.sage_label] && (
+                <span className="mq-kind mq-sage">{LABEL[r.sage_label]}</span>
+              )}
               <span className="mq-when">{ago(r.created_at)}</span>
             </div>
 
@@ -154,6 +176,20 @@ export default function Queue({ rows, urls }) {
             )}
 
             <div className="mq-acts">
+              {/* 0194, "Reach out". Sends the author a fixed, kind check-in
+                  with 988 on it (/checkin). You never learn who they are:
+                  the database finds them, the same way mod_suspend does.
+                  Shown when there is a person to reach and something that
+                  suggests they might need it. */}
+              {!r.content_gone && (r.urgent || r.kind === 'concern') && (
+                r.reached_out_at
+                  ? <span className="mq-prior">Checked in on them ✓</span>
+                  : <button className="btn" disabled={busy === r.report_id}
+                            onClick={() => act(r.report_id, 'mod_reach_out',
+                              'Send them a private check-in from Sober Book, with 988 on it? They are not told they were reported, and you are not told who they are.')}>
+                      Reach out
+                    </button>
+              )}
               <button className="btn ghost" disabled={busy === r.report_id}
                       onClick={() => act(r.report_id, 'mod_dismiss')}>
                 Nothing wrong here

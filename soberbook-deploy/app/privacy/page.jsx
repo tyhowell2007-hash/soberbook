@@ -34,7 +34,7 @@ export default function Privacy() {
         everything yourself at any time.
       </p>
 
-      <p className="upd">Last updated 7 September 2026</p>
+      <p className="upd">Last updated 30 October 2026</p>
 
       <h2>What we store</h2>
       <p>Only what you type in, plus what the app needs to work:</p>
@@ -99,6 +99,13 @@ export default function Privacy() {
       <p><strong>What it is shown:</strong></p>
       <ul>
         <li>A question you type into the help page.</li>
+        {/* ⭐ ADDED 30 OCT WITH 0194, BEFORE IT WENT LIVE, same rule as
+            the 7 Sept note above. */}
+        <li>A post or reply that a member has <strong>reported</strong>, so
+          it can be sorted (for example, &ldquo;someone may be in danger&rdquo;)
+          and the most urgent ones reach a person first. It is sent with no
+          name, handle or account attached. Sage only sorts: a person reads
+          every report and makes every decision.</li>
       </ul>
       <p><strong>What it is never shown, and cannot be:</strong></p>
       <ul>

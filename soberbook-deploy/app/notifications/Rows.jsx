@@ -254,6 +254,7 @@ export default function Rows({ initial, askPush: askPushInitial }) {
              the notification on purpose (see the line below); the page
              itself puts the one that is starting at the top. */
           n.kind === 'meeting' ? '/meetings' :
+          n.kind === 'checkin' ? '/checkin' :
           null;
 
         const icon = n.kind === 'message' ? '✉️'
@@ -264,6 +265,7 @@ export default function Rows({ initial, askPush: askPushInitial }) {
           : n.kind === 'strength' ? '💪'
           : n.kind === 'friend' ? '👋'
           : n.kind === 'meeting' ? '🕐'
+          : n.kind === 'checkin' ? '💚'
           : '💬';
 
         /* ⚠️ A highlight used to fall through to "answered your post",
@@ -310,6 +312,10 @@ export default function Rows({ initial, askPush: askPushInitial }) {
              a notification list tells a reader what the owner of the phone
              is in recovery from. The page it opens says which one. */
           : n.kind === 'meeting' ? 'A meeting you marked starts in 10 minutes'
+          /* 0194, "Reach out". No actor and no mention of a report: the
+             person being checked on is never told they were reported, and
+             "Someone answered your post" would be the highlight bug again. */
+          : n.kind === 'checkin' ? 'Sober Book checked in on you'
           : `${n.who} answered your post`;
 
         const body = (

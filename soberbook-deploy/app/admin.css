@@ -472,3 +472,17 @@
 .gw-hbl{ flex:0 0 42%; font-size:13.5px; color:var(--body); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .gw-hbn{ flex:0 0 auto; min-width:52px; text-align:right; font-weight:700; font-size:13.5px; color:var(--body); font-variant-numeric:tabular-nums; }
 @media (max-width:380px){ .gw-hbl{ flex-basis:38%; } }
+
+/* =====================================================================
+   URGENT-REPORT ALERTS  (0194, 30 Oct 2026)
+   Same rules as the rest of this file: every tag carries a border, and
+   urgency is a border AND a word, never colour alone.
+   ===================================================================== */
+.mq.mq-urgent{ border-color:#8A2B2B; }
+.mq-kind.mq-red{ background:#FBEAEA; border-color:#8A2B2B; color:#6B1F1F; font-weight:700; }
+.mq-kind.mq-sage{ border-style:dashed; }
+.mq-sum{
+  margin:0 0 14px; padding:9px 12px; border-radius:10px; font-size:13.5px; line-height:1.5;
+  border:1px solid #8A2B2B; background:#FBEAEA; color:#6B1F1F;
+}
+.mq-top{ flex-wrap:wrap; }

@@ -75,6 +75,7 @@ export async function POST(req) {
   const to = n.kind === 'message' ? (n.thread_id ? `/chat/${n.thread_id}` : '/chat')
            : n.kind === 'friend'  ? '/friends'
            : n.kind === 'meeting' ? '/meetings'
+           : n.kind === 'checkin' ? '/checkin'   // 0194: "Reach out"
            : '/wall';
 
   const { data: subs } = await admin
