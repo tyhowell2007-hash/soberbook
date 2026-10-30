@@ -227,6 +227,10 @@ export async function middleware(request) {
   const open = ['/login', '/auth', '/reset', '/privacy', '/tour', '/survey',
                 '/delete-account', '/rules', '/support',
                 '/api/push/send',
+                /* 0194: pinged by the report_alert trigger through pg_net, with
+                   no session, exactly like /api/push/send. It checks the same
+                   x-push-secret itself and 404s without it. */
+                '/api/report/triage',
                 '/api/content/cron', '/api/email/notify', '/api/unsub', '/unsub'];
   const isOpen = open.some((p) => request.nextUrl.pathname.startsWith(p));
 
