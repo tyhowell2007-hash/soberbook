@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import {
   fetchStates, fetchCities, search, levels, specs, certs,
-  tel, phoneText, FILTERS,
+  tel, phoneText, FILTERS, REPORT_REASONS, reportListing, checkedText,
 } from '../../lib/centers';
 
 /* =====================================================================
@@ -192,6 +192,8 @@ export default function FindCare({ snapshot }) {
               {dial
                 ? <a className="fc-call" href={dial}>Call {phoneText(c.phone)}</a>
                 : c.phone ? <div className="fc-callx">{phoneText(c.phone)}</div> : null}
+
+              <Update center={c} />
             </li>
           );
         })}
@@ -213,6 +215,91 @@ export default function FindCare({ snapshot }) {
         a project of the Laborhood Change Project. Sober Book doesn&apos;t take
         money from treatment centres and never will.
       </p>
+    </div>
+  );
+}
+
+/* =====================================================================
+   "LAST CHECKED · UPDATE THIS LISTING" — 0193, 29 Oct 2026.
+
+   Every card says when its listing was last checked, and anybody who
+   finds it wrong can say so in two taps. Reports go to Ty at
+   /admin/listings; when he marks one fixed, this date moves to that day.
+
+   ⚠️ "Checked", never "verified". Sober Book doesn't vouch for any
+   provider, and the word would say it does.
+
+   ⚠️ This never asks whether a call happened or how it went. Knowing who
+   rang which treatment centre is exactly the record this app refuses to
+   keep, and the form only asks about the listing.
+   ===================================================================== */
+function Update({ center }) {
+  const [open, setOpen]     = useState(false);
+  const [reason, setReason] = useState('');
+  const [note, setNote]     = useState('');
+  const [state, setState]   = useState('');   // '' | 'sending' | 'sent' | 'failed'
+  const when = checkedText(center.snapshot_on);
+
+  async function send(e) {
+    e.preventDefault();
+    if (!reason || state === 'sending') return;
+    setState('sending');
+    try {
+      await reportListing(center.id, reason, note);
+      setState('sent');
+    } catch {
+      /* The form stays open with what they typed. Losing somebody's note
+         because the network blinked is the cheap way to make sure they
+         never send another one. */
+      setState('failed');
+    }
+  }
+
+  if (state === 'sent') {
+    return (
+      <p className="fc-upd-done" role="status">
+        Thanks. We&apos;ll check it and fix the listing.
+      </p>
+    );
+  }
+
+  return (
+    <div className="fc-upd">
+      <p className="fc-upd-line">
+        {when ? <>Last checked {when} · </> : null}
+        <button type="button" className="fc-upd-link" aria-expanded={open}
+                onClick={() => setOpen((o) => !o)}>Update this listing</button>
+      </p>
+
+      {open && (
+        <form className="fc-upd-form" onSubmit={send}>
+          <fieldset>
+            <legend>What&apos;s wrong with this listing?</legend>
+            {REPORT_REASONS.map((r) => (
+              <label key={r.key} className={'fc-upd-opt' + (reason === r.key ? ' is-on' : '')}>
+                <input type="radio" name={'why-' + center.id} value={r.key}
+                       checked={reason === r.key} onChange={() => setReason(r.key)} />
+                {r.label}
+              </label>
+            ))}
+          </fieldset>
+          <textarea className="fc-upd-note" value={note} maxLength={500} rows={2}
+                    onChange={(e) => setNote(e.target.value)}
+                    placeholder="Anything that would help us fix it (optional)"
+                    aria-label="Note (optional)" />
+          <p className="fc-upd-anon">Your name isn&apos;t attached. We check it and fix the listing.</p>
+          {state === 'failed' && (
+            <p className="fc-upd-err" role="alert">That didn&apos;t send. Try again in a minute.</p>
+          )}
+          <div className="fc-upd-acts">
+            <button type="submit" className="fc-upd-send" disabled={!reason || state === 'sending'}>
+              {state === 'sending' ? 'Sending…' : 'Send to the team'}
+            </button>
+            <button type="button" className="fc-upd-cancel"
+                    onClick={() => { setOpen(false); setState(''); }}>Cancel</button>
+          </div>
+        </form>
+      )}
     </div>
   );
 }

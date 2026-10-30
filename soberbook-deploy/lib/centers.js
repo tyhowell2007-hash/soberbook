@@ -141,3 +141,38 @@ export async function search({ state, city, q, on = {}, page = 0, per = 25 }) {
      result set therefore has no total — which is 0, not unknown. */
   return { rows, total: rows.length ? Number(rows[0].total) : 0 };
 }
+
+/* ---------------------------------------------------------------------
+   "UPDATE THIS LISTING" — 0193, 29 Oct 2026.
+
+   🔴 Nothing about the member is sent or stored. report_listing() checks
+   that somebody is signed in (so it can't be spammed from outside the
+   app) and then writes only the listing, the reason and the note. The
+   table has no member column at all. That is what lets the form say
+   "your name isn't attached" and mean it.
+   ------------------------------------------------------------------- */
+export const REPORT_REASONS = [
+  { key: 'phone',  label: "Phone number doesn't work" },
+  { key: 'closed', label: 'Closed or moved' },
+  { key: 'info',   label: 'Services or insurance are wrong' },
+  { key: 'other',  label: 'Something else' },
+];
+
+export async function reportListing(center, reason, note) {
+  const { error } = await browserClient().rpc('report_listing', {
+    p_center: String(center),
+    p_reason: reason,
+    p_note: (note || '').trim() || null,
+  });
+  if (error) throw error;
+}
+
+/* "Sep 18, 2026" — the date the listing was last checked. Parsed as a
+   plain calendar date: new Date('2026-09-18') is UTC midnight, which
+   prints as Sep 17 everywhere west of London. */
+export function checkedText(d) {
+  const m = String(d || '').match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (!m) return '';
+  return new Date(+m[1], +m[2] - 1, +m[3])
+    .toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
