@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { adminClient, adminConfigured } from '../../../../lib/supabase-admin';
+import { sendMail } from '../../../../lib/mail';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -115,6 +116,39 @@ async function buzzAdmins(admin, to) {
   return ok;
 }
 
+/* 0194b, 30 Oct: THE EMAIL BACKUP FOR URGENT REPORTS ONLY. Ty asked for
+   it the night the phone alert wouldn't register on his iPhone. A push can
+   silently fail to arrive. Email doesn't, so an urgent report is never
+   missed because a phone setting was off.
+
+   ⚠️ Same rule as the lock screen: no name, no words from the post. The
+   email says an urgent report is waiting and links to the queue. Only
+   admins get it, and only for urgent reports, so this is not the member
+   email ("replies, mentions and messages, nothing else") and doesn't
+   break that promise. */
+async function mailAdmins(admin) {
+  const { data: mods } = await admin.from('profiles').select('id').eq('is_admin', true);
+  let sent = 0;
+  for (const m of mods || []) {
+    const { data } = await admin.auth.admin.getUserById(m.id);
+    const to = data?.user?.email;
+    if (!to) continue;
+    const res = await sendMail({
+      to,
+      subject: 'Urgent report on Sober Book',
+      text: 'An urgent report is waiting. Someone may be in danger.\n\n'
+          + 'Open the queue: https://soberbook.app/admin\n\n'
+          + 'This email never says who or what was written. Open the app to see.',
+      html: '<p><strong>An urgent report is waiting.</strong> Someone may be in danger.</p>'
+          + '<p><a href="https://soberbook.app/admin">Open the queue</a></p>'
+          + '<p style="color:#63716A;font-size:13px">This email never says who or what was '
+          + 'written. Open the app to see.</p>',
+    });
+    if (res?.ok) sent++;
+  }
+  return sent;
+}
+
 export async function POST(req) {
   if (!adminConfigured()) return NextResponse.json({ error: 'not configured' }, { status: 500 });
   const admin = adminClient();
@@ -159,5 +193,6 @@ export async function POST(req) {
     .eq('id', id);
 
   const delivered = await buzzAdmins(admin, urgent ? '/admin/urgent' : '/admin');
-  return NextResponse.json({ ok: true, urgent, label, delivered });
+  const emailed = urgent ? await mailAdmins(admin) : 0;
+  return NextResponse.json({ ok: true, urgent, label, delivered, emailed });
 }
