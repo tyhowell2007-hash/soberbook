@@ -8,6 +8,7 @@ import Shot from '../../components/Shot';
 import { sinceFromCount } from '../../../lib/milestones';
 import ProfileTabs from './ProfileTabs';
 import Gallery from '../../components/Gallery';
+import VideoCards from '../../components/VideoCards';
 import Coin from '../../components/Coin';
 import CoinShelf from '../../components/CoinShelf';
 import { coinTotal, topKinds } from '../../../lib/coins';
@@ -22,7 +23,7 @@ import { aboutPane } from './about';
    ⚠️ The parent page obtains `posts` by matching feed_posts.author_handle.
    Anonymous posts have a NULL author_handle in that view, so they cannot
    enter this component. Do not pass posts selected by author_id. */
-export default function MemberProfile({ profile, posts, photos, gallery = [],
+export default function MemberProfile({ profile, posts, photos, gallery = [], videos = [],
                                         facePhoto,
                                         coverBackground, accent, song, autoplay }) {
   const p = profile;
@@ -39,6 +40,11 @@ export default function MemberProfile({ profile, posts, photos, gallery = [],
      array to draw. Same shape as the author_handle rule above: the empty
      answer IS the rule. */
   const shown = (Array.isArray(gallery) ? gallery : []).filter((x) => photos[x]);
+  /* 🎬 0197 — the Videos tab. Drawn cards, nothing fetched from the video
+     host; null when they have no videos, so no tab is drawn. */
+  const videoPane = videos.length
+    ? <VideoCards videos={videos} handle={p.handle} dayNow={p.day_count != null ? Number(p.day_count) : null} />
+    : null;
   const photoPane = shown.length
     ? <Gallery paths={shown} urls={photos} mine={!!p.is_mine} />
     : null;
@@ -120,7 +126,7 @@ export default function MemberProfile({ profile, posts, photos, gallery = [],
             you). coin_shelf() decides; this draws nothing for null. */}
         <CoinShelf handle={p.handle} mine={!!p.is_mine} />
 
-        <ProfileTabs about={about} photos={photoPane} posts={(
+        <ProfileTabs about={about} photos={photoPane} videos={videoPane} posts={(
         <div className="ublk">
           <h2 className="sec">{p.is_mine ? 'What you’ve put up' : 'What they’ve put up'}</h2>
           {!posts || posts.length === 0 ? (

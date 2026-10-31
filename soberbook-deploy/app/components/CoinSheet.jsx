@@ -21,7 +21,10 @@ import { COINS, COIN, NOTE_MAX } from '../../lib/coins';
    ⚠️ onDone(kind|null) is called only AFTER the database said yes. The
    wall does its own optimistic count; this sheet never pretends.
    ===================================================================== */
-export default function CoinSheet({ postId, to, current = null, allowWords = true, onClose, onDone }) {
+/* 0197 — `at` is the second of the video the coin was dropped at (piece 3,
+   the full-screen player). null everywhere else, which is what
+   send_coin() has always received. */
+export default function CoinSheet({ postId, to, current = null, allowWords = true, at = null, onClose, onDone }) {
   const supabase = browserClient();
   const [pick, setPick] = useState(current);
   const [note, setNote] = useState('');
@@ -41,6 +44,7 @@ export default function CoinSheet({ postId, to, current = null, allowWords = tru
     setBusy(true); setErr('');
     const { error } = await supabase.rpc('send_coin', {
       p_post: postId, p_kind: pick, p_note: allowWords ? (note.trim() || null) : null,
+      ...(at != null ? { p_at: at } : {}),
     });
     setBusy(false);
     if (error) { setErr('That coin didn’t go through. Try again in a moment.'); return; }
@@ -60,7 +64,7 @@ export default function CoinSheet({ postId, to, current = null, allowWords = tru
     <>
       <div className="coinbg" onClick={onClose} />
       <div className="coinsheet" role="dialog" aria-modal="true" aria-labelledby="coinsheet-h">
-        <h3 id="coinsheet-h">Send a coin</h3>
+        <h3 id="coinsheet-h">{at != null ? `Drop a coin at ${Math.floor(at / 60)}:${String(Math.round(at) % 60).padStart(2, '0')}` : 'Send a coin'}</h3>
         {to ? <p className="coinsheet-to">to {to}</p> : null}
 
         <div className="coinfan" role="radiogroup" aria-label="Pick a coin">

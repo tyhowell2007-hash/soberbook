@@ -163,6 +163,18 @@ export default async function ProfilePage({ params }) {
     .limit(30));
   }
 
+  /* 🎬 0197 — their videos, for the Videos tab: newest first, drawn cards
+     only. ⚠️ Matched on the handle, exactly like the player's ?u= list, so
+     the tab and the player always agree (an anonymous post has no handle
+     and is in neither). A failure just means no tab. */
+  const { data: theirVideos } = await supabase
+    .from(assertReadable('feed_posts'))
+    .select('id, created_at, is_mine, seen_count, support_count, strength_count, proud_count, metoo_count, coin_count')
+    .eq('author_handle', p.handle)
+    .or('stream_uid.not.is.null,video_url.not.is.null')
+    .order('created_at', { ascending: false })
+    .limit(60);
+
   /* 🖼 0190 — their album, signed in the SAME pass as the face and the
      post pictures. A second signing round trip per page is the cost this
      whole function exists to avoid. */
@@ -208,6 +220,7 @@ export default async function ProfilePage({ params }) {
         posts={theirPosts || []}
         photos={photos}
         gallery={theirGallery}
+        videos={theirVideos || []}
         facePhoto={facePhoto}
         coverBackground={coverBg}
         accent={accent}

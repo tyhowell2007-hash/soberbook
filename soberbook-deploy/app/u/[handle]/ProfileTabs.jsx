@@ -26,11 +26,13 @@ import './profile-tabs.css';
    tab strip at all and a page byte-for-byte what it was. Writing this as
    `if (!about) return posts` with a third tab bolted on underneath would
    have hidden the album of every member who never filled in a bio. */
-export default function ProfileTabs({ posts, about, photos }) {
+/* 🎬 31 Oct (0197) — Videos, on the same terms as Photos: null when the
+   member has no videos, and then the tab is not drawn. */
+export default function ProfileTabs({ posts, about, photos, videos = null }) {
   const [tab, setTab] = useState('posts');
   const id = useId();
 
-  if (!about && !photos) return posts;
+  if (!about && !photos && !videos) return posts;
 
   const Tab = ({ k, label }) => (
     <button type="button" role="tab" id={`${id}-${k}-t`}
@@ -47,6 +49,7 @@ export default function ProfileTabs({ posts, about, photos }) {
         <Tab k="posts" label="Posts" />
         {about  && <Tab k="about"  label="About" />}
         {photos && <Tab k="photos" label="Photos" />}
+        {videos && <Tab k="videos" label="Videos" />}
       </div>
       <div role="tabpanel" id={`${id}-posts`} aria-labelledby={`${id}-posts-t`}
            hidden={tab !== 'posts'}>
@@ -62,6 +65,12 @@ export default function ProfileTabs({ posts, about, photos }) {
         <div role="tabpanel" id={`${id}-photos`} aria-labelledby={`${id}-photos-t`}
              hidden={tab !== 'photos'}>
           {photos}
+        </div>
+      )}
+      {videos && (
+        <div role="tabpanel" id={`${id}-videos`} aria-labelledby={`${id}-videos-t`}
+             hidden={tab !== 'videos'}>
+          {videos}
         </div>
       )}
     </div>

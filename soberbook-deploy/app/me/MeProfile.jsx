@@ -5,6 +5,7 @@ import { dayCount, startsInDays } from '../../lib/milestones';
 import { coverCss, accentHex } from '../../lib/look';
 import ProfileTabs from '../u/[handle]/ProfileTabs';
 import Gallery from '../components/Gallery';
+import VideoCards from '../components/VideoCards';
 import Coin from '../components/Coin';
 import CoinShelf from '../components/CoinShelf';
 import { coinTotal, topKinds } from '../../lib/coins';
@@ -35,7 +36,7 @@ function ago(iso) {
    them. Do not replace that server-side filter with author_id. */
 export default function MeProfile({ profile, posts, avatarUrl, postPhotoUrls = {},
                                     about = null, friends = [],
-                                    gallery = [], galleryUrls = {} }) {
+                                    gallery = [], galleryUrls = {}, videos = [] }) {
   const anonymous = profile.privacy_mode === 'anonymous';
   const since = profile.sober_since || '';
   const days = dayCount(since);
@@ -54,6 +55,10 @@ export default function MeProfile({ profile, posts, avatarUrl, postPhotoUrls = {
      are yours and this page is only ever yours. Everywhere else the view
      hands back an empty array and the tab is not drawn at all. */
   const shownPhotos = (Array.isArray(gallery) ? gallery : []).filter((x) => galleryUrls[x]);
+  /* 🎬 0197 — your Videos tab. */
+  const videoPane = videos.length && profile.handle
+    ? <VideoCards videos={videos} handle={profile.handle} />
+    : null;
   const photoPane = shownPhotos.length
     ? <Gallery paths={shownPhotos} urls={galleryUrls} mine />
     : null;
@@ -116,7 +121,7 @@ export default function MeProfile({ profile, posts, avatarUrl, postPhotoUrls = {
             anybody else can see it. Off by default. */}
         <CoinShelf handle={profile.handle} mine />
 
-        <ProfileTabs about={about} photos={photoPane} posts={(
+        <ProfileTabs about={about} photos={photoPane} videos={videoPane} posts={(
           <div className="ublk">
           <h2 className="sec">What you&apos;ve put up</h2>
           {posts.length === 0 ? (

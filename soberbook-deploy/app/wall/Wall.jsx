@@ -2150,6 +2150,13 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
                   constraint is ever relaxed. */}
               {p.stream_uid && <StreamVideo uid={p.stream_uid} postId={p.id} mine={p.is_mine} />}
 
+              {/* 🎬 0197 — piece 3: the same video in the full-screen
+                  player, where coins land at a moment. A plain link: it
+                  loads nothing from the video host until a tap there. */}
+              {(p.stream_uid || p.video_url) && (
+                <Link href={`/videos?v=${p.id}`} className="vfull">⤢ Full screen · drop a coin at a moment</Link>
+              )}
+
               {/* 🏅 THE MILESTONE CELEBRATION — the only gold in the app.
 
                   It's the actual object: the thing people carry in a

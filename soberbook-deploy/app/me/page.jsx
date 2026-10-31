@@ -73,6 +73,18 @@ export default async function MePage({ searchParams }) {
     (signedMany || []).forEach((r) => { if (r.signedUrl) myGalleryUrls[r.path] = r.signedUrl; });
   }
 
+  /* 🎬 0197 — your videos, for the Videos tab: newest first, drawn cards
+     only. ⚠️ Matched on the handle, exactly like the player's ?u= list, so
+     the tab and the player always agree (an anonymous post has no handle
+     and is in neither). A failure just means no tab. */
+  const { data: myVideos } = await supabase
+    .from(assertReadable('feed_posts'))
+    .select('id, created_at, is_mine, seen_count, support_count, strength_count, proud_count, metoo_count, coin_count')
+    .eq('author_handle', profile.handle || '')
+    .or('stream_uid.not.is.null,video_url.not.is.null')
+    .order('created_at', { ascending: false })
+    .limit(60);
+
   if (!editing) {
   /* Your own posts — WITHOUT ever asking the database "whose posts are
      these?". `is_mine` is computed inside the view by comparing author_id
@@ -165,6 +177,7 @@ export default async function MePage({ searchParams }) {
         friends={friends || []}
         gallery={myGallery}
         galleryUrls={myGalleryUrls}
+        videos={profile.handle ? (myVideos || []) : []}
       />
     );
   }

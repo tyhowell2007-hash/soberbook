@@ -1,0 +1,12 @@
+/* The Videos tab on a profile — 31 Oct 2026 (0197). Drawn cards, no thumbnails. */
+/* ---- the Videos tab on a profile ---- */
+.vcards{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;padding:10px 0}
+.vcard{position:relative;aspect-ratio:3/4;border-radius:14px;overflow:hidden;padding:10px;color:#fff;text-decoration:none;display:flex;flex-direction:column;justify-content:space-between}
+.vcard:focus-visible{outline:3px solid #0F3D2A;outline-offset:2px}
+.vcard-day{font-family:'Anton',Impact,'Arial Narrow',sans-serif;font-size:38px;line-height:.9;color:#fff}
+.vcard-day small{display:block;font-family:'Courier Prime',monospace;font-size:10px;letter-spacing:.1em;opacity:.8}
+.vcard-len{position:absolute;top:10px;right:10px;font-family:'Courier Prime',monospace;font-size:10.5px;background:rgba(0,0,0,.35);padding:1px 6px;border-radius:999px}
+.vcard-foot{display:flex;flex-direction:column;gap:3px;font-family:'Courier Prime',monospace;font-size:10.5px}
+.vcard-row{display:flex;justify-content:space-between;align-items:center;gap:6px}
+.vcard-play{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.18);border:2px solid rgba(255,255,255,.7);display:grid;place-items:center;font-size:14px}
+.vcards-note{font-family:'Courier Prime',monospace;font-size:11px;color:var(--soft,#5F5B50);margin:0 0 8px}

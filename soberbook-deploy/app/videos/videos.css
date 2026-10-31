@@ -1,0 +1,91 @@
+/* The full-screen video player — 31 Oct 2026 (0197). A video lives in the
+   dark whatever room you came from, so these colours are fixed, not
+   themed. Prefixed vp- to collide with nothing. */
+.vp{position:fixed;inset:0;z-index:2000;background:#000;color:#fff;display:flex;flex-direction:column;
+  font-family:'Archivo',system-ui,-apple-system,'Segoe UI',sans-serif;
+  padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+.vp-top{display:flex;align-items:center;gap:8px;padding:8px 12px;flex:none}
+.vp-iconbtn{width:40px;height:40px;border-radius:50%;border:0;background:rgba(255,255,255,.1);color:#fff;font-size:17px;cursor:pointer;flex:none}
+.vp-iconbtn[disabled]{opacity:.3;cursor:default}
+.vp-iconbtn:focus-visible{outline:3px solid #D6FF2E;outline-offset:2px}
+.vp-title{font-family:'Courier Prime',monospace;font-size:12px;letter-spacing:.06em;text-transform:uppercase;opacity:.9;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.vp-pos{margin-left:auto;font-family:'Courier Prime',monospace;font-size:11px;background:rgba(255,255,255,.1);padding:3px 8px;border-radius:999px;white-space:nowrap}
+@media (max-width:380px){.vp-pos{display:none}}
+
+.vp-slide{flex:1;min-height:0;display:flex;flex-direction:column;animation:vpin .3s ease-out}
+@keyframes vpin{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:none}}
+.vp-stage{position:relative;flex:1;min-height:0;background:#000}
+.vp-frame,.vp-video{position:absolute;inset:0;width:100%;height:100%;border:0;background:#000}
+.vp-video{object-fit:contain}
+
+/* the card before you tap — drawn by us, nothing fetched */
+.vp-poster{position:absolute;inset:0;border:0;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:24px 70px 24px 24px;text-align:center;cursor:pointer;font:inherit}
+.vp-poster:focus-visible{outline:3px solid #D6FF2E;outline-offset:-6px}
+.vp-pday{font-family:'Anton',Impact,'Arial Narrow',sans-serif;font-size:clamp(56px,18vw,96px);line-height:.9;color:#F2F0E9}
+.vp-plabel{font-family:'Courier Prime',monospace;font-size:12px;letter-spacing:.1em;text-transform:uppercase;opacity:.8}
+.vp-play{margin-top:12px;width:76px;height:76px;border-radius:50%;background:rgba(255,255,255,.14);border:2px solid rgba(255,255,255,.7);display:grid;place-items:center}
+.vp-play i{display:block;width:0;height:0;border-left:24px solid #fff;border-top:15px solid transparent;border-bottom:15px solid transparent;margin-left:6px}
+.vp-quiet{position:absolute;left:0;right:0;bottom:18px;font-family:'Courier Prime',monospace;font-size:11.5px;opacity:.7}
+
+/* right rail: sits mid-height so it never covers Cloudflare's own controls */
+.vp-rail{position:absolute;right:8px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;align-items:center;gap:16px;z-index:5}
+.vp-rbtn{background:none;border:0;color:#fff;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;font:inherit;font-weight:700;font-size:11.5px;text-decoration:none;text-shadow:0 1px 6px rgba(0,0,0,.8);padding:0}
+.vp-ring{width:52px;height:52px;border-radius:50%;display:grid;place-items:center;background:rgba(0,0,0,.35);border:2px dashed rgba(255,255,255,.75)}
+.vp-rbtn.has .vp-ring{border:0;background:none}
+.vp-ghost{opacity:.6}
+.vp-ic{width:46px;height:46px;border-radius:50%;display:grid;place-items:center;background:rgba(0,0,0,.35);font-size:20px}
+.vp-how .vp-ic{background:#E8C46A;color:#3A2706}
+.vp-rbtn:focus-visible .vp-ring,.vp-rbtn:focus-visible .vp-ic{outline:3px solid #D6FF2E;outline-offset:2px}
+
+.vp-felt{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);z-index:6;font-family:'Courier Prime',monospace;font-size:11.5px;font-weight:700;color:#3A2706;background:#E8C46A;padding:4px 10px;border-radius:999px;white-space:nowrap;pointer-events:none;animation:vpfade 2.2s ease-out forwards}
+@keyframes vpfade{0%{opacity:0;transform:translate(-50%,8px)}15%{opacity:1;transform:translate(-50%,0)}80%{opacity:1}100%{opacity:0}}
+
+/* end card */
+.vp-end{position:absolute;inset:0;z-index:8;background:rgba(10,12,10,.86);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);display:flex;flex-direction:column;justify-content:center;gap:14px;padding:22px;animation:vpfadein .4s}
+@keyframes vpfadein{from{opacity:0}to{opacity:1}}
+.vp-end h2{margin:0;font-family:'Anton',Impact,'Arial Narrow',sans-serif;font-weight:400;font-size:clamp(32px,9vw,44px);line-height:1;color:#F2F0E9;letter-spacing:.01em;text-transform:none;text-shadow:none}
+.vp-sum{display:flex;align-items:center;gap:10px;margin:0;font-size:14px}
+.vp-stack{display:inline-flex}
+.vp-stack .sbcoin + .sbcoin{margin-left:-6px}
+.vp-ebtns{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.vp-ebtn{border:2px solid rgba(255,255,255,.35);background:rgba(255,255,255,.06);color:#fff;border-radius:14px;padding:12px 8px;font:inherit;font-weight:700;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;min-height:48px}
+.vp-ebtn.main{grid-column:1/-1;background:#E8C46A;border-color:#E8C46A;color:#3A2706;font-weight:800}
+.vp-ebtn.sent{grid-column:1/-1;background:transparent;border-style:dashed;cursor:default}
+.vp-ebtn:focus-visible,.vp-next:focus-visible{outline:3px solid #D6FF2E;outline-offset:2px}
+.vp-next{display:flex;align-items:center;gap:12px;border:0;border-top:1px solid rgba(255,255,255,.18);padding:12px 0 0;background:none;color:#fff;text-align:left;font:inherit;cursor:pointer}
+.vp-next small{display:block;font-family:'Courier Prime',monospace;font-size:10.5px;color:#A7A396;letter-spacing:.05em;text-transform:uppercase}
+.vp-mini{width:44px;height:58px;border-radius:8px;display:grid;place-items:center;font-size:16px;flex:none}
+.vp-nobody{margin:0;font-family:'Courier Prime',monospace;font-size:11.5px;color:#A7A396;line-height:1.45}
+
+/* under the video: who, words, counts, and our coin timeline */
+.vp-info{flex:none;padding:10px 14px 12px;display:flex;flex-direction:column;gap:6px;background:linear-gradient(180deg,rgba(0,0,0,0),#000 18px)}
+.vp-who{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.vp-who b{font-size:15px}
+.vp-chip{font-family:'Courier Prime',monospace;font-size:10.5px;font-weight:700;padding:2px 7px;border-radius:999px;background:#0F3D2A;color:#C7EFDD}
+.vp-chip.gold{background:#E8C46A;color:#3A2706}
+.vp-cap{margin:0;font-size:13.5px;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.vp-meta{margin:0;font-family:'Courier Prime',monospace;font-size:11px;opacity:.85;display:flex;gap:8px;align-items:center}
+.vp-track{position:relative;height:34px;margin-top:18px;touch-action:none;cursor:pointer}
+.vp-line{position:absolute;left:0;right:0;top:24px;height:4px;border-radius:4px;background:rgba(255,255,255,.28)}
+.vp-fill{position:absolute;left:0;top:24px;height:4px;border-radius:4px;background:#fff}
+.vp-glow{position:absolute;top:20px;height:12px;border-radius:8px;background:radial-gradient(closest-side,rgba(232,196,106,.75),rgba(232,196,106,0));pointer-events:none}
+.vp-knob{position:absolute;top:19px;width:14px;height:14px;margin-left:-7px;border-radius:50%;background:#fff;box-shadow:0 0 0 3px rgba(0,0,0,.3);pointer-events:none}
+.vp-mk{position:absolute;top:4px;transform:translateX(-50%);pointer-events:none;line-height:0}
+.vp-mk.me{top:-2px;animation:vpland .6s ease-out}
+@keyframes vpland{0%{transform:translate(-50%,-40px) scale(1.6)}60%{transform:translate(-50%,3px)}100%{transform:translate(-50%,0)}}
+.vp-peak{position:absolute;top:-16px;transform:translateX(-50%);font-family:'Courier Prime',monospace;font-size:10px;font-weight:700;color:#3A2706;background:#E8C46A;padding:1px 6px;border-radius:999px;white-space:nowrap;pointer-events:none}
+.vp-float{position:absolute;top:0;z-index:7;pointer-events:none;line-height:0;animation:vprise 1.6s ease-out forwards}
+@keyframes vprise{0%{transform:translate(-50%,0) scale(.6);opacity:0}15%{opacity:1}100%{transform:translate(calc(-50% + var(--dx)),-170px) scale(1.05) rotate(var(--rot));opacity:0}}
+.vp-times{display:flex;justify-content:space-between;font-family:'Courier Prime',monospace;font-size:10.5px;opacity:.75}
+
+.vp-toast{position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 64px);transform:translateX(-50%);z-index:2100;background:#F2F0E9;color:#26251F;font-weight:700;font-size:13px;padding:8px 14px;border-radius:999px;white-space:nowrap;display:flex;gap:8px;align-items:center;box-shadow:0 8px 24px rgba(0,0,0,.4);animation:vpfade 2.6s ease-out forwards}
+.vp-empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:24px;text-align:center}
+.vp-empty p{margin:0}
+.vp-small{font-family:'Courier Prime',monospace;font-size:12px;opacity:.7}
+
+/* The coin sheet must sit above the player. */
+.vp .coinbg{z-index:2200}
+.vp .coinsheet{z-index:2201}
+
+@media (prefers-reduced-motion:reduce){.vp *{animation-duration:.01ms!important}}
+
