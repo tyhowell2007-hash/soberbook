@@ -1,0 +1,66 @@
+/* "How it's doing" — 31 Oct 2026 (0196). Every colour is a theme variable
+   with a fallback so the night room re-inks it. Prefixed stv- to collide
+   with nothing. */
+.stv { max-width: 520px; margin: 0 auto; padding: 14px 14px 40px; color: var(--gt, #0F3D2A); }
+.stv-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.stv-back { font-weight: 700; color: var(--gt, #0F3D2A); text-decoration: none; min-height: 44px; display: inline-flex; align-items: center; }
+.stv-only { font-size: 12px; font-weight: 700; background: var(--gd, #1B6B4A); color: var(--gl, #E8F4ED); padding: 3px 10px; border-radius: 999px; }
+.stv-h { font-size: 26px; font-weight: 800; margin: 2px 0 4px; font-family: inherit; letter-spacing: normal; text-transform: none; text-shadow: none; color: var(--gt, #0F3D2A); line-height: 1.2; }
+.stv-body { font-size: 15px; margin: 0; font-style: italic; }
+.stv-date { font-size: 12.5px; color: var(--soft, #5F5B50); margin: 4px 0 12px; }
+
+.stv-story { background: var(--gd, #1B6B4A); color: #fff; border-radius: 16px; padding: 16px; margin-bottom: 12px; }
+.stv-story p { margin: 0; font-size: 18px; line-height: 1.45; }
+.stv-story b { color: #F6E3A8; font-size: 21px; }
+
+.stv-sec { background: var(--paper2, #fff); border-radius: 16px; padding: 14px; margin-bottom: 12px; box-shadow: 0 1px 0 var(--line, #DAD5C7); }
+.stv-sec h2 { display: flex; align-items: center; font-size: 13px; letter-spacing: .06em; text-transform: uppercase; margin: 0 0 10px; color: var(--gt, #0F3D2A); font-family: inherit; }
+.stv-sec h2 span { margin-left: auto; font-size: 15px; }
+.stv-small { font-size: 12.5px; color: var(--soft, #5F5B50); margin: 8px 0 0; }
+
+.stv-felt { position: relative; height: 150px; border-bottom: 2px solid var(--gt, #0F3D2A); }
+.stv-felt > svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.stv-area { fill: #CFEFD9; }
+.stv-line { fill: none; stroke: var(--gd, #1B6B4A); stroke-width: 3; vector-effect: non-scaling-stroke; }
+.stv-m { position: absolute; bottom: 6px; transform: translateX(-50%); z-index: 1; line-height: 0; }
+.stv-peak { position: absolute; top: 0; transform: translateX(-50%); background: var(--gt, #0F3D2A); color: #fff; font-size: 11px; font-weight: 700; padding: 2px 7px; border-radius: 999px; white-space: nowrap; }
+.stv-axis { display: flex; justify-content: space-between; font-size: 11px; color: var(--soft, #5F5B50); margin-top: 4px; }
+
+.stv-trio { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 10px; }
+.stv-trio div { background: var(--boxfill, #F2EFE6); border-radius: 12px; padding: 8px; }
+.stv-trio b { display: block; font-size: 20px; }
+.stv-trio span { font-size: 11px; color: var(--soft, #5F5B50); }
+
+.stv-bar { display: flex; height: 14px; border-radius: 999px; overflow: hidden; margin-bottom: 10px; }
+.stv-bar-support { background: #B97A3C; } .stv-bar-strength { background: #B9BEC4; }
+.stv-bar-proud { background: #E0B23E; } .stv-bar-metoo { background: #4FA77A; }
+.stv-crow { display: flex; align-items: center; gap: 10px; font-size: 14.5px; padding: 3px 0; }
+.stv-crow b { margin-left: auto; }
+.stv-who { list-style: none; margin: 10px 0 0; padding: 0; border-top: 1px solid var(--line, #DAD5C7); }
+.stv-who li { display: flex; gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--line, #DAD5C7); }
+.stv-who p { margin: 0; font-size: 14.5px; }
+.stv-who a { font-weight: 800; color: inherit; }
+.stv-who q { display: block; font-style: italic; }
+.stv-who span { font-size: 12px; color: var(--soft, #5F5B50); }
+.stv-link { display: inline-flex; min-height: 44px; align-items: center; font-weight: 700; color: var(--gt, #0F3D2A); }
+
+.stv-bars { display: flex; align-items: flex-end; gap: 6px; height: 110px; margin-top: 12px; }
+.stv-day { flex: 1; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; align-items: stretch; text-align: center; }
+.stv-day i { display: block; background: var(--gd, #1B6B4A); border-radius: 6px 6px 0 0; min-height: 3px; }
+.stv-day:last-child i { background: #B8862B; }
+.stv-day em { font-style: normal; font-size: 10.5px; color: var(--soft, #5F5B50); }
+.stv-day span { font-size: 10.5px; color: var(--soft, #5F5B50); margin-top: 3px; }
+
+.stv-chips { display: flex; gap: 10px; flex-wrap: wrap; }
+.stv-chip { display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 10.5px; color: var(--soft, #5F5B50); width: 56px; text-align: center; }
+.stv-med { width: 46px; height: 46px; border-radius: 50%; display: grid; place-items: center; font-weight: 800; font-size: 13px; color: #3A2706;
+  background: radial-gradient(circle at 35% 30%, #FFF2B8, #E0B23E 55%, #8A5F0E); box-shadow: inset 0 0 0 2px rgba(0,0,0,.25); }
+.stv-chip.next .stv-med { background: none; color: var(--soft, #5F5B50); box-shadow: none; border: 2px dashed var(--soft, #5F5B50); }
+
+.stv-ctl { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--line, #DAD5C7);
+  font-family: inherit; text-transform: none; letter-spacing: normal; font-size: 14.5px; font-weight: 400; color: var(--gt, #0F3D2A); }
+.stv-ctl:last-child { border-bottom: 0; }
+.stv-ctl small { display: block; font-size: 12px; color: var(--soft, #5F5B50); }
+.stv-ctl input { margin-left: auto; width: 22px; height: 22px; flex: none; }
+
+.stv-priv { border-left: 5px solid var(--gd, #1B6B4A); background: var(--paper2, #fff); padding: 10px 12px; font-size: 13.5px; border-radius: 0 12px 12px 0; }
