@@ -28,6 +28,128 @@ function urlB64ToUint8Array(base64) {
   return Uint8Array.from([...raw].map((c) => c.charCodeAt(0)));
 }
 
+/* =====================================================================
+   THE iPHONE APP — 31 Oct 2026.
+
+   🔴 Inside the TestFlight / App Store app, Apple switches website alerts
+   OFF (no PushManager in the app's web view), which is why "Buzz my
+   phone" used to say "add it to your home screen" to people who already
+   had the app. Inside the app we ask iOS directly through Capacitor's
+   PushNotifications plugin and save Apple's device token as a
+   push_subscriptions row:
+
+       endpoint 'apns:<token>', p256dh 'apns', auth 'apns'
+
+   Same table, same RLS, same column grants, same "on means the server
+   has this device" rule — so PushSwitch and PushAsk didn't change, and
+   lib/deliver-push.js sends 'apns:' rows through Apple.
+
+   ⚠️ The soft ask still comes first. requestPermissions() is Apple's
+   one-time box and is only ever called from enablePush(), i.e. from a
+   tap on "Yes, tell me" / "Turn it on".
+   ===================================================================== */
+const TOKEN_KEY = 'sb_apns_token';
+
+export function nativePush() {
+  if (typeof window === 'undefined') return null;
+  const C = window.Capacitor;
+  if (!C || !(C.isNativePlatform ? C.isNativePlatform() : C.platform === 'ios')) return null;
+  return (C.Plugins && C.Plugins.PushNotifications) || null;
+}
+
+function store(k, v) {
+  try { if (v === null) localStorage.removeItem(k); else localStorage.setItem(k, v); } catch { /* private mode */ }
+}
+function read(k) {
+  try { return localStorage.getItem(k); } catch { return null; }
+}
+
+/* register() answers through events, not a return value. Wait for one of
+   them, and give up after ten seconds rather than spinning forever. */
+export async function nativeToken(P) {
+  return new Promise((resolve) => {
+    const handles = [];
+    let done = false;
+    const finish = (v) => {
+      if (done) return;
+      done = true;
+      handles.forEach((h) => { try { h.remove(); } catch { /* gone */ } });
+      resolve(v);
+    };
+    (async () => {
+      try {
+        handles.push(await P.addListener('registration', (t) => finish(t && t.value ? t.value : null)));
+        handles.push(await P.addListener('registrationError', () => finish(null)));
+        setTimeout(() => finish(null), 10000);
+        await P.register();
+      } catch { finish(null); }
+    })();
+  });
+}
+
+/** Save this iPhone's token for the signed-in member. Replaces an old token. */
+export async function saveNativeToken(supabase, token) {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user || !token) return false;
+  const old = read(TOKEN_KEY);
+  if (old && old !== token) {
+    await supabase.from('push_subscriptions').delete().eq('endpoint', `apns:${old}`);
+  }
+  /* ⚠️ No `failures` — same column-grant reason as the website upsert below. */
+  const { error } = await supabase.from('push_subscriptions').upsert({
+    user_id: user.id,
+    endpoint: `apns:${token}`,
+    p256dh: 'apns',
+    auth: 'apns',
+  }, { onConflict: 'endpoint' });
+  if (error) return false;
+  store(TOKEN_KEY, token);
+  return true;
+}
+
+async function nativeState(supabase, P) {
+  try {
+    const p = await P.checkPermissions();
+    if (p.receive === 'denied') return 'blocked';
+    if (p.receive !== 'granted') return 'off';
+    const token = read(TOKEN_KEY);
+    if (!token) return 'off';
+    const { data: rows } = await supabase
+      .from('push_subscriptions').select('id').eq('endpoint', `apns:${token}`).limit(1);
+    return rows && rows.length ? 'on' : 'off';
+  } catch { return 'off'; }
+}
+
+async function nativeEnable(supabase, P) {
+  try {
+    let p = await P.checkPermissions();
+    if (p.receive !== 'granted') p = await P.requestPermissions();
+    if (p.receive !== 'granted') return { state: p.receive === 'denied' ? 'blocked' : 'off', why: '' };
+    const token = await nativeToken(P);
+    if (!token) return { state: 'off', why: 'Couldn’t reach Apple just now. Try again in a minute.' };
+    const saved = await saveNativeToken(supabase, token);
+    return saved ? { state: 'on', why: '' } : { state: 'off', why: 'That didn’t save. Try again.' };
+  } catch (e) {
+    return { state: 'off', why: e?.message || 'That didn’t work.' };
+  }
+}
+
+async function nativeDisable(supabase) {
+  const token = read(TOKEN_KEY);
+  if (token) {
+    await supabase.from('push_subscriptions').delete().eq('endpoint', `apns:${token}`);
+  }
+  store(TOKEN_KEY, null);
+  return 'off';
+}
+
+/** Where to send somebody whose phone is blocking alerts. */
+export function blockedHow() {
+  return nativePush()
+    ? 'Your iPhone is blocking alerts for Sober Book. Open the iPhone Settings app, tap Sober Book, then Notifications, and turn on Allow Notifications.'
+    : 'Your phone is blocking notifications for Sober Book. You’d have to turn them back on in your browser settings — we can’t ask again from here.';
+}
+
 /* Can this device do it at all, and if not, say WHICH thing is missing.
    ⚠️ On an iPhone the answer is almost always "you haven't added it to
    your home screen" — Apple only delivers web push to a PWA installed
@@ -36,6 +158,8 @@ function urlB64ToUint8Array(base64) {
    was impossible. */
 export function pushSupport() {
   if (typeof window === 'undefined') return { supported: false, why: '' };
+  /* 31 Oct: inside the iPhone app, Apple's own alerts — see nativePush(). */
+  if (nativePush()) return { supported: true, why: '' };
   const ok = 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window;
   if (ok) return { supported: true, why: '' };
   const iOSish = /iPad|iPhone|iPod/.test(navigator.userAgent);
@@ -54,6 +178,8 @@ export function pushSupport() {
    control insisted notifications were working. A subscription the server
    has never seen receives nothing, forever. Both have to agree. */
 export async function currentPushState(supabase) {
+  const P = nativePush();
+  if (P) return nativeState(supabase, P);
   const { supported } = pushSupport();
   if (!supported) return 'unsupported';
   if (Notification.permission === 'denied') return 'blocked';
@@ -78,6 +204,8 @@ export async function currentPushState(supabase) {
  * @returns {{state:'on'|'off'|'blocked'|'unsupported', why:string}}
  */
 export async function enablePush(supabase) {
+  const P = nativePush();
+  if (P) return nativeEnable(supabase, P);
   const { supported, why: unsupportedWhy } = pushSupport();
   if (!supported) return { state: 'unsupported', why: unsupportedWhy };
 
@@ -134,6 +262,7 @@ export async function enablePush(supabase) {
    counter retires it — the person asked for quiet and would get buzzed
    anyway. */
 export async function disablePush(supabase) {
+  if (nativePush()) return nativeDisable(supabase);
   try {
     const reg = await navigator.serviceWorker.getRegistration();
     const sub = reg ? await reg.pushManager.getSubscription() : null;

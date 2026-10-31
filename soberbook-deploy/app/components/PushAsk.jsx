@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { browserClient } from '../../lib/supabase-browser';
-import { enablePush, pushSupport } from '../../lib/push';
+import { enablePush, pushSupport, blockedHow } from '../../lib/push';
 
 /* =====================================================================
    "WANT US TO TELL YOU WHEN SOMEBODY ANSWERS?"  — Aug 30.
@@ -154,7 +154,7 @@ export default function PushAsk({
       <div className="pask">
         <p className="paskp">
           {state === 'blocked'
-            ? 'Your phone is blocking notifications for Sober Book — you’d have to turn them back on in your browser settings.'
+            ? blockedHow()
             : 'No problem. It’s at the bottom of your own page whenever you want it.'}
         </p>
         {why && <p className="paskwhy">{why}</p>}

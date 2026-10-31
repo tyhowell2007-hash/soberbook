@@ -189,6 +189,8 @@ self.addEventListener('push', (event) => {
      the path alone. An urgent report says someone MAY be in danger and
      never who or what was written, because Kenny's or Ty's phone may be
      face up on a table too. */
+  /* ⚠️ 31 Oct 2026: lib/push-words.js holds the SAME list for the iPhone
+     app's alerts. Change one, change both. */
   const urgent = to === '/admin/urgent';
   const body = to === '/meetings' ? 'A meeting you marked starts soon.'
              : to.startsWith('/chat') ? 'Somebody sent you a message.'

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { browserClient } from '../../lib/supabase-browser';
-import { pushSupport, currentPushState, enablePush, disablePush } from '../../lib/push';
+import { pushSupport, currentPushState, enablePush, disablePush, blockedHow } from '../../lib/push';
 
 /* =====================================================================
    TURN THE BUZZ ON  (0073).
@@ -89,11 +89,7 @@ export default function PushSwitch() {
       {state === 'unsupported' && <p className="pushwhy">{why}</p>}
 
       {state === 'blocked' && (
-        <p className="pushwhy">
-          Your phone is blocking notifications for Sober Book. You’d have to
-          turn them back on in your browser settings — we can’t ask again
-          from here.
-        </p>
+        <p className="pushwhy">{blockedHow()}</p>
       )}
 
       {(state === 'off' || state === 'busy') && state !== 'unsupported' && (

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { adminClient, adminConfigured } from '../../../../lib/supabase-admin';
+import { deliverPush } from '../../../../lib/deliver-push';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -90,46 +91,14 @@ export async function POST(req) {
 
   if (!subs?.length) return NextResponse.json({ ok: true, devices: 0 });
 
-  const webpush = (await import('web-push')).default;
-  webpush.setVapidDetails(
-    process.env.VAPID_SUBJECT || 'mailto:ty.howell2007@gmail.com',
-    process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY,
-    process.env.VAPID_PRIVATE_KEY
-  );
-
-  const payload = JSON.stringify({ to });
-  const dead = [];
-  let ok = 0;
-
-  await Promise.all(subs.map(async (s) => {
-    try {
-      await webpush.sendNotification(
-        { endpoint: s.endpoint, keys: { p256dh: s.p256dh, auth: s.auth } },
-        payload
-      );
-      ok++;
-    } catch (e) {
-      /* ⚠️ 404 and 410 mean the subscription is GONE — app deleted, phone
-         wiped, permission revoked. Those are retired immediately rather
-         than retried forever; every other failure is counted, because a
-         push service having a bad ten minutes must not cost somebody
-         their notifications permanently. */
-      const code = e?.statusCode;
-      if (code === 404 || code === 410) dead.push(s.id);
-      else if (s.failures >= 9) dead.push(s.id);
-      else await admin.from('push_subscriptions')
-             .update({ failures: s.failures + 1 }).eq('id', s.id);
-    }
-  }));
-
-  if (dead.length) {
-    await admin.from('push_subscriptions').delete().in('id', dead);
-  }
+  /* 31 Oct 2026: website AND iPhone-app devices, one implementation —
+     see lib/deliver-push.js. Same retire/count rules as before. */
+  const { ok, retired } = await deliverPush(admin, subs, to);
   if (ok) {
     await admin.from('push_subscriptions')
       .update({ last_ok_at: new Date().toISOString(), failures: 0 })
       .eq('user_id', n.user_id).gt('failures', 0);
   }
 
-  return NextResponse.json({ ok: true, devices: subs.length, delivered: ok, retired: dead.length });
+  return NextResponse.json({ ok: true, devices: subs.length, delivered: ok, retired });
 }

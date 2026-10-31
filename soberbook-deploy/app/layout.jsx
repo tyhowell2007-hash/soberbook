@@ -40,6 +40,10 @@ import { serverClient } from '../lib/supabase-server';
    override layer that touches no markup and no logic. */
 
 import RegisterSW from './components/RegisterSW';
+/* 31 Oct 2026 — iPhone-app alerts: opening the right screen when one is
+   tapped, and keeping this phone's Apple token current. Renders nothing,
+   and does nothing outside the iPhone app. */
+import NativePush from './components/NativePush';
 /* ⚠️ IN THE ROOT LAYOUT ON PURPOSE, unlike theme-green.css above. It has
    to see the FIRST tap anybody makes, and for most people that tap is on
    the sign-in screen — several screens before they ever reach a profile.
@@ -220,6 +224,7 @@ export default async function RootLayout({ children }) {
         <DayMark on={signedIn} />
         <PullToRefresh on={signedIn} />
         <RegisterSW />
+        <NativePush />
         {/* Blesses the shared audio element on the first tap, so profile
             songs can start on their own afterwards. See lib/song-audio.js
             for why this is the only thing that works on a phone. */}

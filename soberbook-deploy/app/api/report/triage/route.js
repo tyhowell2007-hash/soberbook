@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { adminClient, adminConfigured } from '../../../../lib/supabase-admin';
 import { sendMail } from '../../../../lib/mail';
+import { deliverPush } from '../../../../lib/deliver-push';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -95,24 +96,8 @@ async function buzzAdmins(admin, to) {
     .select('id, endpoint, p256dh, auth, failures').in('user_id', ids);
   if (!subs?.length) return 0;
 
-  const webpush = (await import('web-push')).default;
-  webpush.setVapidDetails(
-    process.env.VAPID_SUBJECT || 'mailto:ty.howell2007@gmail.com',
-    process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY,
-    process.env.VAPID_PRIVATE_KEY,
-  );
-  const payload = JSON.stringify({ to });
-  let ok = 0;
-  await Promise.all(subs.map(async (s) => {
-    try {
-      await webpush.sendNotification(
-        { endpoint: s.endpoint, keys: { p256dh: s.p256dh, auth: s.auth } }, payload);
-      ok++;
-    } catch (e) {
-      const code = e?.statusCode;
-      if (code === 404 || code === 410) await admin.from('push_subscriptions').delete().eq('id', s.id);
-    }
-  }));
+  /* 31 Oct 2026: the iPhone app too — lib/deliver-push.js. */
+  const { ok } = await deliverPush(admin, subs, to);
   return ok;
 }
 
