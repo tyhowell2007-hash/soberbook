@@ -37,6 +37,11 @@ import ArtistCheck from '../components/ArtistCheck';
    claim that a rule is written once has to be checked against every file
    that renders it, not against the two you were looking at. */
 import MilestoneCard from './MilestoneCard';
+import StatStrip from './StatStrip';
+import CoinRow from './CoinRow';
+import CoinSheet from '../components/CoinSheet';
+import CoinList from '../components/CoinList';
+import { applyCoin, myCoin } from '../../lib/coins';
 
 /* A post, opened.
    ==========================================================================
@@ -62,6 +67,14 @@ function ago(iso) {
 
 export default function Thread({ post, onClose, onCountChange }) {
   const supabase = browserClient();
+  /* 0195/0196 — the coins and stat strip, here too, so a post opened from
+     a notification (/p/<id>) shows the same Seen · Coins · Replies and the
+     same Send a coin / How it's doing as the wall. `shown` is a local copy
+     so a coin sent here updates this sheet at once. */
+  const [shown, setShown] = useState(post);
+  const [coinOpen, setCoinOpen] = useState(false);
+  const [coinList, setCoinList] = useState(false);
+  useEffect(() => { setShown(post); }, [post]);
   const [rows, setRows] = useState(null);        // null = still loading
   const [text, setText] = useState('');
   const [anon, setAnon] = useState(false);
@@ -264,6 +277,11 @@ export default function Thread({ post, onClose, onCountChange }) {
 
           <div className="origmeta">
             {ago(post.created_at)}{post.is_anonymous ? ' · anonymous' : ''}
+          </div>
+
+          <div className="threadcoins">
+            <StatStrip post={shown} onCoins={() => setCoinList(true)} />
+            <CoinRow post={shown} onSend={() => setCoinOpen(true)} />
           </div>
 
           {rows === null && <div className="loading">Loading…</div>}
@@ -484,6 +502,22 @@ export default function Thread({ post, onClose, onCountChange }) {
           </form>
         </div>
       </div>
+
+      {coinOpen && (
+        <CoinSheet
+          postId={shown.id}
+          to={shown.display_name}
+          current={myCoin(shown)}
+          allowWords={shown.coin_words !== false}
+          onClose={() => setCoinOpen(false)}
+          onDone={(kind) => {
+            setShown((x) => applyCoin(x, myCoin(x), kind));
+            setCoinOpen(false);
+            onCountChange && onCountChange(shown.id);
+          }}
+        />
+      )}
+      {coinList && <CoinList postId={shown.id} onClose={() => setCoinList(false)} />}
     </div>
   );
 }
