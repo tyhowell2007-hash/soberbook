@@ -20,6 +20,8 @@ import ArtistCheck from '../../components/ArtistCheck';
 import { coverCss, accentHex, normaliseSections } from '../../../lib/look';
 import ArtistBar from '../../components/ArtistBar';
 import MemberProfile from './MemberProfile';
+import Coin from '../../components/Coin';
+import { coinTotal, topKinds } from '../../../lib/coins';
 
 export const dynamic = 'force-dynamic';
 
@@ -88,13 +90,7 @@ export default async function ProfilePage({ params }) {
                back to the default by design, so the page looked like a
                member who had simply never picked anything.
                ⚠️ Add a column to public_profiles, add it here. */
-            /* 🖼 0190 — their photos. ⚠️ ADDED TO THIS STRING AS WELL AS
-               TO THE VIEW, for the exact reason the note above gives:
-               an unasked-for column arrives as undefined, `(undefined ||
-               [])` is an empty array, and the Photos tab would simply
-               never be drawn. Nothing would error. The 20 Sept look bug
-               in one line. */
-            'cover, accent, sections, gallery')
+            'cover, accent, sections')
     .eq('handle_key', handle.toLowerCase())
     .maybeSingle();
 
@@ -137,7 +133,7 @@ export default async function ProfilePage({ params }) {
      true)`. That version works right up until somebody reorders the
      conditions, and it also needs author_id, which the view withholds for
      exactly this reason. The null IS the rule. */
-  const { data: theirPosts } = await supabase
+  let { data: theirPosts, error: theirPostsErr } = await supabase
     .from(assertReadable('feed_posts'))
     /* 🔴 support_count/strength_count, NOT like_count. The ♥ this page
        used to print came from `likes`, which was RETIRED on 7 Sept when
@@ -145,19 +141,24 @@ export default async function ProfilePage({ params }) {
        "❤️ Support 3" and the profile said "· 3 ♥" for the same post, from
        two different tables — the app disagreeing with itself about the
        same fact. Found because Ty looked at his own profile. */
-    .select('id, body, photo_url, photo_urls, video_url, created_at, support_count, strength_count, comment_count')
+    .select('id, body, photo_url, photo_urls, video_url, created_at, support_count, strength_count, comment_count, proud_count, metoo_count, coin_count')
     .eq('author_handle', p.handle)
     .order('created_at', { ascending: false })
     .limit(30);
-
-  /* 🖼 0190 — their album, signed in the SAME pass as the face and the
-     post pictures. A second signing round trip per page is the cost this
-     whole function exists to avoid. */
-  const theirGallery = Array.isArray(p.gallery) ? p.gallery.filter(Boolean) : [];
+  /* 0195 — if the coin columns are not there yet (the SQL has not been
+     pasted), ask again without them, so this page can never go blank
+     because of the order things were shipped in. */
+  if (theirPostsErr) {
+    ({ data: theirPosts } = await supabase
+    .from(assertReadable('feed_posts'))
+    .select('id, body, photo_url, photo_urls, video_url, created_at, support_count, strength_count, comment_count')
+    .eq('author_handle', p.handle)
+    .order('created_at', { ascending: false })
+    .limit(30));
+  }
 
   const photos = await signPhotoPaths(supabase, [
     ...(p.display_avatar_photo ? [p.display_avatar_photo] : []),
-    ...theirGallery,
     /* ⚠️ Spread photo_urls in (0065) — otherwise photos 2..10 are never
        signed and render as broken frames on somebody else's profile. */
     ...(theirPosts || []).flatMap((x) => [
@@ -194,7 +195,6 @@ export default async function ProfilePage({ params }) {
         profile={p}
         posts={theirPosts || []}
         photos={photos}
-        gallery={theirGallery}
         facePhoto={facePhoto}
         coverBackground={coverBg}
         accent={accent}
@@ -585,8 +585,8 @@ export default async function ProfilePage({ params }) {
                           control in a one-line summary row is a mis-tap
                           waiting to happen. You react on the post itself.
                           🔴 Never a zero, same as everywhere else. */}
-                      {t.support_count > 0 ? ` · ❤️ ${t.support_count}` : ''}
-                      {t.strength_count > 0 ? ` · 🤝 ${t.strength_count}` : ''}
+                      {/* 0195 — one coin count, drawn with the coin this post got most of. */}
+                      {coinTotal(t) > 0 ? (<> · <span className="mmcoin"><Coin kind={topKinds(t, 1)[0]} size={15} />{coinTotal(t)}</span></>) : ''}
                       {t.comment_count > 0
                         ? ` · ${t.comment_count} ${t.comment_count === 1 ? 'reply' : 'replies'}`
                         : ''}

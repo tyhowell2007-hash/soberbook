@@ -16,6 +16,8 @@ import './artists.css';
    signed-in member. Keeping its small visual layer here means every room
    gets the same gesture and status indicator. */
 import './pull-to-refresh.css';
+/* 0195 — recovery coins show on the wall, posts, profiles and the bell. */
+import './coins.css';
 import { serverClient } from '../lib/supabase-server';
 
 /* ⚠️ theme-green.css IS DELIBERATELY NOT IMPORTED HERE. DO NOT ADD IT BACK.

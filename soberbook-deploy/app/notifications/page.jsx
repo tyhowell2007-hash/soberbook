@@ -50,7 +50,7 @@ export default async function NotificationsPage() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');
 
-  const { data: rows } = await supabase
+  let { data: rows, error: rowsErr } = await supabase
     .from(assertReadable('my_notifications'))
     /* 🔴 room_slug ADDED 6 Sept, AND ITS ABSENCE WAS THE WHOLE BUG.
        my_notifications has returned it since 0132 — it LEFT JOINs rooms
@@ -71,9 +71,19 @@ export default async function NotificationsPage() {
        Leave it out of this list and every friend row silently falls to
        the request wording, which would tell somebody they had been asked
        when in fact they had been answered. */
-    .select('id, kind, created_at, unread, post_id, thread_id, who, who_handle, about, room_slug, detail')
+    .select('id, kind, created_at, unread, post_id, thread_id, who, who_handle, about, room_slug, detail, note')
     .order('created_at', { ascending: false })
     .limit(100);
+  /* 0195 — if the coin columns are not there yet (the SQL has not been
+     pasted), ask again without them, so this page can never go blank
+     because of the order things were shipped in. */
+  if (rowsErr) {
+    ({ data: rows } = await supabase
+    .from(assertReadable('my_notifications'))
+    .select('id, kind, created_at, unread, post_id, thread_id, who, who_handle, about, room_slug, detail')
+    .order('created_at', { ascending: false })
+    .limit(100));
+  }
 
   /* 🔴 ASKED SERVER-SIDE, AND ONLY THE DATABASE DECIDES.
 

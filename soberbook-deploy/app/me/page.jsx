@@ -20,7 +20,7 @@ export default async function MePage({ searchParams }) {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('handle, display_name, sober_since, date_prompt_off, privacy_mode, created_at, anthem_url, anthem_title, anthem_art, anthem_preview, anthem_youtube, anthem_spotify, autoplay_songs, lifetime_days, show_lifetime, bio, town, state, show_location, programs, interests, sponsor_status, avatar, avatar_kind, avatar_photo, findable_by_name, has_sponsor, will_sponsor, sponsor_na, paths, path_other, theme, day_count_visibility, private_paths, show_bio, show_interests, show_sponsoring, cover, accent, sections, gallery')
+    .select('handle, display_name, sober_since, date_prompt_off, privacy_mode, created_at, anthem_url, anthem_title, anthem_art, anthem_preview, anthem_youtube, anthem_spotify, autoplay_songs, lifetime_days, show_lifetime, bio, town, state, show_location, programs, interests, sponsor_status, avatar, avatar_kind, avatar_photo, findable_by_name, has_sponsor, will_sponsor, sponsor_na, paths, path_other, theme, day_count_visibility, private_paths, show_bio, show_interests, show_sponsoring, cover, accent, sections')
     .eq('id', user.id)
     .maybeSingle();
   if (!profile) redirect('/welcome');
@@ -46,33 +46,6 @@ export default async function MePage({ searchParams }) {
     initialAvatarUrl = signed?.signedUrl || null;
   }
 
-  /* ---- your own photos, signed the same way and for the same reason ----
-     🖼 0190.
-
-     ⚠️ DIRECTLY, NOT THROUGH signPhotoPaths(), and this is the avatar
-     bug one row down. That function asks `public_profiles` whether a
-     picture may be shown, and the view returns an EMPTY ARRAY for
-     anybody in anonymous mode — correctly, because an anonymous member
-     has no public album. Routed through it, an anonymous member would
-     open their own settings and find every photo they had put up
-     apparently deleted, with no way to tell whether it had actually
-     happened. They would reasonably conclude the app had lost their
-     pictures.
-
-     The authorisation here is simpler and stronger than the view's: the
-     paths came out of their OWN row, read a moment ago with their OWN
-     session. There is nobody else's photo they could possibly be.
-
-     ⚠️ One createSignedUrls call for the lot, never a loop — ten round
-     trips to draw one grid. */
-  const myGallery = Array.isArray(profile.gallery) ? profile.gallery.filter(Boolean) : [];
-  const myGalleryUrls = {};
-  if (myGallery.length && adminConfigured()) {
-    const { data: signedMany } = await adminClient()
-      .storage.from('profile-photos').createSignedUrls(myGallery, 3600);
-    (signedMany || []).forEach((r) => { if (r.signedUrl) myGalleryUrls[r.path] = r.signedUrl; });
-  }
-
   if (!editing) {
   /* Your own posts — WITHOUT ever asking the database "whose posts are
      these?". `is_mine` is computed inside the view by comparing author_id
@@ -83,15 +56,26 @@ export default async function MePage({ searchParams }) {
      Doing this the obvious way — .eq('author_id', user.id) on the posts
      table — would work, and would quietly hand the browser the exact
      column the whole anonymity design exists to withhold. */
-  const { data: mine } = await supabase
+  let { data: mine, error: mineErr } = await supabase
     .from(assertReadable('feed_posts'))
     /* ⭐ support_count/strength_count added 7 Sept. Your own posts show
        the COUNTS — you cannot react to yourself, and the author is
        exactly who needs to see that somebody showed up. */
-    .select('id, body, photo_url, photo_urls, video_url, created_at, is_anonymous, support_count, strength_count, comment_count')
+    .select('id, body, photo_url, photo_urls, video_url, created_at, is_anonymous, support_count, strength_count, comment_count, proud_count, metoo_count, coin_count')
     .eq('is_mine', true)
     .order('created_at', { ascending: false })
     .limit(50);
+  /* 0195 — if the coin columns are not there yet (the SQL has not been
+     pasted), ask again without them, so this page can never go blank
+     because of the order things were shipped in. */
+  if (mineErr) {
+    ({ data: mine } = await supabase
+    .from(assertReadable('feed_posts'))
+    .select('id, body, photo_url, photo_urls, video_url, created_at, is_anonymous, support_count, strength_count, comment_count')
+    .eq('is_mine', true)
+    .order('created_at', { ascending: false })
+    .limit(50));
+  }
 
   /* Your own posts, with their pictures. Signed here on the server for the
      same reason the Wall does it: the list arrives whole rather than
@@ -152,8 +136,6 @@ export default async function MePage({ searchParams }) {
         postPhotoUrls={postPhotoUrls}
         about={about}
         friends={friends || []}
-        gallery={myGallery}
-        galleryUrls={myGalleryUrls}
       />
     );
   }
@@ -178,8 +160,6 @@ export default async function MePage({ searchParams }) {
       email={user.email}
       profile={profile}
       initialAvatarUrl={initialAvatarUrl}
-      initialGallery={myGallery}
-      initialGalleryUrls={myGalleryUrls}
       pendingTags={pending || []}
       artistStatus={artistMine?.status || null}
     />

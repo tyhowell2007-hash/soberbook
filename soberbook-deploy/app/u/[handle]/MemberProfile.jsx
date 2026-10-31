@@ -7,7 +7,9 @@ import ArtistCheck from '../../components/ArtistCheck';
 import Shot from '../../components/Shot';
 import { sinceFromCount } from '../../../lib/milestones';
 import ProfileTabs from './ProfileTabs';
-import Gallery from '../../components/Gallery';
+import Coin from '../../components/Coin';
+import CoinShelf from '../../components/CoinShelf';
+import { coinTotal, topKinds } from '../../../lib/coins';
 import TheirPeople from './TheirPeople';
 import { aboutPane } from './about';
 
@@ -19,26 +21,11 @@ import { aboutPane } from './about';
    ⚠️ The parent page obtains `posts` by matching feed_posts.author_handle.
    Anonymous posts have a NULL author_handle in that view, so they cannot
    enter this component. Do not pass posts selected by author_id. */
-export default function MemberProfile({ profile, posts, photos, gallery = [],
-                                        facePhoto,
+export default function MemberProfile({ profile, posts, photos, facePhoto,
                                         coverBackground, accent, song, autoplay }) {
   const p = profile;
 
   const about = aboutPane(p, song, autoplay);
-
-  /* 🖼 0190 — the Photos pane, or nothing at all.
-
-     ⚠️ Built from the paths the VIEW handed back, filtered down to the
-     ones that actually got signed. public_profiles returns an empty
-     array for anybody in anonymous mode, so an anonymous member's page
-     has no Photos tab on it — not because this line checks for anonymity
-     (it has no idea what that is) but because there is nothing in the
-     array to draw. Same shape as the author_handle rule above: the empty
-     answer IS the rule. */
-  const shown = (Array.isArray(gallery) ? gallery : []).filter((x) => photos[x]);
-  const photoPane = shown.length
-    ? <Gallery paths={shown} urls={photos} mine={!!p.is_mine} />
-    : null;
 
   return (
     <>
@@ -113,7 +100,11 @@ export default function MemberProfile({ profile, posts, photos, gallery = [],
             before. The count above stays public; the names never are. */}
         <TheirPeople handle={p.handle} name={p.display_name || null} />
 
-        <ProfileTabs about={about} photos={photoPane} posts={(
+        {/* 0195 — only appears if they switched their shelf on (or it is
+            you). coin_shelf() decides; this draws nothing for null. */}
+        <CoinShelf handle={p.handle} mine={!!p.is_mine} />
+
+        <ProfileTabs about={about} posts={(
         <div className="ublk">
           <h2 className="sec">{p.is_mine ? 'What you’ve put up' : 'What they’ve put up'}</h2>
           {!posts || posts.length === 0 ? (
@@ -162,8 +153,8 @@ export default function MemberProfile({ profile, posts, photos, gallery = [],
                       {new Date(post.created_at).toLocaleDateString('en-US', {
                         month: 'short', day: 'numeric',
                       })}
-                      {post.support_count > 0 ? ` · ❤️ ${post.support_count}` : ''}
-                      {post.strength_count > 0 ? ` · 🤝 ${post.strength_count}` : ''}
+                      {/* 0195 — one coin count, drawn with the coin this post got most of. */}
+                      {coinTotal(post) > 0 ? (<> · <span className="mmcoin"><Coin kind={topKinds(post, 1)[0]} size={15} />{coinTotal(post)}</span></>) : ''}
                       {post.comment_count > 0
                         ? ` · ${post.comment_count} ${post.comment_count === 1 ? 'reply' : 'replies'}`
                         : ''}

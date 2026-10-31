@@ -5,6 +5,8 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { browserClient } from '../../lib/supabase-browser';
 import PushAsk from '../components/PushAsk';
+import Coin from '../components/Coin';
+import { COIN, isCoin } from '../../lib/coins';
 
 /* =====================================================================
    THE BELL'S LIST, AND THE BROOM.  31 Aug.
@@ -240,7 +242,7 @@ export default function Rows({ initial, askPush: askPushInitial }) {
           n.kind === 'message' && n.thread_id ? `/chat/${n.thread_id}` :
           (n.kind === 'reply' || n.kind === 'mention' ||
            n.kind === 'highlight' || n.kind === 'drop' ||
-           n.kind === 'support' || n.kind === 'strength') && n.post_id
+           isCoin(n.kind)) && n.post_id
             ? `/p/${n.post_id}` :
           n.kind === 'mention' && n.room_slug ? `/friends?room=${n.room_slug}` :
           /* ⚠️ A friend row goes to the PERSON, and that is the whole
@@ -261,8 +263,8 @@ export default function Rows({ initial, askPush: askPushInitial }) {
           : n.kind === 'mention' ? '@'
           : n.kind === 'highlight' ? '📣'
           : n.kind === 'drop' ? '🎵'
-          : n.kind === 'support' ? '🤝'
-          : n.kind === 'strength' ? '💪'
+          /* 0195 — every coin kind, old and new, draws its own coin. */
+          : isCoin(n.kind) ? <Coin kind={n.kind} size={26} />
           : n.kind === 'friend' ? '👋'
           : n.kind === 'meeting' ? '🕐'
           : n.kind === 'checkin' ? '💚'
@@ -283,8 +285,9 @@ export default function Rows({ initial, askPush: askPushInitial }) {
              that happened is between two people, not between a person and
              a post — and at 2am the sentence that helps is the one with a
              human in it. */
-          : n.kind === 'support' ? `${n.who} sent you support`
-          : n.kind === 'strength' ? `${n.who} sent you strength`
+          /* 0195 — support/strength rows from before coins existed read as
+             the coins they now are: "I see you" and "Keep going". */
+          : isCoin(n.kind) ? `${n.who} sent you a ${COIN[n.kind].name} coin`
           /* 🔴 TWO DIFFERENT EVENTS, ONE KIND. `detail` is the only thing
              that tells them apart, and getting it wrong here would be the
              highlight bug again — a row confidently describing something
@@ -327,6 +330,10 @@ export default function Rows({ initial, askPush: askPushInitial }) {
                   answered — not of their reply. Showing their words here
                   would leak the content of an anonymous reply into a list
                   that names nobody. */}
+              {/* 0195 — the words that came with a coin. Only ever YOUR
+                  coins' words: my_notifications looks them up by (your
+                  post, the sender, the kind). */}
+              {n.note && <span className="ntfnote">“{n.note}”</span>}
               {n.about && <span className="ntfabout">“{n.about}”</span>}
               <span className="ntfwhen">{whenWord(n.created_at)}</span>
             </span>

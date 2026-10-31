@@ -18,8 +18,6 @@ import { fetchTags, attachTags } from '../../lib/tags';
 import { fetchBroadcasts } from '../../lib/highlights';
 import { buildIndex, findMentions, activeQuery, suggest, saysHighlight } from '../../lib/mentions';
 import { mixFeed } from '../../lib/mix';
-/* 📌 0191 — the team's pinned note. Renders nothing when there isn't one. */
-import TeamUpdate from './TeamUpdate';
 import ContentCard from '../components/ContentCard';
 /* 🔴 The wall's post list is fetched in ONE place now — see lib/feed-posts.js.
    These three client re-fetches used to be plain limit(60) queries, which
@@ -35,6 +33,10 @@ import Gratitude from '../components/Gratitude';
 import MilestoneCard from './MilestoneCard';
 import { markLabel } from '../../lib/milestones';
 import ArtistCheck from '../components/ArtistCheck';
+import CoinRow from './CoinRow';
+import CoinSheet from '../components/CoinSheet';
+import CoinList from '../components/CoinList';
+import { applyCoin, myCoin } from '../../lib/coins';
 
 function ago(iso) {
   const mins = Math.floor((Date.now() - new Date(iso).getTime()) / 60000);
@@ -154,10 +156,7 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
                                photoUrls = {}, previews = {}, tags: tags0 = {},
                                broadcast: broadcast0 = [],
                                content = [], thumbBase = '',
-                               drops = {}, dropUrls = {}, canHide = false,
-                               /* 📌 0191 — null on a quiet week, and the
-                                  card draws nothing at all for null. */
-                               teamUpdate = null }) {
+                               drops = {}, dropUrls = {}, canHide = false }) {
   const router = useRouter();
   const supabase = browserClient();
   /* The milestone landing today, if there is one and it hasn't been
@@ -773,6 +772,11 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
     return () => { alive = false; };
   }, []);
   const [open, setOpen] = useState(null);     // the post whose thread is open
+  /* 0195 — the post a coin is being sent to, and your own post whose coins
+     are open. Two separate pieces of state: one is a sheet you act in, the
+     other a list you read. */
+  const [coinFor, setCoinFor] = useState(null);
+  const [coinsOf, setCoinsOf] = useState(null);
   const [menu, setMenu] = useState(null);     // the post whose ⋯ menu is open
   // post ids with a like request in the air. Without this, an impatient
   // double-tap fires insert AND delete at once and the heart ends up
@@ -1197,32 +1201,6 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
         {me.handle && <p className="whoami">Signed in as @{me.handle}</p>}
         <p>You made it. Pull up a chair.</p>
       </div>
-
-      {/* ---- 📌 THE TEAM'S NOTE, AT THE TOP OF THE PAGE (0191) ----
-
-          Ty: "that pin needs to go up on the wall at the very top. That
-          way people can see it."
-
-          It used to sit directly above the feed, which sounded like the
-          top and was not: the composer, the milestone offer, the pledge,
-          the gratitude line, the notifications ask, the invite ask and
-          the tour card all render before it. On a day when two of those
-          are showing, an announcement was most of a screen down and
-          nobody would ever have reported it missing — they would just
-          never have seen it.
-
-          ⚠️ BELOW THE GREETING, NOT ABOVE IT, and that is the one line
-          of this I did not take literally. The note above explains why
-          "Welcome home" is first every time: the moment somebody opens
-          this app is often not a good moment, and the first thing they
-          read should be a chair being pulled out rather than an
-          announcement. So the pin goes directly under it — first thing
-          after hello, above everything else on the page. Say the word
-          and it moves above the greeting too.
-
-          ⚠️ It renders NOTHING when there is no note, so a quiet week
-          leaves this page byte-for-byte what it was. */}
-      <TeamUpdate update={teamUpdate} />
 
       {/* ---- THE MILESTONE OFFER ----
 
@@ -2230,62 +2208,15 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
                 </div>
               )}
 
-              {/* ---------------- SUPPORT / STRENGTH ----------------
-                  ⭐ Ty, off a competitor's feed: "I like how they had their
-                  news feed with the boxes that says support and strength."
-
-                  ⭐ THE REASON IT IS THE RIGHT FEATURE, measured first: of
-                  123 posts, 50 had no reply and 15 had NOTHING AT ALL. A
-                  heart is the wrong instrument for a hard post — you
-                  cannot "like" somebody saying they sat outside a bar for
-                  an hour — so the posts that most needed answering were
-                  the ones getting silence, because the only options were
-                  an inappropriate heart or finding words.
-
-                  ⚠️ THE NAMES ARE TY'S, CHOSEN OVER MY RECOMMENDATION of
-                  "Been there" / "I'm here". Recorded in 0149 with the
-                  argument, so nobody re-opens it thinking it was missed.
-
-                  🔴 ITS OWN ROW, NOT SQUEEZED INTO .ft. The footer already
-                  carries the heart, the reply invitation and the ⋯; two
-                  more on a 375px phone is how you get a wrapped, unusable
-                  row. Ty said "boxes", and boxes need width.
-
-                  🔴 NEVER SHOW A ZERO — the same rule as the room hearts
-                  and the open-room card. "Support 0" under somebody's
-                  worst night is worse than no number at all.
-
-                  🔴 ON YOUR OWN POST THEY ARE NOT BUTTONS, THEY ARE THE
-                  COUNTS. react_to_post() refuses your own post anyway, but
-                  the author is exactly who needs to see that three people
-                  showed up — that is the entire point of the feature. */}
-              {p.is_mine ? (
-                (p.support_count > 0 || p.strength_count > 0) && (
-                  <div className="reactrow reactmine">
-                    {p.support_count > 0 && (
-                      <span>{p.support_count} sent support</span>)}
-                    {p.strength_count > 0 && (
-                      <span>{p.strength_count} sent strength</span>)}
-                  </div>
-                )
-              ) : (
-                <div className="reactrow">
-                  <button
-                    className={'react' + (p.supported_by_me ? ' on' : '')}
-                    aria-pressed={!!p.supported_by_me}
-                    onClick={() => react(p, 'support')}
-                  >
-                    ❤️ Support{p.support_count > 0 ? ` ${p.support_count}` : ''}
-                  </button>
-                  <button
-                    className={'react' + (p.strengthed_by_me ? ' on' : '')}
-                    aria-pressed={!!p.strengthed_by_me}
-                    onClick={() => react(p, 'strength')}
-                  >
-                    🤝 Strength{p.strength_count > 0 ? ` ${p.strength_count}` : ''}
-                  </button>
-                </div>
-              )}
+              {/* ---------------- RECOVERY COINS (0195) ----------------
+                  Ty, 31 Oct: "Instead of likes, we do coins, like recovery coins."
+                  Four coins replace Support and Strength. Old Support is drawn as
+                  "I see you" and old Strength as "Keep going" — nothing was
+                  rewritten in the database. CoinRow keeps the two rules the boxes
+                  had: never show a zero, and on your own post it is the count, not
+                  a button to send. react() below is no longer reachable from here
+                  and is kept, like like(), so this is reversible. */}
+              <CoinRow post={p} onSend={() => setCoinFor(p)} onSee={() => setCoinsOf(p)} />
 
               {/* 💬 THE INVITATION IS A REAL FIELD NOW.
 
@@ -2359,6 +2290,24 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
 
       {/* The composer and the anonymous toggle used to live down here.
           Both moved to the top of the page — see the note up there. */}
+
+      {coinFor && (
+        <CoinSheet
+          postId={coinFor.id}
+          to={coinFor.display_name}
+          current={myCoin(coinFor)}
+          onClose={() => setCoinFor(null)}
+          onDone={(kind) => {
+            /* Only after the database said yes (CoinSheet waits), so this
+               is a confirmed change being drawn, not a guess. */
+            const was = myCoin(coinFor);
+            const id = coinFor.id;
+            setPosts((list) => list.map((x) => (x.id === id ? applyCoin(x, was, kind) : x)));
+            setCoinFor(null);
+          }}
+        />
+      )}
+      {coinsOf && <CoinList postId={coinsOf.id} onClose={() => setCoinsOf(null)} />}
 
       {open && (
         <Thread
