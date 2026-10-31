@@ -90,7 +90,13 @@ export default async function ProfilePage({ params }) {
                back to the default by design, so the page looked like a
                member who had simply never picked anything.
                ⚠️ Add a column to public_profiles, add it here. */
-            'cover, accent, sections')
+            /* 🖼 0190 — their photos. ⚠️ ADDED TO THIS STRING AS WELL AS
+               TO THE VIEW, for the exact reason the note above gives:
+               an unasked-for column arrives as undefined, `(undefined ||
+               [])` is an empty array, and the Photos tab would simply
+               never be drawn. Nothing would error. The 20 Sept look bug
+               in one line. */
+            'cover, accent, sections, gallery')
     .eq('handle_key', handle.toLowerCase())
     .maybeSingle();
 
@@ -157,8 +163,14 @@ export default async function ProfilePage({ params }) {
     .limit(30));
   }
 
+  /* 🖼 0190 — their album, signed in the SAME pass as the face and the
+     post pictures. A second signing round trip per page is the cost this
+     whole function exists to avoid. */
+  const theirGallery = Array.isArray(p.gallery) ? p.gallery.filter(Boolean) : [];
+
   const photos = await signPhotoPaths(supabase, [
     ...(p.display_avatar_photo ? [p.display_avatar_photo] : []),
+    ...theirGallery,
     /* ⚠️ Spread photo_urls in (0065) — otherwise photos 2..10 are never
        signed and render as broken frames on somebody else's profile. */
     ...(theirPosts || []).flatMap((x) => [
@@ -195,6 +207,7 @@ export default async function ProfilePage({ params }) {
         profile={p}
         posts={theirPosts || []}
         photos={photos}
+        gallery={theirGallery}
         facePhoto={facePhoto}
         coverBackground={coverBg}
         accent={accent}

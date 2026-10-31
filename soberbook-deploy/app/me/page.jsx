@@ -20,7 +20,7 @@ export default async function MePage({ searchParams }) {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('handle, display_name, sober_since, date_prompt_off, privacy_mode, created_at, anthem_url, anthem_title, anthem_art, anthem_preview, anthem_youtube, anthem_spotify, autoplay_songs, lifetime_days, show_lifetime, bio, town, state, show_location, programs, interests, sponsor_status, avatar, avatar_kind, avatar_photo, findable_by_name, has_sponsor, will_sponsor, sponsor_na, paths, path_other, theme, day_count_visibility, private_paths, show_bio, show_interests, show_sponsoring, cover, accent, sections')
+    .select('handle, display_name, sober_since, date_prompt_off, privacy_mode, created_at, anthem_url, anthem_title, anthem_art, anthem_preview, anthem_youtube, anthem_spotify, autoplay_songs, lifetime_days, show_lifetime, bio, town, state, show_location, programs, interests, sponsor_status, avatar, avatar_kind, avatar_photo, findable_by_name, has_sponsor, will_sponsor, sponsor_na, paths, path_other, theme, day_count_visibility, private_paths, show_bio, show_interests, show_sponsoring, cover, accent, sections, gallery')
     .eq('id', user.id)
     .maybeSingle();
   if (!profile) redirect('/welcome');
@@ -44,6 +44,33 @@ export default async function MePage({ searchParams }) {
     const { data: signed } = await adminClient()
       .storage.from('avatars').createSignedUrl(profile.avatar_photo, 3600);
     initialAvatarUrl = signed?.signedUrl || null;
+  }
+
+  /* ---- your own photos, signed the same way and for the same reason ----
+     🖼 0190.
+
+     ⚠️ DIRECTLY, NOT THROUGH signPhotoPaths(), and this is the avatar
+     bug one row down. That function asks `public_profiles` whether a
+     picture may be shown, and the view returns an EMPTY ARRAY for
+     anybody in anonymous mode — correctly, because an anonymous member
+     has no public album. Routed through it, an anonymous member would
+     open their own settings and find every photo they had put up
+     apparently deleted, with no way to tell whether it had actually
+     happened. They would reasonably conclude the app had lost their
+     pictures.
+
+     The authorisation here is simpler and stronger than the view's: the
+     paths came out of their OWN row, read a moment ago with their OWN
+     session. There is nobody else's photo they could possibly be.
+
+     ⚠️ One createSignedUrls call for the lot, never a loop — ten round
+     trips to draw one grid. */
+  const myGallery = Array.isArray(profile.gallery) ? profile.gallery.filter(Boolean) : [];
+  const myGalleryUrls = {};
+  if (myGallery.length && adminConfigured()) {
+    const { data: signedMany } = await adminClient()
+      .storage.from('profile-photos').createSignedUrls(myGallery, 3600);
+    (signedMany || []).forEach((r) => { if (r.signedUrl) myGalleryUrls[r.path] = r.signedUrl; });
   }
 
   if (!editing) {
@@ -136,6 +163,8 @@ export default async function MePage({ searchParams }) {
         postPhotoUrls={postPhotoUrls}
         about={about}
         friends={friends || []}
+        gallery={myGallery}
+        galleryUrls={myGalleryUrls}
       />
     );
   }
@@ -160,6 +189,8 @@ export default async function MePage({ searchParams }) {
       email={user.email}
       profile={profile}
       initialAvatarUrl={initialAvatarUrl}
+      initialGallery={myGallery}
+      initialGalleryUrls={myGalleryUrls}
       pendingTags={pending || []}
       artistStatus={artistMine?.status || null}
     />

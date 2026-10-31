@@ -18,6 +18,8 @@ import { fetchTags, attachTags } from '../../lib/tags';
 import { fetchBroadcasts } from '../../lib/highlights';
 import { buildIndex, findMentions, activeQuery, suggest, saysHighlight } from '../../lib/mentions';
 import { mixFeed } from '../../lib/mix';
+/* 📌 0191 — the team's pinned note. Renders nothing when there isn't one. */
+import TeamUpdate from './TeamUpdate';
 import ContentCard from '../components/ContentCard';
 /* 🔴 The wall's post list is fetched in ONE place now — see lib/feed-posts.js.
    These three client re-fetches used to be plain limit(60) queries, which
@@ -158,7 +160,10 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
                                photoUrls = {}, previews = {}, tags: tags0 = {},
                                broadcast: broadcast0 = [],
                                content = [], thumbBase = '',
-                               drops = {}, dropUrls = {}, canHide = false }) {
+                               drops = {}, dropUrls = {}, canHide = false,
+                               /* 📌 0191 — null on a quiet week, and the
+                                  card draws nothing at all for null. */
+                               teamUpdate = null }) {
   const router = useRouter();
   const supabase = browserClient();
   /* The milestone landing today, if there is one and it hasn't been
@@ -1207,6 +1212,32 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
         {me.handle && <p className="whoami">Signed in as @{me.handle}</p>}
         <p>You made it. Pull up a chair.</p>
       </div>
+
+      {/* ---- 📌 THE TEAM'S NOTE, AT THE TOP OF THE PAGE (0191) ----
+
+          Ty: "that pin needs to go up on the wall at the very top. That
+          way people can see it."
+
+          It used to sit directly above the feed, which sounded like the
+          top and was not: the composer, the milestone offer, the pledge,
+          the gratitude line, the notifications ask, the invite ask and
+          the tour card all render before it. On a day when two of those
+          are showing, an announcement was most of a screen down and
+          nobody would ever have reported it missing — they would just
+          never have seen it.
+
+          ⚠️ BELOW THE GREETING, NOT ABOVE IT, and that is the one line
+          of this I did not take literally. The note above explains why
+          "Welcome home" is first every time: the moment somebody opens
+          this app is often not a good moment, and the first thing they
+          read should be a chair being pulled out rather than an
+          announcement. So the pin goes directly under it — first thing
+          after hello, above everything else on the page. Say the word
+          and it moves above the greeting too.
+
+          ⚠️ It renders NOTHING when there is no note, so a quiet week
+          leaves this page byte-for-byte what it was. */}
+      <TeamUpdate update={teamUpdate} />
 
       {/* ---- THE MILESTONE OFFER ----
 
