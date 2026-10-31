@@ -26,6 +26,9 @@ export async function deliverPush(admin, subs, rawTo) {
   const dead = [];
   const bumped = [];
   let ok = 0;
+  /* What Apple said, per iPhone — status and reason only, never a token.
+     Shows up in the route's reply (net._http_response) for debugging. */
+  const iphone = [];
 
   if (web.length) {
     const webpush = (await import('web-push')).default;
@@ -53,6 +56,7 @@ export async function deliverPush(admin, subs, rawTo) {
     const res = await sendApns(ios.map((s) => s.endpoint.slice(5)), { title: PUSH_TITLE, body, to, urgent });
     res.forEach((r, i) => {
       const s = ios[i];
+      iphone.push(r.ok ? 'ok' : `${r.status || ''} ${r.reason || ''}`.trim());
       if (r.ok) ok++;
       else if (r.ours) { /* our key's fault, not theirs — leave the row alone */ }
       else if (r.dead || (s.failures ?? 0) >= 9) dead.push(s.id);
@@ -65,5 +69,5 @@ export async function deliverPush(admin, subs, rawTo) {
   }
   if (dead.length) await admin.from('push_subscriptions').delete().in('id', dead);
 
-  return { ok, retired: dead.length };
+  return { ok, retired: dead.length, iphone };
 }

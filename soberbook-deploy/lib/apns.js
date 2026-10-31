@@ -87,7 +87,12 @@ async function batch(host, tokens, body, headers) {
  * @returns {Array<{token:string, ok:boolean, dead:boolean}>}
  */
 export async function sendApns(tokens, { title, body, to, urgent }) {
-  if (!tokens.length || !apnsConfigured()) return [];
+  if (!tokens.length) return [];
+  /* Not set up in Vercel yet: say so instead of going silent, so the
+     route's reply shows it. Never counts against the member's device. */
+  if (!apnsConfigured()) {
+    return tokens.map((token) => ({ token, ok: false, dead: false, ours: true, status: 0, reason: 'not configured' }));
+  }
   const payload = {
     aps: {
       alert: { title, body },
@@ -127,5 +132,7 @@ export async function sendApns(tokens, { title, body, to, urgent }) {
        31 Oct: a fake key gets exactly this. That is never the member's
        phone's fault, so it must not count toward retiring their device. */
     ours: r.status === 403,
+    status: r.status,
+    reason: r.reason,
   }));
 }

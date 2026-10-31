@@ -93,12 +93,12 @@ export async function POST(req) {
 
   /* 31 Oct 2026: website AND iPhone-app devices, one implementation —
      see lib/deliver-push.js. Same retire/count rules as before. */
-  const { ok, retired } = await deliverPush(admin, subs, to);
+  const { ok, retired, iphone } = await deliverPush(admin, subs, to);
   if (ok) {
     await admin.from('push_subscriptions')
       .update({ last_ok_at: new Date().toISOString(), failures: 0 })
       .eq('user_id', n.user_id).gt('failures', 0);
   }
 
-  return NextResponse.json({ ok: true, devices: subs.length, delivered: ok, retired });
+  return NextResponse.json({ ok: true, devices: subs.length, delivered: ok, retired, iphone });
 }
