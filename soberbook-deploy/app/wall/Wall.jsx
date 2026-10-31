@@ -37,6 +37,8 @@ import CoinRow from './CoinRow';
 import CoinSheet from '../components/CoinSheet';
 import CoinList from '../components/CoinList';
 import { applyCoin, myCoin } from '../../lib/coins';
+import StatStrip from './StatStrip';
+import { observeSeen, videoHandlers } from '../../lib/watch';
 
 function ago(iso) {
   const mins = Math.floor((Date.now() - new Date(iso).getTime()) / 60000);
@@ -777,6 +779,10 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
      other a list you read. */
   const [coinFor, setCoinFor] = useState(null);
   const [coinsOf, setCoinsOf] = useState(null);
+  /* 0196 — count a text/photo post as SEEN once it has sat half on screen
+     for 1.5s. Re-armed whenever the list changes; only numbers ever come
+     back out (lib/watch.js). */
+  useEffect(() => observeSeen(supabase), [posts]); // eslint-disable-line react-hooks/exhaustive-deps
   const [menu, setMenu] = useState(null);     // the post whose ⋯ menu is open
   // post ids with a like request in the air. Without this, an impatient
   // double-tap fires insert AND delete at once and the heart ends up
@@ -1822,6 +1828,7 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
           return (
             <article
               key={p.id}
+              data-seen-id={!p.is_mine && !p.video_url && !p.stream_uid ? p.id : undefined}
               className={
                 'item ' + w +
                 (p.is_anonymous ? ' screened' : '') +
@@ -2090,6 +2097,7 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
                 <div className="pphoto pvideo">
                   <video src={urlFor(p.video_url)} controls playsInline
                          onError={() => reSign(p.video_url)}
+                         {...videoHandlers(supabase, p.id, p.is_mine)}
                          preload="none" />
                 </div>
               )}
@@ -2109,7 +2117,7 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
                   above. Both are listed anyway rather than an if/else,
                   because an if/else would quietly hide the day that
                   constraint is ever relaxed. */}
-              {p.stream_uid && <StreamVideo uid={p.stream_uid} />}
+              {p.stream_uid && <StreamVideo uid={p.stream_uid} postId={p.id} mine={p.is_mine} />}
 
               {/* 🏅 THE MILESTONE CELEBRATION — the only gold in the app.
 
@@ -2216,7 +2224,8 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
                   had: never show a zero, and on your own post it is the count, not
                   a button to send. react() below is no longer reachable from here
                   and is kept, like like(), so this is reversible. */}
-              <CoinRow post={p} onSend={() => setCoinFor(p)} onSee={() => setCoinsOf(p)} />
+              <StatStrip post={p} onCoins={() => setCoinsOf(p)} />
+              <CoinRow post={p} onSend={() => setCoinFor(p)} />
 
               {/* 💬 THE INVITATION IS A REAL FIELD NOW.
 
@@ -2296,6 +2305,7 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
           postId={coinFor.id}
           to={coinFor.display_name}
           current={myCoin(coinFor)}
+          allowWords={coinFor.coin_words !== false}
           onClose={() => setCoinFor(null)}
           onDone={(kind) => {
             /* Only after the database said yes (CoinSheet waits), so this

@@ -21,7 +21,7 @@ import { COINS, COIN, NOTE_MAX } from '../../lib/coins';
    ⚠️ onDone(kind|null) is called only AFTER the database said yes. The
    wall does its own optimistic count; this sheet never pretends.
    ===================================================================== */
-export default function CoinSheet({ postId, to, current = null, onClose, onDone }) {
+export default function CoinSheet({ postId, to, current = null, allowWords = true, onClose, onDone }) {
   const supabase = browserClient();
   const [pick, setPick] = useState(current);
   const [note, setNote] = useState('');
@@ -40,7 +40,7 @@ export default function CoinSheet({ postId, to, current = null, onClose, onDone 
     if (!pick || busy) return;
     setBusy(true); setErr('');
     const { error } = await supabase.rpc('send_coin', {
-      p_post: postId, p_kind: pick, p_note: note.trim() || null,
+      p_post: postId, p_kind: pick, p_note: allowWords ? (note.trim() || null) : null,
     });
     setBusy(false);
     if (error) { setErr('That coin didn’t go through. Try again in a moment.'); return; }
@@ -75,11 +75,16 @@ export default function CoinSheet({ postId, to, current = null, onClose, onDone 
           ))}
         </div>
 
-        <label className="coinwords-l" htmlFor="coinwords">Add a few words (optional)</label>
-        <input id="coinwords" className="coinwords" maxLength={NOTE_MAX}
-               value={note} onChange={(e) => setNote(e.target.value)}
-               placeholder="You’ve got this." autoComplete="off" />
-        <p className="coinwords-n">{note.length}/{NOTE_MAX} · only they see this</p>
+        {/* 0196 — the author can switch coin words off for a post. */}
+        {allowWords ? (
+          <>
+            <label className="coinwords-l" htmlFor="coinwords">Add a few words (optional)</label>
+            <input id="coinwords" className="coinwords" maxLength={NOTE_MAX}
+                   value={note} onChange={(e) => setNote(e.target.value)}
+                   placeholder="You’ve got this." autoComplete="off" />
+            <p className="coinwords-n">{note.length}/{NOTE_MAX} · only they see this</p>
+          </>
+        ) : null}
 
         {err ? <p className="coinerr" role="alert">{err}</p> : null}
 

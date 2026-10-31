@@ -125,3 +125,19 @@ button.coincount {
 /* the little coin on a profile's post list line */
 .mmcoin { display: inline-flex; align-items: center; gap: 3px; }
 .mmcoin .sbcoin { vertical-align: -3px; }
+
+/* ---------- 0196 — the stat strip (Seen · Coins · Replies) ---------- */
+.statstrip { display: flex; margin: 12px 0 0; border-top: 1px solid var(--line, #DAD5C7); border-bottom: 1px solid var(--line, #DAD5C7); }
+.statcell { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px;
+  padding: 8px 4px; min-height: 52px; text-align: center; border-right: 1px solid var(--line, #DAD5C7); }
+.statcell:last-child { border-right: 0; }
+.statv { display: inline-flex; align-items: center; gap: 5px; font-size: 18px; font-weight: 800; color: var(--gt, #0F3D2A); line-height: 1.1; }
+.statk { font-size: 11px; color: var(--soft, #5F5B50); text-transform: uppercase; letter-spacing: .05em; }
+.statk.solo { font-size: 13px; font-weight: 700; color: var(--gt, #0F3D2A); }
+.statnew { font-size: 12.5px; font-weight: 800; color: var(--gl, #E8F4ED); background: var(--gd, #1B6B4A); padding: 2px 9px; border-radius: 999px; margin-bottom: 2px; }
+button.statbtn { font: inherit; background: none; border: 0; border-right: 1px solid var(--line, #DAD5C7); cursor: pointer; }
+button.statbtn .statk { text-decoration: underline; text-underline-offset: 2px; }
+.howbtn { display: inline-flex; align-items: center; min-height: 44px; padding: 0 16px; font-weight: 800; font-size: 14px; border-radius: 999px;
+  color: var(--gl, #E8F4ED); background: var(--gd, #1B6B4A); text-decoration: none; }
+.ntfchip { display: grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; font-size: 10px; font-weight: 800; color: #3A2706;
+  background: radial-gradient(circle at 35% 30%, #FFF2B8, #E0B23E 55%, #8A5F0E); }

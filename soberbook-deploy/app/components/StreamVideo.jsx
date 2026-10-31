@@ -1,6 +1,31 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { browserClient } from '../../lib/supabase-browser';
+import { watcherFor } from '../../lib/watch';
+
+/* 0196 — once the member has TAPPED and the player is on screen, Cloudflare's
+   own player SDK reports play/time/end so the post can count as WATCHED
+   (3 seconds or more) and the author gets a "where people stopped" curve.
+   🔴 The SDK is only fetched after the tap, from the same Cloudflare host
+   that serves the player — nothing reaches Cloudflare before somebody
+   chooses to watch. Numbers only ever come back out. */
+const SDK = 'https://embed.cloudflarestream.com/embed/sdk.latest.js';
+let sdkPromise = null;
+function loadSdk() {
+  if (typeof window === 'undefined') return Promise.resolve(null);
+  if (window.Stream) return Promise.resolve(window.Stream);
+  if (!sdkPromise) {
+    sdkPromise = new Promise((resolve) => {
+      const s = document.createElement('script');
+      s.src = SDK; s.async = true;
+      s.onload = () => resolve(window.Stream || null);
+      s.onerror = () => { sdkPromise = null; resolve(null); };
+      document.head.appendChild(s);
+    });
+  }
+  return sdkPromise;
+}
 
 /* =====================================================================
    A VIDEO THAT LIVES ON CLOUDFLARE, PLAYED ONLY WHEN SOMEBODY ASKS.
@@ -24,8 +49,27 @@ import { useState } from 'react';
    it.
    ===================================================================== */
 
-export default function StreamVideo({ uid, label = 'Video' }) {
+export default function StreamVideo({ uid, label = 'Video', postId = null, mine = false }) {
   const [src, setSrc] = useState('');
+  const frame = useRef(null);
+
+  useEffect(() => {
+    if (!src || mine || !postId || !frame.current) return undefined;
+    let gone = false;
+    let player = null;
+    const w = watcherFor(browserClient(), postId);
+    loadSdk().then((Stream) => {
+      if (gone || !Stream || !frame.current) return;
+      try {
+        player = Stream(frame.current);
+        player.addEventListener('play', () => w.play());
+        player.addEventListener('timeupdate', () => w.progress(player.currentTime, player.duration));
+        player.addEventListener('pause', () => w.stop(player.currentTime, player.duration));
+        player.addEventListener('ended', () => w.stop(player.currentTime, player.duration));
+      } catch { /* a count failing must never break the video */ }
+    });
+    return () => { gone = true; };
+  }, [src, postId, mine]);
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState('');
 
@@ -62,6 +106,7 @@ export default function StreamVideo({ uid, label = 'Video' }) {
     return (
       <div className="pphoto pvideo svwrap">
         <iframe
+          ref={frame}
           src={src}
           className="svframe"
           title={label}

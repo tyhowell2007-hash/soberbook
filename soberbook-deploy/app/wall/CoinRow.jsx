@@ -1,42 +1,27 @@
 'use client';
 
+import Link from 'next/link';
 import Coin from '../components/Coin';
-import { COIN, coinTotal, topKinds, myCoin } from '../../lib/coins';
+import { COIN, myCoin } from '../../lib/coins';
 
 /* =====================================================================
-   THE COIN ROW UNDER A POST.  31 Oct 2026 (0195).
+   THE ACTION ROW UNDER A POST.  31 Oct 2026 (0195, reshaped in 0196).
 
-   Replaces the Support / Strength boxes (0149). Same two rules carried
-   over from them, because they were right:
+   The counts moved up into StatStrip (Seen · Coins · Replies). What is
+   left here is the one thing to DO:
 
-   🔴 NEVER SHOW A ZERO. "0 coins" under somebody's worst night is worse
-   than no number at all. With no coins there is no count, just the
-   button.
-
-   🔴 ON YOUR OWN POST IT IS NOT A BUTTON TO SEND, it is the count — you
-   cannot coin yourself (send_coin refuses), and the author is exactly the
-   person who needs to see that people showed up. Tapping it opens who
-   sent what, with their words.
+   · someone else's post — "Send a coin" (or "You sent Proud of you")
+   · your own post — "How it's doing", only you ever see it. You cannot
+     coin yourself (send_coin refuses), and the author is the person who
+     needs to see who showed up.
    ===================================================================== */
-export default function CoinRow({ post, onSend, onSee }) {
-  const total = coinTotal(post);
-  const kinds = topKinds(post);
+export default function CoinRow({ post, onSend }) {
   const mine = myCoin(post);
 
-  const stack = kinds.length ? (
-    <span className="coinstack" aria-hidden="true">
-      {kinds.map((k) => <Coin key={k} kind={k} size={20} />)}
-    </span>
-  ) : null;
-
   if (post.is_mine) {
-    if (!total) return null;
     return (
       <div className="coinrow">
-        <button type="button" className="coincount mine" onClick={onSee}>
-          {stack}
-          <span>{total} {total === 1 ? 'coin' : 'coins'} · see who</span>
-        </button>
+        <Link href={`/p/${post.id}/stats`} className="howbtn">📊 How it’s doing</Link>
       </div>
     );
   }
@@ -48,12 +33,6 @@ export default function CoinRow({ post, onSend, onSee }) {
         <Coin kind={mine || 'proud'} size={26} />
         <span>{mine ? `You sent ${COIN[mine]?.name || 'a coin'}` : 'Send a coin'}</span>
       </button>
-      {total > 0 ? (
-        <span className="coincount" aria-label={`${total} ${total === 1 ? 'coin' : 'coins'}`}>
-          {stack}
-          <span>{total}</span>
-        </span>
-      ) : null}
     </div>
   );
 }

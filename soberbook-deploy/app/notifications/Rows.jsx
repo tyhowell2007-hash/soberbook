@@ -241,9 +241,12 @@ export default function Rows({ initial, askPush: askPushInitial }) {
         const href =
           n.kind === 'message' && n.thread_id ? `/chat/${n.thread_id}` :
           (n.kind === 'reply' || n.kind === 'mention' ||
-           n.kind === 'highlight' || n.kind === 'drop' ||
-           isCoin(n.kind)) && n.post_id
+           n.kind === 'highlight' || n.kind === 'drop') && n.post_id
             ? `/p/${n.post_id}` :
+          /* 0196 — a coin opens your post's coins (names and words); a
+             milestone chip opens "How it's doing". */
+          isCoin(n.kind) && n.post_id ? `/p/${n.post_id}/stats/coins` :
+          n.kind === 'milestone' && n.post_id ? `/p/${n.post_id}/stats` :
           n.kind === 'mention' && n.room_slug ? `/friends?room=${n.room_slug}` :
           /* ⚠️ A friend row goes to the PERSON, and that is the whole
              design of it: Accept and Ignore live on their profile, side
@@ -265,6 +268,7 @@ export default function Rows({ initial, askPush: askPushInitial }) {
           : n.kind === 'drop' ? '🎵'
           /* 0195 — every coin kind, old and new, draws its own coin. */
           : isCoin(n.kind) ? <Coin kind={n.kind} size={26} />
+          : n.kind === 'milestone' ? <span className="ntfchip">{Number(n.detail) >= 1000 ? `${Number(n.detail) / 1000}K` : n.detail}</span>
           : n.kind === 'friend' ? '👋'
           : n.kind === 'meeting' ? '🕐'
           : n.kind === 'checkin' ? '💚'
@@ -288,6 +292,8 @@ export default function Rows({ initial, askPush: askPushInitial }) {
           /* 0195 — support/strength rows from before coins existed read as
              the coins they now are: "I see you" and "Keep going". */
           : isCoin(n.kind) ? `${n.who} sent you a ${COIN[n.kind].name} coin`
+          /* 0196 — no actor: nobody is named, ever, for seeing a post. */
+          : n.kind === 'milestone' ? `Your post earned its ${Number(n.detail).toLocaleString()} chip. ${Number(n.detail).toLocaleString()} people in recovery saw it.`
           /* 🔴 TWO DIFFERENT EVENTS, ONE KIND. `detail` is the only thing
              that tells them apart, and getting it wrong here would be the
              highlight bug again — a row confidently describing something

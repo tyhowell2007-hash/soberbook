@@ -76,6 +76,11 @@ export async function POST(req) {
            : n.kind === 'friend'  ? '/friends'
            : n.kind === 'meeting' ? '/meetings'
            : n.kind === 'checkin' ? '/checkin'   // 0194: "Reach out"
+           /* 0195/0196 — a coin opens your post's coins, a milestone chip
+              opens "How it's doing". The service worker picks the words
+              from these two path endings alone. */
+           : ['support', 'strength', 'proud', 'metoo'].includes(n.kind) && n.post_id ? `/p/${n.post_id}/stats/coins`
+           : n.kind === 'milestone' && n.post_id ? `/p/${n.post_id}/stats`
            : '/wall';
 
   const { data: subs } = await admin
