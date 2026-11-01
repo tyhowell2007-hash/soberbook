@@ -33,11 +33,11 @@ export default async function Card({ params }) {
   if (!c) {
     return (
       <div className="shc">
-        <div className="off">
+        <div className="shoff">
           <b>This card isn’t shared right now.</b>
           <p>Sober Book is a recovery community where you never have to explain yourself.</p>
         </div>
-        <a className="join" href="/login">Join Sober Book</a>
+        <a className="shjoin" href="/login">Join Sober Book</a>
       </div>
     );
   }
@@ -45,17 +45,17 @@ export default async function Card({ params }) {
   const day = dayLine(c.days);
   return (
     <div className="shc">
-      <div className="pcard">
-        <span className="big">{c.avatar || (c.name || c.handle).slice(0, 1).toUpperCase()}</span>
-        <span className="pname">{c.name || '@' + c.handle}</span>
-        {c.name && <span className="phandle">@{c.handle}</span>}
-        {day && <span className="pday">🌱 {day}</span>}
-        <div className="qr" dangerouslySetInnerHTML={{ __html: svg }} />
-        <span className="purl">{cardLabel(c.handle)}</span>
+      <div className="shcard">
+        <span className="shface">{c.avatar || (c.name || c.handle).slice(0, 1).toUpperCase()}</span>
+        <span className="shname">{c.name || '@' + c.handle}</span>
+        {c.name && <span className="shhandle">@{c.handle}</span>}
+        {day && <span className="shday">🌱 {day}</span>}
+        <div className="shqr" dangerouslySetInnerHTML={{ __html: svg }} />
+        <span className="shurl">{cardLabel(c.handle)}</span>
       </div>
-      <a className="join" href={`/u/${c.handle}`}>Open in Sober Book</a>
-      <a className="join ghost" href="/login">New here? Join Sober Book</a>
-      <p className="fine">Sober Book is a recovery community. Posts stay inside the app. You only see what {c.name || '@' + c.handle} chose to share.</p>
+      <a className="shjoin" href={`/u/${c.handle}`}>Open in Sober Book</a>
+      <a className="shjoin shghost" href="/login">New here? Join Sober Book</a>
+      <p className="shfine">Sober Book is a recovery community. Posts stay inside the app. You only see what {c.name || '@' + c.handle} chose to share.</p>
     </div>
   );
 }

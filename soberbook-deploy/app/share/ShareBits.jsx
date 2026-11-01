@@ -45,38 +45,38 @@ export default function ShareBits({ me, svg, url, label }) {
   const day = showDay && me.day_public ? dayLine(me.days) : null;
   return (
     <>
-      <div className="pcard" style={{ opacity: on ? 1 : 0.55 }}>
-        <span className="big">{me.avatar || name.replace('@', '').slice(0, 1).toUpperCase()}</span>
-        <span className="pname">{name}</span>
-        {me.name && <span className="phandle">@{me.handle}</span>}
-        {day && <span className="pday">🌱 {day}</span>}
-        <div className="qr" dangerouslySetInnerHTML={{ __html: svg }} />
-        <span className="purl">{label}</span>
+      <div className="shcard" style={{ opacity: on ? 1 : 0.55 }}>
+        <span className="shface">{me.avatar || name.replace('@', '').slice(0, 1).toUpperCase()}</span>
+        <span className="shname">{name}</span>
+        {me.name && <span className="shhandle">@{me.handle}</span>}
+        {day && <span className="shday">🌱 {day}</span>}
+        <div className="shqr" dangerouslySetInnerHTML={{ __html: svg }} />
+        <span className="shurl">{label}</span>
       </div>
 
-      <div className="row">
+      <div className="shrow">
         <button type="button" onClick={copy}><i>🔗</i>Copy link</button>
         <a href={text} onClick={ensureOn}><i>💬</i>Text it</a>
         <button type="button" onClick={share}><i>⋯</i>More</button>
       </div>
 
-      <div className="opt">
+      <div className="shopt">
         <span>Let people see my card<small>{on ? 'Anyone with the link or QR code can see it.' : 'Off. The link shows nothing about you.'}</small></span>
-        <button type="button" className={`tog${on ? ' on' : ''}`} aria-pressed={on} aria-label="Let people see my card" onClick={flipOn} />
+        <button type="button" className={`shtog${on ? ' shon' : ''}`} aria-pressed={on} aria-label="Let people see my card" onClick={flipOn} />
       </div>
       {me.day_public && (
-        <div className="opt">
+        <div className="shopt">
           <span>Show my day count<small>Only on this card.</small></span>
-          <button type="button" className={`tog${showDay ? ' on' : ''}`} aria-pressed={showDay} aria-label="Show my day count" onClick={flipDay} />
+          <button type="button" className={`shtog${showDay ? ' shon' : ''}`} aria-pressed={showDay} aria-label="Show my day count" onClick={flipDay} />
         </div>
       )}
 
-      <p className="fine">
+      <p className="shfine">
         People who aren’t on Sober Book see {me.anonymous ? 'your @handle' : 'your name, @handle'}{me.day_public ? ' and day count' : ''}, then a button to join.
         Your posts, photos and everything else stay inside the app.
         {me.anonymous ? ' You’re in anonymous mode, so your name and face never show.' : ''}
       </p>
-      {msg && <div className="toast" role="status">{msg}</div>}
+      {msg && <div className="shtoast" role="status">{msg}</div>}
     </>
   );
 }
