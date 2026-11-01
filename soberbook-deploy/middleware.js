@@ -51,6 +51,30 @@ export async function middleware(request) {
      production alias has no `-git-` in it, so one test separates them and
      `soberbook.vercel.app` still forwards exactly as before. */
   const isPreview = host.includes('-git-');
+  /* =====================================================================
+     ⭐ RECOVERYMAP — myrecoverymap.org IS SERVED BY THIS APP. 31 Oct 2026.
+     Ty: "her app that's going in Soberbook" / "get this done tonight".
+
+     Every path on that host is REWRITTEN to /rm/… (the address bar keeps
+     myrecoverymap.org/…). It runs BEFORE the session lookup on purpose:
+     nobody signs in to RecoveryMap, there are no Sober Book cookies on
+     that domain, and a person looking for help must never meet /login.
+
+     ⚠️ www is sent to the bare domain so there is one address (the old
+     Replit site served both, which Google saw as two copies).
+     ⚠️ Images under /rm/… never reach this file (see the matcher), which
+     is why the pages write image paths as /rm/drlabor.jpg on both hosts.
+     ===================================================================== */
+  const bareHost = host.toLowerCase().split(':')[0];
+  if (bareHost === 'www.myrecoverymap.org') {
+    return NextResponse.redirect(new URL(path + request.nextUrl.search, 'https://myrecoverymap.org'), 308);
+  }
+  if (bareHost === 'myrecoverymap.org') {
+    const to = request.nextUrl.clone();
+    to.pathname = path.startsWith('/rm/') || path === '/rm' ? path : '/rm' + (path === '/' ? '' : path);
+    return NextResponse.rewrite(to);
+  }
+
 
   if (host.endsWith('.vercel.app') && !isPreview && !tokenPath) {
     const to = new URL(path + request.nextUrl.search, 'https://soberbook.app');
@@ -231,8 +255,13 @@ export async function middleware(request) {
                    no session, exactly like /api/push/send. It checks the same
                    x-push-secret itself and 404s without it. */
                 '/api/report/triage',
-                '/api/content/cron', '/api/email/notify', '/api/unsub', '/unsub'];
-  const isOpen = open.some((p) => request.nextUrl.pathname.startsWith(p));
+                '/api/content/cron', '/api/email/notify', '/api/unsub', '/unsub',
+                /* 0198: RecoveryMap is public, here as on myrecoverymap.org.
+                   ⚠️ '/rm/' WITH THE SLASH — a bare '/rm' prefix would also
+                   open '/rmteam', the team's back room. '/rm' itself is
+                   matched exactly below. */
+                '/rm/'];
+  const isOpen = open.some((p) => request.nextUrl.pathname.startsWith(p)) || request.nextUrl.pathname === '/rm';
 
   /* 🔴 A STRANGER AT THE FRONT DOOR GETS THE PITCH, NOT A PASSWORD BOX.
      ---------------------------------------------------------------------
