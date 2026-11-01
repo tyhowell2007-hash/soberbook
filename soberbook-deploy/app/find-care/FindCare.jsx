@@ -86,7 +86,7 @@ export default function FindCare({ snapshot }) {
           gives a quote, put it here in her words instead of ours. */}
       <p className="fc-intro">
         <b>{TOTAL_IN_DIRECTORY.toLocaleString()} places</b> to get help — the{' '}
-        <a href="https://myrecoverymap.org" target="_blank" rel="noopener noreferrer">RecoveryMap</a>
+        <a href="/rm">RecoveryMap</a>
         {' '}directory, built by <b>Dr. Nicole Labor</b>.
         {' '}Nobody paid to be on this list, and nobody can.
       </p>
@@ -211,7 +211,7 @@ export default function FindCare({ snapshot }) {
           that stopped working. */}
       <p className="fc-foot">
         Checked {snapshot}. Directory by Dr. Nicole Labor&apos;s{' '}
-        <a href="https://myrecoverymap.org" target="_blank" rel="noopener noreferrer">RecoveryMap</a>,
+        <a href="/rm">RecoveryMap</a>,
         a project of the Laborhood Change Project. Sober Book doesn&apos;t take
         money from treatment centres and never will.
       </p>

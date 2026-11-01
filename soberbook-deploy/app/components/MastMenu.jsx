@@ -228,17 +228,19 @@ export default function MastMenu({ on = false }) {
                 Need someone right now? Call or text 988
                 <span className="mm-crisis-s">Illinois Helpline: 833-234-6343 · text HELP to 833234</span>
               </a>
-              <Link href="/find-care" className="mm-feature">
+              {/* 31 Oct 2026 (late): her name now opens the NEW RecoveryMap
+                  (/rm), the one she approved the look of, instead of the
+                  plain /find-care list. /find-care still works on its own. */}
+              <Link href="/rm" className="mm-feature">
                 <span className="mm-feat-t">Dr. Labor&rsquo;s Recovery Map</span>
                 <span className="mm-feat-s">
                   19,490 places to get help — treatment, detox and sober living,
                   searchable by state and town. Nobody paid to be on it.
                 </span>
               </Link>
-              <a className="mm-ext" href="https://myrecoverymap.org"
-                 target="_blank" rel="noreferrer noopener">
-                myrecoverymap.org ↗
-              </a>
+              {/* The myrecoverymap.org ↗ row is gone for now: until her
+                  domain is pointed at Sober Book it opens her OLD Replit
+                  site. Put it back after the domain switch if wanted. */}
 
               {GROUPS.map((g) => (
                 <div key={g.head}>

@@ -40,6 +40,10 @@ export default function RmLayout({ children }) {
         <a href="tel:18006624357" dangerouslySetInnerHTML={{ __html: t('helpline', L) }} />
         <a href="tel:911" dangerouslySetInnerHTML={{ __html: t('emergency', L) }} />
       </div></div>
+      {/* Inside Sober Book (soberbook.app/rm) there is no app tab bar here,
+          so members get a way back. On myrecoverymap.org b is '' and this
+          never shows: visitors there have never heard of Sober Book. */}
+      {b === '/rm' && <a className="sbback" href="/wall">← {L === 'es' ? 'Volver a Sober Book' : 'Back to Sober Book'}</a>}
       <header className="nav"><div className="wrap">
         <a className="brand" href={b || '/'}>
           <img src="/rm/icon-192.png" alt="" width="40" height="40" />

@@ -65,6 +65,7 @@ html body:has(> .rm){max-width:none;margin:0;border:0;background:transparent;min
 .rm .page{padding-block:28px 72px;display:grid;gap:28px}
 
 /* chrome */
+.rm .sbback{display:block;background:#1B6B4A;color:#fff;text-decoration:none;font-weight:700;font-size:14px;padding:9px max(16px,env(safe-area-inset-left,0px));padding-top:calc(9px + env(safe-area-inset-top,0px))}
 .rm .crisis{background:var(--crisis);color:var(--crisis-ink);font-size:14px}
 .rm .crisis .wrap{padding-block:6px;display:flex;flex-wrap:wrap;gap:4px 16px;justify-content:center}
 .rm .crisis a{color:var(--crisis-ink);text-decoration:none}
