@@ -367,7 +367,7 @@ function Slide({ v, meta, next, onNext, onSwipe, supabase, onCoin, say }) {
 
         <div className="vp-rail">
           {v.is_mine ? (
-            <a className="vp-rbtn vp-how" href={`/p/${v.id}/stats`}><span className="vp-ic">📊</span>How it&rsquo;s doing</a>
+            <a className="vp-rbtn vp-how" href={`/p/${v.id}/stats`}><span className="vp-ic">📈</span>Ripple</a>
           ) : (
             <button type="button" className={'vp-rbtn' + (mine ? ' has' : '')} onClick={coinButton}
                     aria-label={mine ? `You sent ${COIN[mine]?.name}. Change it` : open ? `Drop a coin at ${clock(t)}` : 'Send a coin'}>
@@ -391,7 +391,7 @@ function Slide({ v, meta, next, onNext, onSwipe, supabase, onCoin, say }) {
             ) : null}
             <div className="vp-ebtns">
               {v.is_mine ? (
-                <a className="vp-ebtn main" href={`/p/${v.id}/stats`}>📊 Open How it&rsquo;s doing</a>
+                <a className="vp-ebtn main" href={`/p/${v.id}/stats`}>📈 Open Ripple</a>
               ) : mine ? (
                 <div className="vp-ebtn sent"><Coin kind={mine} size={22} /> You sent {COIN[mine]?.name}</div>
               ) : (

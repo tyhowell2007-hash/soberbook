@@ -21,7 +21,7 @@ export default function CoinRow({ post, onSend }) {
   if (post.is_mine) {
     return (
       <div className="coinrow">
-        <Link href={`/p/${post.id}/stats`} className="howbtn">📊 How it’s doing</Link>
+        <Link href={`/p/${post.id}/stats`} className="howbtn">📈 Ripple</Link>
       </div>
     );
   }
