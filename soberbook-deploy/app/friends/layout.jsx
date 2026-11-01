@@ -15,6 +15,8 @@ import '../photos.css';
 import '../emoji.css';
 import '../tagmenu.css';
 import '../friends.css';
+/* 1 Nov 2026 — the premium look for all three rooms. AFTER friends.css. */
+import '../room-premium.css';
 import NavBar from '../components/NavBar';
 
 export default function FriendsLayout({ children }) {

@@ -1,0 +1,151 @@
+/* =====================================================================
+   🛋️ THE ROOMS, PREMIUM LOOK — 1 Nov 2026.
+   Ty saw the "Front Room" prototype (all three rooms) and said: "I love it.
+   Let's ship it." This file is the LOOK only. It loads after friends.css
+   (friends/layout.jsx) and every rule is scoped under .roomscreen, a class
+   only /friends renders, so it can never reach the wall (the .rwho lesson).
+
+   🔴 WHAT IT DOES NOT ADD, ON PURPOSE: who is here now, typing dots, seen
+   ticks. The rooms have refused those since August (see Room.jsx and the
+   .roomcount note in friends.css): who is in a room at 11pm is a fact
+   about THEM. The prototype showed them; they need Ty's separate yes.
+   ===================================================================== */
+
+.roomscreen .room{
+  font-family:'Plus Jakarta Sans',system-ui,-apple-system,sans-serif;
+  border-radius:22px; padding:14px 13px 12px;
+  background:
+    radial-gradient(120% 60% at 100% 0%, rgba(47,160,115,.20), transparent 60%),
+    radial-gradient(90% 50% at 0% 40%, rgba(240,195,90,.06), transparent 60%),
+    #0F1D17;
+  border:1px solid rgba(255,255,255,.06);
+  box-shadow:0 14px 34px rgba(0,0,0,.22);
+}
+/* The Porch keeps its photograph — the premium glow goes on top of it. */
+.roomscreen .room.rporch{
+  background-image:
+    radial-gradient(120% 60% at 100% 0%, rgba(47,160,115,.18), transparent 60%),
+    linear-gradient(rgba(10,22,17,.74), rgba(10,22,17,.86)),
+    url('/porch.webp');
+  background-size:auto, auto, cover;
+  background-position:center, center, center 28%;
+}
+.roomscreen .room *{ font-family:inherit; }
+
+/* ---------- the room tabs: pills ---------- */
+.roomscreen .rtabs{ gap:8px; margin:0 0 12px; }
+.roomscreen .rtab{
+  min-height:44px; padding:8px 12px; border-radius:14px;
+  background:#16261E; border:1px solid #24382D;
+  color:#BFD2C7; font-family:'Plus Jakarta Sans',system-ui,sans-serif;
+  font-size:13px; font-weight:700;
+}
+.roomscreen .rtab.on{
+  background:linear-gradient(135deg,#2C8A62,#1B6B4A);
+  border-color:#9BE3BC; color:#fff;
+  box-shadow:0 6px 16px rgba(0,0,0,.18);
+}
+
+/* ---------- the room's own header ---------- */
+.roomscreen .roomhead{ gap:11px; margin:0 0 10px; }
+.roomscreen .roomemoji{
+  width:44px; height:44px; flex:none; border-radius:14px;
+  display:grid; place-items:center; font-size:23px;
+  background:linear-gradient(145deg,#3BB383,#1B6B4A 60%,#123D2C);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.25), 0 0 0 1.5px rgba(240,195,90,.45), 0 8px 20px rgba(0,0,0,.3);
+}
+.roomscreen .roomname{
+  font-size:18px; font-weight:800; letter-spacing:-.02em; color:#fff;
+}
+.roomscreen .roomcount{
+  font-size:11.5px; font-weight:700; color:#BFD2C7;
+  background:rgba(255,255,255,.06); border-radius:999px; padding:4px 10px;
+}
+
+/* The blurb. In an anonymous room it becomes the mask card — it is load
+   bearing there (somebody from the Front Room assumes their name shows). */
+.roomscreen .roomblurb{ font-size:13px; line-height:1.5; color:#9FE1CB; margin:0 0 10px; }
+.roomscreen .roomblurb.hush{
+  padding:10px 12px; border-radius:14px; color:#D6E6F7;
+  background:rgba(169,199,240,.10); border:1px solid rgba(169,199,240,.24);
+}
+
+/* The way to the phone numbers: a clear card, never a faint link. */
+.roomscreen .roomhelp{ margin:0 0 12px; }
+.roomscreen .roomhelp a{
+  display:flex; align-items:center; gap:10px; min-height:46px; line-height:1.3;
+  padding:8px 12px; border-radius:14px; border:1px solid rgba(255,138,122,.32);
+  background:rgba(255,138,122,.10); color:#FFE1DC; font-size:13.5px; font-weight:700;
+}
+.roomscreen .roomhelp a::before{ content:'🆘'; font-size:17px; }
+.roomscreen .roomhelp a:hover{ color:#fff; border-color:rgba(255,138,122,.55); }
+
+/* ---------- the conversation ---------- */
+.roomscreen .rmsg{ margin:0 0 12px; }
+.roomscreen .rmsg.grouped{ margin-top:-8px; }
+.roomscreen .roomwho{ font-size:12.5px; font-weight:800; color:#fff; margin:0 0 4px; }
+.roomscreen .roomwho .wholink{ color:#fff; text-decoration:none; border:0; box-shadow:none; }
+.roomscreen .rtime{
+  font-family:'Plus Jakarta Sans',system-ui,sans-serif; letter-spacing:0;
+  font-size:10.5px; font-weight:600; color:#86A094;
+}
+.roomscreen .rbub{
+  padding:10px 14px; border-radius:20px; font-size:15px; line-height:1.45;
+  background:linear-gradient(180deg, rgba(255,255,255,.09), rgba(255,255,255,.055));
+  border:1px solid rgba(255,255,255,.07); color:#EEF5F1;
+}
+.roomscreen .rmsg.grouped .rbub{ border-top-left-radius:8px; }
+.roomscreen .rmsg.mine .rbub{
+  background:linear-gradient(160deg,#36A97B,#1E7A53); border:0; color:#fff;
+  box-shadow:0 6px 18px rgba(30,122,83,.32);
+}
+.roomscreen .rmsg.mine.grouped .rbub{ border-top-left-radius:20px; border-top-right-radius:8px; }
+/* 🔴 YOUR MESSAGES SIT ON THE RIGHT. The row is reversed so the ⋯ lands
+   on the outside; in a reversed row flex-START is the right edge.
+   friends.css had flex-end, which put every one of your messages on the
+   LEFT (Ty's screenshot, 1 Nov). */
+.roomscreen .rmsg.mine .rline{ justify-content:flex-start; }
+.roomscreen .rmsgdots{ color:#86A094; }
+
+/* faces */
+.roomscreen .rface, .roomscreen .rfaceimg, .roomscreen .rfaceemo, .roomscreen .rfaceltr{ width:34px; height:34px; }
+.roomscreen .rmsg{ grid-template-columns:34px 1fr; }
+.roomscreen .rmsg.mine{ grid-template-columns:1fr; }
+.roomscreen .rfaceltr{ background:#B7E4D0; color:#0B1511; font-weight:800; font-size:14px; }
+.roomscreen .rfaceemo{ background:rgba(255,255,255,.08); font-size:18px; }
+
+/* reactions: small chips tucked under the bubble */
+.roomscreen .rxp{
+  background:#17281F; border:1.5px solid rgba(255,255,255,.06);
+  padding:3px 9px 3px 6px; box-shadow:0 2px 6px rgba(0,0,0,.25);
+  font-family:'Plus Jakarta Sans',system-ui,sans-serif;
+}
+.roomscreen .rxp.on{ background:#235C43; border-color:#2FA073; }
+.roomscreen .rxn{ font-size:11.5px; font-weight:800; }
+.roomscreen .rxadd{ border-radius:999px; }
+.roomscreen .rxbar{ border-radius:999px; background:#1B2D24; border:1px solid rgba(255,255,255,.08); box-shadow:0 10px 26px rgba(0,0,0,.45); }
+
+/* "New since you were here" — a gold hairline */
+.roomscreen .rnew::before, .roomscreen .rnew::after{ border-top-color:rgba(240,195,90,.35); }
+.roomscreen .rnew span{ font-family:'Plus Jakarta Sans',system-ui,sans-serif; color:#F0C35A; letter-spacing:.08em; }
+
+/* empty state, nudge, photo caution */
+.roomscreen .roomempty{ color:#9FB7AA; font-size:13.5px; }
+.roomscreen .rnudge, .roomscreen .rshade{ border-radius:14px; }
+
+/* ---------- the message box ---------- */
+.roomscreen .rbar{
+  gap:6px; padding:6px; border-radius:26px;
+  background:linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.05));
+  border:1px solid rgba(255,255,255,.1); box-shadow:0 10px 28px rgba(0,0,0,.3);
+}
+.roomscreen .remo, .roomscreen .rpick{ border:0; background:rgba(255,255,255,.06); border-radius:50%; }
+.roomscreen .rin{ border:0; background:transparent; border-radius:18px; padding:10px 6px; }
+.roomscreen .rin:focus{ box-shadow:none; outline:none; }
+.roomscreen .rgo{
+  border-radius:999px; padding:10px 18px;
+  background:linear-gradient(145deg,#3BB383,#1B6B4A); color:#fff;
+  font-family:'Plus Jakarta Sans',system-ui,sans-serif; font-weight:800;
+  box-shadow:0 6px 16px rgba(47,160,115,.4);
+}
+.roomscreen .rbar .phserr{ margin:6px 8px 2px; }
