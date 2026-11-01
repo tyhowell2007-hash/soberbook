@@ -75,6 +75,18 @@ export async function middleware(request) {
     return NextResponse.rewrite(to);
   }
 
+  /* ⭐ 0199 — SHARE MY PROFILE. soberbook.app/@handle is the address on
+     the QR card; it is drawn by /card/<handle>, which is open (see the
+     list below). Only a plain @handle is rewritten, nothing else. */
+  {
+    const m = /^\/(?:@|%40)([A-Za-z0-9_.]{1,40})\/?$/.exec(path);
+    if (m) {
+      const to = request.nextUrl.clone();
+      to.pathname = '/card/' + m[1];
+      return NextResponse.rewrite(to);
+    }
+  }
+
 
   if (host.endsWith('.vercel.app') && !isPreview && !tokenPath) {
     const to = new URL(path + request.nextUrl.search, 'https://soberbook.app');
@@ -260,7 +272,11 @@ export async function middleware(request) {
                    ⚠️ '/rm/' WITH THE SLASH — a bare '/rm' prefix would also
                    open '/rmteam', the team's back room. '/rm' itself is
                    matched exactly below. */
-                '/rm/'];
+                '/rm/',
+                /* 0199: the public share card (soberbook.app/@handle). It shows
+                   only what share_card() returns, and nothing at all for a card
+                   that is turned off. */
+                '/card/'];
   const isOpen = open.some((p) => request.nextUrl.pathname.startsWith(p)) || request.nextUrl.pathname === '/rm';
 
   /* 🔴 A STRANGER AT THE FRONT DOOR GETS THE PITCH, NOT A PASSWORD BOX.

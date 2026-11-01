@@ -1,0 +1,26 @@
+/* Share my profile (0199): /share and the public /card page. Scoped to .shc. */
+.shc{max-width:440px;margin:0 auto;padding:18px 16px 110px;display:grid;gap:16px;font-family:'Plus Jakarta Sans',system-ui,-apple-system,sans-serif}
+.shc .pcard{border-radius:22px;padding:22px 18px;background:linear-gradient(160deg,#1B6B4A,#2C8A62 60%,#E0B23E 140%);color:#fff;display:grid;justify-items:center;gap:6px;text-align:center;box-shadow:0 10px 26px rgba(27,107,74,.28)}
+.shc .big{width:72px;height:72px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:32px;border:3px solid rgba(255,255,255,.7);background:#145A3D}
+.shc .pname{font-size:22px;font-weight:800;line-height:1.15}
+.shc .phandle{font-size:15px;color:#D5EEE1;font-weight:700}
+.shc .pday{font-size:13px;background:rgba(255,255,255,.16);border-radius:999px;padding:5px 12px;font-weight:700}
+.shc .qr{background:#fff;border-radius:16px;padding:8px;margin-top:10px;width:190px;height:190px}
+.shc .qr svg{width:100%;height:100%;display:block}
+.shc .purl{font-size:13.5px;font-weight:700;opacity:.95;word-break:break-all}
+.shc .row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.shc .row button,.shc .row a{display:grid;justify-items:center;gap:6px;font-size:12.5px;font-weight:700;color:#3b443f;background:none;border:0;cursor:pointer;text-decoration:none;font-family:inherit}
+.shc .row i{font-style:normal;width:52px;height:52px;border-radius:50%;background:#F1F0EB;display:grid;place-items:center;font-size:22px}
+.shc .opt{display:flex;justify-content:space-between;align-items:center;gap:12px;font-size:14px;padding:12px 14px;border-radius:14px;background:#fff;border:1px solid #E7E4DD;color:#16201B}
+.shc .opt small{display:block;color:#66706A;font-size:12px;margin-top:2px}
+.shc .tog{flex:0 0 auto;width:46px;height:26px;border-radius:999px;background:#CFCBC2;position:relative;border:0;cursor:pointer}
+.shc .tog::after{content:"";position:absolute;left:3px;top:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:left .15s}
+.shc .tog.on{background:#1B6B4A}.shc .tog.on::after{left:23px}
+.shc .fine{font-size:12.5px;color:#66706A;line-height:1.5;text-align:center}
+.shc .off{border-radius:22px;padding:22px 18px;background:#fff;border:1px dashed #CFCBC2;text-align:center;display:grid;gap:8px;color:#3b443f}
+.shc .off b{font-size:17px;color:#16201B}
+.shc .join{display:block;text-align:center;background:#1B6B4A;color:#fff;border-radius:14px;padding:14px;font-weight:800;font-size:16px;text-decoration:none}
+.shc .join.ghost{background:#fff;color:#1B6B4A;border:2px solid #1B6B4A}
+.shc .toast{position:fixed;left:50%;bottom:96px;transform:translateX(-50%);background:#16201B;color:#fff;border-radius:999px;padding:9px 16px;font-size:13px;font-weight:700;z-index:60}
+.shc h1.sh-h{font-family:'Plus Jakarta Sans',system-ui,sans-serif;text-transform:none;text-shadow:none;font-size:24px;font-weight:800;color:#16201B;margin:0;line-height:1.2}
+.shc .sh-sub{font-size:14px;color:#66706A;margin-top:-8px}

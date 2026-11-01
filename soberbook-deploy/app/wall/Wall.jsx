@@ -144,7 +144,9 @@ function who(p) {
   return (
     <>
       <Link href={`/u/${p.author_handle}`} className="wholink">
-        {p.display_name}
+        {/* 0199: a name that IS the handle shows as @handle. */}
+        {String(p.display_name || '').toLowerCase() === String(p.author_handle).toLowerCase()
+          ? '@' + p.author_handle : p.display_name}
       </Link>
       {/* Gold checkmark for verified artists. Keyed on author_handle,
           which is NULL on anonymous posts — see ArtistCheck. */}
@@ -1210,6 +1212,8 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
             resolves the ambiguity in every case without removing
             anything: the account is named, under the greeting, always. */}
         {me.handle && <p className="whoami">Signed in as @{me.handle}</p>}
+        {/* 0199 — Share my profile (the QR card). */}
+        {me.handle && <p className="whoami"><Link href="/share" className="sharelink" style={{ fontWeight: 700, textDecoration: 'underline' }}>Share my profile ↗</Link></p>}
         <p>You made it. Pull up a chair.</p>
       </div>
 
@@ -1930,6 +1934,11 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
                     ) : null}
                   </span>
                   <span className="mt">
+                    {/* ⭐ 0199 — the @handle, Ty's call (1 Nov). Only when the
+                        post has a handle (never on anonymous posts) and the
+                        name above isn't already the handle. */}
+                    {p.author_handle && String(p.display_name || '').toLowerCase() !== String(p.author_handle).toLowerCase()
+                      ? `@${p.author_handle} · ` : ''}
                     {ago(p.created_at)}
                     {p.is_anonymous ? ' · anonymous' : ''}
                   </span>
