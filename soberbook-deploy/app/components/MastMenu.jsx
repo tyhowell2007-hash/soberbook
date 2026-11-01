@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import RmCard from './RmCard';
 
 /* =====================================================================
    EVERYTHING ELSE — the drawer.  18 Sept 2026.
@@ -231,13 +232,7 @@ export default function MastMenu({ on = false }) {
               {/* 31 Oct 2026 (late): her name now opens the NEW RecoveryMap
                   (/rm), the one she approved the look of, instead of the
                   plain /find-care list. /find-care still works on its own. */}
-              <Link href="/rm" className="mm-feature">
-                <span className="mm-feat-t">Dr. Labor&rsquo;s Recovery Map</span>
-                <span className="mm-feat-s">
-                  19,490 places to get help — treatment, detox and sober living,
-                  searchable by state and town. Nobody paid to be on it.
-                </span>
-              </Link>
+              <RmCard />
               {/* The myrecoverymap.org ↗ row is gone for now: until her
                   domain is pointed at Sober Book it opens her OLD Replit
                   site. Put it back after the domain switch if wanted. */}

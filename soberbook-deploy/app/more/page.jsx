@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import RmCard from '../components/RmCard';
 
 /* =====================================================================
    /more — THE TAB THAT REPLACED THE UNLABELLED ☰, 20 Sept.
@@ -73,13 +74,7 @@ export default function MorePage() {
         {/* Her map leads, exactly as it does in the drawer — same row,
             same words. See MastMenu for why it claims she built the
             directory and not that she endorses Sober Book. */}
-        <Link href="/rm" className="mm-feature" style={{ margin: '0 0 10px' }}>
-          <span className="mm-feat-t">Dr. Labor&rsquo;s Recovery Map</span>
-          <span className="mm-feat-s">
-            19,490 places to get help — treatment, detox and sober living,
-            searchable by state and town. Nobody paid to be on it.
-          </span>
-        </Link>
+        <RmCard />
 
         {GROUPS.map((g) => (
           <section key={g.head} className="mo-grp">

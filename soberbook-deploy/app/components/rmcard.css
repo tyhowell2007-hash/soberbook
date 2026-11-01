@@ -1,0 +1,19 @@
+/* Dr. Labor's RecoveryMap card (components/RmCard.jsx). Fixed colours on
+   purpose: it is HER brand, the same in Sober Book's cream, green and
+   black themes. Every rule is under .rmcard so nothing else moves. */
+.rmcard{display:grid;grid-template-columns:auto 1fr;gap:10px 14px;align-items:center;text-decoration:none;color:#fff;
+  background:radial-gradient(120% 140% at 0% 0%,#7B4FE0 0%,#4A2A9A 45%,#2A1858 100%);
+  border-radius:18px;padding:16px;margin:0 0 12px;box-shadow:0 8px 22px rgba(74,42,154,.35);
+  position:relative;overflow:hidden;transition:transform .15s;-webkit-tap-highlight-color:transparent}
+.rmcard:active{transform:scale(.98)}
+.rmcard:focus-visible{outline:3px solid #F0C35A;outline-offset:3px}
+.rmcard::after{content:"";position:absolute;right:-40px;top:-40px;width:140px;height:140px;border-radius:50%;
+  background:radial-gradient(circle,rgba(240,195,90,.35),transparent 70%);pointer-events:none}
+.rmcard img{width:58px;height:58px;border-radius:14px;box-shadow:0 0 0 2px rgba(240,195,90,.55);position:relative;z-index:1;display:block}
+.rmcard-t{position:relative;z-index:1;display:grid;gap:3px}
+.rmcard-t b{font-family:'Bricolage Grotesque',system-ui,-apple-system,sans-serif;font-weight:800;font-size:22px;line-height:1;letter-spacing:-.02em;color:#fff;text-transform:none}
+.rmcard-t i{font-style:normal;font-weight:700;font-size:13px;color:#D9C7FF}
+.rmcard-s{grid-column:1/-1;position:relative;z-index:1;font-size:13.5px;line-height:1.4;color:#EFE8FF}
+.rmcard-go{grid-column:1/-1;position:relative;z-index:1;display:flex;justify-content:space-between;align-items:center;
+  background:rgba(255,255,255,.14);border-radius:12px;padding:10px 14px;font-weight:700;font-size:15px;color:#fff}
+.rmcard-go em{font-style:normal;background:#F0C35A;color:#241A02;border-radius:999px;padding:4px 12px;font-size:14px}
