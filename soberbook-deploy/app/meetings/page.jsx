@@ -3,7 +3,8 @@ import Link from 'next/link';
 import { serverClient, assertReadable } from '../../lib/supabase-server';
 import { fetchMeetings, SOURCE } from '../../lib/meetings';
 import List from './List';
-import Rooms from './Rooms';
+/* 1 Nov 2026 — Talk Rooms replaces the Daily "Start a room" box (Rooms.jsx, left unlinked). */
+import TalkCard from './TalkCard';
 
 /* =====================================================================
    MEETINGS.
@@ -87,7 +88,7 @@ export default async function MeetingsPage() {
           not lose the room somebody here has open because a volunteer
           server in another state is down. */}
       <div className="pad" style={{ paddingBottom: 0 }}>
-        <Rooms />
+        <TalkCard />
       </div>
 
       {/* ⭐ FOR WHEN A MEETING ISN'T THE THING.
