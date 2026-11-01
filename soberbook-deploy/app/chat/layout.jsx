@@ -37,13 +37,16 @@ import '../convo.css';
    same patch there. It now lives in globals.css, which the ROOT layout
    imports, and is deleted from photos.css. Do not re-add it here. */
 import '../photos.css';
+/* 1 Nov 2026 — the premium look. LAST, so it wins; scoped to .chatx below. */
+import '../chat-premium.css';
 
 import NavBar from '../components/NavBar';
 
 export default function ChatLayout({ children }) {
   return (
     <>
-      {children}
+      {/* .chatx scopes chat-premium.css to these pages only. */}
+      <div className="chatx">{children}</div>
       <div className="navpad" aria-hidden="true" />
       <NavBar />
     </>
