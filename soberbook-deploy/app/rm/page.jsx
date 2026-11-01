@@ -21,7 +21,7 @@ export default async function Home() {
           <form className="search" action={`${b}/search`} method="get" role="search">
             <input name="near" placeholder={t('near_ph', L)} aria-label={t('near_ph', L)} autoComplete="postal-code" />
             <NearMe action={`${b}/search`} label={t('near_me', L)} />
-            <button className="btn" type="submit">{t('find', L)}</button>
+            <button className="rm-btn" type="submit">{t('find', L)}</button>
           </form>
           <a href={`${b}/guide`} style={{ fontWeight: 700 }}>{t('not_sure', L)}</a>
         </div>
@@ -60,7 +60,7 @@ export default async function Home() {
         </div>
       </section>
 
-      <div className="banner"><div style={{ display: 'grid', gap: 4 }}><b>{es ? 'Lleve Narcan. Es gratis y salva vidas.' : 'Carry Narcan. It’s free, and it saves lives.'}</b><span>{es ? 'Dónde conseguirlo y cómo usarlo en 30 segundos.' : 'Where to get it, and how to use it in 30 seconds.'}</span></div><a className="btn" href={`${b}/narcan`}>Narcan</a></div>
+      <div className="banner"><div style={{ display: 'grid', gap: 4 }}><b>{es ? 'Lleve Narcan. Es gratis y salva vidas.' : 'Carry Narcan. It’s free, and it saves lives.'}</b><span>{es ? 'Dónde conseguirlo y cómo usarlo en 30 segundos.' : 'Where to get it, and how to use it in 30 seconds.'}</span></div><a className="rm-btn" href={`${b}/narcan`}>Narcan</a></div>
 
       <div className="quote">
         <img src="/rm/wordmark.jpg" alt="The Addicts Doc" width="520" height="69" />
@@ -95,11 +95,11 @@ export default async function Home() {
       </section>
 
       <div className="grid2">
-        <div className="card lav"><h3>{es ? '¿Busca ayuda para alguien que ama?' : 'Looking for someone you love?'}</h3><p>{es ? 'Busque de la misma manera y, si pueden, llamen juntos.' : 'Search the same way, then call together if you can. Most programs talk to family members, even if they can’t share details without permission.'}</p><a className="btn sm" href={`${b}/for-you#family`}>{es ? 'Empiece aquí' : 'Start here'}</a></div>
-        <div className="card teal"><h3>{es ? '¿Toma medicamentos? Usted es bienvenido.' : 'On medication? You belong here.'}</h3><p>{es ? 'Suboxone, metadona y Vivitrol cuentan como recuperación.' : 'Suboxone, methadone and Vivitrol count as recovery. Filter for programs and houses that welcome it.'}</p><a className="btn teal sm" href={`${b}/search?near=&level=medication_assisted`}>{es ? 'Programas con medicamentos' : 'Programs with medication'}</a></div>
+        <div className="card lav"><h3>{es ? '¿Busca ayuda para alguien que ama?' : 'Looking for someone you love?'}</h3><p>{es ? 'Busque de la misma manera y, si pueden, llamen juntos.' : 'Search the same way, then call together if you can. Most programs talk to family members, even if they can’t share details without permission.'}</p><a className="rm-btn sm" href={`${b}/for-you#family`}>{es ? 'Empiece aquí' : 'Start here'}</a></div>
+        <div className="card teal"><h3>{es ? '¿Toma medicamentos? Usted es bienvenido.' : 'On medication? You belong here.'}</h3><p>{es ? 'Suboxone, metadona y Vivitrol cuentan como recuperación.' : 'Suboxone, methadone and Vivitrol count as recovery. Filter for programs and houses that welcome it.'}</p><a className="rm-btn teal sm" href={`${b}/search?near=&level=medication_assisted`}>{es ? 'Programas con medicamentos' : 'Programs with medication'}</a></div>
       </div>
 
-      <div className="sbk"><b>{es ? '¿Necesita personas, no solo un programa?' : 'Need people, not just a program?'}</b><p>{es ? 'Sober Book es una red social gratuita para personas en recuperación, de todos los caminos.' : 'Sober Book is a free social network for people in recovery, every path, every day count. Talk to someone who’s been there, any hour.'}</p><a className="btn sm" href="https://soberbook.app">{es ? 'Únase a Sober Book' : 'Join Sober Book'}</a></div>
+      <div className="sbk"><b>{es ? '¿Necesita personas, no solo un programa?' : 'Need people, not just a program?'}</b><p>{es ? 'Sober Book es una red social gratuita para personas en recuperación, de todos los caminos.' : 'Sober Book is a free social network for people in recovery, every path, every day count. Talk to someone who’s been there, any hour.'}</p><a className="rm-btn sm" href="https://soberbook.app">{es ? 'Únase a Sober Book' : 'Join Sober Book'}</a></div>
 
       <section style={{ display: 'grid', gap: 12 }}>
         <h2>{es ? 'Nuestras promesas' : 'Our promises'}</h2>

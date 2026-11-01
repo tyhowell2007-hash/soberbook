@@ -110,7 +110,7 @@ export default async function Place({ params }) {
           ) : null}
           <NumberWorked center={c.id} lang={L} />
           <SendList label={t('send_phone', L)} lang={L} rows={[{ n: n.name, c: `${c.city}, ${c.state}`, ...main }]} />
-          <div className="card"><h3>{t('before_call', L)}</h3><ul className="ask"><li>{t('q1', L)}</li><li>{t('q2', L)}</li><li>{t('q3', L)}</li><li>{t('q4', L)}</li></ul></div>
+          <div className="card"><h3>{t('before_call', L)}</h3><ul className="rm-ask"><li>{t('q1', L)}</li><li>{t('q2', L)}</li><li>{t('q3', L)}</li><li>{t('q4', L)}</li></ul></div>
           {near.length > 0 && (
             <div className="card near"><h3>{t('closest_other', L)}</h3>
               {near.map((o) => <div key={o.slug}><a href={b + placePath(o)}>{cleanName(o.name).name}</a><b>{o.mi < 1 ? o.city : `${Math.round(o.mi)} mi`}</b></div>)}

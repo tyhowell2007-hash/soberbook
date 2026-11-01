@@ -22,7 +22,7 @@ export default function Meetings() {
       <div style={{ display: 'grid', gap: 10 }}><div className="eyebrow">{es ? 'Reuniones' : 'Meetings'}</div><h1>{es ? 'Reuniones gratuitas, en persona y en línea' : 'Free meetings, in person and online'}</h1>
         <p className="lede">{es ? 'Cada enlace abre el buscador oficial de esa comunidad. Pronto: los horarios de esta noche cerca de usted, aquí mismo.' : 'Each one opens that fellowship’s own official meeting finder, which is always current. Coming next: tonight’s meeting times near you, right here.'}</p></div>
       <div className="list">{M.map(([n, d, u]) => (
-        <div className="item" key={n}><div><b>{n}</b><p>{d}</p></div><a className="btn sm" href={u} target="_blank" rel="noopener noreferrer">{es ? 'Buscar reunión' : 'Find a meeting'}</a></div>
+        <div className="rm-item" key={n}><div><b>{n}</b><p>{d}</p></div><a className="rm-btn sm" href={u} target="_blank" rel="noopener noreferrer">{es ? 'Buscar reunión' : 'Find a meeting'}</a></div>
       ))}</div>
       <div className="card lav"><h3>{es ? 'Centros de recuperación entre pares' : 'Peer recovery centers'}</h3><p>{es ? 'Lugares dirigidos por personas en recuperación: café, un aventón a una reunión, alguien con quien hablar. Estamos armando la lista de Ohio.' : 'Drop-in places run by people in recovery: coffee, a ride to a meeting, someone to talk to. No program needed. We’re building the Ohio list now.'}</p></div>
     </div>

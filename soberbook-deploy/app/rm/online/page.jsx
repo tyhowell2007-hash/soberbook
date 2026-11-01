@@ -35,7 +35,7 @@ export default function Online() {
         <p className="lede">{es ? 'Telemedicina con licencia, y algunas apps y comunidades, etiquetadas por lo que son. Ninguna empresa paga por aparecer.' : 'Licensed telehealth, plus a few apps and communities, labeled for what they are. No company pays to be on this page. Coverage changes by state and plan, so check each one.'}</p></div>
       {G.map(([h, items]) => (
         <section key={h} className="list"><h2>{h}</h2>
-          {items.map(([n, d, u]) => <div className="item" key={n}><div><b>{n}</b><p>{d}</p></div><a className="btn ghost sm" href={u} target="_blank" rel="noopener noreferrer">{es ? 'Visitar' : 'Visit'}</a></div>)}
+          {items.map(([n, d, u]) => <div className="rm-item" key={n}><div><b>{n}</b><p>{d}</p></div><a className="rm-btn ghost sm" href={u} target="_blank" rel="noopener noreferrer">{es ? 'Visitar' : 'Visit'}</a></div>)}
         </section>
       ))}
     </div>

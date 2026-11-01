@@ -18,8 +18,8 @@ export function NumberWorked({ center, lang }) {
   return (
     <div className="worked">
       <b>{es ? '¿Funcionó este número?' : 'Did this number work?'}</b>
-      <button type="button" className="btn ok sm" onClick={() => say(true)}>{es ? 'Sí' : 'Yes'}</button>
-      <button type="button" className="btn no sm" onClick={() => say(false)}>No</button>
+      <button type="button" className="rm-btn rm-ok sm" onClick={() => say(true)}>{es ? 'Sí' : 'Yes'}</button>
+      <button type="button" className="rm-btn no sm" onClick={() => say(false)}>No</button>
     </div>
   );
 }
@@ -76,7 +76,7 @@ export function UpdateForm({ center, lang }) {
       </div>
       <div className="hp" aria-hidden="true"><label>Website<input name="website2" tabIndex={-1} autoComplete="off" /></label></div>
       <p className="small">{es ? 'Su nombre y correo se mantienen privados. Solo los usamos si necesitamos preguntarle sobre su actualización.' : 'Your name and email stay private. We only use them if we need to ask about your update.'}</p>
-      <button className="btn sm" type="submit" disabled={state.busy}>{state.busy ? '…' : (es ? 'Enviar' : 'Send update')}</button>
+      <button className="rm-btn sm" type="submit" disabled={state.busy}>{state.busy ? '…' : (es ? 'Enviar' : 'Send update')}</button>
       {state.msg && <p role="alert" className="small" style={{ color: 'var(--no)' }}>{state.msg}</p>}
     </form>
   );

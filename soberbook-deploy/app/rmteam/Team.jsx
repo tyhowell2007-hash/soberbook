@@ -39,9 +39,9 @@ export default function Team() {
     if (error) setErr(error.message); else load();
   };
 
-  if (err) return <div className="page"><p className="empty">{err}</p></div>;
+  if (err) return <div className="page"><p className="rm-empty">{err}</p></div>;
   if (!me) return <div className="page"><p className="small">Loading…</p></div>;
-  if (!me.review) return <div className="page"><div className="empty"><h1>Team only</h1><p className="small">This screen is for the RecoveryMap team.</p></div></div>;
+  if (!me.review) return <div className="page"><div className="rm-empty"><h1>Team only</h1><p className="small">This screen is for the RecoveryMap team.</p></div></div>;
 
   return (
     <div className="page">
@@ -73,18 +73,18 @@ export default function Team() {
 
       {tab === 'updates' && (
         <div className="list">
-          {queue.length === 0 && <p className="empty">No updates yet. They arrive from “Work here? Send an update” on any listing.</p>}
+          {queue.length === 0 && <p className="rm-empty">No updates yet. They arrive from “Work here? Send an update” on any listing.</p>}
           {queue.map((u) => (
             <div key={u.id} className="card" style={{ opacity: u.status === 'pending' ? 1 : 0.65 }}>
-              <div className="bar"><div><h3><a href={'/rm' + placePath(u)} target="_blank" rel="noreferrer">{cleanName(u.name).name}</a></h3><p className="small">{u.city}, {u.state} · listed phone {u.phone} · sent {new Date(u.created_at).toLocaleDateString()}{u.sender_role ? ` · from: ${u.sender_role}` : ''}</p></div>
+              <div className="rm-bar"><div><h3><a href={'/rm' + placePath(u)} target="_blank" rel="noreferrer">{cleanName(u.name).name}</a></h3><p className="small">{u.city}, {u.state} · listed phone {u.phone} · sent {new Date(u.created_at).toLocaleDateString()}{u.sender_role ? ` · from: ${u.sender_role}` : ''}</p></div>
                 <span className="pill p-both">{u.status}</span></div>
               <dl>{Object.entries(u.facts || {}).map(([k, v]) => <div className="row" key={k}><dt>{FACT[k] || k}</dt><dd>{String(v)}</dd></div>)}</dl>
               {u.status === 'pending' && (
                 <div className="actions">
-                  <button className="btn ok sm" type="button" onClick={() => decide(u.id, 'approve')}>Approve (live as provider-reported)</button>
+                  <button className="rm-btn rm-ok sm" type="button" onClick={() => decide(u.id, 'approve')}>Approve (live as provider-reported)</button>
                   {me.doctor && <><input aria-label="Your note" placeholder="Your note (optional)" maxLength={400} onChange={(e) => { window.__rmNote = { ...(window.__rmNote || {}), [u.id]: e.target.value }; }} style={{ padding: 8, borderRadius: 10, border: '1px solid var(--line)', flex: '1 1 220px' }} />
-                    <button className="btn gold sm" type="button" onClick={() => decide(u.id, 'verify')}>Check &amp; add my badge</button></>}
-                  <button className="btn no sm" type="button" onClick={() => decide(u.id, 'decline')}>Turn down</button>
+                    <button className="rm-btn gold sm" type="button" onClick={() => decide(u.id, 'verify')}>Check &amp; add my badge</button></>}
+                  <button className="rm-btn no sm" type="button" onClick={() => decide(u.id, 'decline')}>Turn down</button>
                 </div>
               )}
             </div>
@@ -97,8 +97,8 @@ export default function Team() {
         <div className="list">
           <p className="small">Next Ohio listings to call, never-checked first. Call the number, then mark what happened.</p>
           {calls.map((c) => (
-            <div className="item" key={c.id}><div><b>{cleanName(c.name).name}</b><p>{c.city} · {c.admissions_phone || c.phone}{c.last_result ? ` · last: ${RESULT[c.last_result]} ${c.checked_on}` : ''}</p></div>
-              <div className="actions">{Object.entries(RESULT).map(([k, l]) => <button key={k} className={`btn sm ${k === 'works' ? 'ok' : 'ghost'}`} type="button" onClick={() => check(c.id, k)}>{l}</button>)}</div></div>
+            <div className="rm-item" key={c.id}><div><b>{cleanName(c.name).name}</b><p>{c.city} · {c.admissions_phone || c.phone}{c.last_result ? ` · last: ${RESULT[c.last_result]} ${c.checked_on}` : ''}</p></div>
+              <div className="actions">{Object.entries(RESULT).map(([k, l]) => <button key={k} className={`rm-btn sm ${k === 'works' ? 'rm-ok' : 'ghost'}`} type="button" onClick={() => check(c.id, k)}>{l}</button>)}</div></div>
           ))}
         </div>
       )}
@@ -106,7 +106,7 @@ export default function Team() {
       {tab === 'badge' && me.doctor && <BadgeTool sb={sb} onDone={load} />}
 
       {tab === 'launch' && (
-        <div className="card"><h3>Before myrecoverymap.org switches over</h3><ul className="ask">
+        <div className="card"><h3>Before myrecoverymap.org switches over</h3><ul className="rm-ask">
           <li>Dr. Labor approves her bio, the plain-English explanations, the Narcan steps, “Start here for…”, Ask the Doc and the guide (then flip CONTENT_APPROVED in lib/rm/words.js).</li>
           <li>Attorney reviews the privacy page, terms, “no referral fees” wording and the gold badge.</li>
           <li>A native Spanish speaker reads the Spanish once.</li>
@@ -139,7 +139,7 @@ function BadgeTool({ sb, onDone }) {
   return (
     <div className="card" style={{ gap: 14 }}>
       <h3>Add your gold badge to a listing</h3>
-      <form className="search" onSubmit={find}><input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Program name or town" aria-label="Program name or town" /><button className="btn" type="submit">Find</button></form>
+      <form className="search" onSubmit={find}><input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Program name or town" aria-label="Program name or town" /><button className="rm-btn" type="submit">Find</button></form>
       {msg && <p role="status" className="small">{msg}</p>}
       {rows.map((r) => <BadgeRow key={r.id} r={r} onSet={set} onClear={clear} />)}
     </div>
@@ -149,11 +149,11 @@ function BadgeRow({ r, onSet, onClear }) {
   const [note, setNote] = useState('');
   const [pick, setPick] = useState(false);
   return (
-    <div className="item" style={{ alignItems: 'start' }}>
+    <div className="rm-item" style={{ alignItems: 'start' }}>
       <div style={{ display: 'grid', gap: 6 }}><b>{cleanName(r.name).name}</b><p>{r.city}, {r.state} · {r.phone}</p>
         <input value={note} onChange={(e) => setNote(e.target.value)} maxLength={400} placeholder="Your note: what this place does well, what to ask for" style={{ padding: 8, borderRadius: 10, border: '1px solid var(--line)' }} />
         <label className="small"><input type="checkbox" checked={pick} onChange={(e) => setPick(e.target.checked)} /> Show on the home page as one of my picks</label></div>
-      <div className="actions"><button className="btn gold sm" type="button" onClick={() => onSet(r.id, note, pick)}>Add my badge</button><button className="btn ghost sm" type="button" onClick={() => onClear(r.id)}>Remove</button></div>
+      <div className="actions"><button className="rm-btn gold sm" type="button" onClick={() => onSet(r.id, note, pick)}>Add my badge</button><button className="rm-btn ghost sm" type="button" onClick={() => onClear(r.id)}>Remove</button></div>
     </div>
   );
 }

@@ -21,7 +21,7 @@ export default function NearMe({ action, label, extra = '' }) {
   };
   return (
     <>
-      <button type="button" className="btn ghost sm" onClick={go}>{label}</button>
+      <button type="button" className="rm-btn ghost sm" onClick={go}>{label}</button>
       {msg && msg !== '…' && <span className="small" role="status" style={{ flexBasis: '100%' }}>{msg}</span>}
     </>
   );

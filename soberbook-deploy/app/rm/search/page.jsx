@@ -68,7 +68,7 @@ export default async function Search({ searchParams }) {
 
   return (
     <div className="page">
-      <div className="bar">
+      <div className="rm-bar">
         <div style={{ display: 'grid', gap: 4 }}>
           <h1>{where ? `${t('help_near', L)} ${where.label}` : t('where_q', L)}</h1>
           {where && <p className="small" aria-live="polite">{total} {t('places_within', L)} {r} {t('miles_word', L)}, {sort === 'name' ? t('az', L) : t('closest_first', L)}</p>}
@@ -88,9 +88,9 @@ export default async function Search({ searchParams }) {
         <input name="near" defaultValue={near} placeholder={t('near_ph', L)} aria-label={t('near_ph', L)} />
         {lv.map((v) => <input key={v} type="hidden" name="level" value={v} />)}
         <NearMe action={`${b}/search`} label={t('near_me', L)} extra={lv.map((v) => `&level=${v}`).join('')} />
-        <button className="btn" type="submit">{t('find', L)}</button>
+        <button className="rm-btn" type="submit">{t('find', L)}</button>
       </form>
-      {near && !where && <p className="empty" role="alert">{t('where_bad', L)}</p>}
+      {near && !where && <p className="rm-empty" role="alert">{t('where_bad', L)}</p>}
 
       {where && (
         <div className="sgrid">
@@ -108,20 +108,20 @@ export default async function Search({ searchParams }) {
               <label><input type="radio" name="help" value="mh" defaultChecked={help === 'mh'} /> {t('mental_health', L)}</label>
             </fieldset>
             <fieldset className="fg"><legend>{t('kind_of_care', L)}</legend>
-              {LEVEL_KEYS.map((k) => <label key={k}><input type="checkbox" name="level" value={k} defaultChecked={lv.includes(k)} /> {LEVEL[L][k]} <span className="ct">{ct(k)}</span></label>)}
+              {LEVEL_KEYS.map((k) => <label key={k}><input type="checkbox" name="level" value={k} defaultChecked={lv.includes(k)} /> {LEVEL[L][k]} <span className="rm-ct">{ct(k)}</span></label>)}
             </fieldset>
             <fieldset className="fg"><legend>{t('program_for', L)}</legend>
-              {PROG_KEYS.map(([k, w]) => <label key={k}><input type="checkbox" name="prog" value={k} defaultChecked={pg.includes(k)} /> {t(w, L)} <span className="ct">{ct(k)}</span></label>)}
+              {PROG_KEYS.map(([k, w]) => <label key={k}><input type="checkbox" name="prog" value={k} defaultChecked={pg.includes(k)} /> {t(w, L)} <span className="rm-ct">{ct(k)}</span></label>)}
             </fieldset>
             <fieldset className="fg"><legend>{t('pay_with', L)}</legend>
-              {PAY_KEYS.map(([k, w]) => <label key={k}><input type="checkbox" name="pay" value={k} defaultChecked={pay.includes(k)} /> {t(w, L)} <span className="ct">{ct(k)}</span></label>)}
+              {PAY_KEYS.map(([k, w]) => <label key={k}><input type="checkbox" name="pay" value={k} defaultChecked={pay.includes(k)} /> {t(w, L)} <span className="rm-ct">{ct(k)}</span></label>)}
             </fieldset>
-            <noscript><button className="btn sm" type="submit">{t('show', L)}</button></noscript>
-            <a className="btn ghost sm" href={`${b}/search?near=${encodeURIComponent(near)}`}>{t('clear', L)}</a>
+            <noscript><button className="rm-btn sm" type="submit">{t('show', L)}</button></noscript>
+            <a className="rm-btn ghost sm" href={`${b}/search?near=${encodeURIComponent(near)}`}>{t('clear', L)}</a>
           </form>
 
           <div style={{ minWidth: 0, display: 'grid', gap: 12, alignContent: 'start' }}>
-            <div className="bar"><span /><label className="small">{t('sort', L)}{' '}
+            <div className="rm-bar"><span /><label className="small">{t('sort', L)}{' '}
               <a href={qs({ sort: 'mi' })} aria-current={sort === 'mi' ? 'true' : undefined}>{t('closest_first', L)}</a> · <a href={qs({ sort: 'name' })} aria-current={sort === 'name' ? 'true' : undefined}>{t('az', L)}</a></label></div>
             {view === 'map' && mapPins && (
               <div className="map">
@@ -134,10 +134,10 @@ export default async function Search({ searchParams }) {
                 <span className="maplab">{es ? 'Morado = usted · dorado = revisado por la Dra. Labor' : 'Purple = you · gold = checked by Dr. Labor · tap a pin'}</span>
               </div>
             )}
-            {err && <p className="empty" role="alert">{es ? 'Algo falló. Intente de nuevo.' : 'Something went wrong loading results. Please try again.'}</p>}
+            {err && <p className="rm-empty" role="alert">{es ? 'Algo falló. Intente de nuevo.' : 'Something went wrong loading results. Please try again.'}</p>}
             <div className="results">
               {rows.length === 0 && !err ? (
-                <div className="empty"><h3>{t('none_title', L)}</h3><p className="small">{t('none_body', L)}</p><a className="btn sm" href={`${b}/search?near=${encodeURIComponent(near)}`}>{t('clear', L)}</a></div>
+                <div className="rm-empty"><h3>{t('none_title', L)}</h3><p className="small">{t('none_body', L)}</p><a className="rm-btn sm" href={`${b}/search?near=${encodeURIComponent(near)}`}>{t('clear', L)}</a></div>
               ) : rows.map((x) => {
                 const n = cleanName(x.name), ph = splitPhone(x.admissions_phone || x.phone), k = helpKind(x.services);
                 return (
@@ -147,12 +147,12 @@ export default async function Search({ searchParams }) {
                       <h3><a href={b + placePath(x)}>{n.name}</a></h3>
                       <p className="meta"><span className="mi">{miles(x.miles, L)}</span> · {x.city}, {x.state}{n.site ? ` · ${n.site}` : ''}</p>
                       {x.badge ? <span className="vb"><i>✓</i>{t('checked_by', L)}</span> : <span className="src">{t('from_samhsa', L)}</span>}
-                      <div className="chips">{levels(x.levels_of_care, L).slice(0, 4).map((c) => <span className="chip" key={c}>{c}</span>)}{programs(x.specialties, L).slice(0, 1).map((c) => <span className="chip" key={c}>{c}</span>)}</div>
+                      <div className="rm-chips">{levels(x.levels_of_care, L).slice(0, 4).map((c) => <span className="rm-chip" key={c}>{c}</span>)}{programs(x.specialties, L).slice(0, 1).map((c) => <span className="rm-chip" key={c}>{c}</span>)}</div>
                     </div>
                     <div className="right">
                       {ph.dial && <TapLink id={x.id} className="phone" dial={ph.dial} />}
                       {ph.ext && <span className="small">{t('ask_ext', L)} {ph.ext}</span>}
-                      <a className="btn sm" href={b + placePath(x)}>{t('see_details', L)}</a>
+                      <a className="rm-btn sm" href={b + placePath(x)}>{t('see_details', L)}</a>
                     </div>
                   </article>
                 );
@@ -160,9 +160,9 @@ export default async function Search({ searchParams }) {
             </div>
             {(page > 1 || page * PER < total) && (
               <div className="actions" style={{ justifyContent: 'center' }}>
-                {page > 1 && <a className="btn ghost sm" href={qs({ page: page - 1 })}>{es ? '← Anteriores' : '← Previous'}</a>}
+                {page > 1 && <a className="rm-btn ghost sm" href={qs({ page: page - 1 })}>{es ? '← Anteriores' : '← Previous'}</a>}
                 <span className="small">{(page - 1) * PER + 1}–{Math.min(page * PER, total)} {es ? 'de' : 'of'} {total}</span>
-                {page * PER < total && <a className="btn ghost sm" href={qs({ page: page + 1 })}>{es ? 'Siguientes →' : 'Next →'}</a>}
+                {page * PER < total && <a className="rm-btn ghost sm" href={qs({ page: page + 1 })}>{es ? 'Siguientes →' : 'Next →'}</a>}
               </div>
             )}
           </div>

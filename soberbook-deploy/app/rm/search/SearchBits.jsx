@@ -51,7 +51,7 @@ export function SendList({ rows, label, lang }) {
   }, [open]);
   return (
     <>
-      <button type="button" className="btn ghost sm" onClick={() => { setMsg(''); setOpen(true); }}>{label}</button>
+      <button type="button" className="rm-btn ghost sm" onClick={() => { setMsg(''); setOpen(true); }}>{label}</button>
       {open && (
         <div className="modal" onClick={(e) => { if (e.target === e.currentTarget) setOpen(false); }}>
           <div className="mbox" role="dialog" aria-modal="true" aria-labelledby="rm-sms-t">
@@ -59,9 +59,9 @@ export function SendList({ rows, label, lang }) {
             <p className="small">{es ? 'Sin cuenta. Su teléfono abre un mensaje ya escrito.' : 'No account. Your phone opens a text with this already written. Send it to yourself or someone you love.'}</p>
             <pre className="smsprev">{text}</pre>
             <div className="actions">
-              <a className="btn sm" href={`sms:?&body=${encodeURIComponent(text)}`}>{es ? 'Abrir mensajes' : 'Open Messages'}</a>
-              <button type="button" className="btn ghost sm" onClick={copy}>{es ? 'Copiar' : 'Copy text'}</button>
-              <button type="button" className="btn ghost sm" onClick={() => setOpen(false)}>{es ? 'Cerrar' : 'Close'}</button>
+              <a className="rm-btn sm" href={`sms:?&body=${encodeURIComponent(text)}`}>{es ? 'Abrir mensajes' : 'Open Messages'}</a>
+              <button type="button" className="rm-btn ghost sm" onClick={copy}>{es ? 'Copiar' : 'Copy text'}</button>
+              <button type="button" className="rm-btn ghost sm" onClick={() => setOpen(false)}>{es ? 'Cerrar' : 'Close'}</button>
             </div>
             <p className="small" aria-live="polite">{msg}</p>
           </div>

@@ -19,7 +19,7 @@ export default function ForYou() {
       <div style={{ display: 'grid', gap: 10 }}><div className="eyebrow">Start here for…</div><h1>Help that starts where you are</h1>
         {!CONTENT_APPROVED && <span className="draft">{t('draft', L)}</span>}</div>
       <div className="grid2">{C.map(([id, h, tips, href, cta]) => (
-        <div className="card" id={id} key={id}><h3>{h}</h3><ul className="ask">{tips.map((x) => <li key={x}>{x}</li>)}</ul><a className="btn sm" href={href}>{cta}</a></div>
+        <div className="card" id={id} key={id}><h3>{h}</h3><ul className="rm-ask">{tips.map((x) => <li key={x}>{x}</li>)}</ul><a className="rm-btn sm" href={href}>{cta}</a></div>
       ))}</div>
     </div>
   );

@@ -57,7 +57,7 @@ export default function Guide({ base, lang }) {
         {opt(w.yes, w.yes_s, () => setStep('danger'))}{opt(w.no, w.no_s, () => setStep(2))}
       </div></div>}
       {step === 'danger' && <div className="danger" role="alert"><span className="big">{w.danger}</span><p>{w.danger_b}</p>
-        <div className="actions"><a className="btn" style={{ background: '#fff', color: 'var(--crisis)' }} href="tel:911">911</a><a className="btn" style={{ background: '#fff', color: 'var(--crisis)' }} href="tel:988">988</a><button type="button" className="btn ghost sm" style={{ background: '#fff' }} onClick={restart}>{w.back}</button></div></div>}
+        <div className="actions"><a className="rm-btn" style={{ background: '#fff', color: 'var(--crisis)' }} href="tel:911">911</a><a className="rm-btn" style={{ background: '#fff', color: 'var(--crisis)' }} href="tel:988">988</a><button type="button" className="rm-btn ghost sm" style={{ background: '#fff' }} onClick={restart}>{w.back}</button></div></div>}
       {step === 2 && <div className="step"><h2>{w.q2}</h2><div className="opts">
         {opt(w.su, '', () => { setWhat('su'); setStep(3); })}{opt(w.mh, w.mh_s, () => { setWhat('mh'); setStep(3); })}{opt(w.both, '', () => { setWhat('any'); setStep(3); })}
       </div></div>}
@@ -71,9 +71,9 @@ export default function Guide({ base, lang }) {
             <input name="near" placeholder={w.near} aria-label={w.near} required />
             {what && what !== 'any' && <input type="hidden" name="help" value={what} />}
             {need !== 'unsure' && <input type="hidden" name="level" value={need} />}
-            <button className="btn" type="submit">{w.show}</button>
+            <button className="rm-btn" type="submit">{w.show}</button>
           </form>
-          <button type="button" className="btn ghost sm" onClick={restart}>{w.restart}</button>
+          <button type="button" className="rm-btn ghost sm" onClick={restart}>{w.restart}</button>
         </div>
       )}
     </>

@@ -29,6 +29,20 @@
   --gold:#F0C35A; --gold-soft:#33280F; --gold-ink:#241A02;
   --crisis:#B53A33; --ok:#74CC97; --ok-soft:#173226; --no:#F08B82; --no-soft:#3A1D1B;
   --night:#0A070F; --map1:#143430; --map2:#18201F; color-scheme:dark }}
+/* 🔴 SOBER BOOK'S APP-WIDE CSS, UNDONE INSIDE RECOVERYMAP (31 Oct, after
+   the first live look). globals.css and wall.css style BARE elements and
+   short class names (.btn .item .bar .chip .empty .ok .ask .ct) on every
+   route. The class names now carry an rm- prefix so they can't collide;
+   the bare-element rules are undone here. Keep this block FIRST after the
+   colour tokens so RecoveryMap's own rules below still win. */
+html:has(> body > .rm){background:#FBFAFE}
+@media (prefers-color-scheme: dark){html:has(> body > .rm){background:#120E1A}}
+html body:has(> .rm){max-width:none;margin:0;border:0;background:transparent;min-height:0}
+.rm h1,.rm h2,.rm h3{text-transform:none;text-shadow:none}
+.rm label{display:block;font-family:inherit;font-size:inherit;font-weight:inherit;letter-spacing:normal;text-transform:none;color:inherit;margin:0}
+.rm input[type=text],.rm input[type=email],.rm input[type=password],.rm input[type=date],.rm textarea{border:1px solid var(--line);border-radius:10px;background:var(--surface);padding:10px;font:inherit;color:var(--ink);box-shadow:none;outline:none;min-height:0}
+.rm input:focus,.rm textarea:focus{background:var(--surface)}
+.rm input:focus-visible,.rm textarea:focus-visible{outline:3px solid var(--gold);outline-offset:2px;box-shadow:none}
 .rm *{box-sizing:border-box}
 .rm [hidden]{display:none!important}
 .rm a{color:var(--lav)}
@@ -77,13 +91,13 @@
 .rm .foot ul{margin:0;padding:0;list-style:none;display:grid;gap:5px}
 
 /* buttons, cards */
-.rm .btn{background:var(--lav);color:var(--lav-ink);border:0;border-radius:12px;padding:12px 20px;font-weight:700;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:8px;width:max-content;max-width:100%}
-.rm .btn.teal{background:var(--teal);color:var(--teal-ink)}
-.rm .btn.ghost{background:transparent;color:var(--lav);border:1.5px solid var(--lav)}
-.rm .btn.sm{padding:7px 13px;font-size:14px;border-radius:10px}
-.rm .btn.ok{background:var(--ok);color:#fff}
-.rm .btn.no{background:transparent;color:var(--no);border:1.5px solid var(--no)}
-.rm .btn.gold{background:var(--gold);color:var(--gold-ink)}
+.rm .rm-btn{background:var(--lav);color:var(--lav-ink);border:0;border-radius:12px;padding:12px 20px;font-weight:700;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:8px;width:max-content;max-width:100%}
+.rm .rm-btn.teal{background:var(--teal);color:var(--teal-ink)}
+.rm .rm-btn.ghost{background:transparent;color:var(--lav);border:1.5px solid var(--lav)}
+.rm .rm-btn.sm{padding:7px 13px;font-size:14px;border-radius:10px}
+.rm .rm-btn.rm-ok{background:var(--ok);color:#fff}
+.rm .rm-btn.no{background:transparent;color:var(--no);border:1.5px solid var(--no)}
+.rm .rm-btn.gold{background:var(--gold);color:var(--gold-ink)}
 .rm .card{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:20px;display:grid;gap:10px;align-content:start}
 .rm .card.lav{background:var(--lav-soft);border:0}
 .rm .card.teal{background:var(--teal-soft);border:0}
@@ -94,8 +108,8 @@
 .rm .src{font-size:12px;color:var(--muted)}
 .rm .pill{font-size:12px;font-weight:700;border-radius:999px;padding:3px 10px;width:max-content}
 .rm .p-both{background:var(--lav-soft);color:var(--lav)} .rm .p-su{background:var(--teal-soft);color:var(--teal)} .rm .p-mh{background:var(--bg2);color:var(--muted)}
-.rm .chips{display:flex;flex-wrap:wrap;gap:6px}
-.rm .chip{font-size:13px;border-radius:8px;padding:3px 9px;background:var(--bg2);color:var(--ink)}
+.rm .rm-chips{display:flex;flex-wrap:wrap;gap:6px}
+.rm .rm-chip{font-size:13px;border-radius:8px;padding:3px 9px;background:var(--bg2);color:var(--ink)}
 .rm .quick{display:flex;flex-wrap:wrap;gap:8px}
 .rm .quick a{background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-size:14px;font-weight:600;color:var(--ink);text-decoration:none}
 
@@ -134,10 +148,10 @@
 .rm .banner{background:var(--crisis);color:var(--crisis-ink);border-radius:20px;padding:20px 22px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center}
 @media (max-width:560px){.rm .banner{grid-template-columns:1fr}}
 .rm .banner b{font-family:var(--display);font-size:22px}
-.rm .banner .btn{background:#fff;color:var(--crisis)}
+.rm .banner .rm-btn{background:#fff;color:var(--crisis)}
 .rm .sbk{background:linear-gradient(135deg,#1B6B4A,#2C8C64);color:#fff;border-radius:20px;padding:22px;display:grid;gap:8px}
 .rm .sbk b{font-family:var(--display);font-size:22px}
-.rm .sbk .btn{background:#fff;color:#1B6B4A}
+.rm .sbk .rm-btn{background:#fff;color:#1B6B4A}
 
 /* search */
 .rm .sgrid{display:grid;grid-template-columns:260px minmax(0,1fr);gap:24px}
@@ -147,8 +161,8 @@
 .rm .fg{display:grid;gap:6px;border:0;padding:0;margin:0}
 .rm .fg legend{font-weight:700;font-size:15px;margin-bottom:4px;padding:0}
 .rm .fg label{display:flex;gap:8px;align-items:center;font-size:14px}
-.rm .fg .ct{margin-left:auto;color:var(--muted);font-variant-numeric:tabular-nums;font-size:13px}
-.rm .bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
+.rm .fg .rm-ct{margin-left:auto;color:var(--muted);font-variant-numeric:tabular-nums;font-size:13px}
+.rm .rm-bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
 .rm .sortsel{background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:8px 10px;font:inherit;font-size:14px}
 .rm .seg{display:inline-flex;border:1px solid var(--line);border-radius:10px;overflow:hidden}
 .rm .seg a,.rm .seg button{background:var(--surface);color:var(--ink);border:0;padding:8px 14px;font-size:14px;font-weight:600;text-decoration:none}
@@ -169,7 +183,7 @@
 .rm .res .right{display:grid;gap:8px;justify-items:end;align-content:start}
 @media (max-width:600px){.rm .res .right{justify-items:start}}
 .rm .phone{font-variant-numeric:tabular-nums;font-weight:800;font-size:17px;color:var(--ink);text-decoration:none}
-.rm .empty{background:var(--surface);border:1px dashed var(--line);border-radius:18px;padding:24px;text-align:center;display:grid;gap:8px;justify-items:center}
+.rm .rm-empty{background:var(--surface);border:1px dashed var(--line);border-radius:18px;padding:24px;text-align:center;display:grid;gap:8px;justify-items:center}
 
 /* place page */
 .rm .detail{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:26px}
@@ -189,7 +203,7 @@
 .rm .near{display:grid;gap:0}
 .rm .near div{display:flex;justify-content:space-between;gap:10px;font-size:14px;border-top:1px solid var(--line);padding-block:8px}
 .rm .near b{white-space:nowrap}
-.rm .ask{display:grid;gap:6px;font-size:15px;padding-left:18px}
+.rm .rm-ask{display:grid;gap:6px;font-size:15px;padding-left:18px}
 .rm .worked{display:flex;flex-wrap:wrap;gap:8px;align-items:center;background:var(--bg2);border-radius:14px;padding:12px 14px;font-size:14px}
 .rm .worked b{margin-right:auto}
 .rm .form{display:grid;gap:10px}
@@ -225,9 +239,9 @@
 .rm .faq summary{font-weight:700;cursor:pointer;font-size:16px}
 .rm .faq details p{margin-top:8px}
 .rm .list{display:grid;gap:10px}
-.rm .item{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 14px;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:14px 16px;align-items:center}
-.rm .item p{font-size:14px;color:var(--muted);grid-column:1}
-@media (max-width:560px){.rm .item{grid-template-columns:1fr}}
+.rm .rm-item{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 14px;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:14px 16px;align-items:center}
+.rm .rm-item p{font-size:14px;color:var(--muted);grid-column:1}
+@media (max-width:560px){.rm .rm-item{grid-template-columns:1fr}}
 .rm .about{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:30px;align-items:start}
 @media (max-width:860px){.rm .about{grid-template-columns:1fr}}
 .rm .about img.big{width:100%;border-radius:24px;display:block;max-width:100%}
