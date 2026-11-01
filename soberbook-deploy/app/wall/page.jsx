@@ -9,6 +9,7 @@ import { fetchBroadcasts } from '../../lib/highlights';
 import Wall from './Wall';
 import FeedRefresh from '../components/FeedRefresh';
 import OpenRoom from './OpenRoom';
+import LiveTalks from './LiveTalks';
 /* 🌦️ What season are you in — the picker and the room's weather.
    ⚠️ Default import only. Every export of a 'use client' module becomes
    a client REFERENCE, so a named one lands on the server as a proxy and
@@ -436,6 +437,8 @@ export default async function WallPage() {
           `openRoom` — the component polls, so a room opened mid-session
           could then never appear. The component must always mount and
           decide for itself. */}
+      {/* 1 Nov 2026 — 🔴 a live Talk Room, while one is on. Null otherwise. */}
+      <LiveTalks />
       <OpenRoom initial={openRoom} />
       {/* 🔴 IN THE FEED, NOT IN SETTINGS. Ty asked for it here by name.
           Thirteen times since August this app has built something and hidden

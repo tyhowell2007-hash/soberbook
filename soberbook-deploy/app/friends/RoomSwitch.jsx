@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 import Room from './Room';
+/* 1 Nov 2026 — Talk Rooms: the 🎙️ Live tab and the red strip. */
+import LiveStrip, { LiveTab, useLiveTalks } from './LiveStrip';
 
 /* =====================================================================
    WHICH ROOM YOU ARE IN.
@@ -45,6 +47,7 @@ export default function RoomSwitch({ rooms, first, firstMessages, meHandle,
   const [activeId, setActiveId] = useState(first.id);
   const active = rooms.find((r) => r.id === activeId) || first;
   const isFirst = active.id === first.id;
+  const live = useLiveTalks();
 
   return (
     <>
@@ -58,8 +61,11 @@ export default function RoomSwitch({ rooms, first, firstMessages, meHandle,
               <span aria-hidden="true">{r.emoji}</span> {r.name.replace(/^The /, '')}
             </button>
           ))}
+          <LiveTab live={live} />
         </div>
       )}
+
+      <LiveStrip live={live} room={active} />
 
       <Room
         key={active.id}

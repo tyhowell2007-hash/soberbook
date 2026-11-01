@@ -1,0 +1,24 @@
+/* =====================================================================
+   🎙️ TALK ROOMS — the two ways in from outside /talks. 1 Nov 2026.
+   The Live tab + red strip on the rooms page (friends/LiveStrip.jsx) and
+   the live card on the wall (wall/LiveTalks.jsx). Imported by those two
+   components, so it loads wherever they render. tk- prefixed throughout.
+   ===================================================================== */
+@keyframes tkblink2{50%{opacity:.3}}
+/* ---------- in the rooms page and on the wall ---------- */
+.rtabs .rtab-live{display:inline-flex;align-items:center;gap:6px;text-decoration:none}
+.rtabs .rtab-live .tkd{width:7px;height:7px;border-radius:50%;background:#FF5A5F;animation:tkblink2 1.4s infinite}
+.tk-strip{display:flex;align-items:center;gap:10px;margin:0 0 10px;padding:10px 12px;border-radius:16px;background:linear-gradient(135deg,rgba(255,90,95,.2),rgba(255,90,95,.06));border:1px solid rgba(255,90,95,.35);color:#fff;text-decoration:none;font-family:'Plus Jakarta Sans',system-ui,sans-serif}
+.tk-strip .tk-stx{flex:1;min-width:0;font-size:13px;font-weight:700;line-height:1.3}
+.tk-strip .tk-stx small{display:block;font-size:11.5px;font-weight:500;color:#F5C9C9}
+.tk-strip .tk-sgo{font-size:13px;font-weight:800;color:#fff;background:linear-gradient(135deg,#3BB383,#1F7A54);border-radius:999px;padding:8px 14px;flex:0 0 auto}
+.tk-strip.start{background:rgba(255,255,255,.05);border:1px dashed rgba(255,255,255,.18)}
+.tk-strip.start .tk-sgo{background:rgba(255,255,255,.12)}
+.tk-wallcard{display:flex;align-items:center;gap:12px;margin:12px 14px 14px;padding:12px 14px;border-radius:20px;background:#0B1511;color:#fff;text-decoration:none;box-shadow:0 10px 26px rgba(0,0,0,.18);font-family:'Plus Jakarta Sans',system-ui,sans-serif}
+.tk-wallcard .tk-wic{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;font-size:22px;background:linear-gradient(145deg,#3BB383,#1B6B4A);flex:0 0 auto}
+.tk-wallcard .tk-wtx{flex:1;min-width:0}
+.tk-wallcard .tk-wtx b{display:block;font-size:14.5px;font-weight:800;line-height:1.3}
+.tk-wallcard .tk-wtx small{display:block;font-size:12px;color:#86A094;margin-top:2px}
+.tk-wallcard .tk-wlive{display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:800;letter-spacing:.06em;background:#FF5A5F;border-radius:6px;padding:2px 6px;margin-bottom:4px}
+.tk-wallcard .tk-wgo{font-size:13px;font-weight:800;background:linear-gradient(135deg,#3BB383,#1F7A54);border-radius:999px;padding:8px 14px;flex:0 0 auto}
+.roomscreen .tk-strip{flex:none}
