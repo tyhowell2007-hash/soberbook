@@ -83,6 +83,22 @@ const KINDS = {
      upload kind" before any of the agreeing three ever sees it. The
      checker has been widened to cover this file too. */
   story:  { ext: 'bin' },
+  /* 🖼 A PICTURE ON A MEMBER'S OWN PROFILE (0190). Same quarantine road,
+     same stripper, its own bucket — and the prefix `gallery/` is what
+     sends lib/sign-photos.js to `public_profiles` rather than a wall
+     view. That view already nulls everything for an anonymous member, a
+     suspended one, a deleted one and either side of a block, so a
+     profile picture inherits all five rules without one line here
+     knowing what any of them are.
+
+     🔴 THIS ENTRY HAS NOW GONE MISSING ONCE. It shipped 23 Oct (88c9959)
+     and the 29 Oct Illinois-uploads change (00a1461) was built on an older
+     copy of this file and silently dropped it. From then until 3 Nov every
+     "Add a photo" on a profile died on "Unknown upload kind." Found by the
+     sweep's check-bucket-map.py (DOOR MISMATCH) and confirmed live: kind
+     'gallery' → 400, kind 'avatar' → 200. Before editing this file, pull
+     the live copy — never build on the mirror. */
+  gallery:{ ext: 'bin' },
 };
 
 /* What the browser is allowed to say it's sending. ⚠️ This is a HINT, not
