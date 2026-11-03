@@ -1,359 +1,320 @@
 /* =====================================================================
-   THE FRONT DOOR — Ty's warm design, with real doors in it.
+   THE FRONT DOOR — /login. The 3 Nov 2026 facelift (prototype approved by
+   Ty: "I like it"). Only login/layout.jsx imports this file.
 
-   Aug 23. Ty: "I want this exact look, but with this sign in box."
-   The look is _archive/soberbook 2/landing-warm.html. The boxes are the
-   sign-in / new-here pair. This file is those two things joined.
+   Night sky turning to sunrise behind the sign-up card, a floating example
+   phone, then cream paper with living feature tiles in the grunge palette.
 
-   ---------------------------------------------------------------------
-   🔴 WHY THIS EXISTS AT ALL.
-
-   He showed Sober Book to people. They loved it, tapped "Go in", and
-   landed on "Welcome back · sign in to pick up where you left off" — a
-   password box they had never set. They left, and told him it was "the
-   old version". ⭐ A locked door and a stale build look identical from
-   the outside, and nobody ever files a bug saying "I couldn't work out
-   how to join."
-
-   ---------------------------------------------------------------------
-   ⚠️ EVERY CLASS IS PREFIXED lp-. NOT OPTIONAL.
-
-   The source design uses .card, .lead, .fine, .count, .wrap, .grid,
-   .pill and .hero. FOUR of those are already declared in globals.css,
-   wall.css or theme-green.css — I checked before writing a line, rather
-   than after. Unprefixed, this stylesheet would have quietly restyled
-   the wall and the green room from the login page's own file. That is
-   the .composer collision from Aug 16, on the front door.
-
-   ⚠️ Fraunces and Space Grotesk are already loaded by the ROOT layout.
-   Don't add a second font link here.
+   ⚠️ CONTRAST RULES, SAME AS EVER:
+   - Lime #D0F828 is a FILL or text on dark — never text on cream.
+   - Orange #FF6A1F is a fill on cream (3.4:1). Orange TEXT on cream uses
+     --lx-rust #B83A0B (5.2:1).
+   ⚠️ Everything that moves stops for prefers-reduced-motion (bottom).
    ===================================================================== */
-
-.lp {
-  --lp-cream:#FFF8EC; --lp-paper:#fff; --lp-ink:#2A1B0C; --lp-muted:#7A6249;
-  --lp-line:#E9D8BC;  --lp-tang:#E8590C; --lp-grape:#8B5CF6; --lp-teal:#0E9F6E;
-  --lp-hot:#E11D74;   --lp-sun:#F5A623;  --lp-go:#1B6B4A;
-
-  font-family:'Space Grotesk',-apple-system,sans-serif;
-  color:var(--lp-ink);
-  background:var(--lp-cream);
-  line-height:1.65;
-  min-height:100vh;
+.lx{
+  --lx-forest:#123F2C; --lx-night:#08201A; --lx-green:#1B6B4A; --lx-lime:#D0F828;
+  --lx-orange:#FF6A1F; --lx-rust:#B83A0B; --lx-purple:#7A3BE6; --lx-deep:#3A1580;
+  --lx-navy:#12204A; --lx-cream:#FBF5EA; --lx-paper:#F3EADA; --lx-ink:#15120E;
+  --lx-muted:#5F5648; --lx-gold:#F0C35A; --lx-line:rgba(21,18,14,.12);
+  --lx-display:'Anton',Impact,'Arial Narrow',sans-serif;
+  --lx-serif:'Fraunces',Georgia,serif;
+  --lx-body:'Plus Jakarta Sans',system-ui,-apple-system,sans-serif;
+  --lx-hand:'Permanent Marker','Comic Sans MS',cursive;
+  background:var(--lx-cream); color:var(--lx-ink); font-family:var(--lx-body);
+  font-size:16px; line-height:1.5; min-height:100vh; overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
 }
-.lp *{ box-sizing:border-box; }
-.lp-wrap{ max-width:900px; margin:0 auto; padding:0 22px; }
+.lx *{ box-sizing:border-box; }
+.lx [hidden]{ display:none !important; }
+.lx a{ color:inherit; }
+.lx button,.lx input,.lx select{ font:inherit; }
+.lx :focus-visible{ outline:3px solid var(--lx-lime); outline-offset:2px; }
+.lx-wrap{ max-width:480px; margin:0 auto; padding:0 18px; position:relative; }
 
-/* ---- hero ---- */
-.lp-hero{ text-align:center; padding:46px 0 52px; border-bottom:1px solid var(--lp-line); }
-.lp-leaf{ font-size:46px; line-height:1; }
-.lp-brand{ font-size:12px; font-weight:700; letter-spacing:4px; color:var(--lp-tang); margin-top:2px; }
-.lp-h1{
-  font-family:'Fraunces',Georgia,serif; font-size:40px; line-height:1.14;
-  margin:16px auto 12px; max-width:580px; font-weight:400; font-style:italic;
-  letter-spacing:-.5px; color:var(--lp-ink);
+/* crisis line */
+.lx-crisis{ background:var(--lx-navy); color:#fff; text-align:center; font-size:13.5px;
+  font-weight:600; padding:9px 16px; line-height:1.4; position:relative; z-index:3; }
+.lx-crisis a{ color:var(--lx-lime); font-weight:800; }
+.lx-crisis-s{ display:block; font-weight:500; color:#AEB8D8; font-size:12px; }
+
+/* ---------- hero ---------- */
+.lx-hero{ position:relative; color:#fff; padding:22px 0 30px; isolation:isolate;
+  overflow:hidden; background:var(--lx-night); }
+.lx-sky{ position:absolute; inset:0; z-index:-3;
+  background:radial-gradient(130% 60% at 50% 100%,#FF9A45 0%,#F0601E 12%,#8E2F4F 26%,#2A2350 40%,var(--lx-forest) 58%,var(--lx-night) 100%);
+  background-size:100% 200%; background-position:50% 100%;
+  animation:lx-dawn 3.2s cubic-bezier(.3,.6,.2,1) both; }
+@keyframes lx-dawn{ from{ background-position:50% 0%; } }
+.lx-sun{ position:absolute; left:50%; top:640px; width:620px; height:620px; margin-left:-310px;
+  border-radius:50%; z-index:-2;
+  background:radial-gradient(circle,rgba(255,200,110,.7) 0%,rgba(255,140,60,.25) 30%,transparent 62%);
+  animation:lx-sunup 3.2s cubic-bezier(.3,.6,.2,1) both, lx-breathe 7s 3.2s ease-in-out infinite; }
+@keyframes lx-sunup{ from{ transform:translateY(260px) scale(.7); opacity:.4; } }
+@keyframes lx-breathe{ 50%{ transform:scale(1.07); opacity:.85; } }
+.lx-stars{ position:absolute; inset:0; z-index:-1; width:100%; height:100%; pointer-events:none; }
+
+.lx-brand{ display:flex; align-items:center; justify-content:space-between; }
+.lx-logo{ display:flex; align-items:center; gap:10px; font-family:var(--lx-display); font-size:22px; letter-spacing:.05em; }
+.lx-logo img{ width:40px; height:40px; border-radius:10px; box-shadow:0 4px 0 #000; transform:rotate(-4deg); }
+.lx-pill{ background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.22); color:#fff;
+  border-radius:999px; padding:9px 18px; font-weight:700; font-size:14px; cursor:pointer; min-height:40px; }
+.lx-live{ display:inline-flex; align-items:center; gap:8px; margin-top:22px; font-size:13px; font-weight:700;
+  color:#CFE7D9; background:rgba(0,0,0,.25); border:1px solid rgba(255,255,255,.14);
+  padding:6px 12px 6px 10px; border-radius:999px; }
+.lx-live i{ width:9px; height:9px; border-radius:50%; background:var(--lx-lime); animation:lx-ping 1.8s infinite; }
+@keyframes lx-ping{ 0%{ box-shadow:0 0 0 0 rgba(208,248,40,.7); } 70%,100%{ box-shadow:0 0 0 10px rgba(208,248,40,0); } }
+
+.lx-h1{ font-family:var(--lx-display); font-weight:400; font-size:clamp(54px,15.5vw,78px); line-height:.9;
+  margin:14px 0 0; text-transform:uppercase; }
+.lx-ln{ display:block; overflow:hidden; padding-bottom:.06em; margin-bottom:-.06em; }
+.lx-ln > span{ display:inline-block; animation:lx-rise .8s cubic-bezier(.2,.9,.2,1) both;
+  text-shadow:3px 4px 0 #000,6px 9px 0 rgba(0,0,0,.25); }
+.lx-ln:nth-child(2) > span{ animation-delay:.08s; }
+.lx-ln:nth-child(3) > span{ animation-delay:.16s; }
+.lx-ln:nth-child(4) > span{ animation-delay:.24s; }
+@keyframes lx-rise{ from{ transform:translateY(100%) skewY(6deg); } }
+.lx-ln .lx-hl{ color:var(--lx-lime); position:relative; text-shadow:3px 4px 0 var(--lx-purple),6px 9px 0 rgba(0,0,0,.35); }
+.lx-scrib{ position:absolute; left:-6px; bottom:-8px; width:calc(100% + 12px); height:22px; overflow:visible; }
+.lx-scrib path{ fill:none; stroke:var(--lx-orange); stroke-width:7; stroke-linecap:round;
+  stroke-dasharray:420; stroke-dashoffset:420; animation:lx-draw .7s .9s ease-out forwards; }
+@keyframes lx-draw{ to{ stroke-dashoffset:0; } }
+.lx-lede{ font-size:17px; color:#E5EFE8; margin:18px 0 0; max-width:30ch; position:relative; z-index:2; }
+
+/* the example phone */
+.lx-stage{ position:relative; height:330px; margin-top:6px; perspective:1400px; }
+.lx-phone{ position:absolute; right:-28px; top:6px; width:210px; height:420px; border-radius:34px; background:#0B0F0D;
+  padding:9px; box-shadow:inset 0 0 0 2px #2B332F,-24px 34px 50px rgba(0,0,0,.55);
+  transform:rotateY(-24deg) rotateX(10deg) rotateZ(6deg); animation:lx-float 6s ease-in-out infinite; }
+@keyframes lx-float{ 50%{ transform:rotateY(-16deg) rotateX(6deg) rotateZ(4deg) translateY(-10px); } }
+.lx-scr{ height:100%; border-radius:26px; overflow:hidden; background:var(--lx-cream); color:var(--lx-ink); }
+.lx-bar{ background:var(--lx-green); color:var(--lx-lime); font-family:var(--lx-display); font-size:13px;
+  letter-spacing:.05em; padding:20px 12px 8px; display:flex; justify-content:space-between; }
+.lx-bar span{ font-family:var(--lx-body); font-weight:700; color:#CFE7D9; font-size:9px; }
+.lx-clock{ margin:10px; background:#fff; border-radius:14px; padding:10px; text-align:center; box-shadow:0 2px 6px rgba(0,0,0,.08); }
+.lx-clock small{ font-size:7.5px; font-weight:800; letter-spacing:.14em; color:var(--lx-muted); }
+.lx-day{ font-family:var(--lx-display); font-size:38px; line-height:1; color:var(--lx-green); }
+.lx-hms{ display:flex; justify-content:center; gap:10px; font-family:var(--lx-display); font-size:17px; font-variant-numeric:tabular-nums; }
+.lx-hms em{ display:block; font-family:var(--lx-body); font-style:normal; font-size:6.5px; font-weight:700; color:var(--lx-muted); letter-spacing:.08em; }
+.lx-mini{ margin:0 10px 8px; background:#fff; border-radius:12px; padding:8px 9px; font-size:9px; line-height:1.35; }
+.lx-mini b{ font-size:9.5px; }
+.lx-cn{ margin-top:5px; display:inline-flex; gap:4px; background:var(--lx-paper); border-radius:999px; padding:2px 7px; font-weight:700; font-size:8px; }
+.lx-note{ position:absolute; left:0; width:228px; background:rgba(255,255,255,.96); color:var(--lx-ink);
+  border-radius:16px; padding:10px 12px; display:flex; gap:10px; align-items:center; font-size:13px; line-height:1.3;
+  box-shadow:0 12px 30px rgba(0,0,0,.35); animation:lx-in .5s cubic-bezier(.2,.9,.2,1) both, lx-repop 9s ease-in-out infinite; }
+.lx-n1{ top:30px; animation-delay:.9s, 3s; }
+.lx-n2{ top:122px; animation-delay:1.6s, 6s; }
+.lx-n3{ top:214px; animation-delay:2.3s, 9s; }
+@keyframes lx-in{ from{ opacity:0; transform:translateY(12px) scale(.96); } }
+@keyframes lx-repop{ 0%,88%,100%{ transform:none; } 92%{ transform:translateX(-6px) scale(1.03); } }
+.lx-em{ flex:none; width:34px; height:34px; border-radius:10px; display:grid; place-items:center; font-size:18px; }
+.lx-note b{ display:block; font-size:13.5px; }
+.lx-note span{ color:var(--lx-muted); font-size:12px; }
+.lx-sample{ position:absolute; left:0; bottom:4px; font-size:10.5px; color:rgba(255,255,255,.55); font-weight:600; }
+
+/* the door */
+.lx-card{ position:relative; z-index:3; margin-top:4px; background:var(--lx-cream); color:var(--lx-ink);
+  border-radius:26px; padding:8px; scroll-margin-top:12px;
+  box-shadow:0 10px 0 rgba(0,0,0,.4),0 34px 70px rgba(0,0,0,.45); }
+.lx-card::before{ content:""; position:absolute; inset:-2px; border-radius:28px; padding:2px; pointer-events:none;
+  background:conic-gradient(from var(--lx-a,0deg),var(--lx-lime),var(--lx-orange),var(--lx-purple),var(--lx-lime));
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0); -webkit-mask-composite:xor;
+  mask-composite:exclude; animation:lx-spin 6s linear infinite; }
+@property --lx-a{ syntax:'<angle>'; inherits:false; initial-value:0deg; }
+@keyframes lx-spin{ to{ --lx-a:360deg; } }
+.lx-seg{ display:grid; grid-template-columns:1fr 1fr; background:var(--lx-paper); border-radius:18px; padding:4px; position:relative; }
+.lx-slider{ position:absolute; top:4px; bottom:4px; left:4px; width:calc(50% - 4px); background:var(--lx-ink);
+  border-radius:14px; box-shadow:0 3px 0 rgba(0,0,0,.25); transition:transform .35s cubic-bezier(.2,.9,.2,1); }
+.lx-seg[data-on="in"] .lx-slider{ transform:translateX(100%); }
+.lx-seg button{ position:relative; border:0; background:transparent; border-radius:14px; padding:13px;
+  font-weight:800; font-size:15px; color:var(--lx-muted); cursor:pointer; transition:color .3s; min-height:48px; }
+.lx-seg button[aria-selected="true"]{ color:#fff; }
+.lx-pane{ padding:18px 12px 12px; animation:lx-fade .35s ease both; }
+@keyframes lx-fade{ from{ transform:translateY(6px); } }
+.lx-pane h2{ font-family:var(--lx-serif); font-weight:600; font-size:26px; margin:0; line-height:1.1; }
+.lx-said{ margin:6px 0 4px; color:var(--lx-muted); font-size:14.5px; }
+.lx-pane form{ display:grid; }
+.lx-lab{ display:block; margin:14px 0 6px; font-size:12px; font-weight:800; letter-spacing:.1em; text-transform:uppercase; color:var(--lx-muted); }
+.lx-opt{ font-weight:600; letter-spacing:.04em; text-transform:none; }
+.lx-inp{ width:100%; border:2px solid var(--lx-line); background:#fff; border-radius:14px; padding:13px 14px;
+  font-size:16px; color:var(--lx-ink); transition:border-color .2s,box-shadow .2s; }
+.lx-inp:focus{ border-color:var(--lx-green); outline:none; box-shadow:0 0 0 4px rgba(27,107,74,.15); }
+.lx-row{ display:flex; gap:8px; }
+.lx-row .lx-inp{ min-width:0; }
+.lx-ghost{ border:2px solid var(--lx-line); background:#fff; border-radius:14px; padding:0 14px; font-weight:800;
+  color:var(--lx-green); cursor:pointer; white-space:nowrap; min-height:48px; }
+.lx-dice{ display:inline-block; transition:transform .5s; }
+.lx-ghost:active .lx-dice{ transform:rotate(360deg); }
+.lx .mdy{ display:grid; grid-template-columns:1.6fr 1fr 1.2fr; gap:8px; }
+.lx .mdy select{ appearance:none; -webkit-appearance:none; width:100%; border:2px solid var(--lx-line); border-radius:14px;
+  padding:13px 30px 13px 14px; font-size:16px; color:var(--lx-ink);
+  background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%235F5648' stroke-width='2'/%3E%3C/svg%3E") no-repeat right 12px center; }
+.lx .mdy select:focus{ border-color:var(--lx-green); outline:none; box-shadow:0 0 0 4px rgba(27,107,74,.15); }
+.lx-count{ margin:8px 0 0; font-size:13px; font-weight:700; color:var(--lx-green); background:#E5F2EA; border-radius:10px; padding:8px 10px; }
+.lx-anon{ display:flex; align-items:center; gap:12px; background:var(--lx-paper); border-radius:16px; padding:12px 14px; margin-top:14px; }
+.lx-sw{ flex:none; width:50px; height:30px; border-radius:999px; border:0; background:var(--lx-purple); position:relative; cursor:pointer; transition:background .2s; }
+.lx-sw::after{ content:""; position:absolute; top:3px; left:23px; width:24px; height:24px; border-radius:50%; background:#fff;
+  box-shadow:0 2px 4px rgba(0,0,0,.25); transition:left .25s cubic-bezier(.2,1.4,.4,1); }
+.lx-sw[aria-checked="false"]{ background:#CFC6B5; }
+.lx-sw[aria-checked="false"]::after{ left:3px; }
+.lx-anon-t{ font-size:15px; font-weight:800; }
+.lx-anon-s{ font-size:13px; color:var(--lx-muted); line-height:1.4; }
+.lx-go{ position:relative; overflow:hidden; margin-top:16px; border:0; border-radius:16px; padding:17px; font-size:18px; font-weight:800;
+  background:var(--lx-green); color:#fff; cursor:pointer; box-shadow:0 5px 0 #0B3A27; transition:transform .08s,box-shadow .08s; width:100%; }
+.lx-go::after{ content:""; position:absolute; top:0; bottom:0; width:60px; left:-80px;
+  background:linear-gradient(100deg,transparent,rgba(255,255,255,.45),transparent); transform:skewX(-20deg);
+  animation:lx-shine 3.6s 1.5s ease-in-out infinite; }
+@keyframes lx-shine{ 0%,60%{ left:-80px; } 100%{ left:120%; } }
+.lx-go:active{ transform:translateY(3px); box-shadow:0 2px 0 #0B3A27; }
+.lx-go:disabled{ opacity:.55; cursor:default; }
+.lx-arr{ display:inline-block; transition:transform .2s; }
+.lx-go:hover .lx-arr{ transform:translateX(4px); }
+.lx-fine{ font-size:12.5px; color:var(--lx-muted); text-align:center; margin:12px 0 0; }
+.lx-fine.lx-left{ text-align:left; margin-top:6px; }
+.lx-link,.lx-linkbtn{ background:none; border:0; padding:0; color:var(--lx-green); font-weight:800; text-decoration:underline; cursor:pointer; }
+.lx-linkbtn{ display:block; margin:14px auto 4px; min-height:44px; padding:0 8px; }
+.lx-err,.lx-ok{ margin:10px 12px 8px; border-radius:12px; padding:11px 13px; font-size:14px; font-weight:600; }
+.lx-err{ background:#FDE8E4; color:#8A1C0B; }
+.lx-ok{ background:#E5F2EA; color:#0F4A31; }
+.lx-who{ margin:14px 0 0; font-size:13px; color:#EBDDD0; text-align:center; position:relative; }
+.lx-who + .lx-who{ margin-top:2px; }
+.lx-who b{ color:#fff; }
+.lx-mail a{ display:inline-block; min-height:44px; line-height:44px; color:var(--lx-lime); font-weight:700; }
+
+/* tickers */
+.lx-tick{ background:var(--lx-lime); color:var(--lx-ink); overflow:hidden; white-space:nowrap; border-block:3px solid var(--lx-ink);
+  transform:rotate(-2deg); margin:-14px -14px 0; position:relative; z-index:4; box-shadow:0 8px 0 rgba(0,0,0,.12); }
+.lx-tick-b{ background:var(--lx-ink); color:var(--lx-lime); transform:rotate(1.5deg); margin-top:-6px; z-index:3; }
+.lx-tick > div{ display:inline-block; padding:11px 0; font-family:var(--lx-display); font-size:22px; letter-spacing:.04em; animation:lx-tk 28s linear infinite; }
+.lx-tick-b > div{ animation-direction:reverse; animation-duration:34s; }
+.lx-tick span span{ margin:0 14px; }
+@keyframes lx-tk{ to{ transform:translateX(-50%); } }
+
+/* sections */
+.lx-sec{ padding:44px 0 8px; }
+.lx-kick{ font-size:12px; font-weight:800; letter-spacing:.18em; text-transform:uppercase; color:var(--lx-rust); }
+.lx-h2{ font-family:var(--lx-display); font-weight:400; font-size:48px; line-height:.92; text-transform:uppercase; margin:6px 0 10px; text-shadow:3px 3px 0 var(--lx-lime); }
+.lx-intro{ color:var(--lx-muted); margin:0 0 20px; max-width:38ch; }
+.lx-grid{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.lx-tile{ border-radius:20px; padding:16px 14px 15px; color:#fff; position:relative; overflow:hidden; min-width:0;
+  box-shadow:0 5px 0 rgba(0,0,0,.2); transition:transform .25s cubic-bezier(.2,.9,.2,1); }
+.lx-tile:hover{ transform:translateY(-3px) rotate(-1deg); }
+.lx-tile::before{ content:""; position:absolute; inset:0; pointer-events:none;
+  background-image:radial-gradient(rgba(255,255,255,.16) 1px,transparent 1.4px); background-size:12px 12px; }
+.lx-tile > *{ position:relative; }
+.lx-tile h3{ margin:10px 0 4px; font-size:16.5px; font-weight:800; line-height:1.2; }
+.lx-tile p{ margin:0; font-size:13px; line-height:1.4; opacity:.92; }
+.lx-ic{ font-size:26px; line-height:1; height:32px; display:flex; align-items:center; }
+.lx-wide{ grid-column:1 / -1; }
+.lx-green{ background:var(--lx-green); } .lx-navy{ background:var(--lx-navy); } .lx-purple{ background:var(--lx-purple); }
+.lx-orange{ background:var(--lx-orange); color:var(--lx-ink); } .lx-ink{ background:var(--lx-ink); } .lx-deep{ background:var(--lx-deep); }
+.lx-lime{ background:var(--lx-lime); color:var(--lx-ink); }
+.lx-paper{ background:#fff; color:var(--lx-ink); border:2px solid var(--lx-line); box-shadow:0 5px 0 rgba(0,0,0,.06); }
+.lx-paper::before,.lx-lime::before,.lx-orange::before{ background-image:radial-gradient(rgba(0,0,0,.07) 1px,transparent 1.4px); }
+.lx-tag{ position:absolute !important; top:12px; right:12px; font-size:10px; font-weight:800; letter-spacing:.1em; text-transform:uppercase;
+  background:#E02D3C; border-radius:6px; padding:3px 7px; display:flex; gap:5px; align-items:center; }
+.lx-tag i{ width:6px; height:6px; border-radius:50%; background:#fff; animation:lx-blink 1s infinite; }
+@keyframes lx-blink{ 50%{ opacity:.2; } }
+.lx-big{ display:flex; gap:14px; align-items:baseline; margin-top:8px; font-family:var(--lx-display); font-variant-numeric:tabular-nums; }
+.lx-big b{ font-weight:400; font-size:44px; line-height:1; color:var(--lx-lime); }
+.lx-big span{ font-size:22px; }
+.lx-big em{ font-family:var(--lx-body); font-style:normal; font-size:10px; font-weight:700; opacity:.75; display:block; letter-spacing:.08em; }
+.lx-coin{ width:32px; height:32px; border-radius:50%; background:radial-gradient(circle at 35% 30%,#FFF1B8,var(--lx-gold) 45%,#A8761E);
+  box-shadow:inset 0 0 0 3px rgba(120,80,10,.35); animation:lx-flip 3s ease-in-out infinite; }
+@keyframes lx-flip{ 0%,60%{ transform:rotateY(0); } 80%{ transform:rotateY(180deg) translateY(-6px); } 100%{ transform:rotateY(360deg); } }
+.lx-rip{ position:relative; width:32px; height:32px; }
+.lx-rip i{ position:absolute; inset:0; border:2px solid var(--lx-lime); border-radius:50%; opacity:0; animation:lx-ripple 2.4s ease-out infinite; }
+.lx-rip i:nth-child(2){ animation-delay:.8s; } .lx-rip i:nth-child(3){ animation-delay:1.6s; }
+.lx-rip::after{ content:""; position:absolute; left:12px; top:12px; width:8px; height:8px; border-radius:50%; background:var(--lx-lime); }
+@keyframes lx-ripple{ 0%{ transform:scale(.2); opacity:1; } 100%{ transform:scale(1.4); opacity:0; } }
+.lx-wave{ display:flex; gap:3px; align-items:center; height:32px; }
+.lx-wave i{ width:4px; border-radius:3px; background:var(--lx-lime); animation:lx-wv 1s ease-in-out infinite; }
+.lx-wave i:nth-child(1){ height:10px; } .lx-wave i:nth-child(2){ height:22px; animation-delay:.15s; }
+.lx-wave i:nth-child(3){ height:30px; animation-delay:.3s; } .lx-wave i:nth-child(4){ height:16px; animation-delay:.45s; }
+.lx-wave i:nth-child(5){ height:24px; animation-delay:.6s; } .lx-wave i:nth-child(6){ height:12px; animation-delay:.75s; }
+@keyframes lx-wv{ 50%{ transform:scaleY(.35); } }
+.lx-mtg{ margin-top:8px; display:inline-flex; gap:6px; background:rgba(0,0,0,.14); border-radius:999px; padding:4px 10px; font-size:12px; font-weight:800; font-variant-numeric:tabular-nums; }
+
+/* RecoveryMap */
+.lx-rm{ display:block; text-decoration:none; margin-top:30px; border-radius:28px; color:#fff; padding:22px 20px 20px; position:relative; overflow:hidden;
+  background:radial-gradient(90% 80% at 80% 0%,rgba(240,195,90,.38),transparent 60%),linear-gradient(160deg,#3B2380,#1A0C42);
+  box-shadow:0 8px 0 #0E062A,0 24px 40px rgba(58,21,128,.35); }
+.lx-rays{ position:absolute; right:-120px; top:-120px; width:340px; height:340px; border-radius:50%;
+  background:repeating-conic-gradient(rgba(240,195,90,.14) 0 6deg,transparent 6deg 18deg); animation:lx-rot 30s linear infinite; }
+@keyframes lx-rot{ to{ transform:rotate(360deg); } }
+.lx-rm::after{ content:""; position:absolute; inset:0; pointer-events:none;
+  background:linear-gradient(110deg,transparent 30%,rgba(255,230,160,.22) 45%,transparent 60%); background-size:250% 100%;
+  animation:lx-sweep 5s ease-in-out infinite; }
+@keyframes lx-sweep{ 0%{ background-position:150% 0; } 60%,100%{ background-position:-50% 0; } }
+.lx-rm > *{ position:relative; z-index:1; }
+.lx-rm-top{ display:flex; align-items:center; gap:12px; }
+.lx-rm img{ width:56px; height:56px; border-radius:14px; box-shadow:0 0 0 2px var(--lx-gold),0 0 24px rgba(240,195,90,.5); }
+.lx-rm-nm{ font-family:var(--lx-serif); font-size:23px; font-weight:600; line-height:1.1; }
+.lx-rm-by{ font-size:13px; color:var(--lx-gold); font-weight:700; }
+.lx-rm-new{ margin-left:auto; align-self:flex-start; white-space:nowrap; font-size:9px; font-weight:800; letter-spacing:.1em;
+  background:var(--lx-gold); color:#1A0C42; border-radius:6px; padding:4px 7px; transform:rotate(4deg); }
+.lx-rm h3{ font-family:var(--lx-display); font-weight:400; font-size:42px; line-height:.92; text-transform:uppercase; margin:16px 0 8px; color:var(--lx-gold); text-shadow:3px 3px 0 #120833; }
+.lx-rm p{ margin:0; color:#DCD3F3; font-size:14.5px; }
+.lx-stats{ display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-top:16px; }
+.lx-stats div{ background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.12); border-radius:14px; padding:10px 6px; text-align:center; }
+.lx-stats b{ display:block; font-family:var(--lx-display); font-weight:400; font-size:24px; color:#fff; font-variant-numeric:tabular-nums; }
+.lx-stats span{ font-size:11.5px; color:#CFC4EE; }
+.lx-ways{ display:flex; flex-wrap:wrap; gap:6px; margin-top:14px; }
+.lx-ways span{ font-size:12px; font-weight:700; border:1px solid rgba(240,195,90,.45); color:#F6E3B0; border-radius:999px; padding:5px 10px; }
+.lx-rm-go{ margin-top:16px; display:inline-block; background:var(--lx-gold); color:#1A0C42; font-weight:800; border-radius:12px; padding:10px 16px; }
+
+/* promises */
+.lx-prom{ display:grid; gap:10px; }
+.lx-prom > div{ display:flex; gap:12px; align-items:center; background:#fff; border:2px solid var(--lx-ink); border-radius:18px; padding:14px; box-shadow:4px 4px 0 var(--lx-ink); }
+.lx-prom > div:nth-child(2){ transform:rotate(.6deg); } .lx-prom > div:nth-child(3){ transform:rotate(-.5deg); }
+.lx-prom p{ margin:0; font-size:14px; color:var(--lx-muted); }
+.lx-prom b{ display:block; font-size:15.5px; color:var(--lx-ink); }
+.lx-x{ flex:none; width:40px; height:40px; border-radius:12px; display:grid; place-items:center; font-family:var(--lx-display); font-size:22px; color:#fff; background:#E02D3C; transform:rotate(-6deg); }
+
+.lx-quote{ margin-top:44px; background:var(--lx-paper); padding:36px 0; position:relative; }
+.lx-quote .lx-wrap::before{ content:"\201C"; position:absolute; left:8px; top:-70px; font-family:var(--lx-serif); font-size:160px; line-height:1; color:var(--lx-orange); }
+.lx-quote blockquote{ margin:0; font-family:var(--lx-serif); font-style:italic; font-size:25px; line-height:1.28; position:relative; }
+.lx-quote cite{ display:block; margin-top:12px; font-style:normal; font-family:var(--lx-hand); color:var(--lx-green); font-size:19px; transform:rotate(-2deg); }
+
+.lx-home{ background:var(--lx-orange); color:#fff; text-align:center; padding:46px 0 44px; position:relative; overflow:hidden; }
+.lx-home::before{ content:""; position:absolute; inset:0; background-image:radial-gradient(rgba(0,0,0,.2) 1.3px,transparent 1.7px); background-size:15px 15px; }
+.lx-burst{ position:absolute; left:50%; top:50%; width:900px; height:900px; margin:-450px 0 0 -450px;
+  background:repeating-conic-gradient(rgba(255,255,255,.12) 0 8deg,transparent 8deg 20deg); animation:lx-rot 40s linear infinite; }
+.lx-home h2{ font-family:var(--lx-display); font-weight:400; font-size:78px; line-height:.92; text-transform:uppercase; margin:0; text-shadow:4px 5px 0 var(--lx-ink),8px 11px 0 rgba(0,0,0,.2); }
+.lx-home p{ margin:10px auto 6px; font-size:17px; max-width:30ch; font-weight:700; color:var(--lx-ink); }
+.lx-go-ink{ width:auto; background:var(--lx-ink); box-shadow:0 6px 0 rgba(0,0,0,.4); padding-inline:30px; }
+
+.lx-coffee{ background:var(--lx-forest); color:#E5EFE8; padding:32px 0; text-align:center; }
+.lx-cofT{ margin:0 0 6px; color:#fff; font-size:18px; font-weight:800; }
+.lx-cofP{ margin:0 auto 14px; font-size:14px; max-width:36ch; }
+.lx-cofB{ display:inline-block; background:var(--lx-lime); color:var(--lx-ink) !important; font-weight:800; border-radius:999px; padding:12px 22px; text-decoration:none; box-shadow:0 4px 0 #000; transition:transform .15s; }
+.lx-cofB:hover{ transform:rotate(-3deg) scale(1.04); }
+.lx-foot{ margin:0; background:var(--lx-night); color:#8FA89A; font-size:12.5px; text-align:center; padding:20px 18px calc(30px + env(safe-area-inset-bottom,0px)); }
+.lx-foot a{ color:#C9D9CF; }
+
+/* the bar that follows you */
+.lx-dock{ position:fixed; left:50%; bottom:calc(12px + env(safe-area-inset-bottom,0px)); z-index:30; width:min(444px,calc(100% - 28px));
+  display:flex; gap:8px; background:rgba(21,18,14,.92); -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px);
+  border-radius:20px; padding:8px; box-shadow:0 14px 30px rgba(0,0,0,.4);
+  transform:translate(-50%,160%); transition:transform .45s cubic-bezier(.2,.9,.2,1); }
+.lx-dock.on{ transform:translate(-50%,0); }
+.lx-dock button{ flex:1; border:0; border-radius:14px; padding:13px; font-weight:800; font-size:15px; cursor:pointer; min-height:48px; }
+.lx-dock-a{ background:var(--lx-lime); color:var(--lx-ink); }
+.lx-dock-b{ background:rgba(255,255,255,.12); color:#fff; flex:.6 !important; }
+
+
+/* ⚠️ globals.css styles bare h1, label and input[type=…] for the grunge
+   rooms (Anton h1, Courier labels, toner inputs). These beat a single class,
+   so the door re-asserts its own with one extra level of specificity. */
+.lx .lx-h1{ color:#fff; letter-spacing:normal; }
+.lx .lx-lab{ font-family:var(--lx-body); font-size:12px; font-weight:800; letter-spacing:.1em; text-transform:uppercase; color:var(--lx-muted); margin:14px 0 6px; }
+.lx input.lx-inp{ width:100%; border:2px solid var(--lx-line); background:#fff; border-radius:14px; padding:13px 14px;
+  font-family:var(--lx-body); font-size:16px; color:var(--lx-ink); box-shadow:none; margin:0; }
+.lx input.lx-inp:focus{ border-color:var(--lx-green); outline:none; box-shadow:0 0 0 4px rgba(27,107,74,.15); background:#fff; }
+.lx input.lx-inp:focus-visible{ outline:none; }
+.lx .lx-rm .lx-rays{ position:absolute; }
+.lx .lx-rm-nm{ color:#fff; }
+
+@media (prefers-reduced-motion:reduce){
+  .lx *,.lx *::before,.lx *::after{ animation:none !important; transition:none !important; }
+  .lx-scrib path{ stroke-dashoffset:0; }
 }
-.lp-lede{ font-size:16.5px; color:var(--lp-muted); max-width:490px; margin:0 auto; }
-.lp-pills{ display:flex; gap:7px; justify-content:center; flex-wrap:wrap; margin-top:20px; }
-.lp-pill{ font-size:12px; font-weight:700; padding:6px 12px; border-radius:7px; }
-.lp-p1{ background:var(--lp-sun); color:#3d2600; }
-.lp-p2{ background:var(--lp-grape); color:#fff; }
-.lp-p3{ background:var(--lp-paper); border:1px solid var(--lp-line); color:var(--lp-muted); }
-
-/* ---- the two doors, where "Get in early" used to be ---- */
-.lp-doors{ max-width:460px; margin:26px auto 0; text-align:left; }
-.lp-card{
-  background:var(--lp-paper); border:1px solid var(--lp-line); border-radius:10px;
-  padding:22px; box-shadow:0 8px 26px rgba(42,27,12,.07); margin-bottom:14px;
-}
-/* ⭐ Marked, and only lightly. A stranger has to find this in one glance —
-   that's the whole bug — but shouting would push returning members into
-   the wrong box, which is the same failure pointing the other way. */
-/* ⚠️ TANG, NOT GREEN. The green belongs to the rooms inside the app; out
-   here the palette is Ty's warm one and a green accent reads as a
-   different product's button dropped onto his page. */
-.lp-card.lp-new{ border:2px solid var(--lp-tang); }
-.lp-card h2{ font-family:'Fraunces',serif; font-size:21px; font-weight:600; margin:0; }
-.lp-said{ font-size:13.5px; color:var(--lp-muted); margin:3px 0 14px; }
-
-.lp-lab{
-  display:block; font-size:11px; font-weight:700; letter-spacing:.06em;
-  text-transform:uppercase; color:var(--lp-muted); margin:0 0 5px;
-}
-.lp input{
-  width:100%; border:1px solid var(--lp-line); border-radius:7px; padding:13px;
-  /* ⚠️ 16px floor — anything smaller and iOS Safari zooms the page the
-     instant the field is focused, which on the front door reads as the
-     site breaking. */
-  font-size:16px; outline:none; font-family:inherit; background:#FFFDF8;
-  color:var(--lp-ink); margin:0 0 12px;
-}
-.lp input:focus{ border-color:var(--lp-tang); box-shadow:0 0 0 3px rgba(232,89,12,.13); }
-
-/* ---- THE SOBER-SINCE DROPDOWNS, IN THE DOOR'S OWN SKIN — 6 SEPT ----
-
-   🔴 The three <select>s under "SOBER SINCE" had NO rules on this route
-   at all. .mdy lives in theme-green.css, which the door does not import,
-   so they rendered as raw browser widgets: 13.33px type, no gap, butted
-   edge to edge, next to fields that are 16px cream boxes with an orange
-   edge. The structure is fixed in globals.css now — this is the skin.
-
-   ⚠️ The 16px above is not a style choice and it applies here too. The
-   comment over `.lp input` already spells out why: under 16px, iOS
-   Safari zooms the entire page the moment the control is focused. That
-   rule was written for text inputs and simply never reached the three
-   dropdowns sitting eight lines below them in the same form.
-
-   ⭐ Every value below is COPIED from `.lp input`, not chosen. The point
-   is that the date field stops looking like it wandered in from another
-   website — so anything I picked myself would be me redesigning Ty's
-   approved page instead of repairing it. Ink on paper measures 16.39;
-   the 1px --lp-line edge is decorative and identical to the one on every
-   other field in this card. */
-.lp .mdy select{
-  border:1px solid var(--lp-line); background:#FFFDF8; color:var(--lp-ink);
-  padding:13px 8px;
-}
-.lp .mdy select:focus{
-  outline:none; border-color:var(--lp-tang);
-  box-shadow:0 0 0 3px rgba(232,89,12,.13);
-}
-/* The label sits above three controls, not one — it needs the same
-   bottom margin the inputs give themselves, or it collides with them. */
-.lp .mdy{ margin:0 0 12px; }
-
-/* Ink fill, tang on hover — straight out of the source design's .frow
-   button. ⚠️ Ink on cream measures 13.9:1; the orange hover state is
-   4.9:1 with cream text, which passes, but it is a HOVER state only for
-   that reason — orange as the resting fill would be borderline. */
-.lp-go{
-  width:100%; min-height:50px; background:var(--lp-ink); color:var(--lp-cream);
-  border:none; border-radius:7px; font-size:16px; font-weight:700;
-  cursor:pointer; font-family:inherit;
-}
-.lp-go:hover{ background:var(--lp-tang); }
-.lp-go:disabled{ opacity:.6; cursor:default; }
-
-.lp-fineprint{ font-size:12px; color:#A6906F; margin-top:11px; line-height:1.55; }
-.lp-linkbtn{
-  background:none; border:0; padding:0; min-height:44px; font-family:inherit;
-  font-size:14px; color:var(--lp-tang); text-decoration:underline; cursor:pointer;
-}
-
-.lp-err{
-  font-size:14px; line-height:1.5; color:#8C2F1E; background:#FDEFE9;
-  border-radius:8px; padding:11px 13px; margin:12px 0 0;
-}
-.lp-ok{
-  font-size:14px; line-height:1.5; color:#14432C; background:#E1F2E9;
-  border-radius:8px; padding:11px 13px; margin:12px 0 0;
-}
-
-/* ---- what's actually in here ---- */
-.lp-sec{ padding:54px 0; }
-.lp-h2{
-  font-family:'Fraunces',serif; font-size:32px; text-align:center;
-  margin:0 0 8px; font-weight:400; font-style:italic; color:var(--lp-ink);
-}
-.lp-sect{ text-align:center; color:var(--lp-muted); max-width:540px; margin:0 auto 32px; }
-.lp-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:15px; }
-.lp-tile{ background:var(--lp-paper); border:1px solid var(--lp-line); border-radius:10px; padding:21px; }
-.lp-ic{
-  width:48px; height:48px; border-radius:10px; display:flex;
-  align-items:center; justify-content:center; font-size:23px; margin-bottom:12px;
-}
-.lp-tile h3{ font-family:'Fraunces',serif; font-size:19px; margin:0 0 5px; font-weight:600; }
-.lp-tile p{ font-size:14px; color:var(--lp-muted); margin:0; }
-.lp-tag{
-  display:inline-block; font-size:10.5px; font-weight:700; padding:3px 9px;
-  border-radius:5px; margin-bottom:9px; color:#fff;
-}
-.lp-c1 .lp-ic{ background:#EFE6FE; } .lp-c1 .lp-tag{ background:var(--lp-grape); }
-.lp-c2 .lp-ic{ background:#FDE4EF; } .lp-c2 .lp-tag{ background:var(--lp-hot); }
-.lp-c3 .lp-ic{ background:#DEEAFD; }
-.lp-c4 .lp-ic{ background:#D8F3E7; }
-.lp-c5 .lp-ic{ background:#FCF0D3; }
-.lp-c6 .lp-ic{ background:#FDE6D8; }
-
-/* ---- the why ---- */
-.lp-quote{ background:var(--lp-paper); border-top:1px solid var(--lp-line); border-bottom:1px solid var(--lp-line); }
-.lp-quote blockquote{
-  font-family:'Fraunces',serif; max-width:640px; margin:0 auto; text-align:center;
-  font-size:24px; line-height:1.5; color:var(--lp-ink); font-style:italic;
-}
-.lp-quote cite{
-  display:block; font-family:'Space Grotesk',sans-serif; font-size:13.5px;
-  color:var(--lp-tang); font-style:normal; margin-top:16px; font-weight:700;
-}
-
-/* ---- come home ---- */
-.lp-cta{ background:var(--lp-tang); color:#fff; text-align:center; }
-.lp-cta .lp-h2{ color:#fff; }
-.lp-cta p{ color:#FFE8D6; max-width:470px; margin:0 auto 22px; }
-.lp-cta a{
-  display:inline-block; background:var(--lp-ink); color:var(--lp-cream);
-  text-decoration:none; border-radius:7px; padding:14px 26px;
-  font-weight:700; font-size:16px; min-height:50px; line-height:22px;
-}
-.lp-foot{ text-align:center; padding:28px; font-size:12.5px; color:#A6906F; }
-.lp-foot a{ color:#A6906F; }
-
-@media(max-width:600px){
-  .lp-h1{ font-size:31px; }
-  .lp-h2{ font-size:26px; }
-}
-
-/* ---- "send it again", Aug 26 ----
-   ⚠️ A quiet link, deliberately not a second big button. The big button is
-   what four people pressed twice this morning. */
-.lp-link{background:none;border:0;padding:0;font:inherit;color:inherit;
-  text-decoration:underline;cursor:pointer}
-.lp-link:disabled{opacity:.5;cursor:default}
-
-/* =====================================================================
-   THE HANDLE ROW ON THE SIGN-UP CARD.   Aug 27.
-
-   The handle moved off /welcome and onto the front page so a new member
-   fills one screen instead of two. It arrives pre-filled, so this row is
-   an input plus a quiet "Another" — not a blank box and a demand.
-
-   ⚠️ 44px minimum on BOTH controls. The Aug 18 lesson from the post
-   footer: the two controls people actually use were 20px and nobody had
-   noticed, because on a laptop with a mouse they work fine.
-
-   ⚠️ Class names stay `lp-` prefixed. Four names in the source design
-   (.card .lead .fine .count) already collide with globals/wall/
-   theme-green, which is why everything on this page carries the prefix. */
-.lp-handle{ display:flex; align-items:stretch; gap:10px; }
-.lp-handle input{ flex:1 1 auto; min-width:0; min-height:44px; }
-.lp-handle .lp-link{
-  flex:0 0 auto; min-height:44px; padding:0 14px;
-  border:1px solid #E2D2B4; border-radius:10px;
-  color:#8A6F45; background:#FFFDF7; white-space:nowrap;
-  font-size:14px; font-weight:600; cursor:pointer;
-}
-.lp-handle .lp-link:hover{ background:#F7EFE0; }
-.lp-opt{ font-weight:400; color:#A6906F; }
-
-/* =====================================================================
-   THE TOGGLE, AND THE ANONYMOUS SWITCH.  Aug 29.
-
-   🔴 WHY. The page was 3,808px — 5.3 phone screens — and "Sign in" sat
-   at 1,029px, below the fold, under the whole sign-up form. A returning
-   member had to scroll past a form they didn't want to reach the one
-   they did. Ty: "it all needs to be on one page."
-
-   ⚠️ These are the ONLY new rules. Nothing above was touched — the cream,
-   the Fraunces italic, the tangerine and grape pills are Ty's approved
-   design and it is not mine to repaint. Aug 15's lesson: being right
-   about the copy didn't make it my call.
-   ===================================================================== */
-.lp-seg{
-  display:flex; background:var(--lp-paper); border:1px solid var(--lp-line);
-  border-radius:999px; padding:4px; margin:26px auto 14px; max-width:430px;
-}
-.lp-seg button{
-  flex:1; min-height:44px; border:0; border-radius:999px; background:none;
-  cursor:pointer; font-family:inherit; font-size:15px; font-weight:700;
-  color:var(--lp-muted);
-}
-/* ⚠️ 44px min-height on both tabs. These are the two controls the whole
-   page exists to offer; the Aug 18 lesson about 20px tap targets on the
-   post footer applies here with more force. */
-.lp-seg button[aria-selected="true"]{ background:var(--lp-ink); color:var(--lp-cream); }
-.lp-seg button:focus-visible{ outline:3px solid rgba(232,89,12,.45); outline-offset:2px; }
-
-.lp-anon{
-  display:flex; align-items:center; gap:10px; background:#F7F2E6;
-  border:1px solid var(--lp-line); border-radius:8px; padding:11px 12px;
-  margin:2px 0 12px;
-}
-.lp-sw{
-  width:44px; height:26px; border-radius:999px; background:var(--lp-grape);
-  position:relative; flex:0 0 auto; cursor:pointer; border:0; padding:0;
-}
-.lp-sw::after{
-  content:""; position:absolute; top:3px; right:3px; width:20px; height:20px;
-  border-radius:50%; background:#fff; transition:.15s;
-}
-.lp-sw[aria-checked="false"]{ background:#D9CDB6; }
-.lp-sw[aria-checked="false"]::after{ right:21px; }
-.lp-sw:focus-visible{ outline:3px solid rgba(232,89,12,.45); outline-offset:2px; }
-.lp-anon-t{ font-size:13.5px; font-weight:700; }
-.lp-anon-s{ font-size:12px; color:var(--lp-muted); line-height:1.4; }
-
-/* =====================================================================
-   ☕ HELP KEEP THIS APP MOVING — the quiet ask, above the footer.
-
-   ⚠️ THREE NEW CLASSES, DECLARED HERE BEFORE THE MARKUP SHIPS. The naked
-   class has bitten this project repeatedly (.palink on 8 Sept, the eleven
-   from 5 Sept, .pbT earlier tonight). Styles first, markup second.
-
-   Measured on --lp-cream #FFF8EC:
-     .lp-cofT  --lp-ink   #2A1B0C   15.78
-     .lp-cofP  --lp-muted #7A6249    5.42
-     .lp-cofB  white on --lp-go      6.46
-   ⚠️ --lp-tang (#E8590C) measures 3.39 on cream and is NOT used for text
-   here — on this page it is a fill only.
-   ===================================================================== */
-.lp-coffee{ padding:34px 20px 6px; text-align:center; }
-.lp-cofT{
-  font-family:'Fraunces',Georgia,serif; font-style:italic;
-  font-size:20px; color:var(--lp-ink); margin:0 0 8px;
-}
-.lp-cofP{
-  font-size:14px; line-height:1.6; color:var(--lp-muted);
-  max-width:430px; margin:0 auto 16px;
-}
-.lp-cofB{
-  display:inline-block; background:var(--lp-go); color:#fff;
-  text-decoration:none; border-radius:7px; padding:11px 22px;
-  font-weight:700; font-size:15px; min-height:44px; line-height:22px;
-}
-.lp-cofB:hover{ background:#155A3E; }
-
-/* =====================================================================
-   WHO BUILT THIS — two lines of lettering in the hero, 11 Sept.
-
-   Ty: "put who built this on here and the email address on how to find
-   them", then "maybe put the box up top so people can see it", then
-   "we don't need the whole box, we just need lettering on it."
-
-   ⭐ THE BOXED VERSION SHIPPED FIRST AND THE MEASUREMENT KILLED IT. A
-   card under the form sat at y=3536px on the live page — four phone
-   screens down, because the sign-up form is tall. Correct in order,
-   useless in practice. Two lines up here cost about 40px.
-
-   🔴 THE FORM IS NOT ALLOWED TO MOVE FOR THIS. The 29 Aug bug was
-   "Sign in" at 1,029px behind the entire sign-up form. Anything added
-   to the hero gets MEASURED against that, never eyeballed.
-
-   ⚠️ Plain text, not a fourth pill and not a card. A pill is a claim
-   about the product; this is a claim about us.
-
-   Measured on --lp-cream #FFF8EC, floor 4.5:
-     .lp-whoTop    --lp-muted #7A6249   5.42
-     .lp-whoTop a  --lp-go    #1B6B4A   6.12
-     .lp-whoN      --lp-ink   #2A1B0C  15.78
-   ⚠️ Run before this comment was written. Four figures were typed from
-   memory on 5 Sept and all four were wrong.
-   ===================================================================== */
-.lp-whoTop{
-  font-size:13px; line-height:1.6; color:var(--lp-muted);
-  margin:14px auto 0; max-width:440px;
-}
-.lp-whoTop2{ margin-top:2px; }
-.lp-whoN{ font-weight:700; color:var(--lp-ink); }
-/* ⚠️ 44px, and it needs its own line to get there — see page.jsx. */
-.lp-whoMail{ margin-top:0; }
-.lp-whoTop a{
-  color:var(--lp-go); font-weight:700; text-decoration:none;
-  display:inline-block; min-height:44px; line-height:44px;
-}
-.lp-whoTop a:hover{ text-decoration:underline; }
-
-
-/* ---- crisis bar (29 Oct 2026) — first thing on the page, always visible ---- */
-.lp-crisis{ background:#0E1F3A; color:#fff; text-align:center; padding:10px 16px;
-  font-weight:600; font-size:14px; line-height:1.4; }
-.lp-crisis a{ color:#D0F828; font-weight:800; text-decoration:underline; }
-.lp-crisis-s{ display:block; font-weight:500; opacity:.88; margin-top:2px; }

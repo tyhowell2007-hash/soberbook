@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { browserClient } from '../../lib/supabase-browser';
 import { makeHandles, createProfile, cleanHandle } from '../../lib/first-run';
@@ -53,6 +53,27 @@ import { PROGRAM_FROM_URL } from '../../lib/program';
    the page and it stays.
    ===================================================================== */
 
+/* =====================================================================
+   ⭐ 3 Nov 2026 — THE FACELIFT. Ty: "give this a nice little facelift and
+   make it look sexy, but easy to operate as well." Prototype approved the
+   same night ("I like it").
+
+   🔴 ONLY THE LOOK AND THE WORDS CHANGED. Every handler above the return —
+   signUp, signIn, sendReset, humanise, withRoom, the recovery-link
+   forwarding, the handle cleaner, the optional date, the anonymous switch,
+   the "check your email" panel, the iPhone coffee rule — is untouched.
+   The form is still the first thing under the headline and "I'm new" is
+   still the default (29 Aug).
+
+   ⚠️ WHAT THE COPY DROPPED, ON PURPOSE:
+   - "Free forever" / "stays free" — Ty, 3 Nov: don't promise forever.
+   - "No ads" — sponsors exist now.
+   - The Jobs tile — it isn't built; the page now only shows what is.
+   - "a lifetime total that never resets even if you start over" — we don't
+     put a reset on the front door.
+   ⚠️ The phone and the three notifications in the hero are DECORATION,
+   labelled "Example screens", aria-hidden, and carry no real member.
+   ===================================================================== */
 export default function Landing() {
   const router = useRouter();
   const supabase = browserClient();
@@ -422,149 +443,194 @@ export default function Landing() {
     finally { setBusy(''); }
   }
 
+  /* ---------- the facelift's moving parts (decoration only) ---------- */
+
+  /* The example clock in the hero and the features tile. ⚠️ Starts from fixed
+     numbers so the server and the browser render the same markup; it only
+     starts ticking after mount. */
+  const [tick, setTick] = useState(0);
+  useEffect(() => {
+    const t = setInterval(() => setTick((n) => n + 1), 1000);
+    return () => clearInterval(t);
+  }, []);
+  const base = ((412 * 24 + 9) * 3600) + 41 * 60 + 11 + tick;
+  const two = (n) => String(n).padStart(2, '0');
+  const clk = { d: Math.floor(base / 86400), h: two(Math.floor(base % 86400 / 3600)),
+                m: two(Math.floor(base % 3600 / 60)), s: two(base % 60) };
+  const mtg = Math.max(0, 480 - tick);
+
+  /* Stars and embers behind the headline. Skipped entirely for anybody who
+     has asked their phone for less motion. */
+  const sky = useRef(null);
+  useEffect(() => {
+    const c = sky.current; if (!c) return;
+    const x = c.getContext('2d'); if (!x) return;
+    const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    let W = 0, H = 0, pts = [], raf = 0;
+    const size = () => {
+      W = c.clientWidth; H = c.clientHeight; c.width = W * dpr; c.height = H * dpr;
+      x.setTransform(dpr, 0, 0, dpr, 0, 0);
+      pts = Array.from({ length: 80 }, (_, i) => ({ x: Math.random() * W, y: Math.random() * H,
+        r: Math.random() * 1.4 + .3, t: Math.random() * 6, v: Math.random() * .25 + .05, e: i < 20 }));
+    };
+    const draw = () => {
+      x.clearRect(0, 0, W, H);
+      for (const q of pts) {
+        q.t += .02;
+        if (q.e) { q.y -= q.v * 2; if (q.y < 0) { q.y = H; q.x = Math.random() * W; }
+          x.fillStyle = `rgba(255,190,110,${.35 + .35 * Math.sin(q.t)})`; }
+        else x.fillStyle = `rgba(255,255,255,${(.25 + .5 * Math.abs(Math.sin(q.t))) * (1 - q.y / H)})`;
+        x.beginPath(); x.arc(q.x, q.y, q.e ? q.r + .6 : q.r, 0, 7); x.fill();
+      }
+      if (!still) raf = requestAnimationFrame(draw);
+    };
+    size(); draw();
+    window.addEventListener('resize', size);
+    return () => { cancelAnimationFrame(raf); window.removeEventListener('resize', size); };
+  }, []);
+
+  /* ⭐ THE BAR THAT FOLLOWS YOU. Once the form has scrolled off the top, a
+     slim bar with "Make my account" and "Sign in" sits at the bottom of the
+     screen, so nobody reading the features has to scroll back to find a
+     door. Hidden while the "check your email" panel is up. */
+  const door = useRef(null);
+  const [dock, setDock] = useState(false);
+  useEffect(() => {
+    const el = door.current;
+    if (!el || !('IntersectionObserver' in window)) return;
+    const io = new IntersectionObserver(([e]) => setDock(!e.isIntersecting && e.boundingClientRect.top < 0));
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+  function goTo(which) {
+    setMode(which); setErr(''); setNote('');
+    door.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  /* The little line under the date. Blank stays blank — "if you have one". */
+  let sinceLine = '';
+  if (upSince) {
+    const n = Math.floor((Date.now() - new Date(upSince + 'T00:00:00')) / 864e5);
+    sinceLine = n < 1 ? 'Day one counts. Welcome in. 🌱'
+      : `That’s ${n.toLocaleString()} day${n === 1 ? '' : 's'}. Proud of you. 🪙`;
+  }
+
+  const TICK_A = ['18+ only', 'Live sober clock', 'Recovery coins', 'Talk Rooms', 'Meetings any hour', 'Anonymous if you want', 'All paths welcome'];
+  const TICK_B = ['RecoveryMap by Dr. Labor', 'A plan for 3 a.m.', 'Daily pledge', 'Readings', 'Rooms for every path', 'Chat', 'Somewhere quiet'];
+  const strip = (arr) => [...arr, ...arr].map((w, i) => (
+    <span key={i}><span>{w}</span><span className="lx-star">✦</span></span>));
+
   return (
-    <div className="lp">
+    <div className="lx">
 
       {/* ⭐ 29 Oct 2026 — CRISIS LINE ON THE FRONT DOOR. CRCC (Illinois) asked
           for 988 and the Illinois Helpline to be visible on the public landing
           page; they had looked and found nothing. Shown to everybody: the app
           never asks where you are, so it cannot pick a state for you.
           Neither line is run by Sober Book and nobody pays to be here. */}
-      <div className="lp-crisis" role="note">
+      <div className="lx-crisis" role="note">
         Need someone right now? Call or text <a href="tel:988">988</a>, any hour.
-        <span className="lp-crisis-s">
+        <span className="lx-crisis-s">
           In Illinois: <a href="tel:18332346343">833-234-6343</a> or text HELP to 833234
         </span>
       </div>
 
-      <div className="lp-hero">
-        <div className="lp-wrap">
-          <div className="lp-leaf">🌿</div>
-          <div className="lp-brand">SOBER BOOK</div>
-          <h1 className="lp-h1">You never have to explain yourself here.</h1>
-          <p className="lp-lede">
-            A home for people in recovery. Everybody here already gets it —
+      <header className="lx-hero">
+        <div className="lx-sky" aria-hidden="true" />
+        <div className="lx-sun" aria-hidden="true" />
+        <canvas className="lx-stars" ref={sky} aria-hidden="true" />
+
+        <div className="lx-wrap">
+          <div className="lx-brand">
+            <div className="lx-logo"><img src="/icon-192.png" alt="" width="40" height="40" />SOBER BOOK</div>
+            {!sent && <button type="button" className="lx-pill" onClick={() => goTo('in')}>Sign in</button>}
+          </div>
+
+          <div className="lx-live"><i aria-hidden="true" /> Open any hour, day or night.</div>
+
+          <h1 className="lx-h1">
+            <span className="lx-ln"><span>You never</span></span>
+            <span className="lx-ln"><span>have to</span></span>
+            <span className="lx-ln"><span className="lx-hl">explain
+              <svg className="lx-scrib" viewBox="0 0 300 22" preserveAspectRatio="none" aria-hidden="true">
+                <path d="M4 14 C 60 4, 120 20, 180 10 S 270 6, 296 12" />
+              </svg></span></span>
+            <span className="lx-ln"><span>yourself here.</span></span>
+          </h1>
+          <p className="lx-lede">
+            A home for people in recovery. Everybody here already gets it,
             because they’ve been there too.
           </p>
 
-          {/* ⚠️ The third pill WAS "🛡️ Verified, real people". It is gone and
-              must stay gone — nobody is verified. This one says something
-              the product can actually keep. */}
-          <div className="lp-pills">
-            <span className="lp-pill lp-p1">💊 All paths welcome — Suboxone included</span>
-            <span className="lp-pill lp-p2">🤫 Stay anonymous</span>
-            <span className="lp-pill lp-p3">🌱 Free, and the doors are open</span>
+          {/* DECORATION — an example phone and three example notifications.
+              aria-hidden, labelled, and none of it is a real member. */}
+          <div className="lx-stage" aria-hidden="true">
+            <div className="lx-phone"><div className="lx-scr">
+              <div className="lx-bar">SOBER BOOK<span>The wall</span></div>
+              <div className="lx-clock"><small>SOBER RIGHT NOW</small>
+                <div className="lx-day">Day {clk.d}</div>
+                <div className="lx-hms"><div>{clk.h}<em>HRS</em></div><div>{clk.m}<em>MIN</em></div><div>{clk.s}<em>SEC</em></div></div>
+              </div>
+              <div className="lx-mini"><b>🌱 morningbird</b><br />90 days today. Didn’t think I’d see it.<div className="lx-cn">🪙 14 coins</div></div>
+              <div className="lx-mini"><b>🕊️ quietmorning</b><br />Rough night but I made it to a meeting.<div className="lx-cn">🪙 6 coins</div></div>
+            </div></div>
+            <div className="lx-note lx-n1"><div className="lx-em" style={{ background: '#FFF1C9' }}>🪙</div><div><b>steadyhands sent a coin</b><span>“Proud of you.”</span></div></div>
+            <div className="lx-note lx-n2"><div className="lx-em" style={{ background: '#E7DBFF' }}>🎙️</div><div><b>A Talk Room just opened</b><span>Can’t sleep? 4 listening</span></div></div>
+            <div className="lx-note lx-n3"><div className="lx-em" style={{ background: '#E3F4E9' }}>🪑</div><div><b>NA meeting in 8 min</b><span>Tap to dial in</span></div></div>
+            <div className="lx-sample">Example screens</div>
           </div>
 
-          {/* WHO BUILT THIS — 11 Sept. Ty: "put who built this on here and
-              the email address on how to find them", then "we don't need
-              the whole box, we just need lettering on it."
-
-              ⚠️ NOT A FOURTH PILL. A pill is a claim about the product;
-              this is a claim about us, and in that row it reads as a
-              feature. ⚠️ NOT A CARD EITHER — the boxed version shipped
-              first and sat at y=3536px, four screens below the fold,
-              because the sign-up form is tall. Two lines of lettering in
-              the hero cost about 40px and are read by everybody.
-              🔴 THE FORM DOES NOT MOVE FOR THIS. 29 Aug: "Sign in" at
-              1,029px behind the whole sign-up form. Measure, do not eyeball.
-              🔴 EVERY NAME HERE CAME FROM TY, TYPED OUT, ONE AT A TIME.
-              Nothing on this line was looked up, inferred from a handle,
-              or completed from a first name. Being named on a recovery
-              app's front page says something about a man in public, so
-              the only acceptable source for it is him or the man himself
-              — never a lookup. If a name ever needs changing, ask; do not
-              reconstruct it.
-
-              ⚠️ The address gets its own line so it can carry a 44px tap
-              target. Inline in a 13px paragraph it is about 21px, which
-              is the 18 Aug post-footer bug: the one control anybody
-              actually needs, too small to hit. */}
-          <p className="lp-whoTop">
-            Built by people in recovery, in Ohio.
-          </p>
-          <p className="lp-whoTop lp-whoTop2">
-            <span className="lp-whoN">Ty Howell</span>, founder and CEO
-            {' · '}
-            <span className="lp-whoN">Nic Rossiter</span>, cofounder
-            {' · '}
-            <span className="lp-whoN">Kenneth Kerns</span>, cofounder
-          </p>
-          <p className="lp-whoTop lp-whoMail">
-            <a href="mailto:hello@soberbook.app">hello@soberbook.app</a>
-          </p>
-
-          {/* ⚠️ Hidden while the "check your email" panel is up. That panel
-              only appears when confirmation is ON and there is genuinely
-              mail on the way; offering a Sign in tab at that moment invites
-              somebody to try signing in to an account they have not
-              confirmed yet, and fail. */}
-          {!sent && (
-            <div className="lp-seg" role="tablist" aria-label="Sign up or sign in">
-              <button type="button" role="tab" id="tab-new"
-                      aria-selected={mode === 'new'} aria-controls="pane-new"
-                      onClick={() => { setMode('new'); setErr(''); setNote(''); }}>
-                I&rsquo;m new
-              </button>
-              <button type="button" role="tab" id="tab-in"
-                      aria-selected={mode === 'in'} aria-controls="pane-in"
-                      onClick={() => { setMode('in'); setErr(''); setNote(''); }}>
-                Sign in
-              </button>
-            </div>
-          )}
-
-          <div className="lp-doors" id="join">
+          <div className="lx-card" id="join" ref={door}>
+            {/* ⚠️ Hidden while the "check your email" panel is up. That panel
+                only appears when confirmation is ON and there is genuinely
+                mail on the way; offering a Sign in tab at that moment invites
+                somebody to try signing in to an account they have not
+                confirmed yet, and fail. */}
+            {!sent && (
+              <div className="lx-seg" role="tablist" aria-label="Sign up or sign in" data-on={mode}>
+                <div className="lx-slider" aria-hidden="true" />
+                <button type="button" role="tab" id="tab-new"
+                        aria-selected={mode === 'new'} aria-controls="pane-new"
+                        onClick={() => { setMode('new'); setErr(''); setNote(''); }}>
+                  I&rsquo;m new
+                </button>
+                <button type="button" role="tab" id="tab-in"
+                        aria-selected={mode === 'in'} aria-controls="pane-in"
+                        onClick={() => { setMode('in'); setErr(''); setNote(''); }}>
+                  Sign in
+                </button>
+              </div>
+            )}
 
             {/* ---------- NEW HERE, FIRST ----------
                 Email, password, and a handle that is already filled in.
-                That is the whole account. ⭐ /welcome is no longer on the
-                path — it stays for the case where e-mail confirmation is
-                switched back on and there is no session to create a
-                profile with. See lib/first-run.js. ---------- */}
-            {/* ⚠️ The "check your email" panel lives inside this card, so
-                the card must stay mounted when `sent` is set even if the
-                tab has moved. Hence `|| sent` — without it, confirming by
-                email would blank the screen the moment mode changed. */}
-            <div className="lp-card lp-new"
+                That is the whole account. See the Aug 26–29 notes above. */}
+            <div className="lx-pane"
                  id="pane-new" role="tabpanel" aria-labelledby="tab-new"
                  hidden={mode !== 'new' && !sent}>
 
-              {/* 🔴 AFTER SIGNING UP, THE SIGN-UP BUTTON GOES AWAY.
-
-                  Found Aug 26 in the live auth logs. The old page left the
-                  form exactly as it was and put a note underneath. So the
-                  sequence was: create account → email is slow or in spam →
-                  press the same button again → 429 → "something went wrong,
-                  tell Ty". Four people in one morning, on an account that
-                  had been created perfectly.
-
-                  ⭐ The fix isn't better error copy, it's removing the thing
-                  they press. You cannot get the rate-limit error from a
-                  button that isn't there.
-
-                  ⚠️ "Send it again" is still offered, because the email
-                  genuinely does go missing — but it's a quiet link rather
-                  than the big green button, and if they hit the limit the
-                  message now tells them the truth. */}
+              {/* 🔴 AFTER SIGNING UP, THE SIGN-UP BUTTON GOES AWAY (Aug 26).
+                  You cannot get the rate-limit error from a button that
+                  isn't there. "Send it again" stays as a quiet link. */}
               {sent ? (
                 <>
                   <h2>Check your email</h2>
-                  <p className="lp-said">
+                  <p className="lx-said">
                     We sent a confirmation link to <strong>{sent}</strong>.
-                    Click it, then come back and sign in above.
+                    Click it, then come back and sign in.
                   </p>
-                  <p className="lp-said">
+                  <p className="lx-said">
                     <strong>Look in your spam folder.</strong> It lands there
                     more often than not — and it&rsquo;s from Sober Book.
                   </p>
-                  <button className="lp-go" type="button" disabled={!!busy}
+                  <button className="lx-go" type="button" disabled={!!busy}
                           onClick={() => { setSent(''); setNote(''); setErr(''); }}>
                     Use a different email
                   </button>
-                  <p className="lp-fineprint">
+                  <p className="lx-fine">
                     Didn&rsquo;t arrive after a few minutes?{' '}
-                    <button type="button" className="lp-link"
+                    <button type="button" className="lx-link"
                             disabled={!!busy}
                             onClick={(ev) => { setUpEmail(sent); signUp(ev); }}>
                       Send it again
@@ -573,110 +639,70 @@ export default function Landing() {
                 </>
               ) : (
               <>
-              <h2>New here?</h2>
-              <p className="lp-said">
-                Make an account and you’re in. Takes a minute, and you can be
-                anonymous from the first second.
+              <h2>Come on in.</h2>
+              <p className="lx-said">
+                It takes a minute, and you can be anonymous from the first second.
               </p>
 
               <form onSubmit={signUp}>
-                <label className="lp-lab" htmlFor="up-em">Email</label>
-                <input id="up-em" type="email" required autoComplete="email"
+                <label className="lx-lab" htmlFor="up-em">Email</label>
+                <input id="up-em" className="lx-inp" type="email" required autoComplete="email"
                        value={upEmail} onChange={(e) => setUpEmail(e.target.value)}
                        placeholder="you@email.com" />
 
-                <label className="lp-lab" htmlFor="up-pw">Password</label>
-                <input id="up-pw" type="password" required minLength={8}
+                <label className="lx-lab" htmlFor="up-pw">Password</label>
+                <input id="up-pw" className="lx-inp" type="password" required minLength={8}
                        autoComplete="new-password"
                        value={upPw} onChange={(e) => setUpPw(e.target.value)}
-                       placeholder="at least 8 characters" />
+                       placeholder="At least 8 characters" />
 
-                {/* ⭐ THE THIRD FIELD, AND IT IS NEVER BLANK.
-                    The handle used to live on a whole second screen and
-                    was the only required box there — a stranger being
-                    asked to invent the name people in recovery will know
-                    them by, before they had seen anything. It arrives
-                    already filled. Changing it is optional; ignoring it
-                    is fine. ⚠️ Nothing here says "sober", "clean" or
-                    "day one" — a handle travels, and a generated name
-                    must never be the thing that outs somebody. */}
-                <label className="lp-lab" htmlFor="up-h">
-                  Your handle <span className="lp-opt">— change it or keep it</span>
+                {/* ⭐ THE THIRD FIELD, AND IT IS NEVER BLANK. ⚠️ Nothing a
+                    generated handle says may out somebody — see first-run.js. */}
+                <label className="lx-lab" htmlFor="up-h">
+                  Your handle <span className="lx-opt">· the only name anyone sees</span>
                 </label>
-                <div className="lp-handle">
-                  <input id="up-h" type="text" required minLength={3} maxLength={20}
+                <div className="lx-row">
+                  <input id="up-h" className="lx-inp" type="text" required minLength={3} maxLength={20}
                          autoComplete="off" autoCapitalize="none" spellCheck={false}
                          value={upHandle}
-                         /* 🔴 CLEANED ON EVERY KEYSTROKE. The box used to
-                            take anything, and the database then refused
-                            it — eleven people ended up with a login and
-                            no account, four of them inside a tenth of a
-                            second. Typing your own name is what breaks
-                            it: "Mary Jane", "mary.jane", "O'Brien".
-                            A space becomes an underscore so two words
-                            stay two words; other punctuation is dropped. */
+                         /* 🔴 CLEANED ON EVERY KEYSTROKE (eleven people with a
+                            login and no account). Do not remove. */
                          onChange={(e) => { setUpHandle(cleanHandle(e.target.value)); setMine(true); }} />
-                  <button type="button" className="lp-link" disabled={!!busy}
+                  <button type="button" className="lx-ghost" disabled={!!busy}
                           onClick={() => { setUpHandle(makeHandles(1)[0]); setMine(false); }}>
-                    Another
+                    <span className="lx-dice" aria-hidden="true">🎲</span> Another
                   </button>
                 </div>
-                {/* 🔴 THE THREE-CHARACTER FLOOR, GUARDED IN THE APP — 3 Sept.
-                    `minLength={3}` above was the ONLY thing standing between a
-                    short handle and a database that refuses it. Measured on the
-                    live page: with the value at "ab", `validity.tooShort` came
-                    back FALSE. Whether that holds for a real keystroke I could
-                    not prove either way — and that is exactly the point. This
-                    rule is enforced by a CHECK constraint in Postgres, and
-                    leaning on a browser attribute to keep people away from it
-                    is the same shape as the bug that left eleven people with a
-                    login and no account.
-
-                    ⭐ And cleanHandle can MAKE a short one out of a long one:
-                    "J.D." loses both dots and comes out "JD", "A.J." → "AJ".
-                    Nobody typed two characters; the cleaner produced them.
-
-                    ⚠️ The sentence swaps rather than stacking, because a
-                    disabled button with no reason next to it is the dead-end
-                    this file already fixed once (16 Aug). */}
-                <p className="lp-fineprint">
+                {/* 🔴 THE THREE-CHARACTER FLOOR, GUARDED IN THE APP — 3 Sept. */}
+                <p className="lx-fine lx-left">
                   {upHandle.length < 3
                     ? 'A handle needs three characters or more — add one or two and you’re in.'
-                    : 'This is the only name other members see. Not your email, not your real name — and you can change it later.'}
+                    : 'Not your email, not your real name — and you can change it later.'}
                 </p>
 
-                <button className="lp-go" type="submit"
+                <button className="lx-go" type="submit"
                         disabled={!!busy || upHandle.length < 3}>
-                  {busy === 'up' ? 'One second…' : 'Create my account'}
+                  {busy === 'up' ? 'One second…' : <>Create my account <span className="lx-arr">→</span></>}
                 </button>
               </form>
 
-              {/* ⚠️ LAST, AND OPTIONAL. It sits below the handle so the
-                  three fields that make an account come first — somebody
-                  who taps straight through has still finished. The label
-                  carries the permission, not a hint underneath it: "if you
-                  have one" is doing the work of a whole sentence. */}
-              <label className="lp-lab" htmlFor="up-m">
-                Sober since <span className="lp-opt">— if you have one</span>
+              {/* ⚠️ LAST, AND OPTIONAL. Blank is a real answer. */}
+              <label className="lx-lab" htmlFor="up-m">
+                Sober since <span className="lx-opt">· if you have one</span>
               </label>
-              {/* Same three dropdowns as /me. One control, three callers. */}
               <DatePick value={upSince} disabled={!!busy}
                         idPrefix="up" onChange={setUpSince} />
+              {sinceLine && <p className="lx-count">{sinceLine}</p>}
 
-              {/* ⭐ THE SAFEST THING ABOUT SIGNING UP, MADE VISIBLE.
-                  The default was already anonymous; until now nothing on
-                  the screen said so. ⚠️ The two sentences describe what
-                  actually happens in the app — anonymity is per-post and
-                  reversible either way, so neither wording promises
-                  something the product doesn't do. */}
-              <div className="lp-anon">
-                <button type="button" className="lp-sw" id="anon"
+              {/* ⭐ THE SAFEST THING ABOUT SIGNING UP, MADE VISIBLE. */}
+              <div className="lx-anon">
+                <button type="button" className="lx-sw" id="anon"
                         role="switch" aria-checked={anon}
                         aria-label="Stay anonymous"
                         onClick={() => setAnon((v) => !v)} />
                 <div>
-                  <div className="lp-anon-t">Stay anonymous</div>
-                  <div className="lp-anon-s">
+                  <div className="lx-anon-t">Stay anonymous</div>
+                  <div className="lx-anon-s">
                     {anon
                       ? 'Only your handle shows. No real name, no face.'
                       : 'Your display name can show on posts. You can still go anonymous on any single post.'}
@@ -684,7 +710,7 @@ export default function Landing() {
                 </div>
               </div>
 
-              <p className="lp-fineprint">
+              <p className="lx-fine">
                 Your email is never shown to another member. Ever. Not a
                 treatment centre, and nobody sells your information.
               </p>
@@ -692,194 +718,166 @@ export default function Landing() {
               )}
             </div>
 
-            {/* ---------- SIGN IN, SECOND NOW ----------
-                🔴 THIS BOX USED TO BE ON TOP, AND THAT WAS THE BUG WEARING
-                A THIRD HAT. Aug 19 sent strangers to a bare password page.
-                Aug 23 put the pitch and both boxes on ONE page — but left
-                sign-in first, so the very first thing a new person read
-                was still a password prompt for an account they did not
-                have. Ty found the last of it himself on Aug 27 by walking
-                the journey as a stranger.
-
-                ⚠️ Returning members KNOW they have an account and will
-                scroll; a stranger does not know they are allowed in. When
-                the two audiences conflict, the one who might leave wins.
-                ---------- */}
-            <div className="lp-card"
+            {/* ---------- SIGN IN ---------- */}
+            <div className="lx-pane"
                  id="pane-in" role="tabpanel" aria-labelledby="tab-in"
                  hidden={mode !== 'in' || !!sent}>
-              <h2>{reset ? 'Let’s get you back in' : 'Sign in'}</h2>
-              <p className="lp-said">
+              <h2>{reset ? 'Let’s get you back in' : 'Welcome back.'}</h2>
+              <p className="lx-said">
                 {reset
                   ? 'Put in your email and we’ll send a link to set a new password.'
-                  : 'Been here before? Pick up wherever you left it.'}
+                  : 'Good to see you. Pick up wherever you left it.'}
               </p>
 
               <form onSubmit={reset ? sendReset : signIn}>
-                <label className="lp-lab" htmlFor="in-em">Email</label>
-                <input id="in-em" type="email" required autoComplete="email"
+                <label className="lx-lab" htmlFor="in-em">Email</label>
+                <input id="in-em" className="lx-inp" type="email" required autoComplete="email"
                        value={inEmail} onChange={(e) => setInEmail(e.target.value)}
                        placeholder="you@email.com" />
 
                 {!reset && (
                   <>
-                    <label className="lp-lab" htmlFor="in-pw">Password</label>
-                    <input id="in-pw" type="password" required autoComplete="current-password"
-                           value={inPw} onChange={(e) => setInPw(e.target.value)} />
+                    <label className="lx-lab" htmlFor="in-pw">Password</label>
+                    <input id="in-pw" className="lx-inp" type="password" required autoComplete="current-password"
+                           value={inPw} onChange={(e) => setInPw(e.target.value)}
+                           placeholder="Your password" />
                   </>
                 )}
 
-                <button className="lp-go" type="submit" disabled={!!busy}>
+                <button className="lx-go" type="submit" disabled={!!busy}>
                   {busy === 'in' || busy === 'reset' ? 'One second…'
-                    : reset ? 'Send me a link' : 'Sign in'}
+                    : reset ? 'Send me a link' : <>Sign in <span className="lx-arr">→</span></>}
                 </button>
               </form>
 
-              <button className="lp-linkbtn" type="button"
+              <button className="lx-linkbtn" type="button"
                       onClick={() => { setReset(!reset); setErr(''); setNote(''); setInPw(''); }}>
                 {reset ? 'Back to signing in' : 'I forgot my password'}
               </button>
             </div>
 
-            {err && <div className="lp-err" role="alert">{err}</div>}
-            {note && <div className="lp-ok" role="status">{note}</div>}
+            {err && <div className="lx-err" role="alert">{err}</div>}
+            {note && <div className="lx-ok" role="status">{note}</div>}
           </div>
-        </div>
-      </div>
 
-      {/* ---------- what's actually in here ---------- */}
-      <section className="lp-sec">
-        <div className="lp-wrap">
-          <h2 className="lp-h2">Everything you need, under one roof</h2>
-          <p className="lp-sect">
-            Recovery isn’t just about not drinking. It’s about building a life.
-            Sober Book helps with all of it.
+          {/* WHO BUILT THIS — 11 Sept. 🔴 EVERY NAME HERE CAME FROM TY, TYPED
+              OUT. If a name ever needs changing, ask; do not reconstruct it. */}
+          <p className="lx-who">Built by people in recovery, in Ohio.</p>
+          <p className="lx-who">
+            <b>Ty Howell</b>, founder and CEO{' · '}<b>Nic Rossiter</b>, cofounder{' · '}<b>Kenneth Kerns</b>, cofounder
+          </p>
+          <p className="lx-who lx-mail"><a href="mailto:hello@soberbook.app">hello@soberbook.app</a></p>
+        </div>
+      </header>
+
+      <div className="lx-tick" aria-hidden="true"><div>{strip(TICK_A)}</div></div>
+      <div className="lx-tick lx-tick-b" aria-hidden="true"><div>{strip(TICK_B)}</div></div>
+
+      {/* ---------- what's actually in here ----------
+          🔴 ONLY THINGS THAT EXIST TODAY. If a tile's feature is ever pulled,
+          the tile goes with it. */}
+      <section className="lx-sec">
+        <div className="lx-wrap">
+          <div className="lx-kick">Everything under one roof</div>
+          <h2 className="lx-h2">All of it.<br />One app.</h2>
+          <p className="lx-intro">
+            Recovery isn’t only about not drinking or using. It’s about building
+            a life, and Sober Book helps with all of it.
           </p>
 
-          <div className="lp-grid">
-            <div className="lp-tile lp-c1">
-              <span className="lp-tag">NOBODY ELSE HAS THIS</span>
-              <div className="lp-ic">🤫</div>
-              <h3>Anonymous if you want</h3>
-              {/* ⚠️ The original ended "And everyone's still verified as real."
-                  Cut. Nobody is verified. */}
-              <p>Use a handle and an icon — no real name, no face. You can go
-                 anonymous on a single post and back again, and nobody can tell
-                 it was the same person.</p>
+          <div className="lx-grid">
+            <div className="lx-tile lx-green lx-wide">
+              <div className="lx-ic">⏱️</div><h3>Your live sober clock</h3>
+              <p>Ticking right on your page, down to the second. Day one counts too.</p>
+              <div className="lx-big" aria-hidden="true">
+                <div><b>{clk.d}</b><em>DAYS</em></div><div><span>{clk.h}</span><em>HRS</em></div>
+                <div><span>{clk.m}</span><em>MIN</em></div><div><span>{clk.s}</span><em>SEC</em></div>
+              </div>
             </div>
+            <div className="lx-tile lx-navy"><div className="lx-ic"><div className="lx-coin" /></div><h3>Recovery coins</h3><p>Send a coin instead of a like. Every day counts.</p></div>
+            <div className="lx-tile lx-deep"><div className="lx-ic"><div className="lx-rip"><i /><i /><i /></div></div><h3>Your ripple</h3><p>See how many people your posts reached. Numbers, never names.</p></div>
+            <div className="lx-tile lx-ink"><span className="lx-tag"><i />Live</span><div className="lx-ic"><div className="lx-wave"><i /><i /><i /><i /><i /><i /></div></div><h3>Talk Rooms</h3><p>Talk it out live, with a mic or camera. Nothing is recorded.</p></div>
+            <div className="lx-tile lx-orange"><div className="lx-ic">🪑</div><h3>Meetings, right now</h3><p>Real AA and NA meetings from their own listings.</p><div className="lx-mtg" aria-hidden="true">⏰ next in {Math.floor(mtg / 60)}:{two(mtg % 60)}</div></div>
+            <div className="lx-tile lx-paper"><div className="lx-ic">🌙</div><h3>A plan for 3 a.m.</h3><p>Written on a good day, there for the hard one.</p></div>
+            <div className="lx-tile lx-lime"><div className="lx-ic">✋</div><h3>Daily pledge</h3><p>One line a day. The days you showed up.</p></div>
+            <div className="lx-tile lx-paper"><div className="lx-ic">📖</div><h3>A reading a day</h3><p>Two minutes, the same reading as everyone.</p></div>
+            <div className="lx-tile lx-green"><div className="lx-ic">🛋️</div><h3>Rooms for every path</h3><p>The Front Room, Al-Anon, 7-OH and more.</p></div>
+            <div className="lx-tile lx-navy"><div className="lx-ic">💬</div><h3>Chat</h3><p>Your people, one tap away. Someone’s usually up.</p></div>
+            <div className="lx-tile lx-purple"><div className="lx-ic">🤫</div><h3>Post anonymously</h3><p>Go anonymous on one post and back. Nobody can tell.</p></div>
+            <div className="lx-tile lx-paper lx-wide"><div className="lx-ic">🕯️</div><h3>Somewhere quiet</h3><p>Write what gets you through, on the one wall in here where nobody can reply.</p></div>
+          </div>
 
-            <div className="lp-tile lp-c2">
-              <span className="lp-tag">NOT BUILT YET</span>
-              <div className="lp-ic">💼</div>
-              <h3>Jobs</h3>
-              <p>Work you can apply to under your handle, so what you disclose
-                 is your call. We’re building a roster of employers who actively
-                 want to hire people in recovery — that part isn’t there yet,
-                 and we’ll say so plainly until it is.</p>
+          {/* ⭐ RecoveryMap — Dr. Nicole Labor's app, now inside Sober Book.
+              🔴 She is named as its MAKER, never as endorsing Sober Book. */}
+          <a className="lx-rm" href="/rm">
+            <div className="lx-rays" aria-hidden="true" />
+            <div className="lx-rm-top">
+              <img src="/rm/icon-192.png" alt="" width="56" height="56" />
+              <div><div className="lx-rm-nm">RecoveryMap</div><div className="lx-rm-by">by Dr. Nicole Labor, DO</div></div>
+              <span className="lx-rm-new">INSIDE SOBER BOOK</span>
             </div>
+            <h3>A doctor’s map<br />to care.</h3>
+            <p>Find treatment, recovery housing, telehealth and free meetings near you.
+               Made by a board-certified addiction medicine doctor.</p>
+            <div className="lx-stats">
+              <div><b>12,916</b><span>programs</span></div><div><b>Every</b><span>state</span></div><div><b>$0</b><span>paid listings</span></div>
+            </div>
+            <div className="lx-ways"><span>Treatment near you</span><span>Recovery housing</span><span>Telehealth</span><span>Narcan, free</span><span>Quick exit</span></div>
+            <div className="lx-rm-go">Open RecoveryMap →</div>
+          </a>
+        </div>
+      </section>
 
-            <div className="lp-tile lp-c3">
-              <div className="lp-ic">👋</div>
-              <h3>Friends who get it</h3>
-              <p>Find people, add them, talk. Your friends list puts whoever
-                 you haven’t heard from at the top — so you notice the quiet
-                 one before it’s too long.</p>
-            </div>
-
-            <div className="lp-tile lp-c4">
-              <div className="lp-ic">🪑</div>
-              <h3>Meetings, day or night</h3>
-              <p>Real NA meetings straight from their own listings, one tap to
-                 join — plus rooms members open here themselves when they can’t
-                 sleep.</p>
-            </div>
-
-            <div className="lp-tile lp-c5">
-              <div className="lp-ic">🕯️</div>
-              <h3>Somewhere quiet</h3>
-              <p>Write what gets you through — your daughter, Jesus, the ocean,
-                 nothing at all — on the one wall in here nobody can argue with
-                 you on. Plus something to do with your hands at 3am.</p>
-            </div>
-
-            <div className="lp-tile lp-c6">
-              <div className="lp-ic">🎵</div>
-              <h3>Your days and your song</h3>
-              <p>Count your days, keep a lifetime total that never resets even
-                 if you start over, and put the song that got you through right
-                 on your profile.</p>
-            </div>
+      <section className="lx-sec">
+        <div className="lx-wrap">
+          <div className="lx-kick">Our promises</div>
+          <h2 className="lx-h2">What we’ll<br />never do.</h2>
+          <div className="lx-prom">
+            <div><span className="lx-x">✕</span><p><b>Sell your information</b>Not to a treatment centre, not to anybody. Ever.</p></div>
+            <div><span className="lx-x">✕</span><p><b>Show your email or real name</b>Other members only ever see your handle.</p></div>
+            <div><span className="lx-x">✕</span><p><b>Rank people</b>No leaderboards. Day one sits right next to day 1,000.</p></div>
+            <div><span className="lx-x">✕</span><p><b>Judge your path</b>Suboxone, MAT, the rooms, your own way. All paths welcome.</p></div>
           </div>
         </div>
       </section>
 
-      <section className="lp-sec lp-quote">
-        <div className="lp-wrap">
+      <section className="lx-quote">
+        <div className="lx-wrap">
           <blockquote>
-            “Every time I met someone new I’d think — do I tell them? On here I
-            don’t have to. Everybody already knows.”
-            <cite>— why we built this</cite>
+            Every time I met someone new I’d think, do I tell them? On here I
+            don’t have to. Everybody already knows.
+            <cite>why we built this</cite>
           </blockquote>
         </div>
       </section>
 
-      <section className="lp-sec lp-cta">
-        <div className="lp-wrap">
-          <h2 className="lp-h2">Come home.</h2>
+      <section className="lx-home">
+        <div className="lx-burst" aria-hidden="true" />
+        <div className="lx-wrap">
+          <h2>Come home.</h2>
           <p>No judgment. No hiding. Just people who get it.</p>
-          {/* ⚠️ An anchor back to the form, NOT a second email capture. The
-              doors are open; collecting an address to tell somebody about an
-              app they can join right now is a hoop for no reason. */}
-          <a href="#join">Make an account</a>
+          {/* ⚠️ Back to the form, NOT a second email capture. */}
+          <button type="button" className="lx-go lx-go-ink" onClick={() => goTo('new')}>
+            Make my account <span className="lx-arr">→</span>
+          </button>
         </div>
       </section>
 
       {/* ---- ☕ HELP KEEP THIS APP MOVING ----
-
-           🔴 IT IS ON THE LANDING PAGE FIRST, AND THAT IS THE WHOLE
-           DECISION. The people most able to give are not the members —
-           they are the family, the friends and the treatment staff who
-           arrive here from a flyer or a link. 243 members, most of them
-           early in recovery, a good number of them broke; asking the
-           person on day twelve for money is the version of this we are
-           not building.
-
-           ⚠️ NEVER IN THE FEED, AND NEVER ON /now. A tip jar inches from
-           somebody posting at 2am that they are struggling is a different
-           object entirely. This sits at the bottom, below the last
-           section, above the footer, and behaves the same for everybody —
-           no targeting, no repetition, no modal.
-
-           ⚠️ rel="noreferrer" IS NOT OPTIONAL HERE. It is the 23 Aug rule:
-           elsewhere a referrer is a statistic, but from Sober Book it
-           tells a third party's logs that the visitor came from a
-           recovery app. Same reason every outbound link on the wall
-           carries it.
-
-           Measured on --lp-cream #FFF8EC: heading --lp-ink 15.78, body
-           --lp-muted 5.42, and the button is white on --lp-go at 6.46.
-           ⚠️ --lp-tang, the landing orange, is 3.39 — under the 4.5 floor,
-           so it is a fill on this page and never text. */}
-      {/* 🔴 HIDDEN INSIDE THE iPHONE APP — Apple Guideline 3.1.1: donations,
-          "including those which are merely to tip the developers", must go
-          through in-app purchase. A for-profit LLC cannot take them any other
-          way. Web and Android are untouched. See lib/is-ios-app.js.
-
-          ⚠️ It starts HIDDEN and is revealed after mount, not the other way
-          round. Defaulting to shown would flash the button at an App Review
-          engineer for one frame, which is the single reader this rule exists
-          for. It costs everyone else nothing: this block is below the fold on
-          both surfaces. */}
+           🔴 Landing page only, never in the feed or on /now. rel="noreferrer"
+           is not optional. 🔴 HIDDEN INSIDE THE iPHONE APP — Apple 3.1.1; it
+           starts hidden and is revealed after mount. ⚠️ 3 Nov: "no ads" and
+           "stays free" came out of this copy. */}
       {!iosApp && (
-      <section className="lp-coffee">
-        <div className="lp-wrap">
-          <p className="lp-cofT">Help keep this app moving</p>
-          <p className="lp-cofP">
-            Sober Book is free and it stays free. No ads, no algorithms,
-            and nobody sells anybody&apos;s information. It just costs a
-            little each month to keep the lights on.
+      <section className="lx-coffee">
+        <div className="lx-wrap">
+          <p className="lx-cofT">Help keep the lights on</p>
+          <p className="lx-cofP">
+            Sober Book is free to use, and nobody sells anybody&apos;s
+            information. It costs a little each month to run, and every
+            coffee helps.
           </p>
-          <a className="lp-cofB" href="https://buymeacoffee.com/tyhowell07"
+          <a className="lx-cofB" href="https://buymeacoffee.com/tyhowell07"
              target="_blank" rel="noopener noreferrer">
             ☕ Buy us a coffee
           </a>
@@ -887,16 +885,20 @@ export default function Landing() {
       </section>
       )}
 
-      <p className="lp-foot">
+      <p className="lx-foot">
         Sober Book · a safe place to be yourself · all paths welcome
         {' · '}<a href="/privacy">privacy</a>
-        {/* ⚠️ /support IS THE WAY IN, AND IT IS HERE FOR ONE REASON:
-            the person who most needs it is SIGNED OUT. Locked out of the
-            account, reset link stale, no idea who to write to — and this is
-            the only page they can reach. A support page nobody can find is
-            the fourteenth "everything built except the way in". */}
+        {/* ⚠️ /support is here because the person who most needs it is
+            SIGNED OUT, and this is the only page they can reach. */}
         {' · '}<a href="/support">support</a>
       </p>
+
+      {!sent && (
+        <div className={`lx-dock${dock ? ' on' : ''}`} aria-hidden={!dock}>
+          <button type="button" className="lx-dock-a" tabIndex={dock ? 0 : -1} onClick={() => goTo('new')}>Make my account</button>
+          <button type="button" className="lx-dock-b" tabIndex={dock ? 0 : -1} onClick={() => goTo('in')}>Sign in</button>
+        </div>
+      )}
     </div>
   );
 }
