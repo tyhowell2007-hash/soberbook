@@ -27,7 +27,7 @@ export default function TalkCard() {
     <section className="tk-mcard" aria-label="Talk Rooms">
       <div className="tk-mh">
         <span className="tk-mic" aria-hidden="true">🎙️</span>
-        <span><b>Talk Rooms</b><small>Live voice with people who get it · nothing recorded</small></span>
+        <span><b>Talk Rooms</b><small>Live on camera or voice · you ask, the host says yes · nothing recorded</small></span>
       </div>
       {shown.length === 0 && <p className="tk-mempty">Nobody’s live right now. Start one and people will drop in.</p>}
       {shown.map((t) => {
@@ -38,13 +38,13 @@ export default function TalkCard() {
         return (
           <Link key={t.id} href={`/talks/${t.id}`} className="tk-mlive">
             <span className="tk-mtx"><span className="tk-mtag">● LIVE</span>{t.topic}
-              <small>{t.room.emoji} {t.room.name.replace(/^The /, '')} · {who} · {t.listening} listening</small></span>
+              <small>{!t.room.anonymous && (t.cams > 0 || t.kind === 'video') ? '🎥' : '🎙'} {t.room.name.replace(/^The /, '')} · {who} · {t.listening} listening{sp.length < 4 && t.requests !== 'off' ? ' · seat open' : ''}</small></span>
             <span className="tk-mgo">Join</span>
           </Link>
         );
       })}
       <div className="tk-mfoot">
-        <Link href="/talks?start=front-room" className="tk-ma">🎙️ Start a talk</Link>
+        <Link href="/talks?start=front-room" className="tk-ma">🎥 Go live</Link>
         <Link href="/talks" className="tk-mb">{live.length > 2 ? `See all ${live.length} live` : 'See all live'}</Link>
       </div>
     </section>

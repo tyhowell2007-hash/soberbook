@@ -32,6 +32,7 @@ export class TalkLine {
     this.pulled = new Map();   // key -> mid
     this.midKey = new Map();   // mid -> key
     this.mic = null;           // { stream, track, tx }
+    this.cam = null;           // { stream, track, tx, facing }
     this.closed = false;
   }
 
@@ -62,8 +63,9 @@ export class TalkLine {
       const mid = e.transceiver?.mid;
       const key = mid != null ? this.midKey.get(String(mid)) : null;
       if (!key) return;
-      const stream = e.streams?.[0] || new MediaStream([e.track]);
-      this.onRemote(key, stream, e.receiver);
+      // one stream per track: a speaker's mic and camera arrive as two pulls
+      const stream = new MediaStream([e.track]);
+      this.onRemote(key, stream, e.track.kind);
     };
     const d = await this.api('session');
     this.session = d.sessionId;
@@ -101,6 +103,69 @@ export class TalkLine {
     if (this.mic) this.mic.track.enabled = !!on;
   }
 
+  /* ---------- camera (2 Nov 2026, Talk Rooms Live) ----------
+     ⭐ The camera is its own track beside the mic, so turning it off never
+     touches the sound. ⚠️ Kept small on purpose — 640x480, 15 frames, ~350
+     kbps — because every listener pulls every camera and Cloudflare bills
+     what leaves it. A talk room is faces, not a film. */
+
+  get camPublishing() { return !!this.cam; }
+  get camStream() { return this.cam?.stream || null; }
+
+  publishCam(facing = 'user') {
+    return this.q(async () => {
+      if (this.cam) return;
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: false,
+        video: { facingMode: facing, width: { ideal: 640 }, height: { ideal: 480 }, frameRate: { ideal: 15, max: 20 } },
+      });
+      const track = stream.getVideoTracks()[0];
+      const tx = this.pc.addTransceiver(track, {
+        direction: 'sendonly',
+        sendEncodings: [{ maxBitrate: 350000, maxFramerate: 15 }],
+      });
+      await this.pc.setLocalDescription(await this.pc.createOffer());
+      try {
+        const trackName = 'cam-' + Math.random().toString(36).slice(2, 10);
+        const r = await this.api('publish', { kind: 'camera', sdp: this.pc.localDescription.sdp, mid: tx.mid, trackName });
+        await this.pc.setRemoteDescription(r.sessionDescription);
+        this.cam = { stream, track, tx, facing };
+      } catch (e) {
+        track.stop();
+        try { tx.stop(); } catch {}
+        throw e;
+      }
+    });
+  }
+
+  // front ↔ back without a new negotiation: same sender, new picture
+  flipCam() {
+    return this.q(async () => {
+      if (!this.cam) return;
+      const facing = this.cam.facing === 'user' ? 'environment' : 'user';
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: false,
+        video: { facingMode: facing, width: { ideal: 640 }, height: { ideal: 480 }, frameRate: { ideal: 15, max: 20 } },
+      });
+      const track = stream.getVideoTracks()[0];
+      await this.cam.tx.sender.replaceTrack(track);
+      this.cam.track.stop();
+      this.cam = { ...this.cam, stream, track, facing };
+    });
+  }
+
+  unpublishCam() {
+    return this.q(async () => {
+      if (!this.cam) return;
+      const { track, tx } = this.cam;
+      this.cam = null;
+      track.stop();
+      const mid = tx.mid;
+      try { tx.stop(); } catch {}
+      if (mid != null) await this.api('close', { mids: [mid], uncam: true }).catch(() => {});
+    });
+  }
+
   unpublish() {
     return this.q(async () => {
       if (!this.mic) return;
@@ -115,7 +180,7 @@ export class TalkLine {
 
   /* ---------- listening ---------- */
 
-  // speakers: [{ session, track }] for everybody on stage but me
+  // speakers: [{ session, track }] — one entry per mic AND per camera, everybody on stage but me
   sync(speakers) {
     return this.q(async () => {
       const want = new Map();
@@ -181,8 +246,10 @@ export class TalkLine {
   close() {
     this.closed = true;
     try { this.mic?.track.stop(); } catch {}
+    try { this.cam?.track.stop(); } catch {}
     try { this.pc?.close(); } catch {}
     this.mic = null;
+    this.cam = null;
     this.pc = null;
   }
 }

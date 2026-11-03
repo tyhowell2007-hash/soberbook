@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { browserClient } from '../../lib/supabase-browser';
 
-/* What's live now + start a talk. Polls every 15s so a talk that starts
+/* What's live now + start a talk. 2 Nov 2026: camera or voice (0201). Polls every 15s so a talk that starts
    while you're looking shows up without a refresh. */
 
 const TOPICS = ['☕ Just hanging out', '🌱 Early days', '🙏 Gratitude', '💬 Ask me anything'];
@@ -33,6 +33,7 @@ export default function TalksHome({ rooms, initial, canHost, startRoom }) {
   const [room, setRoom] = useState(rooms.find((r) => r.slug === startRoom)?.slug || rooms[0]?.slug);
   const [topic, setTopic] = useState('');
   const [onWall, setOnWall] = useState(true);
+  const [kind, setKind] = useState('video');
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState('');
 
@@ -52,7 +53,7 @@ export default function TalksHome({ rooms, initial, canHost, startRoom }) {
     const t = topic.trim();
     if (!t) { setErr('Give it a topic first.'); return; }
     setBusy(true);
-    const { data, error } = await browserClient().rpc('talk_start', { p_room_slug: room, p_topic: t, p_on_wall: onWall });
+    const { data, error } = await browserClient().rpc('talk_start', { p_room_slug: room, p_topic: t, p_on_wall: onWall, p_kind: picked?.anonymous ? 'voice' : kind });
     setBusy(false);
     if (error) { setErr(error.message || 'Couldn’t start it. Try again.'); return; }
     router.push(`/talks/${data}`);
@@ -73,21 +74,21 @@ export default function TalksHome({ rooms, initial, canHost, startRoom }) {
         </nav>
         <div className="tk-hero">
           <span className="tk-cover" aria-hidden="true">🎙️</span>
-          <span className="tk-ht"><b>Talk Rooms</b><small>Live voice, with people who get it</small></span>
+          <span className="tk-ht"><b>Talk Rooms</b><small>Live, on camera or voice, with people who get it</small></span>
         </div>
       </header>
 
       <div className="tk-pad">
         {canHost ? (
           <button type="button" className="tk-startcard" onClick={() => setSheet(true)}>
-            <span className="tk-si" aria-hidden="true">🎙️</span>
-            <span className="tk-sx"><b>Start a talk</b><small>Pick a topic. People drop in.</small></span>
+            <span className="tk-si" aria-hidden="true">🎥</span>
+            <span className="tk-sx"><b>Go live</b><small>Camera or voice. You pick who comes up.</small></span>
             <em>Go live</em>
           </button>
         ) : (
           <div className="tk-startcard off">
             <span className="tk-si" aria-hidden="true">🎙️</span>
-            <span className="tk-sx"><b>Hosting opens at 90 days</b><small>Until then, jump into any talk and raise your hand.</small></span>
+            <span className="tk-sx"><b>Hosting opens at 90 days</b><small>Until then, jump into any talk and ask to join.</small></span>
           </div>
         )}
 
@@ -95,26 +96,31 @@ export default function TalksHome({ rooms, initial, canHost, startRoom }) {
         {live.length === 0 && (
           <div className="tk-empty">Nobody's live right now.{canHost ? ' Start one — people will drop in.' : ' Check back soon.'}</div>
         )}
-        {live.map((t) => (
-          <div className="tk-talk" key={t.id}>
-            <div className="tk-row1">
-              <span className="tk-livetag"><i />LIVE</span>
-              <span className="tk-rn">{t.room.emoji} {t.room.name.replace(/^The /, '')}</span>
-              <span className="tk-kind">🎧 Voice{t.room.anonymous ? ' · 🎭' : ''} · {mins(t.started_at)}</span>
-            </div>
-            <h3>{t.topic}</h3>
-            <div className="tk-row2">
-              <span className="tk-faces">
-                {(t.speakers || []).slice(0, 3).map((n, i) => (
-                  <span key={i} className={t.room.anonymous ? 'anon' : ''}>{t.room.anonymous ? '🎭' : n.slice(0, 1).toUpperCase()}</span>
-                ))}
+        {live.map((t) => {
+          const cam = !t.room.anonymous && (t.cams > 0 || t.kind === 'video');
+          const open = Math.max(0, 4 - (t.speakers || []).length);
+          return (
+            <Link className="tk-talk v2" key={t.id} href={`/talks/${t.id}`}>
+              <span className={'tk-thumb' + (cam ? '' : ' voice')} aria-hidden="true">
+                <span className="tk-livetag"><i />LIVE</span>
+                {!cam && <span className="tk-ti">{t.room.anonymous ? '🎭' : '🎙'}</span>}
               </span>
-              <span className="tk-who">{who(t)}<br />{t.listening} listening</span>
-              <Link className="tk-join" href={`/talks/${t.id}`}>Join</Link>
-            </div>
-          </div>
-        ))}
-        <p className="tk-foot">🔒 Nothing is recorded. Listening is quiet: you're counted, not named.</p>
+              <span className="tk-tbody">
+                <span className="tk-rn">{t.room.emoji} {t.room.name.replace(/^The /, '')} · {mins(t.started_at)}</span>
+                <h3>{t.topic}</h3>
+                <span className="tk-who">{who(t)} · {t.listening} listening</span>
+                <span className="tk-tags">
+                  <span>{cam ? '🎥 Camera' : '🎙 Voice only'}</span>
+                  {t.room.anonymous && <span>No names</span>}
+                  {t.requests === 'off' ? <span>Not taking requests</span>
+                    : open > 0 ? <span className="s">{open} seat{open === 1 ? '' : 's'} open</span> : <span>Stage full</span>}
+                </span>
+              </span>
+              <span className="tk-join">Join</span>
+            </Link>
+          );
+        })}
+        <p className="tk-foot">🔒 Nothing is recorded. Listening is quiet: you're counted, not named, and never on camera.</p>
       </div>
 
       {sheet && (
@@ -141,6 +147,14 @@ export default function TalksHome({ rooms, initial, canHost, startRoom }) {
                 </button>
               ))}
             </div>
+            <p className="tk-fl">How do you want to go live?</p>
+            <div className="tk-opts">
+              <button type="button" className={'tk-opt' + (kind === 'video' && !picked?.anonymous ? ' on' : '')} disabled={picked?.anonymous} onClick={() => setKind('video')}>
+                <span className="tk-oi">🎥</span><b>Camera + voice</b><small>{picked?.anonymous ? 'Not in this room' : 'Turn it off anytime'}</small></button>
+              <button type="button" className={'tk-opt' + (kind === 'voice' || picked?.anonymous ? ' on' : '')} onClick={() => setKind('voice')}>
+                <span className="tk-oi">🎙</span><b>Voice only</b><small>Nobody sees you</small></button>
+            </div>
+            <p className="tk-sub">People listen first. They ask to join, and nobody comes up until you say yes.</p>
             {picked?.anonymous && <p className="tk-mask">🎭 Everybody in this talk goes by their room name, including you. No faces, no day counts.</p>}
 
             <button type="button" className="tk-tog" onClick={() => setOnWall(!onWall)}>

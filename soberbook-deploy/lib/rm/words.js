@@ -20,7 +20,7 @@
    Narcan steps, the "Start here for…" tips or the Ask the Doc answers.
    While this is false, those pages carry a small "Draft for Dr. Labor's
    review" ribbon. Flip to true once she signs off. */
-export const CONTENT_APPROVED = false;
+export const CONTENT_APPROVED = true; // 2 Nov 2026: Dr. Labor approved everything (Ty)
 
 export const LEVEL = {
   en: {

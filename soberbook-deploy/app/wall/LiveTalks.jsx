@@ -16,16 +16,27 @@ export default function LiveTalks() {
   if (!live.length) return null;
   const t = live[0];
   const sp = t.speakers || [];
+  // 2 Nov 2026 (0201): camera or voice, seats open. The picture is DRAWN,
+  // never the live feed — nobody is watched before they choose to join.
+  const cam = !t.room.anonymous && (t.cams > 0 || t.kind === 'video');
+  const open = Math.max(0, 4 - sp.length);
+  const others = sp.slice(1);
   return (
-    <Link href={`/talks/${t.id}`} className="tk-wallcard">
-      <span className="tk-wic" aria-hidden="true">🎙️</span>
-      <span className="tk-wtx">
+    <Link href={`/talks/${t.id}`} className={'tk-wallcard v2' + (cam ? ' cam' : '')}>
+      <span className="tk-wtop">
         <span className="tk-wlive">● LIVE</span>
+        <span className="tk-wpill">🎧 {t.listening}</span>
+        <span className="tk-wpill">{cam ? '🎥 Camera + voice' : '🎙 Voice'}</span>
+      </span>
+      <span className="tk-wtx">
         <b>{sp[0] || t.host} is live: {t.topic}</b>
-        <small>{t.room.emoji} {t.room.name.replace(/^The /, '')} · {t.listening} listening
+        <small>{t.room.emoji} {t.room.name.replace(/^The /, '')}
+          {others.length ? ` · with ${others.join(' and ')}` : ''}
+          {t.requests !== 'off' && open > 0 ? ` · ${open} seat${open === 1 ? '' : 's'} open` : ''}
           {live.length > 1 ? ` · +${live.length - 1} more live` : ''}</small>
       </span>
-      <span className="tk-wgo">Join</span>
+      <span className="tk-wbtns"><span className="tk-wgo">🎧 Listen</span>
+        {t.requests !== 'off' && open > 0 && <span className="tk-wask">✋ Ask to join</span>}</span>
     </Link>
   );
 }

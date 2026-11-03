@@ -16,6 +16,8 @@ import { serverClient } from '../../../../lib/supabase-server';
    What a caller may do:
      session      make their own Cloudflare session (any live participant)
      publish      send their mic           — speakers only, own session only
+                  or camera (kind:camera)  — only if talk_my_media says camera
+                                             (2 Nov 2026, migration 0201)
      pull         hear the speakers        — own session; every track asked
                                              for must belong to a CURRENT
                                              speaker of THIS talk
@@ -80,7 +82,10 @@ export async function POST(request) {
     const s = `/${me.session}`;
 
     if (action === 'publish') {
-      if (me.role !== 'speaker') return j({ error: 'You’re listening. Raise your hand to talk.' }, 403);
+      if (me.role !== 'speaker') return j({ error: 'You’re listening. Ask to join to talk.' }, 403);
+      const camera = b.kind === 'camera';
+      // ⭐ a camera needs the database's yes too: brought up on camera, camera on, not anonymous
+      if (camera && !me.camera) return j({ error: 'Your camera isn’t on for this talk.' }, 403);
       if (typeof b.sdp !== 'string' || b.sdp.length > 20000 || !b.mid || !TRACK.test(b.trackName || '')) {
         return j({ error: 'Bad request.' }, 400);
       }
@@ -91,13 +96,14 @@ export async function POST(request) {
         sessionDescription: { type: 'offer', sdp: b.sdp },
         tracks: [{ location: 'local', mid: String(b.mid), trackName: b.trackName }],
       });
-      await supabase.rpc('talk_set_media', { p_talk: talk, p_session: null, p_track: b.trackName });
+      if (camera) await supabase.rpc('talk_set_cam', { p_talk: talk, p_track: b.trackName });
+      else await supabase.rpc('talk_set_media', { p_talk: talk, p_session: null, p_track: b.trackName });
       return j({ sessionDescription: d.sessionDescription, tracks: d.tracks });
     }
 
     if (action === 'pull') {
       const allowed = new Set(me.speakers || []);
-      const want = Array.isArray(b.tracks) ? b.tracks.slice(0, 4) : [];
+      const want = Array.isArray(b.tracks) ? b.tracks.slice(0, 8) : [];
       if (!want.length) return j({ error: 'Bad request.' }, 400);
       for (const t of want) {
         if (!SESS.test(t?.sessionId || '') || !TRACK.test(t?.trackName || '') || !allowed.has(t.sessionId) || t.sessionId === me.session) {
@@ -125,6 +131,7 @@ export async function POST(request) {
       if (!mids.length) return j({ ok: true });
       await cf(`${s}/tracks/close`, 'PUT', { tracks: mids.map((mid) => ({ mid })), force: true });
       if (b.unpublish) await supabase.rpc('talk_set_media', { p_talk: talk, p_session: null, p_track: null });
+      if (b.uncam) await supabase.rpc('talk_set_cam', { p_talk: talk, p_track: null });
       return j({ ok: true });
     }
 

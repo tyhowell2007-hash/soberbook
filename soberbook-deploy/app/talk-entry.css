@@ -42,3 +42,17 @@
 .tk-mcard .tk-mfoot a{flex:1;text-align:center;font-size:13.5px;font-weight:800;border-radius:999px;padding:11px;text-decoration:none}
 .tk-mcard .tk-ma{background:#9BE3BC;color:#0B1511}
 .tk-mcard .tk-mb{background:rgba(255,255,255,.08);color:#fff;border:1px solid rgba(255,255,255,.12)}
+
+/* ---------- 2 Nov 2026: the wall card, Talk Rooms Live (0201) ----------
+   A drawn preview, never the live picture. */
+.tk-wallcard.v2{position:relative;display:block;min-height:190px;padding:12px 14px 14px;overflow:hidden;border:1px solid rgba(155,227,188,.22);box-shadow:0 18px 40px rgba(0,0,0,.28);background:radial-gradient(70% 55% at 50% 45%,rgba(201,182,255,.2),transparent 70%),linear-gradient(180deg,#152A22,#0B1511)}
+.tk-wallcard.v2.cam{background:linear-gradient(180deg,rgba(0,0,0,.25),transparent 35%,rgba(3,8,6,.92) 88%),radial-gradient(45% 40% at 50% 40%,rgba(201,142,98,.45),transparent 75%),linear-gradient(170deg,#24453A,#102620 60%,#07120E)}
+.tk-wallcard.v2 .tk-wtop{display:flex;gap:6px;align-items:center}
+.tk-wallcard.v2 .tk-wlive{margin:0;box-shadow:0 0 14px rgba(255,90,95,.5)}
+.tk-wallcard.v2 .tk-wpill{font-size:11px;font-weight:800;color:#EEF5F1;background:rgba(8,16,13,.55);border:1px solid rgba(255,255,255,.1);border-radius:999px;padding:3px 8px}
+.tk-wallcard.v2 .tk-wtx{display:block;margin-top:70px}
+.tk-wallcard.v2 .tk-wtx b{font-size:16px;letter-spacing:-.01em}
+.tk-wallcard.v2 .tk-wtx small{color:#BFD2C7}
+.tk-wallcard.v2 .tk-wbtns{display:flex;gap:6px;margin-top:10px}
+.tk-wallcard.v2 .tk-wgo{background:linear-gradient(135deg,#9BE3BC,#3FD08A);color:#06120D}
+.tk-wallcard.v2 .tk-wask{font-size:13px;font-weight:800;color:#EEF5F1;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.16);border-radius:999px;padding:8px 13px}

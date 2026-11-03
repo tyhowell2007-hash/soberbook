@@ -42,7 +42,7 @@ export default function LiveStrip({ live, room }) {
   return (
     <Link href={`/talks/${t.id}`} className="tk-strip">
       <span className="tk-stx">🔴 Live: {t.topic}
-        <small>{n} talking · {t.listening} listening</small></span>
+        <small>{!t.room?.anonymous && (t.cams > 0 || t.kind === 'video') ? '🎥 ' : '🎙 '}{n} on stage · {t.listening} listening{n < 4 && t.requests !== 'off' ? ' · seat open' : ''}</small></span>
       <span className="tk-sgo">Join</span>
     </Link>
   );
