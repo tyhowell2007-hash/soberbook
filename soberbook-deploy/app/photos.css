@@ -113,7 +113,7 @@
   border:2px solid var(--gm); border-radius:11px;
   background:#fff; color:var(--gm-t); font-size:13px; line-height:1;
   display:flex; align-items:center; justify-content:center; gap:6px;
-  white-space:nowrap; font-family:'Archivo',system-ui,sans-serif;
+  white-space:nowrap; font-family:'Plus Jakarta Sans', system-ui, sans-serif;
 }
 .composer .camera:disabled{ opacity:.5; }
 
@@ -263,7 +263,7 @@
   background:#FFF8F8; padding:14px 14px 16px; margin-top:4px;
 }
 .delh{
-  margin:0 0 8px; font-family:'Archivo',system-ui,sans-serif;
+  margin:0 0 8px; font-family:'Plus Jakarta Sans', system-ui, sans-serif;
   font-size:15px; font-weight:700; color:#8A2B2B;
 }
 .delp{

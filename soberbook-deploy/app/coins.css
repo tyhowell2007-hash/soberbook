@@ -147,4 +147,4 @@ button.statbtn .statk { text-decoration: underline; text-underline-offset: 2px; 
 .threadcoins .statstrip { margin-top: 6px; }
 
 /* 0197 — "Full screen" under a video on the wall. */
-.vfull{display:inline-flex;align-items:center;gap:6px;margin-top:6px;font-family:'Courier Prime',monospace;font-size:12px;font-weight:700;color:var(--gt,#0F3D2A);text-decoration:none;min-height:36px}
+.vfull{display:inline-flex;align-items:center;gap:6px;margin-top:6px;font-family:'Plus Jakarta Sans', system-ui, sans-serif;font-size:12px;font-weight:700;color:var(--gt,#0F3D2A);text-decoration:none;min-height:36px}

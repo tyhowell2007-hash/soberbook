@@ -42,7 +42,7 @@
 
 .pn-lbl {
   display: block;
-  font-family: 'Archivo', system-ui, sans-serif;
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
   font-size: 16px;
   font-weight: 600;
   color: var(--gt);
@@ -138,7 +138,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: 'Archivo', system-ui, sans-serif;
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
   font-size: 13px;
   font-weight: 700;
   color: #fff;

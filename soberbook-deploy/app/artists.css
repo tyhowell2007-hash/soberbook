@@ -191,8 +191,8 @@
 .art-page .art-av{ border-color:#121916; background:#E39A5C; color:#3A1F0E; }
 .art-page .art-title{ color:#FFFFFF; }
 .art-page .art-sub{
-  font-family:'Courier Prime',ui-monospace,monospace; font-size:11px; font-weight:700;
-  letter-spacing:.16em; color:#9AA9A1;
+  font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-size:11px; font-weight:700;
+  letter-spacing:.03em; color:#9AA9A1;
 }
 .art-page .art-sect{ background:#18211C; border-color:#2B3831; }
 .art-page .art-link{ background:#121916; border-color:#2B3831; color:#E4ECE7; }

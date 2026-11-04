@@ -104,16 +104,16 @@ body{
 /* ---------- chrome ---------- */
 .mast{
   background:var(--gd); color:#fff;
-  font-family:'Archivo',system-ui,sans-serif;
+  font-family:'Plus Jakarta Sans', system-ui, sans-serif;
 }
 .mast .lg{
-  font-family:'Archivo',system-ui,sans-serif; font-weight:700;
+  font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-weight:700;
   font-size:17px; letter-spacing:-.01em; text-transform:none;
   text-shadow:none;                        /* the acid offset is grunge */
 }
 .bar{
   background:var(--gl); color:var(--gt);
-  font-family:'Archivo',system-ui,sans-serif; font-weight:600;
+  font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-weight:600;
   letter-spacing:.01em; text-transform:none; font-size:12px;
 }
 
@@ -141,9 +141,9 @@ body{
    note in wall.css for why that isn't a styling preference. */
 .mstone{ border:1px solid #E8D9A8; border-radius:14px; box-shadow:none;
   background:var(--gold-bg); }
-.mstone-body h3{ font-family:'Archivo',system-ui,sans-serif; font-weight:700;
+.mstone-body h3{ font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-weight:700;
   font-size:19px; text-transform:none; letter-spacing:-.01em; color:var(--body); }
-.mstone-body p{ font-family:'Archivo',system-ui,sans-serif; font-size:14px;
+.mstone-body p{ font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-size:14px;
   color:var(--soft); }
 
 /* The off switch keeps its full width and its weight — it's a safety
@@ -156,14 +156,14 @@ body{
    that's hard to see in a hurry is a decoration. --gd is 6.46:1. */
 .soff{ border:1.5px solid var(--gd); border-radius:11px;
   background:#fff; color:var(--gd); letter-spacing:.02em; text-transform:none;
-  font-family:'Archivo',system-ui,sans-serif; font-size:13.5px; }
+  font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-size:13.5px; }
 .soff:hover{ background:var(--gd); color:#fff; border-color:var(--gd); }
 .face{ border-radius:12px; border-width:2px; }
 
 /* Anton is the grunge voice. It stays on the ONE number that should
    still shout — the day count — and comes off everything else. */
 .nm, .pname, .stitle, .fplab, .btn, .sgo, .h, .empty .h{
-  font-family:'Archivo',system-ui,sans-serif; font-weight:700;
+  font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-weight:700;
   letter-spacing:-.01em; text-transform:none;
 }
 
@@ -328,7 +328,7 @@ body{
      composer shoved the layout sideways on every phone, every time. The
      room input has carried a "16px or iOS zooms" note since it was
      written; the composer never got the same treatment. */
-  font:400 16px/1.45 'Archivo',system-ui,sans-serif; color:var(--body);
+  font:400 16px/1.45 'Plus Jakarta Sans',system-ui,sans-serif; color:var(--body);
 }
 /* was #9AA8A2 — 2.47:1, effectively decorative. This placeholder is the
    prompt that tells someone what the box is for ("Share something with
@@ -336,20 +336,20 @@ body{
 .composer .ctop input::placeholder{ color:#67716C; }
 .composer .send{
   flex:none; background:var(--gd); color:#fff; border:0; border-radius:99px;
-  padding:8px 17px; font:700 13px/1 'Archivo',system-ui,sans-serif; cursor:pointer;
+  padding:8px 17px; font:700 13px/1 'Plus Jakarta Sans',system-ui,sans-serif; cursor:pointer;
 }
 .composer .send[disabled]{ opacity:.4; cursor:default; }
 .composer .cas{
   display:flex; align-items:center; gap:8px; flex-wrap:wrap;
   margin-top:10px; padding-top:9px; border-top:1px solid var(--line);
-  font:400 12px/1 'Archivo',system-ui,sans-serif; color:var(--soft);
+  font:400 12px/1 'Plus Jakarta Sans',system-ui,sans-serif; color:var(--soft);
 }
 /* The switch itself. It's a chip, not a checkbox, because it's showing
    you an ANSWER — this is who this post will be from — that happens to
    be tappable. A checkbox would ask a question nobody wants asked. */
 .composer .asme{
   background:var(--gl); color:var(--gt); border:0; border-radius:99px;
-  padding:4px 11px; font:700 12px/1 'Archivo',system-ui,sans-serif; cursor:pointer;
+  padding:4px 11px; font:700 12px/1 'Plus Jakarta Sans',system-ui,sans-serif; cursor:pointer;
 }
 .composer .asme.anon{ background:#EFEAF8; color:#4A3A6B; }
 .composer .cas-hint{ font-size:11.5px; }
@@ -444,7 +444,7 @@ body{
 }
 .tab{ color:var(--soft); }
 .tab .tl{
-  font-family:'Archivo',system-ui,sans-serif; font-size:11px; font-weight:600;
+  font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-size:11px; font-weight:600;
   letter-spacing:.01em; text-transform:none;
 }
 /* The pill is inset so it reads as a highlight sitting inside the bar,
@@ -460,10 +460,10 @@ body{
    prototype rather than an acid slab with a hard shadow. */
 .pface{
   background:var(--gl); color:var(--gt); border:0; border-radius:50%;
-  box-shadow:none; font-family:'Archivo',system-ui,sans-serif; font-weight:700;
+  box-shadow:none; font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-weight:700;
   font-size:32px; letter-spacing:.02em;
 }
-.pn{ font-family:'Archivo',system-ui,sans-serif; font-weight:700; font-size:21px;
+.pn{ font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-weight:700; font-size:21px;
   text-transform:none; letter-spacing:-.01em; color:var(--body); }
 .pbio{ color:var(--soft); }
 .pencil{ border-radius:99px; }
@@ -547,7 +547,7 @@ body{
 .cbar input, .cbar textarea{ border:1px solid #8CC4AC; border-radius:11px; background:#fff;
   /* ⚠️ 16px for the same reason as the composer — 15px still trips the
      iOS zoom-on-focus threshold, which is 16 and not 15. */
-  font-family:'Archivo',system-ui,sans-serif; font-size:16px; color:var(--body); }
+  font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-size:16px; color:var(--body); }
 .cbar input::placeholder, .cbar textarea::placeholder{ color:var(--soft); }
 .cbar input[disabled], .cbar textarea[disabled]{ background:#EDF3F0; color:var(--soft); }
 /* 12 SEPT (later) - RAISED FROM 40vh, same call as the room composer and
@@ -570,13 +570,13 @@ body{
    holding it. Fixed before it was reported rather than after. */
 .cbar .phserr{ flex-basis:100%; margin:7px 2px 0; }
 .cbar button{ background:#fff; color:var(--gt); border-radius:11px;
-  font-family:'Archivo',system-ui,sans-serif; font-weight:700; font-size:14px;
+  font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-weight:700; font-size:14px;
   text-transform:none; letter-spacing:0; }
 
 /* Handle suggestions, in the room. Soft chips instead of hard slabs. */
 .idea{
   border-width:1px; border-color:var(--gd); border-radius:99px;
-  background:#fff; color:var(--gm-t); font-family:'Archivo',system-ui,sans-serif;
+  background:#fff; color:var(--gm-t); font-family:'Plus Jakarta Sans', system-ui, sans-serif;
   font-weight:600; font-size:14px; padding:10px 16px;
 }
 .idea:hover{ background:var(--gd); color:#fff; border-color:var(--gd); }
@@ -584,7 +584,7 @@ body{
 /* Chat tabs + directory, in the room. */
 .ctabs{ border-bottom:1px solid var(--line); margin-bottom:10px; }
 .ctab{
-  font-family:'Archivo',system-ui,sans-serif; font-size:13px; font-weight:600;
+  font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-size:13px; font-weight:600;
   letter-spacing:0; text-transform:none; color:var(--soft);
 }
 .ctab.on{ color:var(--gd); font-weight:700; box-shadow:inset 0 -2px 0 var(--gd); }
@@ -593,14 +593,14 @@ body{
 .drow:hover{ background:var(--gl); }
 /* --gm-t, not --gm: a mid-green is 4.02:1 on paper and this is small text.
    See the note at the top of this file — bright fill, darker twin for words. */
-.dgo{ color:var(--gm-t); font-family:'Archivo',system-ui,sans-serif;
+.dgo{ color:var(--gm-t); font-family:'Plus Jakarta Sans', system-ui, sans-serif;
   font-size:12px; font-weight:600; letter-spacing:0; text-transform:none; }
-.dchip{ font-family:'Archivo',system-ui,sans-serif; font-size:10px; letter-spacing:0; }
+.dchip{ font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-size:10px; letter-spacing:0; }
 
 
 /* The metals keep their own colours in the green room — that's the point
    of them. Only the typeface changes to match everything else inside. */
-.dchip{ font-family:'Archivo',system-ui,sans-serif; font-size:10px;
+.dchip{ font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-size:10px;
   font-weight:700; letter-spacing:0; padding:2px 9px; }
 .dchip.new{ background:var(--gl); color:var(--gt); border-color:#7FBBA1; }
 
@@ -1166,8 +1166,8 @@ body{
   border-radius:14px; padding:14px 15px; margin:0 0 12px;
 }
 .paskh{
-  font-family:'Courier Prime',monospace; font-size:11.5px;
-  letter-spacing:.09em; text-transform:uppercase;
+  font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-size:11.5px;
+  letter-spacing:.03em; text-transform:uppercase;
   color:var(--gm-t); margin:0 0 8px; font-weight:400;
 }
 .paskq{ font-size:15.5px; line-height:1.45; color:var(--x); margin:0 0 6px; font-weight:500; }
@@ -1232,7 +1232,7 @@ body{
   padding:14px 13px 12px;
 }
 .rmenu-who{
-  font-family:'Courier Prime',monospace; font-size:11.5px; letter-spacing:.08em;
+  font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-size:11.5px; letter-spacing:.03em;
   text-transform:uppercase; color:var(--soft); margin:0 2px 10px;
 }
 .rmenu-btn{
@@ -1396,7 +1396,7 @@ body{
    did not know they had — this is the one thing on that row that is
    news. It goes the instant something is attached. */
 .composer .ctop .cmedia{
-  flex:none; font:400 12px/1.2 'Archivo',system-ui,sans-serif;
+  flex:none; font:400 12px/1.2 'Plus Jakarta Sans',system-ui,sans-serif;
   color:#3B6D11; text-align:left;
 }
 

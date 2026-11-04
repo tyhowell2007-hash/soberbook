@@ -55,7 +55,7 @@
   border-radius:18px;
   background:var(--boxfill);
   color:var(--body);
-  font-family:'Archivo',system-ui,sans-serif;
+  font-family:'Plus Jakarta Sans', system-ui, sans-serif;
   /* 16px prevents iOS from zooming the whole wall when the field opens. */
   font-size:16px;
   line-height:1.45;

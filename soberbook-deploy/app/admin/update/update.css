@@ -22,7 +22,7 @@
   width:100%; min-height:120px; resize:vertical;
   border:3px solid var(--x); background:var(--boxfill, #F2EFE6);
   color:var(--body); padding:10px;
-  font-family:'Archivo',system-ui,sans-serif; font-size:15px; line-height:1.5;
+  font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-size:15px; line-height:1.5;
 }
 .tuadmin textarea:focus-visible{ outline:3px solid var(--x); outline-offset:2px; }
 .tuadmin .row{ margin-top:14px; }

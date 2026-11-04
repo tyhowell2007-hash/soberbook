@@ -64,7 +64,7 @@
 .mecream .msec[data-tint="stone"] { background:#ECE6DA; }
 .mecream .msec[data-tint="cream"] { background:#FFF3DC; }
 .mecream .msum{
-  color:var(--cr-ink); font-family:'Archivo',system-ui,sans-serif;
+  color:var(--cr-ink); font-family:'Plus Jakarta Sans', system-ui, sans-serif;
   font-weight:700; font-size:17px; padding:14px 14px;
 }
 .mecream .msec[open] .msum{ border-bottom:2px solid var(--cr-line); }
@@ -155,7 +155,7 @@
    the heading keeps its position whether or not a section has an eye. */
 .mecream .eye{
   margin-left:auto; display:inline-flex; align-items:center; gap:5px;
-  font-family:'Archivo',system-ui,sans-serif; font-size:11px; font-weight:700;
+  font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-size:11px; font-weight:700;
   letter-spacing:.01em; background:#fff; color:var(--cr-ink);
   border:1.5px solid var(--cr-line); border-radius:999px;
   padding:4px 10px; line-height:1; white-space:nowrap;

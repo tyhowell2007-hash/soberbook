@@ -33,8 +33,8 @@
   padding:13px 15px; border-bottom:1px solid rgba(242,240,233,.2);
 }
 .ds-kick{
-  font-family:'Courier Prime',monospace; font-size:11px; font-weight:700;
-  letter-spacing:.22em; text-transform:uppercase; color:#D6FF2E;
+  font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-size:11px; font-weight:700;
+  letter-spacing:.03em; text-transform:uppercase; color:#D6FF2E;
 }
 .ds-x{
   background:none; border:0; color:#9C9788; font-size:17px; cursor:pointer;
@@ -44,8 +44,8 @@
 
 .ds-lab{
   display:block; margin:14px 0 5px;
-  font-family:'Courier Prime',monospace; font-size:10.5px; font-weight:700;
-  letter-spacing:.12em; text-transform:uppercase; color:#9C9788;
+  font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-size:10.5px; font-weight:700;
+  letter-spacing:.03em; text-transform:uppercase; color:#9C9788;
 }
 .ds-body > .ds-lab:first-child{ margin-top:0; }
 
@@ -72,7 +72,7 @@ select.ds-in{ appearance:none; }
   color:#F2F0E9; font-family:inherit; font-size:13px; cursor:pointer;
 }
 .ds-art{ width:46px; height:46px; object-fit:cover; }
-.ds-note{ font-family:'Courier Prime',monospace; font-size:11px; color:#9C9788; margin:0; }
+.ds-note{ font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-size:11px; color:#9C9788; margin:0; }
 .ds-warn{ color:#FFB4A2; margin-top:6px; }
 
 .ds-rule{ height:1px; background:rgba(242,240,233,.2); margin:18px 0 4px; }
@@ -105,7 +105,7 @@ select.ds-in{ appearance:none; }
    The Aug 17 lesson about dead controls, applied to a six-field form. */
 .ds-why{
   margin:0; padding:0 15px 14px; background:#0A0A09;
-  font-family:'Courier Prime',monospace; font-size:11.5px; color:#9C9788;
+  font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-size:11.5px; color:#9C9788;
 }
 
 /* =====================================================================
@@ -125,8 +125,8 @@ select.ds-in{ appearance:none; }
 .cchide button{
   min-height:44px; padding:0 12px; background:none;
   border:1px solid var(--line,#D8E3DC); color:var(--soft,#63716A);
-  font-family:'Courier Prime',monospace; font-size:10.5px; font-weight:700;
-  letter-spacing:.08em; text-transform:uppercase; cursor:pointer;
+  font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-size:10.5px; font-weight:700;
+  letter-spacing:.03em; text-transform:uppercase; cursor:pointer;
 }
 .cchide button:hover{ border-color:var(--x,#1C2320); color:var(--x,#1C2320); }
 .cchide button:disabled{ opacity:.5; cursor:default; }
@@ -137,6 +137,6 @@ select.ds-in{ appearance:none; }
    silently leaves you unsure you hit the right thing — and this is the
    control used when something has already gone wrong. */
 .ccgone{
-  margin:0; padding:16px 14px; font-family:'Courier Prime',monospace;
+  margin:0; padding:16px 14px; font-family:'Plus Jakarta Sans', system-ui, sans-serif;
   font-size:12px; color:var(--soft,#63716A);
 }

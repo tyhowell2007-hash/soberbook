@@ -14,8 +14,8 @@
 .frwrap{ padding-bottom:14px; }
 
 .frsec{
-  font-family:'Courier Prime',monospace;
-  font-size:11.5px; letter-spacing:.09em; text-transform:uppercase;
+  font-family:'Plus Jakarta Sans', system-ui, sans-serif;
+  font-size:11.5px; letter-spacing:.03em; text-transform:uppercase;
   color:var(--gm-t); margin:18px 0 8px;
 }
 .frsec:first-child{ margin-top:0; }
@@ -254,7 +254,7 @@
 .roomhead{ display:flex; align-items:center; gap:7px; margin:0 0 10px; }
 .roomemoji{ font-size:17px; line-height:1; }
 .roomname{
-  font-family:'Archivo',system-ui,sans-serif; font-size:14px;
+  font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-size:14px;
   font-weight:700; color:#EAF6EF; letter-spacing:0;
 }
 /* Pushed right, and quiet. It says the room is populated without being a
@@ -397,7 +397,7 @@
 .rgo{
   flex:none; padding:10px 16px; border-radius:22px; border:0;
   background:#4FA97A; color:#08160F;
-  font-family:'Archivo',system-ui,sans-serif; font-size:13px; font-weight:700;
+  font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-size:13px; font-weight:700;
   cursor:pointer;
   min-height:44px;  /* ⚠️ 44px tap target — the Aug 18 post-footer lesson */
 }
@@ -858,7 +858,7 @@
   background:#24503A; border:1px solid transparent; border-radius:99px;
   padding:3px 9px 3px 7px; font-size:13px; line-height:1.3;
   color:#EAF6EF; cursor:pointer;
-  font-family:'Archivo',system-ui,sans-serif;
+  font-family:'Plus Jakarta Sans', system-ui, sans-serif;
 }
 .rxp:hover{ background:#2A5C43; }
 .rxn{ font-size:11.5px; font-weight:700; color:#B9EBD4; }
@@ -956,7 +956,7 @@
 /* ⚠️ Dark ink on a light circle, not the reverse — 11.53. And the letter
    comes off display_name, which in an anonymous room IS the alias. */
 .rfaceltr{ background:#9FE1CB; color:#0C1F16; font-size:13px; font-weight:700;
-           font-family:'Archivo',system-ui,sans-serif; }
+           font-family:'Plus Jakarta Sans', system-ui, sans-serif; }
 
 /* ⚠️ A grouped message keeps the 30px column so its bubble stays in line
    with the one above it — the face is simply absent, not collapsed. */
@@ -965,7 +965,7 @@
 .roomwho{ display:flex; align-items:baseline; gap:8px; }
 .roomwho.mine{ justify-content:flex-end; }
 .rtime{
-  font-family:'Courier Prime',monospace; font-size:10.5px; letter-spacing:.06em;
+  font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-size:10.5px; letter-spacing:.06em;
   color:#7FBFA0; font-weight:400; flex:none;
 }
 
@@ -975,6 +975,6 @@
 .rnew{ display:flex; align-items:center; gap:10px; margin:6px 0 12px; }
 .rnew::before, .rnew::after{ content:''; flex:1; border-top:1px solid #2F5A44; }
 .rnew span{
-  font-family:'Archivo',system-ui,sans-serif; font-size:10.5px; font-weight:700;
+  font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-size:10.5px; font-weight:700;
   letter-spacing:.07em; text-transform:uppercase; color:#8FD1B0; white-space:nowrap;
 }

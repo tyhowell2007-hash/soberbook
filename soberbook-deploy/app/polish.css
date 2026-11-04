@@ -1,0 +1,160 @@
+/* ============================================================
+   🌿 THE POLISH — 4 Nov 2026, Ty picked "Version 2" off the
+   before/after prototype (Today · Version 1 · Version 2).
+
+   ONE FILE, LOADED LAST, AND IT ONLY RE-DRESSES. Nothing moves,
+   nothing is renamed, no door changes order ("Right now" stays
+   first and stays clay). Delete the import in app/layout.jsx and
+   the app is exactly what it was before.
+
+   The font half of this change is NOT in here. Archivo and
+   Courier Prime were swapped for Plus Jakarta Sans in the CSS
+   files themselves (see layout.jsx's font note). Anton stays on
+   every big headline.
+
+   ⚠️ Scoped to the green theme. html[data-theme=black] is a
+   member's own choice and is left exactly as it was.
+   ============================================================ */
+
+html:not([data-theme="black"]) {
+  --pl-line: rgba(15, 61, 42, .10);
+  --pl-shadow: 0 2px 4px rgba(15, 61, 42, .05), 0 12px 28px rgba(15, 61, 42, .10);
+  --pl-green-grad: linear-gradient(180deg, #22845c, #17603f);
+  --pl-glow: 0 6px 16px rgba(27, 107, 74, .28);
+  --pl-gold: #c99a3b;
+}
+
+/* ---------- 1. MASTHEAD: depth, and a day pill that fits ---------- */
+html:not([data-theme="black"]) .mast {
+  background: linear-gradient(180deg, #22845c 0%, #155a3b 100%);
+  box-shadow: 0 2px 10px rgba(15, 61, 42, .25);
+}
+html .mast { gap: 2px; padding-right: 10px; }
+html .mast .lg { font-weight: 800; letter-spacing: .03em; margin-right: auto; }
+/* 🔴 The three icons were 40px wide each. At 375px the day count
+   wrapped onto three lines ("DAY / 1554 / ›"). 34px each buys the
+   room the pill needs; the tap target is still the full bar height. */
+html .mast .songlink, html .mast .bell {
+  width: 34px; min-width: 34px; padding-left: 0; padding-right: 0;
+  margin: 0; text-align: center; justify-content: center;
+}
+html .mast .rt, html .mast .melink {
+  background: rgba(255, 255, 255, .14); border: 0; border-radius: 999px;
+  padding: 4px 8px; color: #fff; font-weight: 700; font-size: 10.5px;
+  letter-spacing: .02em; text-transform: uppercase; white-space: nowrap;
+  flex: none; width: auto; line-height: 1.2;
+}
+
+/* ---------- 2. THE STRIPS UNDER THE MASTHEAD ---------- */
+html:not([data-theme="black"]) .bar:not(.bar-doors):not(.bar-today) {
+  background: #e8f4ed; border: 0; border-bottom: 1px solid var(--pl-line); box-shadow: none;
+}
+html:not([data-theme="black"]) .bar-doors,
+html:not([data-theme="black"]) .bar-today {
+  background: #e8f4ed; border: 0; box-shadow: none;
+  display: flex; gap: 8px; padding: 10px 12px;
+}
+html:not([data-theme="black"]) .bar-today { padding-top: 0; padding-bottom: 12px; border-bottom: 1px solid var(--pl-line); }
+html:not([data-theme="black"]) .bar-doors .dr {
+  flex: 1; border: 0; border-radius: 999px; background: #fff;
+  box-shadow: 0 1px 2px rgba(15, 61, 42, .08), inset 0 0 0 1px var(--pl-line);
+  height: 42px; font-size: 14px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+}
+html:not([data-theme="black"]) .bar-doors .dr-in,
+html:not([data-theme="black"]) .bar-doors .dr-ask { color: #145c3e; }
+/* "Right now" keeps its clay. It is the crisis door. */
+html:not([data-theme="black"]) .bar-doors .dr-now {
+  background: #fbecea; box-shadow: inset 0 0 0 1px rgba(138, 43, 43, .25);
+}
+html:not([data-theme="black"]) .bar-today .td {
+  flex: 1; border: 0; border-radius: 14px; background: #fff;
+  box-shadow: 0 1px 2px rgba(15, 61, 42, .06), inset 0 0 0 1px rgba(15, 61, 42, .08);
+  padding: 7px 2px; font-size: 11.5px;
+}
+
+/* ---------- 3. CARDS: one shape everywhere ---------- */
+html:not([data-theme="black"]) :is(
+  .art-strip, .sea, .tupd, .pl, .gr, .wall .item, .composer, .cirq, .home,
+  .crow, .uhero, [class*="LiveSoberCounter_sc"], .plr, .mo-card, .mo-grp,
+  .hp-card, .hp-care, .tenth-card, .ck-card, .nw-988, .rmcard,
+  .ppcard, .rd-nobody, .rd-item, .pn-note, .nw-steps, .nw-card, .nw-row,
+  .tk-mcard, .mt-hero, .rd-ask, .editbar .btn
+) {
+  border-radius: 20px;
+  box-shadow: var(--pl-shadow);
+  outline: 0;
+}
+/* The ones that wore a thick dark frame get a hairline instead. */
+html:not([data-theme="black"]) :is(
+  .art-strip, .sea, .tupd, .pl, .gr, .wall .item, .composer, .cirq,
+  .ppcard, .rd-nobody, .rd-item, .pn-note, .nw-steps, .nw-card, .nw-row
+) { border: 1px solid var(--pl-line); }
+html:not([data-theme="black"]) .tupd { overflow: hidden; }
+html:not([data-theme="black"]) .tupd > :first-child {
+  border-radius: 0; background: linear-gradient(90deg, #0f3d2a, #1b6b4a);
+}
+html:not([data-theme="black"]) :is(.tupd, .pl, .gr) { margin-left: 12px; margin-right: 12px; margin-bottom: 14px; }
+html:not([data-theme="black"]) .wall .item { margin-bottom: 14px; }
+html:not([data-theme="black"]) .wall .item p { font-size: 15.5px; line-height: 1.55; }
+html .pad { padding-left: 14px; padding-right: 14px; }
+
+/* The two black boxes become deep forest green. Video and photo
+   frames stay black on purpose: pictures need a dark surround. */
+html:not([data-theme="black"]) :is(.mt-hero.mt-heronone, .rd-ask) {
+  background: linear-gradient(160deg, #173a2a, #0e2219);
+}
+html:not([data-theme="black"]) .editbar .btn {
+  background: var(--pl-green-grad); box-shadow: var(--pl-glow); border-color: transparent;
+}
+
+/* ---------- 4. BUTTONS AND FIELDS ---------- */
+html:not([data-theme="black"]) :is(
+  .sea-opt, .pl-crave, .pl-go, .gr-go, .camera, .cemo, .ccbtn, .qreply-more, .qreply-send,
+  .btn.ghost, .mt-filter, .mt-join, .mt-going-btn, .mt-call, .mt-copy, .soff,
+  .hp-add, .hp-pbtn, .hp-room, .tenth-go, .pn-save, .ck-btn, .sg-go
+) { border-radius: 14px; }
+html:not([data-theme="black"]) :is(
+  .pl-go, .mt-call-first, .hp-add, .hp-room, .tenth-go, .pn-save, .ck-btn:not(.ghost)
+) { background: var(--pl-green-grad); box-shadow: var(--pl-glow); }
+html:not([data-theme="black"]) .pl-crave {
+  border-width: 1px; background: #f2f8f4; border-color: rgba(27, 107, 74, .35);
+}
+html:not([data-theme="black"]) :is(
+  .pl-in, .gr-in, .qreply-box, .ib-find, .rin, .pn-sin, .pn-in, .sg-in, .findbar input,
+  .composer textarea, .composer input
+) { border-radius: 14px; }
+html:not([data-theme="black"]) :is(.pl-in, .gr-in, .composer textarea, .composer input) {
+  border: 1px solid var(--pl-line); background: #f6faf7;
+}
+
+/* ---------- 5. STORY RINGS ---------- */
+html:not([data-theme="black"]) .sty-face {
+  box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--pl-gold); border-color: #fff;
+}
+
+/* ---------- 6. THE BOTTOM BAR FLOATS ---------- */
+html:not([data-theme="black"]) .tabbar {
+  left: 50%; right: auto; transform: translateX(-50%);
+  bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+  width: calc(100% - 24px); max-width: 496px; border-radius: 22px;
+  background: rgba(255, 255, 255, .88);
+  -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
+  box-shadow: 0 8px 28px rgba(15, 61, 42, .18);
+  border: 1px solid var(--pl-line);
+}
+/* The tab you're on: a solid green bubble, white icon. */
+html:not([data-theme="black"]) .tabbar .on .ti {
+  background: var(--pl-green-grad); box-shadow: 0 4px 10px rgba(27, 107, 74, .3);
+}
+html:not([data-theme="black"]) .tabbar .on .ti,
+html:not([data-theme="black"]) .tabbar .on .ti * { color: #fff; }
+html:not([data-theme="black"]) .tabbar .on .tl { color: #145c3e; font-weight: 800; }
+
+/* 🔴 SMALL PHONES (iPhone SE / mini, 375px and under). Measured: the
+   masthead needs ~383px at full size, so the wordmark and icons give
+   back ~22px here rather than letting the day pill fall off the edge. */
+@media (max-width: 380px) {
+  html .mast .lg { font-size: 15.5px; letter-spacing: .01em; }
+  html .mast .songlink, html .mast .bell { width: 30px; min-width: 30px; }
+}

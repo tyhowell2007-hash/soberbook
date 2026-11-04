@@ -86,13 +86,13 @@
   text-transform:uppercase; color:var(--x); line-height:1.05;
 }
 .item .mt{
-  font-family:'Courier Prime',monospace; font-size:9.5px; letter-spacing:.1em;
+  font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-size:9.5px; letter-spacing:.03em;
   text-transform:uppercase; color:var(--soft); margin-top:3px;
 }
 .item .bd{ font-size:14px; color:var(--body); margin-top:7px; overflow-wrap:anywhere; }
 .item .ft{
   display:flex; gap:12px; margin-top:9px; padding-top:7px; border-top:2px solid var(--x);
-  font-family:'Courier Prime',monospace; font-size:10px; font-weight:700;
+  font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-size:10px; font-weight:700;
   letter-spacing:.06em; text-transform:uppercase; color:var(--soft);
 }
 .item .ft .mine{ margin-left:auto; color:var(--x); }
@@ -116,7 +116,7 @@
   border:3px dashed var(--x); background:var(--paper);
 }
 .empty .h{ font-family:'Permanent Marker',cursive; font-size:22px; color:var(--x); }
-.empty .p{ font-family:'Courier Prime',monospace; font-size:12.5px; color:var(--soft); margin-top:8px; }
+.empty .p{ font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-size:12.5px; color:var(--soft); margin-top:8px; }
 
 /* composer, pinned to the bottom */
 .composer{
@@ -177,7 +177,7 @@
      the dark it was near-white on cream — MEASURED 1.02:1. Both halves of
      a contrast pair have to move together or neither should. */
   flex:1; border:3px solid var(--acid); background:var(--boxfill); padding:11px;
-  font-family:'Courier Prime',monospace; font-size:16px; line-height:1.5;
+  font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-size:16px; line-height:1.5;
   color:var(--x); outline:none; min-width:0;
   resize:none; overflow-y:hidden; display:block;
 }
@@ -198,8 +198,8 @@
 }
 .anontoggle button{
   background:var(--paper2); border:3px solid var(--x); box-shadow:3px 3px 0 var(--x);
-  font-family:'Courier Prime',monospace; font-size:10px; font-weight:700;
-  letter-spacing:.1em; text-transform:uppercase; padding:6px 10px; cursor:pointer;
+  font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-size:10px; font-weight:700;
+  letter-spacing:.03em; text-transform:uppercase; padding:6px 10px; cursor:pointer;
   color:var(--x);
 }
 .anontoggle button.on{ background:var(--x); color:var(--acid); }
@@ -213,7 +213,7 @@
    ===================================================================== */
 .replies{
   background:none; border:none; padding:0; cursor:pointer;
-  font-family:'Courier Prime',monospace; font-size:10px; font-weight:700;
+  font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-size:10px; font-weight:700;
   letter-spacing:.06em; text-transform:uppercase; color:var(--x);
   text-decoration:underline; text-underline-offset:3px;
 }
@@ -238,16 +238,16 @@
 
 .threadbody{ padding:14px 13px 8px; overflow-y:auto; flex:1; }
 .orig{ font-size:16px; color:var(--body); }
-.origmeta{ font-family:'Courier Prime',monospace; font-size:10px; letter-spacing:.1em;
+.origmeta{ font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-size:10px; letter-spacing:.03em;
   text-transform:uppercase; color:var(--soft); margin:6px 0 14px;
   padding-bottom:12px; border-bottom:3px solid var(--x); }
 
-.loading{ font-family:'Courier Prime',monospace; font-size:12px; color:var(--soft);
+.loading{ font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-size:12px; color:var(--soft);
   padding:14px 0; }
 /* The empty state IS the product promise. It says the rule out loud at the
    exact moment someone is deciding whether to bother replying. */
 .nosilence{ border:3px dashed var(--x); background:var(--paper2); padding:16px;
-  font-family:'Courier Prime',monospace; font-size:12.5px; color:var(--soft);
+  font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-size:12.5px; color:var(--soft);
   line-height:1.7; text-align:center; }
 .nosilence b{ font-family:'Permanent Marker',cursive; font-size:16px; color:var(--x);
   display:inline-block; margin-top:5px; }
@@ -260,7 +260,7 @@
 .reply.screened > *{ position:relative; z-index:1; }
 .rwho{ font-family:'Anton',Impact,sans-serif; font-size:15px; text-transform:uppercase;
   color:var(--x); }
-.rwhen{ font-family:'Courier Prime',monospace; font-size:9.5px; letter-spacing:.1em;
+.rwhen{ font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-size:9.5px; letter-spacing:.03em;
   color:var(--soft); margin-left:8px; text-transform:uppercase; }
 .rbody{ font-size:14.5px; color:var(--body); margin-top:4px; overflow-wrap:anywhere; }
 .rerr{ border:3px solid #9A3412; background:#FFF1E7; color:#7C2D12; padding:10px 12px;
@@ -268,14 +268,14 @@
 
 .replybar{ border-top:4px solid var(--x); background:var(--paper2); padding:9px 12px 12px; }
 .ranon{ background:var(--paper); border:3px solid var(--x); box-shadow:3px 3px 0 var(--x);
-  font-family:'Courier Prime',monospace; font-size:10px; font-weight:700;
-  letter-spacing:.1em; text-transform:uppercase; padding:6px 10px; cursor:pointer;
+  font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-size:10px; font-weight:700;
+  letter-spacing:.03em; text-transform:uppercase; padding:6px 10px; cursor:pointer;
   color:var(--x); margin-bottom:9px; }
 .ranon.on{ background:var(--x); color:var(--acid); }
 .ranon:focus-visible{ outline:3px solid var(--x); outline-offset:3px; }
 .replybar form{ display:flex; gap:8px; }
 .replybar input{ flex:1; border:3px solid var(--x); background:#F2EFE6; padding:11px;
-  font-family:'Courier Prime',monospace; font-size:15px; color:var(--x); outline:none;
+  font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-size:15px; color:var(--x); outline:none;
   min-width:0; }
 .replybar input:focus-visible{ outline:3px solid var(--acid); outline-offset:-3px; }
 .replybar button[type=submit]{ background:var(--x); color:var(--acid); border:none;
@@ -315,8 +315,8 @@
   color:var(--acid-ink); letter-spacing:-.01em;
 }
 .count .cl{
-  font-family:'Courier Prime',monospace; font-size:11px; font-weight:700;
-  letter-spacing:.18em; text-transform:uppercase; color:#3A4200; margin-top:8px;
+  font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-size:11px; font-weight:700;
+  letter-spacing:.03em; text-transform:uppercase; color:#3A4200; margin-top:8px;
 }
 
 /* =====================================================================
@@ -349,8 +349,8 @@
   font-variant-numeric:tabular-nums; font-feature-settings:"tnum" 1;
 }
 .count .col .k{
-  font-family:'Courier Prime',monospace; font-size:9px; font-weight:700;
-  letter-spacing:.13em; text-transform:uppercase; color:#3A4200; margin-top:5px;
+  font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-size:9px; font-weight:700;
+  letter-spacing:.03em; text-transform:uppercase; color:#3A4200; margin-top:5px;
 }
 
 /* Somebody else's page uses .count.small — their number is not the
@@ -382,7 +382,7 @@ ul.mine li.screened::after{
 ul.mine li > *{ position:relative; z-index:1; }
 .mb{ font-size:14.5px; color:var(--body); overflow-wrap:anywhere; }
 .mm{
-  font-family:'Courier Prime',monospace; font-size:9.5px; letter-spacing:.1em;
+  font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-size:9.5px; letter-spacing:.03em;
   text-transform:uppercase; color:var(--soft); margin-top:6px;
 }
 
@@ -393,7 +393,7 @@ ul.mine li > *{ position:relative; z-index:1; }
 .btn.out.arm:hover{ background:#7C2D12; color:#FFF1E7; }
 .nvm{
   display:block; margin:10px auto 0; background:none; border:none; cursor:pointer;
-  font-family:'Courier Prime',monospace; font-size:12px; color:var(--soft);
+  font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-size:12px; color:var(--soft);
   text-decoration:underline; text-underline-offset:3px; padding:6px;
 }
 
@@ -438,7 +438,7 @@ ul.mine li > *{ position:relative; z-index:1; }
 .dr{
   flex:1 1 0; min-height:46px;
   display:flex; align-items:center; justify-content:center;
-  font-family:'Archivo',system-ui,sans-serif;
+  font-family:'Plus Jakarta Sans', system-ui, sans-serif;
   font-size:14px; font-weight:600; letter-spacing:0;
   text-transform:none; text-decoration:none;
 }
@@ -477,7 +477,7 @@ ul.mine li > *{ position:relative; z-index:1; }
    milestone posters follow. */
 .heart{
   background:none; border:none; padding:0; cursor:pointer;
-  font-family:'Courier Prime',monospace; font-size:10px; font-weight:700;
+  font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-size:10px; font-weight:700;
   letter-spacing:.06em; text-transform:uppercase; color:var(--soft);
   line-height:1.4;
 }
@@ -533,7 +533,7 @@ ul.mine li > *{ position:relative; z-index:1; }
 .md{ display:block; font-size:13px; margin-top:5px; color:var(--body); }
 
 .mnote{
-  font-family:'Courier Prime',monospace; font-size:13px; line-height:1.65;
+  font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-size:13px; line-height:1.65;
   color:var(--body); border-left:5px solid var(--x); padding:2px 0 2px 12px;
   margin-bottom:16px;
 }
@@ -542,7 +542,7 @@ ul.mine li > *{ position:relative; z-index:1; }
 
 .back2{
   display:block; margin:4px auto 0; background:none; border:none; cursor:pointer;
-  font-family:'Courier Prime',monospace; font-size:12px; color:var(--soft);
+  font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-size:12px; color:var(--soft);
   text-decoration:underline; text-underline-offset:3px; padding:8px;
 }
 
@@ -552,8 +552,8 @@ ul.mine li > *{ position:relative; z-index:1; }
    monospace, small caps, sitting above the body instead of inside it.
    Someone should never wonder whether the poster wrote this. */
 .waiting{
-  font-family:'Courier Prime',monospace; font-size:10px; font-weight:700;
-  letter-spacing:.08em; text-transform:uppercase; color:#3A4200;
+  font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-size:10px; font-weight:700;
+  letter-spacing:.03em; text-transform:uppercase; color:#3A4200;
   border-top:2px dashed rgba(20,24,0,.35);
   margin-top:9px; padding-top:7px;
 }
@@ -602,8 +602,8 @@ ul.mine li > *{ position:relative; z-index:1; }
   text-transform:uppercase; color:var(--x); line-height:1.05; overflow-wrap:anywhere;
 }
 .phandle{
-  display:block; font-family:'Courier Prime',monospace; font-size:10px;
-  letter-spacing:.14em; text-transform:uppercase; color:var(--soft); margin-top:4px;
+  display:block; font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-size:10px;
+  letter-spacing:.03em; text-transform:uppercase; color:var(--soft); margin-top:4px;
 }
 
 /* the day count, quieter than the one on your own page — this is
@@ -690,24 +690,24 @@ ul.mine li > *{ position:relative; z-index:1; }
 }
 .soffer:hover{ background:#fff; }
 .soffer:focus-visible{ outline:4px solid var(--acid); outline-offset:4px; }
-.sok{ font-family:'Courier Prime',monospace; font-size:9.5px; font-weight:700;
-  letter-spacing:.16em; text-transform:uppercase; color:#3A4200; }
+.sok{ font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-size:9.5px; font-weight:700;
+  letter-spacing:.03em; text-transform:uppercase; color:#3A4200; }
 .sgo{ font-family:'Anton',Impact,sans-serif; font-size:17px; text-transform:uppercase;
   letter-spacing:.03em; }
 
 .sfoot{ background:var(--x); display:flex; align-items:center; gap:11px; padding:11px 13px; }
-.swho{ font-family:'Courier Prime',monospace; font-size:9px; font-weight:700;
-  letter-spacing:.16em; text-transform:uppercase; color:var(--acid); flex-shrink:0;
+.swho{ font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-size:9px; font-weight:700;
+  letter-spacing:.03em; text-transform:uppercase; color:var(--acid); flex-shrink:0;
   max-width:38%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .sline{ flex:1; height:4px; background:#2A2A26; }
 .sline span{ display:block; height:100%; background:var(--acid); transition:width .25s linear; }
-.stag.full{ flex:1; font-family:'Courier Prime',monospace; font-size:9px; font-weight:700;
-  letter-spacing:.16em; text-transform:uppercase; color:var(--paper); text-align:center; }
-.sout{ font-family:'Courier Prime',monospace; font-size:9px; letter-spacing:.1em;
+.stag.full{ flex:1; font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-size:9px; font-weight:700;
+  letter-spacing:.03em; text-transform:uppercase; color:var(--paper); text-align:center; }
+.sout{ font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-size:9px; letter-spacing:.03em;
   text-transform:uppercase; color:var(--soft); text-decoration:none; flex-shrink:0; }
 .sout:hover{ color:var(--acid); }
 
-.snote{ font-family:'Courier Prime',monospace; font-size:10.5px; color:var(--soft);
+.snote{ font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-size:10.5px; color:var(--soft);
   background:var(--paper2); padding:9px 13px; line-height:1.55; }
 
 /* =====================================================================
@@ -741,7 +741,7 @@ ul.mine li > *{ position:relative; z-index:1; }
   text-transform:uppercase; color:var(--x); line-height:1.05;
 }
 .mstone-body p{
-  font-family:'Courier Prime',monospace; font-size:12.5px;
+  font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-size:12.5px;
   color:#5A4A18;                       /* 7.1:1 on the gold */
   margin-top:4px;
 }
@@ -763,8 +763,8 @@ ul.mine li > *{ position:relative; z-index:1; }
   display:block; width:100%; min-height:44px; margin-top:8px;
   background:var(--paper2); color:var(--x);
   border:2px solid var(--x); padding:11px 13px;
-  font-family:'Courier Prime',monospace; font-size:11.5px; font-weight:700;
-  letter-spacing:.1em; text-transform:uppercase; cursor:pointer;
+  font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-size:11.5px; font-weight:700;
+  letter-spacing:.03em; text-transform:uppercase; cursor:pointer;
 }
 .soff:hover{ background:var(--x); color:var(--paper); }
 .soff:focus-visible{ outline:3px solid var(--acid); outline-offset:2px; }
@@ -779,8 +779,8 @@ ul.mine li > *{ position:relative; z-index:1; }
 .schip{
   position:absolute; top:11px; right:11px; z-index:2;
   background:var(--x); color:var(--acid); border:2px solid var(--acid);
-  font-family:'Courier Prime',monospace; font-size:9.5px; font-weight:700;
-  letter-spacing:.14em; text-transform:uppercase; padding:7px 10px; cursor:pointer;
+  font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-size:9.5px; font-weight:700;
+  letter-spacing:.03em; text-transform:uppercase; padding:7px 10px; cursor:pointer;
 }
 .schip:hover{ background:var(--acid); color:var(--acid-ink); }
 .schip:focus-visible{ outline:3px solid var(--acid); outline-offset:3px; }
@@ -808,8 +808,8 @@ ul.mine li > *{ position:relative; z-index:1; }
   color:var(--acid); letter-spacing:-.01em;
 }
 .total .tl{
-  font-family:'Courier Prime',monospace; font-size:10.5px; font-weight:700;
-  letter-spacing:.16em; text-transform:uppercase; color:#C9C4B7;
+  font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-size:10.5px; font-weight:700;
+  letter-spacing:.03em; text-transform:uppercase; color:#C9C4B7;
 }
 
 /* The two questions after somebody moves their date forward. Boxed and
@@ -857,8 +857,8 @@ ul.mine li > *{ position:relative; z-index:1; }
      motion that isn't happening. */
 }
 .count .mnext{
-  font-family:'Courier Prime',monospace; font-size:11px; font-weight:700;
-  letter-spacing:.1em; text-transform:uppercase; color:#3A4200; margin-top:9px;
+  font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-size:11px; font-weight:700;
+  letter-spacing:.03em; text-transform:uppercase; color:#3A4200; margin-top:9px;
 }
 
 .chips{
@@ -866,8 +866,8 @@ ul.mine li > *{ position:relative; z-index:1; }
   list-style:none; padding:0; margin:-16px 0 26px;
 }
 .chip{
-  font-family:'Courier Prime',monospace; font-size:11px; font-weight:700;
-  letter-spacing:.1em; text-transform:uppercase;
+  font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-size:11px; font-weight:700;
+  letter-spacing:.03em; text-transform:uppercase;
   padding:7px 11px; border:3px solid var(--x); background:var(--paper2);
   color:var(--soft);
 }
@@ -925,8 +925,8 @@ ul.mine li > *{ position:relative; z-index:1; }
 .tab .ti{ font-size:21px; line-height:1; }
 
 .tab .tl{
-  font-family:'Courier Prime',monospace; font-size:10px; font-weight:700;
-  letter-spacing:.12em; text-transform:uppercase;
+  font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-size:10px; font-weight:700;
+  letter-spacing:.03em; text-transform:uppercase;
 }
 /* The active tab is marked by COLOUR AND WEIGHT, never by colour alone —
    about one man in twelve can't rely on a hue shift. aria-current carries
@@ -1088,8 +1088,8 @@ textarea:focus-visible{ outline:4px solid var(--x); outline-offset:3px; }
    voice for "this is the system talking", never for a person's words. */
 .fpsub{
   display:block; margin-top:3px;
-  font-family:'Courier Prime',monospace; font-size:10px; font-weight:400;
-  letter-spacing:.10em; text-transform:uppercase; color:var(--soft);
+  font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-size:10px; font-weight:400;
+  letter-spacing:.03em; text-transform:uppercase; color:var(--soft);
 }
 .fpcaret{ flex-shrink:0; font-size:11px; color:var(--soft); }
 
@@ -1128,8 +1128,8 @@ textarea:focus-visible{ outline:4px solid var(--x); outline-offset:3px; }
 /* group headings inside the face picker — quiet, monospace, the same
    voice the app uses for system notes rather than for a person's words */
 .facegrp{
-  font-family:'Courier Prime',monospace; font-size:10px; font-weight:700;
-  letter-spacing:.18em; text-transform:uppercase; color:var(--soft);
+  font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-size:10px; font-weight:700;
+  letter-spacing:.03em; text-transform:uppercase; color:var(--soft);
   margin:16px 0 0;
 }
 .facegrp:first-of-type{ margin-top:10px; }
@@ -1140,8 +1140,8 @@ textarea:focus-visible{ outline:4px solid var(--x); outline-offset:3px; }
 .facenone{
   display:block; width:100%; margin-top:14px; padding:9px;
   border:3px dashed var(--x); background:transparent; cursor:pointer;
-  font-family:'Courier Prime',monospace; font-size:11px; font-weight:700;
-  letter-spacing:.14em; text-transform:uppercase; color:var(--soft);
+  font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-size:11px; font-weight:700;
+  letter-spacing:.03em; text-transform:uppercase; color:var(--soft);
 }
 .facenone:hover{ background:var(--paper); color:var(--x); }
 .facenone:focus-visible{ outline:4px solid var(--x); outline-offset:3px; }
@@ -1209,18 +1209,18 @@ textarea:focus-visible{ outline:4px solid var(--x); outline-offset:3px; }
    message would push the unread dot off the screen instead of ellipsing.
    This is the single most common flexbox bug there is. */
 .cwho{ min-width:0; flex:1; }
-.cname{ display:block; font-family:'Archivo',system-ui,sans-serif;
+.cname{ display:block; font-family:'Plus Jakarta Sans', system-ui, sans-serif;
   font-weight:700; font-size:15px; color:var(--x); overflow-wrap:anywhere; }
-.clast{ display:block; font-family:'Courier Prime',monospace; font-size:12px;
+.clast{ display:block; font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-size:12px;
   color:var(--soft); margin-top:2px;
   overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 
 .cdot{ flex-shrink:0; min-width:22px; height:22px; padding:0 6px; border-radius:99px;
   display:flex; align-items:center; justify-content:center;
-  font-family:'Archivo',system-ui,sans-serif; font-size:11px; font-weight:700;
+  font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-size:11px; font-weight:700;
   background:var(--x); color:var(--paper2); }
-.csent{ flex-shrink:0; font-family:'Courier Prime',monospace; font-size:10px;
-  letter-spacing:.1em; text-transform:uppercase; color:var(--soft); }
+.csent{ flex-shrink:0; font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-size:10px;
+  letter-spacing:.03em; text-transform:uppercase; color:var(--soft); }
 
 /* the requests lane */
 .creq{ width:100%; display:flex; gap:11px; align-items:center; text-align:left;
@@ -1228,11 +1228,11 @@ textarea:focus-visible{ outline:4px solid var(--x); outline-offset:3px; }
   border:3px dashed var(--x); background:var(--paper); }
 .cnum{ flex-shrink:0; width:30px; height:30px; border-radius:99px;
   display:flex; align-items:center; justify-content:center;
-  font-family:'Archivo',system-ui,sans-serif; font-weight:700; font-size:13px;
+  font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-weight:700; font-size:13px;
   background:var(--x); color:var(--paper2); }
-.creqt{ flex:1; font-family:'Archivo',system-ui,sans-serif; font-weight:700;
+.creqt{ flex:1; font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-weight:700;
   font-size:14px; color:var(--x); }
-.creqs{ display:block; font-family:'Courier Prime',monospace; font-weight:400;
+.creqs{ display:block; font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-weight:400;
   font-size:11px; color:var(--soft); margin-top:1px; }
 .ccaret{ flex-shrink:0; color:var(--soft); font-size:14px; }
 .creqlist{ margin:0 0 16px; }
@@ -1243,24 +1243,24 @@ textarea:focus-visible{ outline:4px solid var(--x); outline-offset:3px; }
    and the person most affected by that nudge is the newcomer this whole
    gate exists to protect. */
 .cbtns{ display:flex; gap:7px; flex-shrink:0; }
-.cbtns button{ font-family:'Archivo',system-ui,sans-serif; font-weight:700;
+.cbtns button{ font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-weight:700;
   font-size:12px; padding:9px 13px; cursor:pointer; border:3px solid var(--x); }
 .cyes{ background:var(--x); color:var(--paper2); }
 .cno{ background:var(--paper2); color:var(--x); }
 .cbtns button[disabled]{ opacity:.5; cursor:default; }
 
-.cgate{ font-family:'Courier Prime',monospace; font-size:11px; line-height:1.55;
+.cgate{ font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-size:11px; line-height:1.55;
   color:var(--soft); padding:2px 4px 0; }
 
 /* the conversation */
 .convo{ padding:18px 16px 34px; display:flex; flex-direction:column; gap:9px; }
 .bub{ max-width:78%; align-self:flex-start; padding:10px 13px;
-  font-family:'Courier Prime',monospace; font-size:14px; line-height:1.5;
+  font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-size:14px; line-height:1.5;
   color:var(--x); background:var(--paper2); border:3px solid var(--x);
   overflow-wrap:anywhere; }
 .bub.mine{ align-self:flex-end; background:var(--acid); color:var(--acid-ink); }
 .cnote{ align-self:center; text-align:center; max-width:80%;
-  font-family:'Courier Prime',monospace; font-size:11px; line-height:1.55;
+  font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-size:11px; line-height:1.55;
   color:var(--soft); padding:6px 0; }
 
 /* THE MESSAGE BAR — its own class, NOT .composer, and that is a bug fix
@@ -1283,7 +1283,7 @@ textarea:focus-visible{ outline:4px solid var(--x); outline-offset:3px; }
 }
 .cbar input{
   flex:1; min-width:0; border:3px solid var(--acid); background:#F2EFE6; padding:11px;
-  font-family:'Courier Prime',monospace; font-size:15px; color:var(--x); outline:none;
+  font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-size:15px; color:var(--x); outline:none;
 }
 .cbar button{
   background:var(--acid); color:var(--acid-ink); border:none; padding:11px 15px;
@@ -1303,7 +1303,7 @@ textarea:focus-visible{ outline:4px solid var(--x); outline-offset:3px; }
    ===================================================================== */
 .ideas{ margin:10px 0 4px; display:flex; flex-wrap:wrap; gap:8px; }
 .idea{
-  font-family:'Courier Prime',monospace; font-size:14px; font-weight:700;
+  font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-size:14px; font-weight:700;
   padding:9px 14px; cursor:pointer;
   border:3px solid var(--x); background:var(--paper2); color:var(--x);
   /* 44px is the smallest target most guidance treats as reliably
@@ -1322,8 +1322,8 @@ textarea:focus-visible{ outline:4px solid var(--x); outline-offset:3px; }
 .ctabs{ display:flex; margin:0 0 12px; border-bottom:3px solid var(--x); }
 .ctab{
   flex:1; padding:11px 6px; cursor:pointer; background:none; border:0;
-  font-family:'Courier Prime',monospace; font-size:12px; font-weight:700;
-  letter-spacing:.08em; text-transform:uppercase; color:var(--soft);
+  font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-size:12px; font-weight:700;
+  letter-spacing:.03em; text-transform:uppercase; color:var(--soft);
   /* 44px so a thumb finds it. This is the control that reveals the whole
      member list — it does not get to be a tiny word. */
   min-height:44px;
@@ -1344,12 +1344,12 @@ textarea:focus-visible{ outline:4px solid var(--x); outline-offset:3px; }
    hard to spot later. */
 .dchip{
   display:inline-block; margin-left:6px; padding:2px 8px; border-radius:99px;
-  font-family:'Courier Prime',monospace; font-size:10px; font-weight:700;
+  font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-size:10px; font-weight:700;
   letter-spacing:.04em; vertical-align:1px;
 }
 
 .dgo{
-  flex-shrink:0; font-family:'Courier Prime',monospace; font-size:11px;
+  flex-shrink:0; font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-size:11px;
   font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--x);
 }
 
@@ -1372,7 +1372,7 @@ textarea:focus-visible{ outline:4px solid var(--x); outline-offset:3px; }
    ===================================================================== */
 .dchip{
   display:inline-block; margin-left:6px; padding:2px 9px; border-radius:99px;
-  font-family:'Courier Prime',monospace; font-size:10px; font-weight:700;
+  font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-size:10px; font-weight:700;
   letter-spacing:.03em; vertical-align:1px; white-space:nowrap;
   border:1px solid transparent;
 }
@@ -1401,7 +1401,7 @@ textarea:focus-visible{ outline:4px solid var(--x); outline-offset:3px; }
 /* ⚠️ The domain is always shown. In a room where treatment centres pay
    for referrals, an unlabelled link is how somebody gets sold. */
 .lkh{
-  font-family:'Courier Prime',monospace; font-size:11px; color:var(--soft);
+  font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-size:11px; color:var(--soft);
   text-decoration:none; white-space:nowrap;
 }
 
@@ -1478,7 +1478,7 @@ textarea:focus-visible{ outline:4px solid var(--x); outline-offset:3px; }
   color:var(--gt,#0F3D2A);
 }
 .plys{
-  font-family:'Courier Prime',monospace; font-size:11px; font-weight:400;
+  font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-size:11px; font-weight:400;
   color:var(--soft); letter-spacing:.02em; margin-top:2px;
 }
 
@@ -1552,7 +1552,7 @@ textarea:focus-visible{ outline:4px solid var(--x); outline-offset:3px; }
 .rpvm{
   display:flex; align-items:center; min-height:44px;
   background:none; border:none; padding:0; cursor:pointer;
-  font-family:'Courier Prime',monospace; font-size:11px; font-weight:700;
+  font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-size:11px; font-weight:700;
   letter-spacing:.06em; text-transform:uppercase; color:var(--soft);
   text-decoration:underline; text-underline-offset:3px;
 }
@@ -1629,8 +1629,8 @@ textarea:focus-visible{ outline:4px solid var(--x); outline-offset:3px; }
    what kind of thing they are about to watch. */
 .shcat{
   flex:none; margin-left:auto;
-  font-family:'Courier Prime',monospace; font-size:11px; font-weight:700;
-  letter-spacing:.12em; text-transform:uppercase; color:#2C3A24;
+  font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-size:11px; font-weight:700;
+  letter-spacing:.03em; text-transform:uppercase; color:#2C3A24;
 }
 
 /* =====================================================================
@@ -1667,8 +1667,8 @@ textarea:focus-visible{ outline:4px solid var(--x); outline-offset:3px; }
   padding:5px 13px;
   background:#2C3A24;
   color:#C6F24E;
-  font-family:'Courier Prime',monospace; font-size:11px; font-weight:700;
-  letter-spacing:.12em; text-transform:uppercase;
+  font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-size:11px; font-weight:700;
+  letter-spacing:.03em; text-transform:uppercase;
 }
 
 .ccframe{ position:relative; width:100%; aspect-ratio:16/9; background:#0B0F0D; }
@@ -1709,8 +1709,8 @@ textarea:focus-visible{ outline:4px solid var(--x); outline-offset:3px; }
 }
 .cccat{
   flex:none; margin-left:auto;
-  font-family:'Courier Prime',monospace; font-size:9.5px; font-weight:700;
-  letter-spacing:.12em; text-transform:uppercase; color:#F2FBF6;
+  font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-size:9.5px; font-weight:700;
+  letter-spacing:.03em; text-transform:uppercase; color:#F2FBF6;
   padding:3px 8px; border-radius:999px;
   background:rgba(255,255,255,.16); border:1px solid rgba(255,255,255,.34);
   -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px);
@@ -1743,7 +1743,7 @@ textarea:focus-visible{ outline:4px solid var(--x); outline-offset:3px; }
 /* ---- title, on the picture ---- */
 .cctitle{
   position:absolute; left:0; right:0; bottom:0; padding:13px 14px 30px;
-  font-family:'Archivo',system-ui,sans-serif; font-size:16px; font-weight:600;
+  font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-size:16px; font-weight:600;
   line-height:1.3; color:#fff; text-align:left;
   text-shadow:0 1px 4px rgba(0,0,0,.55);
   display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical;
@@ -1758,7 +1758,7 @@ textarea:focus-visible{ outline:4px solid var(--x); outline-offset:3px; }
    photos.css for the poster cards; that rule still wins and is correct. */
 .ccnote{
   position:absolute; left:14px; bottom:10px;
-  font-family:'Courier Prime',monospace; font-size:11px; letter-spacing:.07em;
+  font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-size:11px; letter-spacing:.03em;
   color:rgba(255,255,255,.72);
 }
 
@@ -1768,8 +1768,8 @@ textarea:focus-visible{ outline:4px solid var(--x); outline-offset:3px; }
 }
 .ccout{
   display:inline-flex; align-items:center; min-height:44px; padding:0 14px;
-  font-family:'Courier Prime',monospace; font-size:10px; font-weight:700;
-  letter-spacing:.1em; text-transform:uppercase; color:var(--soft);
+  font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-size:10px; font-weight:700;
+  letter-spacing:.03em; text-transform:uppercase; color:var(--soft);
   text-decoration:none;
 }
 .ccout:hover{ color:var(--gd,#1B6B4A); }
@@ -1817,8 +1817,8 @@ textarea:focus-visible{ outline:4px solid var(--x); outline-offset:3px; }
 .dp-in{ position:relative; padding:16px 15px 15px; }
 
 .dp-kicker{
-  font-family:'Courier Prime',monospace; font-size:10px; font-weight:700;
-  letter-spacing:.24em; text-transform:uppercase; color:#D6FF2E;
+  font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-size:10px; font-weight:700;
+  letter-spacing:.03em; text-transform:uppercase; color:#D6FF2E;
 }
 .dp-title{
   margin:13px 0 0; font-family:'Anton',Impact,sans-serif;
@@ -1828,15 +1828,15 @@ textarea:focus-visible{ outline:4px solid var(--x); outline-offset:3px; }
 }
 .dp-title.dp-out{ margin-top:0; font-size:22px; line-height:1.04; }
 .dp-artist{
-  margin-top:9px; font-family:'Courier Prime',monospace; font-size:12px;
-  font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:#9C9788;
+  margin-top:9px; font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-size:12px;
+  font-weight:700; letter-spacing:.03em; text-transform:uppercase; color:#9C9788;
 }
 
 /* ---- the countdown ---- */
 .dp-clock{ margin-top:16px; padding-top:13px; border-top:1px solid rgba(242,240,233,.2); }
 .dp-clabel{
-  font-family:'Courier Prime',monospace; font-size:10px; font-weight:700;
-  letter-spacing:.16em; text-transform:uppercase; color:#9C9788;
+  font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-size:10px; font-weight:700;
+  letter-spacing:.03em; text-transform:uppercase; color:#9C9788;
 }
 .dp-nums{ margin-top:5px; display:flex; gap:15px; align-items:baseline; color:#D6FF2E; }
 .dp-nums b{
@@ -1846,8 +1846,8 @@ textarea:focus-visible{ outline:4px solid var(--x); outline-offset:3px; }
      glitching rather than time passing. */
   font-variant-numeric:tabular-nums; font-feature-settings:'tnum';
 }
-.dp-nums i{ font-style:normal; font-family:'Courier Prime',monospace;
-  font-size:11px; margin-left:2px; letter-spacing:.08em; }
+.dp-nums i{ font-style:normal; font-family:'Plus Jakarta Sans', system-ui, sans-serif;
+  font-size:11px; margin-left:2px; letter-spacing:.03em; }
 .dp-when{ margin-top:9px; font-size:12.5px; color:#9C9788; }
 
 /* ---- out ---- */
@@ -1893,8 +1893,8 @@ textarea:focus-visible{ outline:4px solid var(--x); outline-offset:3px; }
 
 .dp-only{
   position:absolute; top:11px; left:12px;
-  font-family:'Courier Prime',monospace; font-size:10px; font-weight:700;
-  letter-spacing:.14em; text-transform:uppercase;
+  font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-size:10px; font-weight:700;
+  letter-spacing:.03em; text-transform:uppercase;
   color:#0A0A09; background:#D6FF2E; padding:4px 9px;
 }
 
@@ -1916,8 +1916,8 @@ textarea:focus-visible{ outline:4px solid var(--x); outline-offset:3px; }
 .dp-link{
   display:inline-flex; align-items:center; min-height:44px; margin-top:11px;
   padding-top:12px; border-top:1px solid rgba(242,240,233,.2); width:100%;
-  font-family:'Courier Prime',monospace; font-size:10.5px; font-weight:700;
-  letter-spacing:.12em; text-transform:uppercase; color:#D6FF2E; text-decoration:none;
+  font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-size:10.5px; font-weight:700;
+  letter-spacing:.03em; text-transform:uppercase; color:#D6FF2E; text-decoration:none;
 }
 .dp-link:hover{ color:#F2F0E9; }
 .dp-link:focus-visible{ outline:3px solid #D6FF2E; outline-offset:2px; }
@@ -2086,7 +2086,7 @@ textarea:focus-visible{ outline:4px solid var(--x); outline-offset:3px; }
 .td{
   flex:1 1 0; min-height:48px;
   display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1px;
-  font-family:'Archivo',system-ui,sans-serif;
+  font-family:'Plus Jakarta Sans', system-ui, sans-serif;
   font-size:16px; text-decoration:none; color:var(--gt);
   border-left:1px solid #6B8F7C;
 }

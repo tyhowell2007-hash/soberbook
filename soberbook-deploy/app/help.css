@@ -21,8 +21,8 @@
 }
 
 .hpsec{
-  font-family:'Courier Prime',monospace;
-  font-size:11.5px; letter-spacing:.09em; text-transform:uppercase;
+  font-family:'Plus Jakarta Sans', system-ui, sans-serif;
+  font-size:11.5px; letter-spacing:.03em; text-transform:uppercase;
   color:var(--gm-t); margin:24px 0 10px; font-weight:400;
 }
 
@@ -68,7 +68,7 @@
   display:block; text-align:center; text-decoration:none;
   min-height:52px; line-height:52px; padding:0 14px;
   border-radius:12px; background:var(--gd); color:#F4FBF7;
-  font-family:'Courier Prime',monospace;
+  font-family:'Plus Jakarta Sans', system-ui, sans-serif;
   font-size:19px; letter-spacing:.06em;
 }
 /* 🔴 --slab, not --gt. This is the crisis phone button and the press state
@@ -83,7 +83,7 @@
    the Wall's link previews (23 Aug). */
 .hpsite{
   display:inline-block; margin-top:10px;
-  font-family:'Courier Prime',monospace; font-size:12.5px;
+  font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-size:12.5px;
   color:var(--gm-t); text-decoration:none;
   border-bottom:1px solid var(--line); padding-bottom:2px;
   overflow-wrap:anywhere;

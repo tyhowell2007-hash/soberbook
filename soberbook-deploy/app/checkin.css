@@ -5,7 +5,7 @@
   background:var(--paper2); border:1px solid var(--line); border-radius:16px; padding:22px 20px;
   color:var(--body); font-size:16px; line-height:1.65;
 }
-.ck-card h1{ font-family:'Archivo',system-ui,sans-serif; font-size:22px; margin:0 0 12px; color:var(--gt); }
+.ck-card h1{ font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-size:22px; margin:0 0 12px; color:var(--gt); }
 .ck-card p{ margin:0 0 14px; }
 .ck-card a{ color:var(--gm-t); white-space:nowrap; }
 .ck-acts{ display:flex; flex-wrap:wrap; gap:9px; margin:18px 0 6px; }

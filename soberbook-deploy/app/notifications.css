@@ -115,7 +115,7 @@
   overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
 }
 .ntfwhen{
-  font-family:'Courier Prime',monospace; font-size:11px;
+  font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-size:11px;
   letter-spacing:.06em; color:var(--gm-t); margin-top:2px;
 }
 

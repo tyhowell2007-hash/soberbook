@@ -107,13 +107,13 @@
   transition:box-shadow .35s ease;
 }
 .nm-big{
-  font-family:'Archivo',system-ui,sans-serif; font-weight:800;
+  font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-weight:800;
   font-size:76px; line-height:.92; letter-spacing:-.02em;
   font-variant-numeric:tabular-nums;   /* so 9 → 10 doesn't jump sideways */
 }
 .nm-lbl{
-  font-family:'Courier Prime',monospace; font-size:13px;
-  letter-spacing:.16em; text-transform:uppercase; margin-top:8px;
+  font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-size:13px;
+  letter-spacing:.03em; text-transform:uppercase; margin-top:8px;
   color:#CFEADC;                        /* 8.9:1 on --gd */
 }
 .nm-since{
@@ -142,14 +142,14 @@
 .nm-cell.warn{ background:var(--gold-bg); border-color:var(--gold); }
 
 .nm-n{
-  font-family:'Archivo',system-ui,sans-serif; font-weight:800;
+  font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-weight:800;
   font-size:30px; line-height:1; color:var(--gt);
   font-variant-numeric:tabular-nums;
 }
 .nm-cell.warn .nm-n{ color:var(--gold-ink); }
 .nm-l{
-  font-family:'Courier Prime',monospace; font-size:11px;
-  letter-spacing:.09em; text-transform:uppercase;
+  font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-size:11px;
+  letter-spacing:.03em; text-transform:uppercase;
   color:var(--gm-t); margin-top:6px;
 }
 .nm-cell.warn .nm-l{ color:var(--gold-ink); }
@@ -163,11 +163,11 @@
 }
 .nm-ptop{ display:flex; align-items:baseline; gap:10px; }
 .nm-plbl{
-  font-family:'Courier Prime',monospace; font-size:11.5px;
-  letter-spacing:.09em; text-transform:uppercase; color:var(--gm-t);
+  font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-size:11.5px;
+  letter-spacing:.03em; text-transform:uppercase; color:var(--gm-t);
 }
 .nm-ppct{
-  margin-left:auto; font-family:'Archivo',system-ui,sans-serif;
+  margin-left:auto; font-family:'Plus Jakarta Sans', system-ui, sans-serif;
   font-weight:800; font-size:26px; color:var(--gt);
   font-variant-numeric:tabular-nums;
 }
@@ -257,8 +257,8 @@
 }
 .tvnav{ display:flex; gap:14px; align-items:baseline; flex-wrap:wrap; }
 .tvback{
-  font-family:'Courier Prime',monospace; font-size:11px;
-  letter-spacing:.08em; color:#8FA894; text-decoration:none;
+  font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-size:11px;
+  letter-spacing:.03em; color:#8FA894; text-decoration:none;
 }
 .tvstamp{
   margin:12px 0 18px; font-size:12px; line-height:1.5; color:#7A9280;
@@ -275,14 +275,14 @@
 }
 .tvcard b{ display:block; font-size:26px; line-height:1; font-weight:700; }
 .tvcard span{
-  display:block; margin-top:5px; font-family:'Courier Prime',monospace;
-  font-size:10.5px; letter-spacing:.09em; color:#8FA894;
+  display:block; margin-top:5px; font-family:'Plus Jakarta Sans', system-ui, sans-serif;
+  font-size:10.5px; letter-spacing:.03em; color:#8FA894;
 }
 .tvcard.tvhero b{ color:#C6F24E; }
 
 .tvlabel{
-  font-family:'Courier Prime',monospace; font-size:11px;
-  letter-spacing:.08em; color:#8FA894; margin-bottom:7px;
+  font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-size:11px;
+  letter-spacing:.03em; color:#8FA894; margin-bottom:7px;
 }
 .tvchart{
   display:flex; align-items:flex-end; gap:3px; height:120px;
@@ -324,8 +324,8 @@
   gap:11px; margin-bottom:20px; }
 .tvpanel{ background:#16201A; border:1px solid #5E7A66; border-radius:9px;
   padding:13px 14px; }
-.tvptitle{ font-family:'Courier Prime',monospace; font-size:11px;
-  letter-spacing:.08em; color:#8FA894; margin-bottom:10px;
+.tvptitle{ font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-size:11px;
+  letter-spacing:.03em; color:#8FA894; margin-bottom:10px;
   display:flex; justify-content:space-between; gap:8px; align-items:baseline; }
 .tvptitle em{ font-style:normal; color:#7A9280; font-size:10.5px; }
 
@@ -334,7 +334,7 @@
 .tvperson:last-child{ border-bottom:0; }
 .tvname{ flex:1; font-size:14px; font-weight:600; color:#E8F3EA;
   overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-.tvchip{ font-family:'Courier Prime',monospace; font-size:9.5px;
+.tvchip{ font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-size:9.5px;
   letter-spacing:.06em; border-radius:999px; padding:2px 7px;
   border:1px solid #5E7A66; }
 .tvchip.tvopen{ color:#C6F24E; background:#1D2A1F; }
@@ -368,7 +368,7 @@
 .tvrow em{ font-style:normal; text-align:right; font-weight:600; }
 .tvrow u{
   text-decoration:none; text-align:right;
-  font-family:'Courier Prime',monospace; font-size:11px; color:#8FA894;
+  font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-size:11px; color:#8FA894;
 }
 .tvfoot{
   margin-top:20px; padding-top:12px; border-top:1px solid #5E7A66;
@@ -404,7 +404,7 @@
 .gw-chip{
   min-height:40px; padding:0 13px; border-radius:20px; cursor:pointer;
   border:1.5px solid var(--soft); background:transparent; color:var(--body);
-  font:600 13px/1 'Archivo',system-ui,sans-serif;
+  font:600 13px/1 'Plus Jakarta Sans',system-ui,sans-serif;
 }
 .gw-chip[aria-pressed="true"]{ background:var(--gw-ink); border-color:var(--gw-ink); color:var(--gw-card); }
 .gw-chip:focus-visible{ outline:3px solid var(--gw-ink); outline-offset:2px; }
@@ -412,12 +412,12 @@
 .gw-dates{ display:flex; gap:8px; flex-wrap:wrap; }
 .gw-dates label, .gw-segl{
   display:flex; flex-direction:column; gap:4px;
-  font:700 10.5px/1 'Courier Prime',monospace; letter-spacing:.12em; text-transform:uppercase; color:var(--soft);
+  font:700 10.5px/1 'Plus Jakarta Sans', system-ui, sans-serif; letter-spacing:.03em; text-transform:uppercase; color:var(--soft);
 }
 .gw-dates input, .gw-segl select{
   min-height:40px; padding:0 10px; border-radius:10px;
   border:1px solid var(--soft); background:var(--gw-card); color:var(--body);
-  font:400 14px/1 'Archivo',system-ui,sans-serif; text-transform:none; letter-spacing:0;
+  font:400 14px/1 'Plus Jakarta Sans',system-ui,sans-serif; text-transform:none; letter-spacing:0;
 }
 .gw-status{ flex-basis:100%; margin:0; font-size:12.5px; color:var(--soft); }
 .gw-err{ flex-basis:100%; margin:0; font-size:13px; color:#A3352C; }
@@ -426,7 +426,7 @@
   background:var(--gw-card); border:1px solid var(--line); border-radius:14px;
   padding:14px 14px 12px; margin:0 0 12px;
 }
-.gw-card h2{ margin:0 0 6px; font:700 16px/1.25 'Archivo',system-ui,sans-serif; color:var(--body); }
+.gw-card h2{ margin:0 0 6px; font:700 16px/1.25 'Plus Jakarta Sans',system-ui,sans-serif; color:var(--body); }
 .gw-head{ display:flex; flex-wrap:wrap; gap:8px; align-items:center; justify-content:space-between; margin:0 0 6px; }
 .gw-head h2{ margin:0; }
 
@@ -450,15 +450,15 @@
 .gw-barf{ fill:var(--gw-ink); opacity:.78; }
 .gw-barf.gw-on{ opacity:1; }
 .gw-grid{ stroke:var(--line); stroke-width:1; }
-.gw-axis{ fill:var(--soft); font:400 11px 'Archivo',system-ui,sans-serif; font-variant-numeric:tabular-nums; }
+.gw-axis{ fill:var(--soft); font:400 11px 'Plus Jakarta Sans',system-ui,sans-serif; font-variant-numeric:tabular-nums; }
 
 .gw-tiles{ display:grid; grid-template-columns:repeat(auto-fit, minmax(128px, 1fr)); gap:8px; }
 .gw-tile{
   display:flex; flex-direction:column; gap:2px;
   border:1.5px solid var(--gw-ink); border-radius:12px; padding:10px 11px;
 }
-.gw-num{ font:800 26px/1.05 'Archivo',system-ui,sans-serif; color:var(--body); font-variant-numeric:tabular-nums; }
-.gw-lab{ font:700 12.5px/1.3 'Archivo',system-ui,sans-serif; color:var(--body); }
+.gw-num{ font:800 26px/1.05 'Plus Jakarta Sans',system-ui,sans-serif; color:var(--body); font-variant-numeric:tabular-nums; }
+.gw-lab{ font:700 12.5px/1.3 'Plus Jakarta Sans',system-ui,sans-serif; color:var(--body); }
 
 .gw-row{ margin:0 0 12px; }
 .gw-rowh{ display:flex; justify-content:space-between; gap:10px; margin:0 0 5px; }

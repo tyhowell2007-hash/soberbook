@@ -75,9 +75,9 @@
 
 .gr-eyebrow {
   margin: 0 0 0.15rem;
-  font-family: 'Courier Prime', ui-monospace, monospace;
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
   font-size: 12px;
-  letter-spacing: 0.08em;
+  letter-spacing: .03em;
   text-transform: uppercase;
   color: var(--soft);
 }
@@ -153,7 +153,7 @@
   border-radius: 10px;
   background: var(--gd);
   color: #fff;
-  font-family: 'Archivo', system-ui, sans-serif;
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
   font-size: 16px;
   font-weight: 700;
   cursor: pointer;

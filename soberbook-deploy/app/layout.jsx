@@ -18,6 +18,10 @@ import './artists.css';
 import './pull-to-refresh.css';
 /* 0195 — recovery coins show on the wall, posts, profiles and the bell. */
 import './coins.css';
+/* 🌿 THE POLISH (4 Nov 2026, Ty's "Version 2"). Re-dresses cards, buttons,
+   the masthead and the floating tab bar on the green theme. Remove this
+   one line to undo it. See the header of app/polish.css. */
+import './polish.css';
 import { serverClient } from '../lib/supabase-server';
 
 /* ⚠️ theme-green.css IS DELIBERATELY NOT IMPORTED HERE. DO NOT ADD IT BACK.
@@ -210,7 +214,17 @@ export default async function RootLayout({ children }) {
              rest of the app exactly as the note above describes.
 
              🔴 REVERTING IS PUTTING THE FAMILY BACK IN THIS ONE LINE.
-             Nothing else has to change. */
+             Nothing else has to change.
+
+             ---------------------------------------------------------------
+             ⭐ 4 NOV 2026 — PLUS JAKARTA SANS IS NOW THE APP'S FONT. Ty's
+             call off the font tester: one font for everything people read
+             (posts, buttons, names, labels), Anton kept for the big
+             headlines. Every 'Archivo' and every 'Courier Prime' in the CSS
+             (207 + 12 declarations, 28 files) now names Plus Jakarta Sans,
+             and the wide typewriter letter-spacing on those labels was
+             tightened to .03em. door.css (the sign-in page) was left alone.
+             Courier Prime stays in this URL only because door.css uses it. */
           href="https://fonts.googleapis.com/css2?family=Anton&family=Courier+Prime:wght@400;700&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400&family=Permanent+Marker&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;700&display=swap"
           rel="stylesheet"
         />
