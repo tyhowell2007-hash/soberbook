@@ -138,7 +138,10 @@ export default async function MePage({ searchParams }) {
      privacy rules, and the two would drift. */
   const { data: pub } = await supabase
     .from(assertReadable('public_profiles'))
-    .select('handle, display_name, is_mine, total_days, bio, location, programs, ' +
+    /* 3 Nov — day_count + secs_into_day feed the live sober clock on your
+       own profile, the same reading /u/[handle] gets. Your sober date never
+       goes to the browser; see LiveSoberCounter.jsx. */
+    .select('handle, display_name, is_mine, total_days, day_count, secs_into_day, bio, location, programs, ' +
             'interests, sponsor_open, sponsor_has, sponsor_looking, sections, ' +
             'anthem_url, anthem_title, anthem_art, anthem_preview, anthem_youtube, anthem_spotify')
     .eq('handle_key', String(profile.handle || '').toLowerCase())
@@ -174,6 +177,8 @@ export default async function MePage({ searchParams }) {
         avatarUrl={initialAvatarUrl}
         postPhotoUrls={postPhotoUrls}
         about={about}
+        liveDays={pub?.day_count ?? null}
+        liveSecs={pub?.secs_into_day ?? null}
         friends={friends || []}
         gallery={myGallery}
         galleryUrls={myGalleryUrls}

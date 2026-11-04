@@ -1,7 +1,8 @@
 import Link from 'next/link';
 import Milestones from '../components/Milestones';
+import LiveSoberCounter from '../components/LiveSoberCounter';
 import Shot from '../components/Shot';
-import { dayCount, startsInDays } from '../../lib/milestones';
+import { dayCount, startsInDays, progress, chipRow, sinceFromCount } from '../../lib/milestones';
 import { coverCss, accentHex } from '../../lib/look';
 import ProfileTabs from '../u/[handle]/ProfileTabs';
 import Gallery from '../components/Gallery';
@@ -36,6 +37,7 @@ function ago(iso) {
    them. Do not replace that server-side filter with author_id. */
 export default function MeProfile({ profile, posts, avatarUrl, postPhotoUrls = {},
                                     about = null, friends = [],
+                                    liveDays = null, liveSecs = null,
                                     gallery = [], galleryUrls = {}, videos = [] }) {
   const anonymous = profile.privacy_mode === 'anonymous';
   const since = profile.sober_since || '';
@@ -91,10 +93,26 @@ export default function MeProfile({ profile, posts, avatarUrl, postPhotoUrls = {
           {/* A future recovery date is private context, not a public-style
               countdown. The settings screen explains it; this profile simply
               waits until there is a real count to show. */}
+          {/* 3 Nov — the live sober clock is back on your own page. It was
+              lost here on 23 Oct with the rest of the clock; member profiles
+              got it back the same night. Same component, same reading:
+              day_count + secs_into_day from public_profiles. If that reading
+              is missing for any reason, the old Milestones card still shows. */}
           {since && startsIn === null && (
             <div className="ucount">
-              <Milestones since={since} days={days}
-                          sub={days === 1 ? 'day' : 'days'} />
+              {liveDays != null ? (() => {
+                const from = sinceFromCount(liveDays);
+                const prog = progress(from);
+                const chips = chipRow(from).map((mk) => ({ key: mk.key, label: mk.label, full: mk.full, earned: mk.earned }));
+                return (
+                  <LiveSoberCounter days={Number(liveDays)} secsIntoDay={liveSecs}
+                    next={prog && prog.next ? { full: prog.next.full, daysAway: prog.next.daysAway } : null}
+                    pct={prog ? prog.pct : 0} chips={chips} />
+                );
+              })() : (
+                <Milestones since={since} days={days}
+                            sub={days === 1 ? 'day' : 'days'} />
+              )}
             </div>
           )}
         </div>
