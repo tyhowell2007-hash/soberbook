@@ -1,136 +1,128 @@
 'use client';
 
-// Live sober counter for member profiles.
-// Self-contained: it adds nothing to existing pages until it is placed in one.
-// Usage: <LiveSoberCounter soberSince={profile.sober_since} />
-// soberSince can be an ISO date string, a timestamp, or a Date.
-// If soberSince is missing or invalid, nothing is shown.
-
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import styles from './LiveSoberCounter.module.css';
 
-const MILESTONES = [
-  [1, '24 hours'],
-  [7, '1 week'],
-  [30, '30 days'],
-  [60, '60 days'],
-  [90, '90 days'],
-  [180, '6 months'],
-  [365, '1 year'],
-  [730, '2 years'],
-  [1825, '5 years'],
-];
+/* =====================================================================
+   THE LIVE SOBER COUNTER — a member's profile, Option B refined.
+   Kenny's first drop (PR #11, 3 Nov 2026), finished the same night.
+
+   Days on a white tile in the member's own colour, hours / minutes /
+   seconds ticking beside it, a ring filling toward the next chip, and
+   the chip row underneath.
+
+   ---------------------------------------------------------------------
+   🔴 3 NOV — WHY THIS NO LONGER TAKES A SOBER DATE.
+
+   The first version took `soberSince` and did `new Date('2025-11-03')`.
+   That string is read as MIDNIGHT IN LONDON, so for every member in the
+   US the "Sober since" line showed the day before, and every evening the
+   day count jumped one too high. Same bug the main clock had on 9 Oct.
+
+   It also put the member's sober date in the browser. LiveClock.jsx's
+   rule is that the browser is never told when somebody got sober — it
+   gets "N days and S seconds in, as of when this page was built" and
+   adds its own elapsed time. So this component now takes exactly that:
+
+     days         public_profiles.day_count
+     secsIntoDay  public_profiles.secs_into_day (THEIR midnight, their
+                  timezone, gated by the same can_see_day_count() check)
+     next, pct, chips   worked out on the server from lib/milestones.js,
+                  so the chips here are the same chips as everywhere else
+
+   🔴 NO Date.now() ABOVE THE EFFECT. The server render and the hydrating
+   render read only the props, so they cannot disagree (the 9 Oct #425 /
+   #423 bug). The clock starts moving after mount. Reduced motion = a
+   still reading, correct to the second the page was built.
+   ===================================================================== */
 
 const DAY = 86400;
+const two = (n) => (n < 10 ? '0' : '') + n;
 
-function pad(n) {
-  return String(n).padStart(2, '0');
-}
+export default function LiveSoberCounter({ days, secsIntoDay = null, next = null,
+                                           pct = 0, chips = [] }) {
+  const okDays = Number.isFinite(days);
+  const ticking = okDays && Number.isFinite(secsIntoDay);
 
-function toDate(value) {
-  if (!value) return null;
-  const d = value instanceof Date ? value : new Date(value);
-  return Number.isNaN(d.getTime()) ? null : d;
-}
-
-export default function LiveSoberCounter({ soberSince }) {
-  const start = useMemo(() => toDate(soberSince), [soberSince]);
-  // Time is only read in the browser so server and client render the same markup.
-  const [now, setNow] = useState(null);
+  // Seeded from the props alone — see the note above.
+  const [t, setT] = useState({ d: okDays ? days : 0, s: ticking ? secsIntoDay : 0 });
+  const base = useRef(null);
 
   useEffect(() => {
-    if (!start) return undefined;
-    setNow(Date.now());
-    const id = setInterval(() => setNow(Date.now()), 1000);
-    return () => clearInterval(id);
-  }, [start]);
+    if (!ticking) return undefined;
+    base.current = { at: Date.now(), total: days * DAY + secsIntoDay };
+    const still = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (still) return undefined;
+    const step = () => {
+      const total = base.current.total + Math.floor((Date.now() - base.current.at) / 1000);
+      setT({ d: Math.floor(total / DAY), s: total % DAY });
+    };
+    let id = null;
+    const align = setTimeout(() => { step(); id = setInterval(step, 1000); }, 1000 - (Date.now() % 1000));
+    return () => { clearTimeout(align); if (id) clearInterval(id); };
+  }, [ticking, days, secsIntoDay]);
 
-  if (!start) return null;
+  if (!okDays) return null;
 
-  const total = now === null ? 0 : Math.max(0, Math.floor((now - start.getTime()) / 1000));
-  const days = Math.floor(total / DAY);
-  const hours = Math.floor((total % DAY) / 3600);
-  const minutes = Math.floor((total % 3600) / 60);
-  const seconds = total % 60;
-
-  let prev = 0;
-  let next = null;
-  for (const m of MILESTONES) {
-    if (days < m[0]) {
-      next = m;
-      break;
-    }
-    prev = m[0];
-  }
-  if (!next) {
-    next = [days + 365, 'Next year'];
-    prev = days;
-  }
-  const left = next[0] * DAY - total;
-  const span = Math.max(1, (next[0] - prev) * DAY);
-  const pct = Math.min(1, Math.max(0, 1 - left / span));
-
-  const sinceText = start.toLocaleDateString(undefined, {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-  });
-
-  const label = `${days} ${days === 1 ? 'day' : 'days'}, ${hours} ${hours === 1 ? 'hour' : 'hours'} sober`;
+  const h = Math.floor(t.s / 3600), m = Math.floor((t.s % 3600) / 60), s = t.s % 60;
+  // The chips were worked out for the day the page was built; if the page
+  // has been open across their midnight, count the gap down by the same day.
+  const rolled = t.d - days;
+  const away = next ? Math.max(0, next.daysAway - rolled) : null;
+  const frac = Math.max(0, Math.min(1, pct / 100));
+  const R = 24, C = 2 * Math.PI * R;
 
   return (
-    <section className={styles.wrap} aria-label="Sober time">
-      <div className={styles.counter} role="timer" aria-label={label}>
-        <div className={`${styles.cell} ${styles.main}`}>
-          <b>{now === null ? '–' : days}</b>
-          <span>{days === 1 ? 'Day' : 'Days'}</span>
-        </div>
-        <div className={styles.cell}>
-          <b>{now === null ? '–' : pad(hours)}</b>
-          <span>Hrs</span>
-        </div>
-        <div className={styles.cell}>
-          <b>{now === null ? '–' : pad(minutes)}</b>
-          <span>Min</span>
-        </div>
-        <div className={styles.cell}>
-          <b>{now === null ? '–' : pad(seconds)}</b>
-          <span>Sec</span>
-        </div>
+    <section className={styles.sc} aria-label="Time sober">
+      <div className={styles.head}>
+        <span className={styles.live}><i className={styles.dot} aria-hidden="true" />
+          {ticking ? 'Sober right now' : 'Sober'}</span>
+        <span className={styles.dayword}>Day {(t.d + 1).toLocaleString()}</span>
       </div>
 
-      <p className={styles.live}>
-        <i className={styles.dot} aria-hidden="true" />
-        Sober since {sinceText}
-      </p>
+      <div className={styles.tiles} role="timer"
+           aria-label={`${t.d.toLocaleString()} ${t.d === 1 ? 'day' : 'days'} sober`}>
+        <div className={`${styles.t} ${styles.days}`}>
+          <div className={styles.num}>{t.d.toLocaleString()}</div>
+          <div className={styles.lab}>{t.d === 1 ? 'Day' : 'Days'}</div>
+        </div>
+        {ticking && (
+          <>
+            <div className={styles.t}><div className={styles.num}>{two(h)}</div><div className={styles.lab}>Hrs</div></div>
+            <div className={styles.t}><div className={styles.num}>{two(m)}</div><div className={styles.lab}>Min</div></div>
+            <div className={styles.t}><div className={styles.num}>{two(s)}</div><div className={styles.lab}>Sec</div></div>
+          </>
+        )}
+      </div>
 
-      <div className={styles.ms}>
-        <div className={styles.msRow}>
-          <span>Next milestone: {next[1]}</span>
-          {now !== null && (
-            <span>
-              {Math.floor(left / DAY)}d {pad(Math.floor((left % DAY) / 3600))}h left
-            </span>
-          )}
+      {next && (
+        <div className={styles.foot}>
+          <div className={styles.ring} role="img"
+               aria-label={`${away.toLocaleString()} ${away === 1 ? 'day' : 'days'} to the ${next.full} chip`}>
+            <svg width="58" height="58" viewBox="0 0 58 58" aria-hidden="true">
+              <circle cx="29" cy="29" r={R} fill="none" stroke="rgba(255,255,255,.22)" strokeWidth="6" />
+              <circle cx="29" cy="29" r={R} fill="none" stroke="#fff" strokeWidth="6" strokeLinecap="round"
+                      strokeDasharray={`${(C * frac).toFixed(1)} ${C.toFixed(1)}`} transform="rotate(-90 29 29)" />
+            </svg>
+            <span className={styles.pc} aria-hidden="true">{Math.round(frac * 100)}%</span>
+          </div>
+          <div className={styles.next} aria-hidden="true">
+            <b>{away.toLocaleString()} {away === 1 ? 'day' : 'days'} to {next.full}</b>
+            <span>Next milestone on the way</span>
+          </div>
         </div>
-        <div
-          className={styles.bar}
-          role="progressbar"
-          aria-valuemin={0}
-          aria-valuemax={100}
-          aria-valuenow={Math.round(pct * 100)}
-          aria-label={`Progress to ${next[1]}`}
-        >
-          <i style={{ width: `${pct * 100}%` }} />
-        </div>
-        <ul className={styles.badges}>
-          {MILESTONES.slice(0, 7).map(([d, name]) => (
-            <li key={d} className={days >= d ? styles.got : undefined}>
-              {name}
+      )}
+
+      {chips.length > 0 && (
+        <ul className={styles.chips}>
+          {chips.map((mk) => (
+            <li key={mk.key} className={mk.earned ? styles.chip : `${styles.chip} ${styles.chipNext}`}
+                aria-label={mk.full + (mk.earned ? ', earned' : ', next')}>
+              <span aria-hidden="true">{mk.label}</span>
             </li>
           ))}
         </ul>
-      </div>
+      )}
     </section>
   );
 }

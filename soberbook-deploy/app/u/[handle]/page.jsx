@@ -76,6 +76,13 @@ export default async function ProfilePage({ params }) {
             'anthem_url, anthem_title, anthem_art, anthem_preview, anthem_youtube, ' +
             'anthem_spotify, ' +
             'is_mine, joined_at, total_days, ' +
+            /* secs_into_day — how far into THEIR day it is, for the live
+               counter. Gated inside the view by the same can_see_day_count()
+               check day_count already uses. ⚠️ 3 Nov 2026: this line was here
+               on 9 Oct and was lost on 23 Oct when the profile-photos drop
+               was built on an older copy of this file, which is why the clock
+               quietly stopped. 0182 again: named here or it arrives undefined. */
+            'secs_into_day, ' +
             'bio, location, programs, interests, sponsor_open, ' +
             'sponsor_has, sponsor_looking, friends, friend_state, ' +
             /* 🔴 0182 — THE LOOK. THIS SELECT NAMES ITS COLUMNS ONE BY ONE,

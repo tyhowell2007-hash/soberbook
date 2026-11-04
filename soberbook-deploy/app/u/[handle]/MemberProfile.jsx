@@ -5,7 +5,8 @@ import RowMenu from '../../friends/RowMenu';
 import FriendButton from './FriendButton';
 import ArtistCheck from '../../components/ArtistCheck';
 import Shot from '../../components/Shot';
-import { sinceFromCount } from '../../../lib/milestones';
+import { sinceFromCount, progress, chipRow } from '../../../lib/milestones';
+import LiveSoberCounter from '../../components/LiveSoberCounter';
 import ProfileTabs from './ProfileTabs';
 import Gallery from '../../components/Gallery';
 import VideoCards from '../../components/VideoCards';
@@ -78,10 +79,33 @@ export default function MemberProfile({ profile, posts, photos, gallery = [], vi
               <span className="phandle">@{p.handle}</span>
             </div>
           </div>
-          <div className="ucount">
-            <Milestones since={sinceFromCount(p.day_count)} days={p.day_count}
-                        sub={p.day_count === 1 ? 'day' : 'days'} small />
-          </div>
+          {/* ⭐ 3 Nov 2026 — THE LIVE SOBER COUNTER (Kenny's first drop,
+              Option B refined). Shown only when the view hands back a day
+              count, which is already gated by can_see_day_count(): a hidden
+              or anonymous count still comes back null and falls through to
+              the old block, which says "no date set yet" exactly as before.
+              The chips are worked out HERE, on the server, from the same
+              lib/milestones.js every other page uses, and handed down as
+              plain data, so the client never sees a sober date. */}
+          {p.day_count != null ? (() => {
+            const since = sinceFromCount(p.day_count);
+            const prog = progress(since);
+            const chips = chipRow(since).map((mk) => ({ key: mk.key, label: mk.label, full: mk.full, earned: mk.earned }));
+            return (
+              <div className="ucount">
+                <LiveSoberCounter days={Number(p.day_count)}
+                                  secsIntoDay={p.secs_into_day ?? null}
+                                  next={prog && prog.next ? { full: prog.next.full, daysAway: prog.next.daysAway } : null}
+                                  pct={prog ? prog.pct : 0}
+                                  chips={chips} />
+              </div>
+            );
+          })() : (
+            <div className="ucount">
+              <Milestones since={sinceFromCount(p.day_count)} days={p.day_count}
+                          sub={p.day_count === 1 ? 'day' : 'days'} small />
+            </div>
+          )}
         </div>
 
         {/* 🔴 THE COUNT, NEVER THE LIST. Restored 26 Sept — it was lost
