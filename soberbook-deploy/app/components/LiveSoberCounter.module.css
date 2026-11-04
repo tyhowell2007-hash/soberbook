@@ -1,0 +1,138 @@
+/* Scoped styles for LiveSoberCounter. CSS modules keep these from touching any other page. */
+.wrap {
+  --lsc-brand: #17785f;
+  --lsc-brand2: #2fa584;
+  --lsc-soft: #e8f4f0;
+  --lsc-line: #e1e8e5;
+  --lsc-mute: #677a73;
+  margin: 20px auto 0;
+  max-width: 420px;
+  text-align: center;
+}
+@media (prefers-color-scheme: dark) {
+  .wrap {
+    --lsc-brand: #3fc7a3;
+    --lsc-brand2: #7fe0c3;
+    --lsc-soft: #1a3029;
+    --lsc-line: #223530;
+    --lsc-mute: #8da39c;
+  }
+}
+.counter {
+  display: flex;
+  align-items: stretch;
+  background: var(--lsc-soft);
+  border-radius: 14px;
+  padding: 14px 8px;
+}
+.cell {
+  flex: 1;
+  text-align: center;
+  position: relative;
+}
+.cell + .cell::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 10%;
+  height: 80%;
+  width: 1px;
+  background: var(--lsc-line);
+}
+.cell b {
+  display: block;
+  font-size: 26px;
+  font-weight: 600;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+.cell span {
+  display: block;
+  font-size: 11px;
+  color: var(--lsc-mute);
+  margin-top: 5px;
+}
+.main {
+  flex: 1.5;
+}
+.main b {
+  font-size: 40px;
+  font-weight: 700;
+  color: var(--lsc-brand);
+  margin-top: -4px;
+}
+.live {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--lsc-mute);
+  margin: 14px 0 0;
+}
+.dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--lsc-brand2);
+  animation: lscPulse 2s infinite;
+}
+@keyframes lscPulse {
+  0% { box-shadow: 0 0 0 0 rgba(47, 165, 132, 0.5); }
+  70% { box-shadow: 0 0 0 7px rgba(47, 165, 132, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(47, 165, 132, 0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .dot { animation: none; }
+  .bar i { transition: none; }
+}
+.ms {
+  margin-top: 16px;
+  text-align: left;
+}
+.msRow {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 13px;
+  margin-bottom: 8px;
+}
+.msRow span:first-child { font-weight: 600; }
+.msRow span:last-child {
+  color: var(--lsc-mute);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.bar {
+  height: 6px;
+  background: var(--lsc-soft);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.bar i {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, var(--lsc-brand), var(--lsc-brand2));
+  border-radius: 3px;
+  transition: width 0.6s;
+}
+.badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  list-style: none;
+  padding: 0;
+  margin: 12px 0 0;
+}
+.badges li {
+  font-size: 11px;
+  padding: 3px 9px;
+  border-radius: 20px;
+  border: 1px solid var(--lsc-line);
+  color: var(--lsc-mute);
+}
+.badges li.got {
+  background: var(--lsc-soft);
+  color: var(--lsc-brand);
+  border-color: transparent;
+  font-weight: 600;
+}
