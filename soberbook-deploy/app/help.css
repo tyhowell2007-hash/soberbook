@@ -67,7 +67,7 @@
 .hptel{
   display:block; text-align:center; text-decoration:none;
   min-height:52px; line-height:52px; padding:0 14px;
-  border-radius:12px; background:var(--gd); color:#F4FBF7;
+  border-radius:12px; background:var(--gd); color:#F7F8FD;
   font-family:'Plus Jakarta Sans', system-ui, sans-serif;
   font-size:19px; letter-spacing:.06em;
 }

@@ -85,7 +85,7 @@
   flex: none; border: 0; background: none; cursor: pointer;
   font-size: 16px; line-height: 1; padding: 7px 9px; border-radius: 8px;
 }
-.emp-tab.on{ background: #1B6B4A; }
+.emp-tab.on{ background: #1329B0; }
 
 /* ⚠️ Capped height, and it scrolls. Ten categories of emoji would
    otherwise push the composer off the bottom of a phone — the control
@@ -100,7 +100,7 @@
   font-size: 20px; line-height: 1; padding: 6px 0; border-radius: 6px;
 }
 .emp-one:hover{ background: #F2F0E9; }
-.emp-one:focus-visible{ outline: 2px solid #1B6B4A; outline-offset: -2px; }
+.emp-one:focus-visible{ outline: 2px solid #1329B0; outline-offset: -2px; }
 
 /* ---------------------------------------------------------------------
    THE GREEN ROOM'S SKIN. Values unchanged from the panel that has been
@@ -110,8 +110,8 @@
    ⚠️ --gm as text on this panel measures 3.84 and is banned here; every
    colour below is one already measured for this surface.
    --------------------------------------------------------------------- */
-.emp-green{ border-color: #2A4A38; background: #152B21; }
-.emp-green .emp-tabs{ border-bottom-color: #23402F; }
-.emp-green .emp-tab.on{ background: #2E6B4C; }
-.emp-green .emp-one:hover{ background: #1F3A2C; }
-.emp-green .emp-one:focus-visible{ outline-color: #4FA97A; }
+.emp-green{ border-color: #141D67; background: #152B21; }
+.emp-green .emp-tabs{ border-bottom-color: #111858; }
+.emp-green .emp-tab.on{ background: #1B2689; }
+.emp-green .emp-one:hover{ background: #101E78; }
+.emp-green .emp-one:focus-visible{ outline-color: #2B3EDE; }

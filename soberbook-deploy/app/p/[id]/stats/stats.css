@@ -13,15 +13,15 @@
 .rpl-post small { display: block; margin-top: 6px; font-size: 12px; color: #6A736E; }
 
 .rpl-hero { padding: 18px 16px 16px; border-radius: 20px; color: #fff;
-  background: linear-gradient(150deg, #0F3D2B, #1B6B4A 70%, #2C8A62); box-shadow: 0 10px 26px rgba(27,107,74,.25); }
+  background: linear-gradient(150deg, #000080, #1329B0 70%, #3D63E0); box-shadow: 0 10px 26px rgba(19,41,176,.25); }
 .rpl-hero p { margin: 0; font-size: 19px; line-height: 1.4; font-weight: 600; }
-.rpl-hero p b { color: #F6D58A; font-weight: 800; }
+.rpl-hero p b { color: #00FF00; font-weight: 800; }
 .rpl-kpis { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 16px; }
 .rpl-kpis > div { background: rgba(255,255,255,.12); border-radius: 14px; padding: 10px; display: grid; gap: 2px; align-content: start; }
 .rpl-kpis .rpl-e { font-size: 18px; }
 .rpl-kpis b { font-size: 22px; font-weight: 800; margin-top: 4px; }
 .rpl-kpis span { font-size: 11.5px; font-weight: 600; opacity: .88; }
-.rpl-kpis em { font-style: normal; font-size: 11px; font-weight: 800; color: #9BE3BC; }
+.rpl-kpis em { font-style: normal; font-size: 11px; font-weight: 800; color: #A0ABFF; }
 
 .rpl-sec { padding: 14px 14px 12px; }
 .rpl-sh { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; gap: 8px; }
@@ -38,15 +38,15 @@
 .rpl-pbar i { display: block; height: 100%; border-radius: 9px; background: linear-gradient(90deg, #E0B23E, #B8862B); }
 .rpl-chips { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
 .rpl-chip { display: flex; align-items: center; gap: 6px; border-radius: 999px; padding: 5px 10px 5px 5px; font-size: 12.5px; font-weight: 800;
-  background: #EEF6F1; color: #1B6B4A; }
-.rpl-chip > span { min-width: 22px; height: 22px; padding: 0 4px; border-radius: 999px; background: #1B6B4A; color: #fff; display: grid; place-items: center; font-size: 11px; }
+  background: #F0F4FF; color: #1329B0; }
+.rpl-chip > span { min-width: 22px; height: 22px; padding: 0 4px; border-radius: 999px; background: #1329B0; color: #fff; display: grid; place-items: center; font-size: 11px; }
 .rpl-chip.lock { background: #F0EEE8; color: #9AA19C; }
 .rpl-chip.lock > span { background: #CFCBC2; }
 
-.rpl-felt { position: relative; height: 150px; border-bottom: 2px solid #DCEDE3; }
+.rpl-felt { position: relative; height: 150px; border-bottom: 2px solid #DDE3F5; }
 .rpl-felt > svg { position: absolute; inset: 0; width: 100%; height: 100%; }
-.rpl-area { fill: #DCEDE3; }
-.rpl-line { fill: none; stroke: #1B6B4A; stroke-width: 3; vector-effect: non-scaling-stroke; }
+.rpl-area { fill: #DDE3F5; }
+.rpl-line { fill: none; stroke: #1329B0; stroke-width: 3; vector-effect: non-scaling-stroke; }
 .rpl-m { position: absolute; bottom: 6px; transform: translateX(-50%); z-index: 1; line-height: 0; }
 .rpl-axis { display: flex; justify-content: space-between; font-size: 11px; color: #6A736E; margin-top: 4px; }
 .rpl-trio { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 10px; }
@@ -57,10 +57,10 @@
 .rpl-chart { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 8px; align-items: end; height: 130px; }
 .rpl-col { display: grid; grid-template-rows: auto 1fr auto; justify-items: center; height: 100%; gap: 5px; }
 .rpl-col em { font-style: normal; font-size: 11.5px; font-weight: 800; color: #2C3631; align-self: end; }
-.rpl-col i { display: block; width: 100%; max-width: 34px; border-radius: 8px 8px 4px 4px; background: #DCEDE3; align-self: end; }
-.rpl-col.today i { background: #1B6B4A; }
+.rpl-col i { display: block; width: 100%; max-width: 34px; border-radius: 8px 8px 4px 4px; background: #DDE3F5; align-self: end; }
+.rpl-col.today i { background: #1329B0; }
 .rpl-col span { font-size: 11px; font-weight: 700; color: #6A736E; }
-.rpl-col.today span { color: #1B6B4A; }
+.rpl-col.today span { color: #1329B0; }
 .rpl-foot { display: flex; justify-content: space-between; gap: 8px; font-size: 12.5px; color: #6A736E; margin-top: 10px; padding-top: 10px; border-top: 1px solid #F0EEE8; }
 .rpl-foot b { color: #141B17; }
 
@@ -77,7 +77,7 @@
 .rpl-bub > span { display: block; font-size: 12.5px; color: #6A736E; margin-top: 2px; }
 .rpl-bub small { display: block; font-size: 11.5px; color: #6A736E; margin-top: 5px; }
 
-.rpl-link { display: flex; justify-content: center; padding: 11px; border-radius: 12px; background: #EEF6F1; font-weight: 800; font-size: 13.5px; color: #1B6B4A; text-decoration: none; }
+.rpl-link { display: flex; justify-content: center; padding: 11px; border-radius: 12px; background: #F0F4FF; font-weight: 800; font-size: 13.5px; color: #1329B0; text-decoration: none; }
 
 /* ⚠️ globals.css styles every bare <label> (Courier, uppercase). These
    rules undo that for the switches, the same trap /find-care hit. */
@@ -93,7 +93,7 @@
   position: relative; cursor: pointer; transition: background .15s; border: 0; padding: 0; }
 .rpl-ctl input::after { content: ""; position: absolute; left: 3px; top: 3px; width: 22px; height: 22px; border-radius: 50%; background: #fff;
   box-shadow: 0 1px 3px rgba(0,0,0,.2); transition: left .15s; }
-.rpl-ctl input:checked { background: #1B6B4A; }
+.rpl-ctl input:checked { background: #1329B0; }
 .rpl-ctl input:checked::after { left: 23px; }
 .rpl-ctl input:focus-visible { outline: 3px solid #E0B23E; outline-offset: 2px; }
 .rpl-ctl input:disabled { opacity: .6; }
@@ -102,10 +102,10 @@
 .rpl-priv .rpl-e { font-size: 22px; }
 
 /* The night room (theme-black): dark cards, light words. */
-html[data-theme="black"] .rpl { color: #E8EFEA; }
-html[data-theme="black"] .rpl-card, html[data-theme="black"] .rpl-priv { background: #1B211D; box-shadow: none; border-color: #2E3832; }
+html[data-theme="black"] .rpl { color: #EEF2FF; }
+html[data-theme="black"] .rpl-card, html[data-theme="black"] .rpl-priv { background: #121630; box-shadow: none; border-color: #2E3832; }
 html[data-theme="black"] .rpl-sh h2, html[data-theme="black"] .rpl-crow b, html[data-theme="black"] .rpl-foot b,
 html[data-theme="black"] .rpl-bub a, html[data-theme="black"] .rpl-bub b, html[data-theme="black"] .rpl-ctl,
-html[data-theme="black"] .rpl-col em, html[data-theme="black"] .rpl-crow, html[data-theme="black"] .rpl-priv { color: #E8EFEA; }
+html[data-theme="black"] .rpl-col em, html[data-theme="black"] .rpl-crow, html[data-theme="black"] .rpl-priv { color: #EEF2FF; }
 html[data-theme="black"] .rpl-bub, html[data-theme="black"] .rpl-trio div, html[data-theme="black"] .rpl-cico { background: #252D28; }
 html[data-theme="black"] .rpl-crow + .rpl-crow, html[data-theme="black"] .rpl-ctl + .rpl-ctl, html[data-theme="black"] .rpl-foot { border-color: #2E3832; }

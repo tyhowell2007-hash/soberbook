@@ -14,12 +14,12 @@
 
 .tourpage {
   min-height: 100vh;
-  background: var(--paper, #f7faf8);
-  color: var(--body, #17281e);
+  background: var(--paper, #f7f8fd);
+  color: var(--body, #00006e);
 }
 
 .tmast {
-  background: var(--gd, #1d3b2a);
+  background: var(--gd, #0d24aa);
   padding: 14px 18px;
   display: flex;
   align-items: center;
@@ -40,9 +40,9 @@
   font-size: 27px;
   line-height: 1.25;
   margin: 6px 0 0;
-  color: var(--gd, #1d3b2a);
+  color: var(--gd, #0d24aa);
 }
-.tsub { margin: 8px 0 0; font-size: 15px; color: var(--soft, #5f7a6a); }
+.tsub { margin: 8px 0 0; font-size: 15px; color: var(--soft, #2636c2); }
 
 /* The player. ⚠️ `display:block` — a video is inline by default, which
    leaves a few pixels of stray line-height under it that read as a
@@ -61,7 +61,7 @@
   font-size: 12px;
   letter-spacing: 1.4px;
   text-transform: uppercase;
-  color: var(--soft, #5f7a6a);
+  color: var(--soft, #2636c2);
 }
 
 .tchaps { list-style: none; margin: 0; padding: 0; }
@@ -91,7 +91,7 @@
 .tcov::before {
   content: '·';
   flex: none;
-  color: var(--soft, #5f7a6a);
+  color: var(--soft, #2636c2);
 }
 
 /* ⚠️ 46px minimum height. The Aug 18 lesson: the post footer shipped
@@ -110,10 +110,10 @@
   background: transparent;
   text-align: left;
   font: inherit;
-  color: var(--body, #17281e);
+  color: var(--body, #00006e);
   cursor: pointer;
 }
-.tchap:hover { background: #eef4f0; }
+.tchap:hover { background: #eef2ff; }
 .tchap.tsel { background: var(--gl, #e4f0e8); }
 .tchap.tsel .tcl { font-weight: 600; }
 
@@ -121,28 +121,28 @@
   flex: none;
   font-variant-numeric: tabular-nums;
   font-size: 13px;
-  color: var(--soft, #5f7a6a);
+  color: var(--soft, #2636c2);
 }
 .tcl { font-size: 15px; line-height: 1.4; }
 
 .tgo { margin: 28px 0 0; text-align: center; }
 .tbtn {
   display: block;
-  background: var(--gd, #1d3b2a);
+  background: var(--gd, #0d24aa);
   color: #fff;
   text-decoration: none;
   padding: 15px;
   border-radius: 12px;
   font-size: 17px;
 }
-.tfine { margin: 12px 0 0; font-size: 14px; color: var(--soft, #5f7a6a); }
-.tfine a { color: var(--gt, #2b5c3f); }
+.tfine { margin: 12px 0 0; font-size: 14px; color: var(--soft, #2636c2); }
+.tfine a { color: var(--gt, #172177); }
 
 .tfoot {
   margin: 30px 0 0;
   text-align: center;
   font-size: 13px;
-  color: var(--soft, #5f7a6a);
+  color: var(--soft, #2636c2);
 }
 
 /* ⚠️ The page has NO NavBar, deliberately. It is public — a signed-out

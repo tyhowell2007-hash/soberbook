@@ -623,7 +623,7 @@
    ⚠️ Quieter than a member's post, same rule as every other card here.
    The only difference from an ordinary flyer card is a left edge and a
    label — enough to explain itself, not enough to shout. */
-.ccpin .ccflyerlink { border-left: 3px solid var(--acid, #C8FF00); }
+.ccpin .ccflyerlink { border-left: 3px solid var(--acid, #00FF00); }
 .ccpinlabel {
   margin: 0 0 6px; font-size: 11px; letter-spacing: .08em;
   text-transform: uppercase; opacity: .55;
@@ -720,7 +720,7 @@
    a thin stripe of their colour — the page should still say something
    about them without a picture shouting first. */
 .ucover{ height:104px; background-size:cover; background-position:center; }
-.ucover.flat{ height:10px; background:var(--acc,#1B6B4A); }
+.ucover.flat{ height:10px; background:var(--acc,#1329B0); }
 
 .uhero .pcard{
   border:0; box-shadow:none; border-radius:0; background:transparent;
@@ -740,7 +740,7 @@
    colour behind both the number and the chips — the chips were always
    a separate element with a negative top margin tucking them under a
    card that no longer has a bottom edge. */
-.ucount{ background:var(--acc,#1B6B4A); padding:2px 0 16px; }
+.ucount{ background:var(--acc,#1329B0); padding:2px 0 16px; }
 .uhero .count.small{
   border:0; border-radius:0; box-shadow:none; background:transparent;
   margin:0; padding:16px 14px 6px; transform:none;
@@ -750,7 +750,7 @@
 /* Earned chips read as solid on their colour; the next one stays an
    outline, same grammar as everywhere else — what you have is filled,
    what you're walking toward is drawn. */
-.ucount .chips .chip.on{ background:rgba(255,255,255,.94); color:#1C2320; border:0; }
+.ucount .chips .chip.on{ background:rgba(255,255,255,.94); color:#121630; border:0; }
 .ucount .chips .chip.next{
   background:transparent; color:#fff; border:1.5px solid rgba(255,255,255,.55);
 }
@@ -758,8 +758,8 @@
 /* The member's colour on the rest of their page: the rule under each
    section heading and their friend count. Text stays near-black — the
    accent is for edges and numerals, never for body copy. */
-.pad h2.sec{ border-bottom-color:var(--acc,#1B6B4A); }
-.pad .fstat b{ color:var(--acc,#1B6B4A); }
+.pad h2.sec{ border-bottom-color:var(--acc,#1329B0); }
+.pad .fstat b{ color:var(--acc,#1329B0); }
 
 /* Each block the member ordered is its own wrapper now, so the old
    tuck-under margins that assumed a fixed stacking order have to go —
@@ -835,7 +835,7 @@ html[data-theme="black"] .mecream .lookp-prev .pcard{ background:transparent; }
 .mecream .uhero .count .mfill{ background:#fff; }
 .mecream .uhero .chips{ margin:10px 0 0; padding:0 12px; }
 .mecream .uhero .chips .chip.on{
-  background:rgba(255,255,255,.94); color:#1C2320; border:0; box-shadow:none;
+  background:rgba(255,255,255,.94); color:#121630; border:0; box-shadow:none;
 }
 .mecream .uhero .chips .chip.next{
   background:transparent; color:#fff; border:1.5px solid rgba(255,255,255,.55);
@@ -865,7 +865,7 @@ html[data-theme="black"] .mecream .lookp-prev .pcard{ background:transparent; }
 .pad .sleeve.big .sbtn{ width:60px; height:60px; font-size:21px; }
 .pad .sleeve.big .sbtn.on{ width:46px; height:46px; font-size:16px; }
 /* The off switch lives inside the sleeve, so it narrowed too — keep it one line. */
-.pad .sleeve.big .sout{ color:#B7DCC6; }   /* was --gm-t on the black footer: 2.6:1 */
+.pad .sleeve.big .sout{ color:#A8B4FF; }   /* was --gm-t on the black footer: 2.6:1 */
 .pad .sleeve.big .soff{ font-size:10.5px; letter-spacing:.05em; padding:11px 8px; }
 .art-page .sleeve.big{ max-width:none; }
 .art-page .sleeve.big .stitle{ font-size:28px; padding:14px 15px 15px; }

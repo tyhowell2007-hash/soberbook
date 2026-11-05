@@ -33,7 +33,7 @@
 }
 .cirq-top{ display:flex; align-items:center; gap:8px; margin-bottom:6px; }
 .cirq-h{ font-size:17px; color:#FFFFFF; font-weight:600; margin:0; }
-.cirq-sub{ font-size:13px; color:#C7EFDD; margin:0 0 10px; line-height:1.5; }
+.cirq-sub{ font-size:13px; color:#B9C6FF; margin:0 0 10px; line-height:1.5; }
 .cirq-go{
   display:inline-flex; align-items:center; gap:6px;
   background:var(--paper2); color:var(--gt);

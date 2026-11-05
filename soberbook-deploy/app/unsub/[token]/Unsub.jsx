@@ -11,8 +11,8 @@ import { useState } from 'react';
    So it waits for the answer.
    ===================================================================== */
 
-const GREEN = '#1B6B4A';
-const LINE = '#DCE7E1';
+const GREEN = '#1329B0';
+const LINE = '#DDE3F5';
 
 export default function Unsub({ token }) {
   const [state, setState] = useState('ask'); // ask | busy | done | failed
@@ -30,13 +30,13 @@ export default function Unsub({ token }) {
   if (state === 'done') {
     return (
       <div style={{ textAlign: 'center' }}>
-        <p style={{ fontSize: '19px', color: '#0F3D2A', fontWeight: 600, margin: '0 0 12px' }}>
+        <p style={{ fontSize: '19px', color: '#000080', fontWeight: 600, margin: '0 0 12px' }}>
           Done. No more emails.
         </p>
         {/* ⚠️ Says plainly that nothing else changed. Somebody turning off
             email may reasonably fear they have just deleted something, or
             left, or been removed from the room. */}
-        <p style={{ fontSize: '14px', color: '#63716A', lineHeight: 1.7, margin: 0 }}>
+        <p style={{ fontSize: '14px', color: '#5E6788', lineHeight: 1.7, margin: 0 }}>
           Your account is untouched and nothing else has changed. Replies and
           messages are still waiting for you inside Sober Book whenever you
           open it. You can switch these back on any time from your own page.
@@ -47,10 +47,10 @@ export default function Unsub({ token }) {
 
   return (
     <div style={{ textAlign: 'center' }}>
-      <p style={{ fontSize: '19px', color: '#0F3D2A', fontWeight: 600, margin: '0 0 12px' }}>
+      <p style={{ fontSize: '19px', color: '#000080', fontWeight: 600, margin: '0 0 12px' }}>
         Turn off email notifications?
       </p>
-      <p style={{ fontSize: '14px', color: '#1C2320', lineHeight: 1.7, margin: '0 0 22px' }}>
+      <p style={{ fontSize: '14px', color: '#121630', lineHeight: 1.7, margin: '0 0 22px' }}>
         We&rsquo;ll stop emailing you when somebody answers you or sends you a
         message. You&rsquo;ll still see everything inside the app.
       </p>
@@ -83,7 +83,7 @@ export default function Unsub({ token }) {
         </p>
       )}
 
-      <p style={{ fontSize: '12.5px', color: '#63716A', marginTop: '20px', paddingTop: '16px', borderTop: `1px solid ${LINE}`, lineHeight: 1.7 }}>
+      <p style={{ fontSize: '12.5px', color: '#5E6788', marginTop: '20px', paddingTop: '16px', borderTop: `1px solid ${LINE}`, lineHeight: 1.7 }}>
         Nothing has changed yet. Nothing happens until you press the button.
       </p>
     </div>

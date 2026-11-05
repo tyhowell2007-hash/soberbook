@@ -231,7 +231,7 @@
   font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-weight:800;
   font-size:19px; letter-spacing:-.01em;
 }
-.mt-nows{ font-size:13px; color:#CFEADC; line-height:1.5; }  /* 8.9:1 on --gd */
+.mt-nows{ font-size:13px; color:#B9C6FF; line-height:1.5; }  /* 8.9:1 on --gd */
 
 /* Nothing running: same shape, no promise. Not red, not an error — it is
    simply a fact about the clock. */
@@ -302,7 +302,7 @@
 /* ⚠️ This line never names anybody who is IN the room — only who is
    chairing, which is a public act they chose. See Rooms.jsx. */
 .rmwho{ font-size:12px; color:var(--soft); margin-top:3px; }
-.rmitem.first .rmwho{ color:#CFEADC; }   /* 8.9:1 on --gd */
+.rmitem.first .rmwho{ color:#B9C6FF; }   /* 8.9:1 on --gd */
 
 .rmgo{
   flex:0 0 auto; text-decoration:none;
@@ -332,7 +332,7 @@
   font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-size:15px;
   overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
 }
-.rm-count{ font-size:11.5px; color:#CFEADC; }
+.rm-count{ font-size:11.5px; color:#B9C6FF; }
 
 /* The video fills the space between the masthead and the bottom bar.
    ⚠️ A fixed pixel height would letterbox on a phone and overflow on a
@@ -361,7 +361,7 @@
   align-items:center; justify-content:center; gap:14px;
   padding:20px; text-align:center;
 }
-.rm-frameerr p{ margin:0; color:#CFEADC; font-size:14.5px; line-height:1.6; }
+.rm-frameerr p{ margin:0; color:#B9C6FF; font-size:14.5px; line-height:1.6; }
 .rm-frameerr .btn{ width:auto; }
 
 
@@ -448,7 +448,7 @@
    stays reserved for milestones; nothing here touches it.
    ===================================================================== */
 .mt-hero, .mt-item, .mt-herogo{
-  --mt-acid:#D6FF2E;
+  --mt-acid:#00FF00;
   --mt-acid-ink:#141800;
   --mt-signal:#FF6A13;
   --mt-signal-ink:#2A1200;
@@ -499,7 +499,7 @@
   /* 44px+ tappable, same rule as every other control on this page. */
   min-height:48px;
 }
-.mt-herogo:hover{ background:#E4FF5E; }
+.mt-herogo:hover{ background:#00FF00; }
 
 /* ---- THE REGISTER ---------------------------------------------------
    The counting grammar: "numbered increments running along an edge like a
@@ -568,7 +568,7 @@
    "and here is everywhere else". The order in page.jsx does not change. */
 .rmwrap{ margin:0 0 4px; }
 .rmsec{
-  background:var(--mt-near, #0A0A09); color:var(--mt-acid, #D6FF2E);
+  background:var(--mt-near, #0A0A09); color:var(--mt-acid, #00FF00);
   font-family:'Plus Jakarta Sans', system-ui, sans-serif;
   font-size:10px; letter-spacing:.03em; text-transform:uppercase;
   padding:9px 13px; margin:10px 0 0; font-weight:700;
@@ -584,10 +584,10 @@
 /* The "Start a room" button is the one invitation on this page, so it gets
    the acid rather than the green. ⚠️ Fill + dark ink, never acid as text. */
 .rmstart .btn{
-  background:#D6FF2E; color:#141800; font-weight:800; border:0;
+  background:#00FF00; color:#141800; font-weight:800; border:0;
   min-height:48px; letter-spacing:.01em;
 }
-.rmstart .btn:hover{ background:#E4FF5E; color:#141800; }
+.rmstart .btn:hover{ background:#00FF00; color:#141800; }
 .rmstart .btn:disabled{ background:var(--line); color:var(--soft); }
 
 @media (max-width: 340px){

@@ -2,6 +2,14 @@
    🌿 THE POLISH — 4 Nov 2026, Ty picked "Version 2" off the
    before/after prototype (Today · Version 1 · Version 2).
 
+   💙💚 THEN THE COLORS — 4 Nov 2026 night. Step 1 of the slow move to
+   Recovery Belongs: Ty picked "Version 2" of the blue-and-green
+   prototype. The name stays Sober Book for now. RULE: blue is the app,
+   green means action and growth. Right now stays clay (crisis door),
+   coins stay gold, RecoveryMap keeps its purple. The greens in the other
+   CSS files were swapped by the same map (section 7 below). Undo the
+   colours = revert that commit; undo everything = remove the import.
+
    ONE FILE, LOADED LAST, AND IT ONLY RE-DRESSES. Nothing moves,
    nothing is renamed, no door changes order ("Right now" stays
    first and stays clay). Delete the import in app/layout.jsx and
@@ -17,17 +25,19 @@
    ============================================================ */
 
 html:not([data-theme="black"]) {
-  --pl-line: rgba(15, 61, 42, .10);
-  --pl-shadow: 0 2px 4px rgba(15, 61, 42, .05), 0 12px 28px rgba(15, 61, 42, .10);
-  --pl-green-grad: linear-gradient(180deg, #22845c, #17603f);
-  --pl-glow: 0 6px 16px rgba(27, 107, 74, .28);
-  --pl-gold: #c99a3b;
+  --pl-line: rgba(0, 0, 128, .10);
+  --pl-shadow: 0 2px 4px rgba(0, 0, 128, .05), 0 12px 28px rgba(0, 0, 128, .10);
+  --pl-green-grad: linear-gradient(180deg, #2BFF5A, #00C84A);  /* brand green: action */
+  --pl-action-ink: #000060;
+  --pl-glow: 0 6px 16px rgba(0, 200, 74, .30);
+  --pl-gold: #00E04B;  /* story rings: brand green */
 }
 
 /* ---------- 1. MASTHEAD: depth, and a day pill that fits ---------- */
 html:not([data-theme="black"]) .mast {
-  background: linear-gradient(180deg, #22845c 0%, #155a3b 100%);
-  box-shadow: 0 2px 10px rgba(15, 61, 42, .25);
+  background: linear-gradient(180deg, #1a36cf 0%, #000080 100%);
+  border-bottom: 2px solid #00FF00;
+  box-shadow: 0 2px 14px rgba(0, 255, 0, .28), 0 2px 10px rgba(0, 0, 60, .3);
 }
 html .mast { gap: 2px; padding-right: 10px; }
 html .mast .lg { font-weight: 800; letter-spacing: .03em; margin-right: auto; }
@@ -47,29 +57,29 @@ html .mast .rt, html .mast .melink {
 
 /* ---------- 2. THE STRIPS UNDER THE MASTHEAD ---------- */
 html:not([data-theme="black"]) .bar:not(.bar-doors):not(.bar-today) {
-  background: #e8f4ed; border: 0; border-bottom: 1px solid var(--pl-line); box-shadow: none;
+  background: #EEF2FF; border: 0; border-bottom: 1px solid var(--pl-line); box-shadow: none;
 }
 html:not([data-theme="black"]) .bar-doors,
 html:not([data-theme="black"]) .bar-today {
-  background: #e8f4ed; border: 0; box-shadow: none;
+  background: #EEF2FF; border: 0; box-shadow: none;
   display: flex; gap: 8px; padding: 10px 12px;
 }
 html:not([data-theme="black"]) .bar-today { padding-top: 0; padding-bottom: 12px; border-bottom: 1px solid var(--pl-line); }
 html:not([data-theme="black"]) .bar-doors .dr {
   flex: 1; border: 0; border-radius: 999px; background: #fff;
-  box-shadow: 0 1px 2px rgba(15, 61, 42, .08), inset 0 0 0 1px var(--pl-line);
+  box-shadow: 0 1px 2px rgba(0, 0, 128, .08), inset 0 0 0 1px var(--pl-line);
   height: 42px; font-size: 14px; font-weight: 700;
   display: flex; align-items: center; justify-content: center;
 }
 html:not([data-theme="black"]) .bar-doors .dr-in,
-html:not([data-theme="black"]) .bar-doors .dr-ask { color: #145c3e; }
+html:not([data-theme="black"]) .bar-doors .dr-ask { color: #000080; }
 /* "Right now" keeps its clay. It is the crisis door. */
 html:not([data-theme="black"]) .bar-doors .dr-now {
   background: #fbecea; box-shadow: inset 0 0 0 1px rgba(138, 43, 43, .25);
 }
 html:not([data-theme="black"]) .bar-today .td {
   flex: 1; border: 0; border-radius: 14px; background: #fff;
-  box-shadow: 0 1px 2px rgba(15, 61, 42, .06), inset 0 0 0 1px rgba(15, 61, 42, .08);
+  box-shadow: 0 1px 2px rgba(0, 0, 128, .06), inset 0 0 0 1px rgba(0, 0, 128, .08);
   padding: 7px 2px; font-size: 11.5px;
 }
 
@@ -92,7 +102,7 @@ html:not([data-theme="black"]) :is(
 ) { border: 1px solid var(--pl-line); }
 html:not([data-theme="black"]) .tupd { overflow: hidden; }
 html:not([data-theme="black"]) .tupd > :first-child {
-  border-radius: 0; background: linear-gradient(90deg, #0f3d2a, #1b6b4a);
+  border-radius: 0; background: linear-gradient(90deg, #000080, #1a36cf);
 }
 html:not([data-theme="black"]) :is(.tupd, .pl, .gr) { margin-left: 12px; margin-right: 12px; margin-bottom: 14px; }
 html:not([data-theme="black"]) .wall .item { margin-bottom: 14px; }
@@ -102,10 +112,10 @@ html .pad { padding-left: 14px; padding-right: 14px; }
 /* The two black boxes become deep forest green. Video and photo
    frames stay black on purpose: pictures need a dark surround. */
 html:not([data-theme="black"]) :is(.mt-hero.mt-heronone, .rd-ask) {
-  background: linear-gradient(160deg, #173a2a, #0e2219);
+  background: radial-gradient(120% 90% at 100% 0%, rgba(0, 255, 0, .14), transparent 55%), linear-gradient(160deg, #0D24AA, #000060);
 }
 html:not([data-theme="black"]) .editbar .btn {
-  background: var(--pl-green-grad); box-shadow: var(--pl-glow); border-color: transparent;
+  background: var(--pl-green-grad); box-shadow: var(--pl-glow); border-color: transparent; color: var(--pl-action-ink);
 }
 
 /* ---------- 4. BUTTONS AND FIELDS ---------- */
@@ -116,16 +126,16 @@ html:not([data-theme="black"]) :is(
 ) { border-radius: 14px; }
 html:not([data-theme="black"]) :is(
   .pl-go, .mt-call-first, .hp-add, .hp-room, .tenth-go, .pn-save, .ck-btn:not(.ghost)
-) { background: var(--pl-green-grad); box-shadow: var(--pl-glow); }
+) { background: var(--pl-green-grad); box-shadow: var(--pl-glow); color: var(--pl-action-ink); }
 html:not([data-theme="black"]) .pl-crave {
-  border-width: 1px; background: #f2f8f4; border-color: rgba(27, 107, 74, .35);
+  border-width: 1px; background: #F0F4FF; border-color: rgba(31, 63, 191, .35);
 }
 html:not([data-theme="black"]) :is(
   .pl-in, .gr-in, .qreply-box, .ib-find, .rin, .pn-sin, .pn-in, .sg-in, .findbar input,
   .composer textarea, .composer input
 ) { border-radius: 14px; }
 html:not([data-theme="black"]) :is(.pl-in, .gr-in, .composer textarea, .composer input) {
-  border: 1px solid var(--pl-line); background: #f6faf7;
+  border: 1px solid var(--pl-line); background: #F5F7FF;
 }
 
 /* ---------- 5. STORY RINGS ---------- */
@@ -138,18 +148,18 @@ html:not([data-theme="black"]) .tabbar {
   left: 50%; right: auto; transform: translateX(-50%);
   bottom: calc(10px + env(safe-area-inset-bottom, 0px));
   width: calc(100% - 24px); max-width: 496px; border-radius: 22px;
-  background: rgba(255, 255, 255, .88);
+  background: rgba(246, 248, 255, .9);
   -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
-  box-shadow: 0 8px 28px rgba(15, 61, 42, .18);
+  box-shadow: 0 8px 28px rgba(0, 0, 128, .18);
   border: 1px solid var(--pl-line);
 }
 /* The tab you're on: a solid green bubble, white icon. */
 html:not([data-theme="black"]) .tabbar .on .ti {
-  background: var(--pl-green-grad); box-shadow: 0 4px 10px rgba(27, 107, 74, .3);
+  background: var(--pl-green-grad); box-shadow: 0 4px 10px rgba(0, 200, 74, .35);
 }
 html:not([data-theme="black"]) .tabbar .on .ti,
-html:not([data-theme="black"]) .tabbar .on .ti * { color: #fff; }
-html:not([data-theme="black"]) .tabbar .on .tl { color: #145c3e; font-weight: 800; }
+html:not([data-theme="black"]) .tabbar .on .ti * { color: var(--pl-action-ink); }
+html:not([data-theme="black"]) .tabbar .on .tl { color: #000080; font-weight: 800; }
 
 /* 🔴 SMALL PHONES (iPhone SE / mini, 375px and under). Measured: the
    masthead needs ~383px at full size, so the wordmark and icons give
@@ -158,3 +168,30 @@ html:not([data-theme="black"]) .tabbar .on .tl { color: #145c3e; font-weight: 80
   html .mast .lg { font-size: 15.5px; letter-spacing: .01em; }
   html .mast .songlink, html .mast .bell { width: 30px; min-width: 30px; }
 }
+
+
+/* ---------- 7. BLUE AND GREEN, STEP 1 (Version 2) ---------- */
+html:not([data-theme="black"]) .mast .lg { color: #00FF00; text-shadow: 0 0 10px rgba(0, 255, 0, .25); }
+html:not([data-theme="black"]) .mast .rt,
+html:not([data-theme="black"]) .mast .melink { background: rgba(0, 255, 0, .14); color: #00FF00; }
+html:not([data-theme="black"]) .art-band { background: linear-gradient(90deg, #000080, #1a36cf); color: #00FF00; }
+html:not([data-theme="black"]) .art-band span { color: #00FF00; }
+html:not([data-theme="black"]) .tupd > :first-child,
+html:not([data-theme="black"]) .tupd > :first-child * { color: #00FF00; }
+html:not([data-theme="black"]) .tupd > :first-child span:last-child { color: #C9D3FF; }
+html:not([data-theme="black"]) .sea-bar > i { background: linear-gradient(90deg, #1a36cf, #00E04B); }
+html:not([data-theme="black"]) .sea-turn { background: linear-gradient(135deg, #000080, #1a36cf); color: #EAF0FF; }
+html:not([data-theme="black"]) :is(.mt-hero, .mt-item, .mt-herogo) {
+  --mt-acid: #00FF00; --mt-acid-ink: #000060; --mt-near: #000060;
+}
+html:not([data-theme="black"]) .mt-hero { border-radius: 20px; }
+html:not([data-theme="black"]) .tk-mcard {
+  background: radial-gradient(120% 80% at 100% 0%, rgba(0, 255, 0, .2), transparent 60%), linear-gradient(160deg, #0D24AA, #00004a);
+}
+html:not([data-theme="black"]) .tk-mcard .tk-mic { background: linear-gradient(145deg, #2BFF5A, #00B83C); }
+html:not([data-theme="black"]) .tk-mcard .tk-mh small,
+html:not([data-theme="black"]) .tk-mcard .tk-mempty { color: #C2CCF5; }
+html:not([data-theme="black"]) .tk-mcard .tk-ma { background: var(--pl-green-grad); color: var(--pl-action-ink); }
+html:not([data-theme="black"]) .tk-mcard .tk-mb { background: rgba(255, 255, 255, .08); color: #fff; }
+html:not([data-theme="black"]) [class*="LiveSoberCounter_dot"] { background: #00FF00; }
+html:not([data-theme="black"]) :is(.gr-go, .sg-go) { background: var(--pl-green-grad); color: var(--pl-action-ink); box-shadow: var(--pl-glow); }

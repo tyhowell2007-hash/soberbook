@@ -2,7 +2,7 @@
 /* ---- the Videos tab on a profile ---- */
 .vcards{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;padding:10px 0}
 .vcard{position:relative;aspect-ratio:3/4;border-radius:14px;overflow:hidden;padding:10px;color:#fff;text-decoration:none;display:flex;flex-direction:column;justify-content:space-between}
-.vcard:focus-visible{outline:3px solid #0F3D2A;outline-offset:2px}
+.vcard:focus-visible{outline:3px solid #000080;outline-offset:2px}
 .vcard-day{font-family:'Anton',Impact,'Arial Narrow',sans-serif;font-size:38px;line-height:.9;color:#fff}
 .vcard-day small{display:block;font-family:'Plus Jakarta Sans', system-ui, sans-serif;font-size:10px;letter-spacing:.03em;opacity:.8}
 .vcard-len{position:absolute;top:10px;right:10px;font-family:'Plus Jakarta Sans', system-ui, sans-serif;font-size:10.5px;background:rgba(0,0,0,.35);padding:1px 6px;border-radius:999px}

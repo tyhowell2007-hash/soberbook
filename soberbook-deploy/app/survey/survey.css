@@ -73,7 +73,7 @@
 .sv-send {
   width: 100%; font: inherit; font-size: 16px; font-weight: 650;
   padding: 15px; border-radius: 12px; border: 0; cursor: pointer;
-  background: var(--gd); color: #F7FAF8; min-height: 52px;
+  background: var(--gd); color: #F7F8FD; min-height: 52px;
 }
 .sv-send:disabled { opacity: .55; cursor: default; }
 

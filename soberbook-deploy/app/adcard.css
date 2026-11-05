@@ -30,14 +30,14 @@
   border: 1.5px solid #14332a;
   border-radius: 12px;
   background: #14332a;
-  color: #f4fbf7;
+  color: #f7f8fd;
   text-decoration: none;
   font-size: 15px;
   font-weight: 650;
   line-height: 1.2;
 }
 
-.ccbtn:active { background: #0d241c; }
+.ccbtn:active { background: #000080; }
 
 .ccbtnlabel { white-space: nowrap; }
 

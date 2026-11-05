@@ -36,7 +36,7 @@
   text-transform: uppercase;
   margin: 0 0 6px;
   color: #0A0A09;
-  background: #D6FF2E;
+  background: #00FF00;
   display: inline-block;
   padding: 3px 8px;
 }
@@ -97,7 +97,7 @@
   /* 56px min so the tap target clears the Aug 18 audit floor of 44 */
   min-height: 56px;
 }
-.rd-item:hover { background: #D6FF2E; }
+.rd-item:hover { background: #00FF00; }
 .rd-item:focus-visible { outline: 3px solid #0A0A09; outline-offset: 2px; }
 
 .rd-iref {
@@ -170,7 +170,7 @@
   text-transform: uppercase;
   margin: 6px 0 6px;
   color: #0A0A09;
-  background: #D6FF2E;
+  background: #00FF00;
   display: inline-block;
   padding: 3px 8px;
 }
@@ -223,7 +223,7 @@
 
 /* ⭐ The engine of the whole feature. Acid slab, ink on top. */
 .rd-nobody {
-  background: #D6FF2E;
+  background: #00FF00;
   border: 2px solid #0A0A09;
   padding: 14px;
   margin: 0 0 18px;
@@ -268,7 +268,7 @@
   width: 100%;
   min-height: 52px;
   background: #0A0A09;
-  color: #D6FF2E;
+  color: #00FF00;
   border: 0;
   border-radius: 0;
   font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
@@ -321,10 +321,10 @@
   cursor: pointer;
   min-height: 44px;
 }
-.rd-listen:hover { background: #D6FF2E; }
+.rd-listen:hover { background: #00FF00; }
 .rd-listen:focus-visible { outline: 3px solid #0A0A09; outline-offset: 2px; }
 /* speaking: inverted, so there is no doubt it is on */
-.rd-listen[data-on="1"] { background: #0A0A09; color: #D6FF2E; }
+.rd-listen[data-on="1"] { background: #0A0A09; color: #00FF00; }
 /* ⚠️ A disabled control still has to be readable. #4A4A44 on #F2EFE6 is
    7.6:1 — the usual trick of dropping opacity to .4 would take it under
    3:1 and make "not available on this phone" the least legible sentence
@@ -356,7 +356,7 @@
   font-size: 10px;
   letter-spacing: .03em;
   text-transform: uppercase;
-  color: #D6FF2E;
+  color: #00FF00;
   margin: 0 0 8px;
 }
 .rd-asktext {
@@ -398,7 +398,7 @@
   font-family: inherit;
   color: #0A0A09;
 }
-.rd-talk:hover { background: #D6FF2E; }
+.rd-talk:hover { background: #00FF00; }
 .rd-talk:focus-visible { outline: 3px solid #0A0A09; outline-offset: 2px; }
 .rd-talktext { display: block; min-width: 0; }
 .rd-talktext b {

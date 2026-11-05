@@ -7,7 +7,7 @@
   margin:14px 0 6px;
 }
 .tutag{
-  background:var(--deep, #0F3D2A); color:#DFFFB0;
+  background:var(--deep, #000080); color:#B7C4FF;
   font-family:'Anton',Impact,sans-serif; font-size:11px;
   letter-spacing:.1em; text-transform:uppercase;
   padding:6px 10px; display:flex; align-items:center; gap:7px;
@@ -22,7 +22,7 @@
 .tuwho{ display:flex; align-items:center; gap:9px; margin-bottom:8px; }
 .tuav{
   width:36px; height:36px; border:2px solid var(--x);
-  background:var(--deep, #0F3D2A); display:grid; place-items:center;
+  background:var(--deep, #000080); display:grid; place-items:center;
   font-size:18px; flex:none;
 }
 .tuname{
@@ -30,8 +30,8 @@
   display:inline-flex; align-items:center; gap:5px;
 }
 .tuseal{ width:17px; height:17px; flex:none; }
-.tuseal circle{ fill:var(--deep, #0F3D2A); }
-.tuseal path{ fill:none; stroke:var(--acid, #D6FF2E); stroke-width:3;
+.tuseal circle{ fill:var(--deep, #000080); }
+.tuseal path{ fill:none; stroke:var(--acid, #00FF00); stroke-width:3;
               stroke-linecap:round; stroke-linejoin:round; }
 /* ⚠️ pre-line, so a blank line the admin typed survives without this
    component ever accepting markup. */
@@ -43,5 +43,5 @@
 .tufoot{ font-size:12px; color:var(--soft); margin-top:9px; }
 .tuav{
   font-family:'Anton',Impact,sans-serif; font-size:16px;
-  color:var(--acid, #D6FF2E); letter-spacing:.02em;
+  color:var(--acid, #00FF00); letter-spacing:.02em;
 }

@@ -39,8 +39,8 @@ export default function manifest() {
 
     /* The colour behind the icon on the splash screen, and the one
        Android paints the status bar. --gd, the green room. */
-    background_color: '#1B6B4A',
-    theme_color: '#1B6B4A',
+    background_color: '#1329B0',
+    theme_color: '#1329B0',
 
     orientation: 'portrait',
 

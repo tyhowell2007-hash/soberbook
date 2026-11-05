@@ -40,8 +40,8 @@
 
 :root{
   /* ---- the greens ---- */
-  --gd:#1B6B4A;        /* masthead, count card, primary buttons */
-  --gm:#2E8B5F;        /* mid — DECORATION ONLY: borders, edges, fills */
+  --gd:#1329B0;        /* masthead, count card, primary buttons */
+  --gm:#3D63E0;        /* mid — DECORATION ONLY: borders, edges, fills */
   /* ⚠️ --gm IS NOT A TEXT COLOUR. It measures 4.22:1 on a white card and
      4.02:1 on the paper — both under 4.5:1, both failing. It looks fine,
      which is exactly why it slipped through: mid-greens read as "dark
@@ -50,23 +50,23 @@
      Same shape as the rule the grunge pages already live by (--k bright
      for big things, --kt darker for small type). Bright fill, darker
      twin for the words. Anything that is TEXT uses --gm-t. */
-  --gm-t:#256F4C;      /* 5.78:1 on paper, 5.38:1 on the pale wash */
-  --gl:#E8F4ED;        /* pale wash behind chips and highlights */
-  --gt:#0F3D2A;        /* deep green, for text on pale green */
+  --gm-t:#1F3FBF;      /* 5.78:1 on paper, 5.38:1 on the pale wash */
+  --gl:#EEF2FF;        /* pale wash behind chips and highlights */
+  --gt:#000080;        /* deep green, for text on pale green */
 
   /* ---- the paper, warmed slightly toward green ---- */
-  --x:#1C2320;         /* was #0A0A09 toner black. Still nearly black, but
+  --x:#121630;         /* was #0A0A09 toner black. Still nearly black, but
                           green-black rather than blue-black, so it sits
                           with the greens instead of arguing with them. */
-  --paper:#F7FAF8;
+  --paper:#F7F8FD;
   --paper2:#FFFFFF;
-  --body:#1C2320;
+  --body:#121630;
   /* was #6B7A72 — 4.30:1 on the paper, a fail. --soft carries every
      timestamp, every byline and the whole of .btn.out, so it is the most
      widely read small text in the app and the least forgiving place to be
      4% short. #63716A is 4.87:1 on paper and 5.12:1 on a white card. */
-  --soft:#63716A;
-  --line:#DCE7E1;
+  --soft:#5E6788;
+  --line:#DDE3F5;
 
   /* ---- ⚠️ ACID IS NOT DELETED, IT'S REASSIGNED ----
      50 rules reference --acid. Removing it would break 50 things. So it
@@ -79,8 +79,8 @@
      safely — #0F3D2A on #E8F4ED is 11.4:1, so anywhere acid used to be
      a block with dark text on top, it still passes; and anywhere it was
      mistakenly used AS text, it now works instead of vanishing. */
-  --acid:#E8F4ED;
-  --acid-ink:#0F3D2A;
+  --acid:#EEF2FF;
+  --acid-ink:#000080;
 
   /* Gold. The one non-green colour in the app, reserved entirely for
      milestones — see the chip rules at the bottom. */
@@ -94,7 +94,7 @@
   --wear:none;
 }
 
-html{ background:#EDF3F0; }
+html{ background:#EEF2FF; }
 body{
   background:var(--paper);
   border-left:0; border-right:0;          /* the black rails are grunge */
@@ -178,7 +178,7 @@ body{
   background:transparent; color:#DCEFE5;
   border:1.5px solid rgba(255,255,255,.5);
 }
-.total{ color:#CFEADD; border-top:1px solid rgba(255,255,255,.18); }
+.total{ color:#B9C7FF; border-top:1px solid rgba(255,255,255,.18); }
 
 /* ---------- the wall ---------- */
 .item{ background:#fff; }
@@ -192,7 +192,7 @@ body{
    Same rule as before — only ever ONE at a time. */
 .item.poster{
   border-left:4px solid var(--gm);
-  background:#F6FBF8;
+  background:#F7F8FD;
   border-top-color:var(--line); border-right-color:var(--line);
   border-bottom-color:var(--line);
 }
@@ -202,7 +202,7 @@ body{
 /* anonymous — lavender, because it should be legible at a glance who is
    hiding and who isn't, without a word of explanation */
 .item.screened{
-  background:#F7F5FB; border-style:solid; border-color:#E2DCEF;
+  background:#F7F8FD; border-style:solid; border-color:#E2DCEF;
 }
 .item.screened::after{ display:none; }     /* the halftone screen is grunge */
 
@@ -254,7 +254,7 @@ body{
   font-family:Georgia,'Times New Roman',serif; font-size:25px; font-weight:400;
   letter-spacing:-.01em; line-height:1.15;
 }
-.home p{ font-size:13.5px; color:#CFEADD; margin-top:3px; }
+.home p{ font-size:13.5px; color:#B9C7FF; margin-top:3px; }
 /* 🔴 "Signed in as @handle" — added 2 Sept. See the note in Wall.jsx.
    Quieter than the welcome and quieter than the tagline, because it is
    reference information, not a greeting: you only read it on the day you
@@ -270,7 +270,7 @@ body{
    so it stops at 4.67 rather than going quieter. */
 .home .whoami{
   font-size:12px;
-  color:#C4E2D4;
+  color:#B2BEFF;
   margin-top:5px;
   letter-spacing:.01em;
 }
@@ -333,7 +333,7 @@ body{
 /* was #9AA8A2 — 2.47:1, effectively decorative. This placeholder is the
    prompt that tells someone what the box is for ("Share something with
    people who get it…"), so it has to be readable, not suggested. */
-.composer .ctop input::placeholder{ color:#67716C; }
+.composer .ctop input::placeholder{ color:#5E6788; }
 .composer .send{
   flex:none; background:var(--gd); color:#fff; border:0; border-radius:99px;
   padding:8px 17px; font:700 13px/1 'Plus Jakarta Sans',system-ui,sans-serif; cursor:pointer;
@@ -440,7 +440,7 @@ body{
    prototype Ty showed me. */
 .tabbar{
   background:#fff; border-top:1px solid var(--line);
-  box-shadow:0 -1px 6px rgba(28,35,32,.05);
+  box-shadow:0 -1px 6px rgba(18,22,48,.05);
 }
 .tab{ color:var(--soft); }
 .tab .tl{
@@ -511,7 +511,7 @@ body{
    WCAG 1.4.11 wants 3:1 for the boundary of a control you have to find,
    and this measures 3.18:1. It failed on the ONE button in the app whose
    whole job is to be as easy to press as Accept. */
-.cno{ background:#fff; color:var(--gm-t); border-color:#4E9B78; }
+.cno{ background:#fff; color:var(--gm-t); border-color:#293BD4; }
 .cno:hover{ background:var(--gl); }
 
 /* Their words on white with a green edge; yours filled. The difference is
@@ -532,7 +532,7 @@ body{
 /* The message bar. Deep green, white field. Note this styles .cbar and
    NOT .composer — see the long note in wall.css for why sharing that
    class would have unpinned the box in this room only. */
-.cbar{ background:var(--gd); border-top:0; box-shadow:0 -1px 8px rgba(28,35,32,.14); }
+.cbar{ background:var(--gd); border-top:0; box-shadow:0 -1px 8px rgba(18,22,48,.14); }
 /* was #7FBBA1 — 2.93:1 on the green bar. Four percent short, which is
    exactly the shape of the --gm and --soft misses earlier in this file.
    #8CC4AC is 3.27:1. */
@@ -544,12 +544,12 @@ body{
    erroring anywhere. A tag-based selector is a silent dependency on the
    markup, and this is the second time that family of bug has bitten this
    app (the `.composer` collision, 16 Aug). */
-.cbar input, .cbar textarea{ border:1px solid #8CC4AC; border-radius:11px; background:#fff;
+.cbar input, .cbar textarea{ border:1px solid #8E98FF; border-radius:11px; background:#fff;
   /* ⚠️ 16px for the same reason as the composer — 15px still trips the
      iOS zoom-on-focus threshold, which is 16 and not 15. */
   font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-size:16px; color:var(--body); }
 .cbar input::placeholder, .cbar textarea::placeholder{ color:var(--soft); }
-.cbar input[disabled], .cbar textarea[disabled]{ background:#EDF3F0; color:var(--soft); }
+.cbar input[disabled], .cbar textarea[disabled]{ background:#EEF2FF; color:var(--soft); }
 /* 12 SEPT (later) - RAISED FROM 40vh, same call as the room composer and
    for the same reason. Ty: "make sure this is in every form of
    communication in the app."
@@ -602,7 +602,7 @@ body{
    of them. Only the typeface changes to match everything else inside. */
 .dchip{ font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-size:10px;
   font-weight:700; letter-spacing:0; padding:2px 9px; }
-.dchip.new{ background:var(--gl); color:var(--gt); border-color:#7FBBA1; }
+.dchip.new{ background:var(--gl); color:var(--gt); border-color:#858EFF; }
 
 /* =====================================================================
    NOTIFICATIONS — the dot, and the list.
@@ -631,7 +631,7 @@ body{
 
      Deep green instead: the app's own accent, high contrast on the white
      bar, and it belongs to nothing else. */
-  background:var(--gd, #1B6B4A);
+  background:var(--gd, #1329B0);
 
   /* The white ring keeps it a distinct disc instead of smearing into the
      emoji behind it. Thicker now that the dot is bigger. */
@@ -1187,7 +1187,7 @@ body{
   font-family:inherit; margin-bottom:8px;
 }
 .paskbtn:last-child{ margin-bottom:0; }
-.paskbtn.go{ background:var(--gd); color:#F4FBF7; border:0; }
+.paskbtn.go{ background:var(--gd); color:#F7F8FD; border:0; }
 /* --slab, not --gt: the ink above is #F4FBF7 and --gt goes pale in the
    dark, which measured 1.14. Now light 11.61, dark 11.0. MEASURED. */
 .paskbtn.go:active{ background:var(--slab); }
@@ -1212,7 +1212,7 @@ body{
    the ranking once the fix lets it compete. */
 .rmenu-wrap{
   position:fixed; inset:0; z-index:70;
-  background:rgba(12,26,20,.55);
+  background:rgba(0,0,100,.55);
   display:flex; align-items:flex-end; justify-content:center;
   /* 🔴 THE SHEET MUST CLEAR THE TAB BAR. Measured on the live page: the
      bar (.tabbar) starts at 869px in a 931px viewport — 62px tall — and
@@ -1316,8 +1316,8 @@ body{
   border-top: 1px solid var(--line, #e4ebe7);
   text-decoration: none;
 }
-.mtT { display: block; font-size: 15px; color: var(--gt, #2b5c3f); text-decoration: underline; }
-.mtD { display: block; margin-top: 4px; font-size: 13px; color: var(--soft, #8fa99a); }
+.mtT { display: block; font-size: 15px; color: var(--gt, #172177); text-decoration: underline; }
+.mtD { display: block; margin-top: 4px; font-size: 13px; color: var(--soft, #828cff); }
 
 /* =====================================================================
    THE PROFILE REBUILD — 2 Sept. Sponsoring pills, the path picker and
@@ -1338,7 +1338,7 @@ body{
 .sqrow{ margin:16px 0 4px; }
 .sqL{
   display:block; font-size:14px; font-weight:600;
-  color:var(--body, #17281E); margin-bottom:8px;
+  color:var(--body, #00006E); margin-bottom:8px;
 }
 .sqBtns{ display:flex; gap:8px; flex-wrap:wrap; }
 
@@ -1347,13 +1347,13 @@ body{
 .sbpill{
   min-height:44px; padding:10px 16px;
   border:2px solid var(--line, #D7E3DB); border-radius:999px;
-  background:#fff; color:var(--body, #17281E);
+  background:#fff; color:var(--body, #00006E);
   font:inherit; font-size:14px; font-weight:600; cursor:pointer;
 }
-.sbpill:hover{ border-color:var(--gd, #1B6B4A); }
+.sbpill:hover{ border-color:var(--gd, #1329B0); }
 /* ⚠️ #FFFFFF on --gd measures 6.46. MEASURED — three contrast figures
    were written unmeasured earlier today and two were under the floor. */
-.sbpill.sel{ background:var(--gd, #1B6B4A); color:#fff; border-color:var(--gd, #1B6B4A); }
+.sbpill.sel{ background:var(--gd, #1329B0); color:#fff; border-color:var(--gd, #1329B0); }
 .sbpill:disabled{ opacity:.5; cursor:default; }
 
 /* ---- your path ---- */
@@ -1362,7 +1362,7 @@ body{
    it carries weight 700 rather than being made lighter. */
 .pgL{
   display:block; font-size:11px; font-weight:700; letter-spacing:.12em;
-  text-transform:uppercase; color:var(--soft, #5f7a6a); margin-bottom:7px;
+  text-transform:uppercase; color:var(--soft, #2636c2); margin-bottom:7px;
 }
 .pgW{ display:flex; flex-wrap:wrap; gap:7px; }
 .pgW .sbpill{ min-height:40px; padding:8px 13px; font-size:13.5px; }
@@ -1373,10 +1373,10 @@ body{
   display:flex; align-items:center; gap:8px;
   min-height:44px; padding:9px 15px 9px 10px;
   border:2px solid var(--line, #D7E3DB); border-radius:999px;
-  background:#fff; color:var(--body, #17281E);
+  background:#fff; color:var(--body, #00006E);
   font:inherit; font-size:14px; font-weight:600; cursor:pointer;
 }
-.thChip.sel{ border-color:var(--gd, #1B6B4A); background:var(--gl, #E8F4ED); }
+.thChip.sel{ border-color:var(--gd, #1329B0); background:var(--gl, #EEF2FF); }
 /* ⚠️ The dot is DECORATION and carries no text, so its own contrast is
    not a reading requirement — but it needs an edge or the pale ones
    vanish on white. The 17 Aug lesson: audit fills and borders, not just
@@ -1397,7 +1397,7 @@ body{
    news. It goes the instant something is attached. */
 .composer .ctop .cmedia{
   flex:none; font:400 12px/1.2 'Plus Jakarta Sans',system-ui,sans-serif;
-  color:#3B6D11; text-align:left;
+  color:#161F6F; text-align:left;
 }
 
 
@@ -1413,7 +1413,7 @@ body{
 .replybar .remo, .replybar .rpick{
   flex:none; width:40px; height:40px; padding:0;
   border:1px solid var(--line); border-radius:10px; background:#fff;
-  color:#0F3D2A; font-size:17px; line-height:1; cursor:pointer;
+  color:#000080; font-size:17px; line-height:1; cursor:pointer;
 }
 .composer .ctop .cemo:disabled, .replybar .rpick:disabled{ opacity:.5; }
 

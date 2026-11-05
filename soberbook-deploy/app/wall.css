@@ -57,7 +57,7 @@
 .item.poster{
   border-left-width:9px;
   border-left-color:var(--acid);
-  background:#FBFAF6;
+  background:#F7F8FD;
 }
 .item.poster .nm{ font-size:17px; }
 .item.poster .bd{ font-size:15.5px; }
@@ -104,7 +104,7 @@
 }
 .item .tape{
   position:absolute; top:-9px; left:14px; width:62px; height:19px;
-  background:rgba(214,255,46,.5);
+  background:rgba(0,255,0,.5);
   border-left:1px dashed rgba(0,0,0,.3); border-right:1px dashed rgba(0,0,0,.3);
   transform:rotate(-5deg); z-index:3;
 }
@@ -339,10 +339,10 @@
 .count .cols{
   display:flex; justify-content:center;
   margin-top:14px; padding-top:14px;
-  border-top:1px solid rgba(15,61,42,.22);
+  border-top:1px solid rgba(0,0,128,.22);
 }
 .count .col{ flex:1 1 0; max-width:90px; padding:0 2px; min-width:0; }
-.count .col + .col{ border-left:1px solid rgba(15,61,42,.22); }
+.count .col + .col{ border-left:1px solid rgba(0,0,128,.22); }
 .count .col .v{
   font-family:'Anton',Impact,sans-serif; font-size:30px; line-height:1;
   color:var(--acid-ink);
@@ -449,7 +449,7 @@ ul.mine li > *{ position:relative; z-index:1; }
    17 Aug. The left rule separates the two doors; the colour of the word
    marks which one is urgent. */
 .dr-now{ color:#8A2B2B; }
-.dr-in { color:var(--gt); border-left:1px solid #6B8F7C; }
+.dr-in { color:var(--gt); border-left:1px solid #2C3EE0; }
 
 /* The third door, added 8 Sept. ⚠️ IDENTICAL to .dr-in on purpose —
    var(--gt) on the bar's --gl measures 10.80, already proven by the door
@@ -459,7 +459,7 @@ ul.mine li > *{ position:relative; z-index:1; }
    on every surface. Three unmeasured contrast numbers went into comments
    this week and two of them were under the floor — the safest new colour
    is no new colour at all. */
-.dr-ask{ color:var(--gt); border-left:1px solid #6B8F7C; }
+.dr-ask{ color:var(--gt); border-left:1px solid #2C3EE0; }
 
 .dr:hover{ text-decoration:underline; text-underline-offset:3px; }
 .dr:focus-visible{ outline:3px solid var(--gd); outline-offset:-3px; }
@@ -655,7 +655,7 @@ ul.mine li > *{ position:relative; z-index:1; }
   background:var(--acid); border-radius:1px;
   /* NO transition. A transition would smear sixty frames a second into
      mush; the smoothing that makes it readable happens in the analyser. */
-  box-shadow:0 0 10px rgba(214,255,46,.45);
+  box-shadow:0 0 10px rgba(0,255,0,.45);
 }
 
 .sveil{ position:absolute; inset:0; pointer-events:none;
@@ -1067,7 +1067,7 @@ textarea:focus-visible{ outline:4px solid var(--x); outline-offset:3px; }
   border:3px solid var(--x); background:var(--paper2);
   padding:9px 12px; margin:8px 0 4px; cursor:pointer;
 }
-.facepick:hover{ background:#FBFAF6; }
+.facepick:hover{ background:#F7F8FD; }
 .facepick:focus-visible{ outline:4px solid var(--x); outline-offset:3px; }
 .facepick[disabled]{ opacity:.55; cursor:default; }
 /* Open gets the same acid-slab shadow a selected face gets, so "this is
@@ -1394,7 +1394,7 @@ textarea:focus-visible{ outline:4px solid var(--x); outline-offset:3px; }
    somebody USED the app a way it didn't bend to.
    ===================================================================== */
 .lk{
-  color:var(--gm-t,#256F4C); text-decoration:underline; text-underline-offset:3px;
+  color:var(--gm-t,#1F3FBF); text-decoration:underline; text-underline-offset:3px;
   word-break:break-word;
 }
 .lk:hover{ background:var(--acid); text-decoration:none; }
@@ -1442,9 +1442,9 @@ textarea:focus-visible{ outline:4px solid var(--x); outline-offset:3px; }
    label rather than part of the address — but now it reads at all.
    ===================================================================== */
 .rmsg.mine .rbub .lk,
-.bub.mine .lk{ color:#CFF5E0; }
+.bub.mine .lk{ color:#BDCBFF; }
 .rmsg.mine .rbub .lkh,
-.bub.mine .lkh{ color:#B8E6CC; }
+.bub.mine .lkh{ color:#ADB9FF; }
 
 /* ⚠️ The hover fill is --acid on paper; on the bubble it would put a
    bright yellow-green block inside a dark green message. Keep the
@@ -1464,18 +1464,18 @@ textarea:focus-visible{ outline:4px solid var(--x); outline-offset:3px; }
   width:100%; display:flex; align-items:center; gap:14px;
   /* 56px — comfortably past the 44px tap floor from the Aug 18 audit */
   min-height:64px; padding:12px 16px; cursor:pointer; text-align:left;
-  background:var(--paper2); border:2px solid var(--gd,#1B6B4A); border-radius:12px;
+  background:var(--paper2); border:2px solid var(--gd,#1329B0); border-radius:12px;
   font-family:inherit;
 }
-.plyb:hover{ background:var(--gl,#E8F4ED); }
+.plyb:hover{ background:var(--gl,#EEF2FF); }
 .plyt{
   flex:none; width:44px; height:44px; border-radius:50%;
-  background:var(--gd,#1B6B4A); color:var(--gl,#E8F4ED);
+  background:var(--gd,#1329B0); color:var(--gl,#EEF2FF);
   display:flex; align-items:center; justify-content:center; font-size:18px;
 }
 .plyl{
   display:flex; flex-direction:column; font-size:15px; font-weight:700;
-  color:var(--gt,#0F3D2A);
+  color:var(--gt,#000080);
 }
 .plys{
   font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-size:11px; font-weight:400;
@@ -1582,7 +1582,7 @@ textarea:focus-visible{ outline:4px solid var(--x); outline-offset:3px; }
   /* Two layers: a tight contact shadow so it sits ON the page, and a wide
      soft one so it floats above it. ⚠️ One shadow always looks either
      glued down or detached — the pair is what reads as a real object. */
-  box-shadow:0 1px 2px rgba(15,61,42,.10), 0 12px 28px -8px rgba(15,61,42,.26);
+  box-shadow:0 1px 2px rgba(0,0,128,.10), 0 12px 28px -8px rgba(0,0,128,.26);
   overflow:hidden;                 /* keeps the image inside the radius */
   -webkit-tap-highlight-color:transparent;
 }
@@ -1617,7 +1617,7 @@ textarea:focus-visible{ outline:4px solid var(--x); outline-offset:3px; }
 .ccshelf{
   display:flex; align-items:center; gap:10px;
   padding:7px 13px;
-  background:#C6F24E;
+  background:#00FF00;
 }
 .shsrc{
   font-family:'Anton',Impact,sans-serif; font-size:12.5px; letter-spacing:.09em;
@@ -1666,7 +1666,7 @@ textarea:focus-visible{ outline:4px solid var(--x); outline-offset:3px; }
   margin:0;
   padding:5px 13px;
   background:#2C3A24;
-  color:#C6F24E;
+  color:#00FF00;
   font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-size:11px; font-weight:700;
   letter-spacing:.03em; text-transform:uppercase;
 }
@@ -1681,10 +1681,10 @@ textarea:focus-visible{ outline:4px solid var(--x); outline-offset:3px; }
 }
 /* It presses. Small, and the whole card moves as one piece. */
 .ccplay:active{ transform:scale(.985); }
-.ccplay:focus-visible{ outline:3px solid var(--gd,#1B6B4A); outline-offset:-3px; }
+.ccplay:focus-visible{ outline:3px solid var(--gd,#1329B0); outline-offset:-3px; }
 
 .ccimg{ width:100%; height:100%; object-fit:cover; display:block; }
-.ccnone{ background:linear-gradient(160deg,#1B6B4A,#0F3D2A); }
+.ccnone{ background:linear-gradient(160deg,#1329B0,#000080); }
 
 /* ⚠️ THE GRADIENT IS LOAD-BEARING, not decoration. We do not choose these
    thumbnails; white type is legible on a dark one and invisible on a
@@ -1710,7 +1710,7 @@ textarea:focus-visible{ outline:4px solid var(--x); outline-offset:3px; }
 .cccat{
   flex:none; margin-left:auto;
   font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-size:9.5px; font-weight:700;
-  letter-spacing:.03em; text-transform:uppercase; color:#F2FBF6;
+  letter-spacing:.03em; text-transform:uppercase; color:#F7F8FD;
   padding:3px 8px; border-radius:999px;
   background:rgba(255,255,255,.16); border:1px solid rgba(255,255,255,.34);
   -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px);
@@ -1772,8 +1772,8 @@ textarea:focus-visible{ outline:4px solid var(--x); outline-offset:3px; }
   letter-spacing:.03em; text-transform:uppercase; color:var(--soft);
   text-decoration:none;
 }
-.ccout:hover{ color:var(--gd,#1B6B4A); }
-.ccout:focus-visible{ outline:3px solid var(--gd,#1B6B4A); outline-offset:2px; }
+.ccout:hover{ color:var(--gd,#1329B0); }
+.ccout:focus-visible{ outline:3px solid var(--gd,#1329B0); outline-offset:2px; }
 
 @media (prefers-reduced-motion:reduce){
   .ccplay,.ccbtn{ transition:none; }
@@ -1811,14 +1811,14 @@ textarea:focus-visible{ outline:4px solid var(--x); outline-offset:3px; }
    mud on a phone and costs paint time for nothing. */
 .dp-dots{
   position:absolute; inset:0; pointer-events:none;
-  background-image:radial-gradient(rgba(214,255,46,.13) 1px, transparent 1.4px);
+  background-image:radial-gradient(rgba(0,255,0,.13) 1px, transparent 1.4px);
   background-size:5px 5px;
 }
 .dp-in{ position:relative; padding:16px 15px 15px; }
 
 .dp-kicker{
   font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-size:10px; font-weight:700;
-  letter-spacing:.03em; text-transform:uppercase; color:#D6FF2E;
+  letter-spacing:.03em; text-transform:uppercase; color:#00FF00;
 }
 .dp-title{
   margin:13px 0 0; font-family:'Anton',Impact,sans-serif;
@@ -1838,7 +1838,7 @@ textarea:focus-visible{ outline:4px solid var(--x); outline-offset:3px; }
   font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-size:10px; font-weight:700;
   letter-spacing:.03em; text-transform:uppercase; color:#9C9788;
 }
-.dp-nums{ margin-top:5px; display:flex; gap:15px; align-items:baseline; color:#D6FF2E; }
+.dp-nums{ margin-top:5px; display:flex; gap:15px; align-items:baseline; color:#00FF00; }
 .dp-nums b{
   font-family:'Anton',Impact,sans-serif; font-size:32px; font-weight:400;
   /* ⚠️ Tabular figures. Without it the whole row shifts sideways every
@@ -1863,7 +1863,7 @@ textarea:focus-visible{ outline:4px solid var(--x); outline-offset:3px; }
 }
 .dp-play:active{ transform:scale(.985); }
 .dp-play:disabled{ cursor:default; }
-.dp-play:focus-visible{ outline:3px solid #D6FF2E; outline-offset:-3px; }
+.dp-play:focus-visible{ outline:3px solid #00FF00; outline-offset:-3px; }
 .dp-art{ width:100%; height:100%; object-fit:cover; display:block; }
 .dp-noart{ background:linear-gradient(150deg,#3d2f52,#151020); }
 
@@ -1884,7 +1884,7 @@ textarea:focus-visible{ outline:4px solid var(--x); outline-offset:3px; }
   display:block; width:100%; min-height:44px;
   margin:14px 0 0; padding:12px 4px 2px;
   border:none; border-top:1px solid #2A302C; background:none;
-  font:inherit; font-size:13px; color:#C4E2D4;
+  font:inherit; font-size:13px; color:#B2BEFF;
   text-decoration:underline; text-underline-offset:3px;
   cursor:pointer; text-align:center;
 }
@@ -1895,12 +1895,12 @@ textarea:focus-visible{ outline:4px solid var(--x); outline-offset:3px; }
   position:absolute; top:11px; left:12px;
   font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-size:10px; font-weight:700;
   letter-spacing:.03em; text-transform:uppercase;
-  color:#0A0A09; background:#D6FF2E; padding:4px 9px;
+  color:#0A0A09; background:#00FF00; padding:4px 9px;
 }
 
 .dp-btn{
   position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
-  width:64px; height:64px; border-radius:50%; background:#D6FF2E;
+  width:64px; height:64px; border-radius:50%; background:#00FF00;
   display:flex; align-items:center; justify-content:center;
   box-shadow:0 6px 22px rgba(0,0,0,.45); transition:transform .18s ease;
 }
@@ -1917,10 +1917,10 @@ textarea:focus-visible{ outline:4px solid var(--x); outline-offset:3px; }
   display:inline-flex; align-items:center; min-height:44px; margin-top:11px;
   padding-top:12px; border-top:1px solid rgba(242,240,233,.2); width:100%;
   font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-size:10.5px; font-weight:700;
-  letter-spacing:.03em; text-transform:uppercase; color:#D6FF2E; text-decoration:none;
+  letter-spacing:.03em; text-transform:uppercase; color:#00FF00; text-decoration:none;
 }
 .dp-link:hover{ color:#F2F0E9; }
-.dp-link:focus-visible{ outline:3px solid #D6FF2E; outline-offset:2px; }
+.dp-link:focus-visible{ outline:3px solid #00FF00; outline-offset:2px; }
 
 @media (prefers-reduced-motion:reduce){
   .dp-play,.dp-btn{ transition:none; }
@@ -2081,14 +2081,14 @@ textarea:focus-visible{ outline:4px solid var(--x); outline-offset:3px; }
    ===================================================================== */
 .bar-today{
   display:flex; padding:0; text-align:center;
-  border-top:1px solid #6B8F7C;
+  border-top:1px solid #2C3EE0;
 }
 .td{
   flex:1 1 0; min-height:48px;
   display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1px;
   font-family:'Plus Jakarta Sans', system-ui, sans-serif;
   font-size:16px; text-decoration:none; color:var(--gt);
-  border-left:1px solid #6B8F7C;
+  border-left:1px solid #2C3EE0;
 }
 .td:first-child{ border-left:0; }
 .td span{ font-size:11.5px; font-weight:600; letter-spacing:.01em; }

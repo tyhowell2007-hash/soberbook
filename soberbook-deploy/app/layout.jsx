@@ -105,7 +105,7 @@ export const metadata = {
 };
 
 export const viewport = {
-  themeColor: '#1B6B4A',
+  themeColor: '#1329B0',
   width: 'device-width',
   initialScale: 1,
   /* ⚠️ NOT `maximumScale: 1` and NOT `userScalable: false`. Locking zoom

@@ -31,16 +31,16 @@
      border is invisible there and the box model is identical in both. It
      earns its keep in the dark, where slab-vs-card is only 1.43 — fill
      against fill, the 17 Aug pale-tag bug, and an edge is what solves it. */
-  --slab:#0F3D2A;
-  --slab-ink:#C7EFDD;
-  --slab-edge:#0F3D2A;
+  --slab:#000080;
+  --slab-ink:#B9C6FF;
+  --slab-edge:#000080;
 
   --paper:#F2F0E9;
   --paper2:#FFFFFF;
   --body:#26251F;
   --soft:#5F5B50;
   --line:#DAD5C7;
-  --acid:#D6FF2E;
+  --acid:#00FF00;
   --acid-ink:#141800;
   --wear:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='w'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.035 .07' numOctaves='4' seed='7'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23w)'/%3E%3C/svg%3E");
 }
@@ -88,7 +88,7 @@ body{
 .mast .lg{ font-family:'Anton',Impact,sans-serif; font-size:20px; letter-spacing:.02em;
   text-transform:uppercase; transform:rotate(-1deg); display:inline-block;
   white-space:nowrap; flex-shrink:0;
-  text-shadow:2px 2px 0 rgba(214,255,46,.85); }
+  text-shadow:2px 2px 0 rgba(0,255,0,.85); }
 .mast .rt{ margin-left:auto; font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-size:10px;
   letter-spacing:.03em; text-transform:uppercase; color:var(--acid); }
 .bar{ background:var(--acid); color:var(--acid-ink); font-family:'Plus Jakarta Sans', system-ui, sans-serif;
@@ -147,7 +147,7 @@ input:focus-visible{ outline:4px solid var(--acid); outline-offset:0; box-shadow
    ===================================================================== */
 .legal{
   max-width:660px; margin:0 auto; padding:32px 22px 72px;
-  font-family:'Plus Jakarta Sans', system-ui, sans-serif; color:#1C2320;
+  font-family:'Plus Jakarta Sans', system-ui, sans-serif; color:#121630;
   line-height:1.7; font-size:16px;
 }
 .legal h1{ font-size:30px; margin:0 0 14px; letter-spacing:-.01em; }
@@ -166,12 +166,12 @@ input:focus-visible{ outline:4px solid var(--acid); outline-offset:0; box-shadow
    is deliberate so a rule stays visually attached to its own heading. */
 .legal h3{ font-size:17px; margin:22px 0 4px; letter-spacing:-.004em; }
 .legal .lead{ font-size:17px; margin:0 0 6px; }
-.legal .upd{ font-size:13px; color:#63716A; margin:0 0 8px; }
+.legal .upd{ font-size:13px; color:#5E6788; margin:0 0 8px; }
 .legal ul{ padding-left:20px; margin:8px 0 0; }
 .legal li{ margin:7px 0; }
-.legal a{ color:#1B6B4A; }
-.legal hr{ border:0; border-top:1px solid #DCE7E1; margin:34px 0 18px; }
-.legal .fine{ font-size:14px; color:#63716A; }
+.legal a{ color:#1329B0; }
+.legal hr{ border:0; border-top:1px solid #DDE3F5; margin:34px 0 18px; }
+.legal .fine{ font-size:14px; color:#5E6788; }
 .legal .back{ margin-top:22px; font-size:15px; }
 
 /* =====================================================================
@@ -313,7 +313,7 @@ html[data-menu="on"] .mast{ padding-left:59px; }
 /* A real <button>, so it is focusable and announced — not a div. */
 .mm-scrim{
   position:fixed; inset:0; z-index:100;
-  background:rgba(15,61,42,.42);
+  background:rgba(0,0,128,.42);
   border:0; padding:0; margin:0; cursor:pointer;
 }
 
@@ -344,7 +344,7 @@ html[data-menu="on"] .mast{ padding-left:59px; }
   pointer-events:auto;
   width:302px; max-width:84vw;
   background:var(--paper); color:var(--body);
-  box-shadow:-12px 0 28px rgba(15,61,42,.18);
+  box-shadow:-12px 0 28px rgba(0,0,128,.18);
   display:flex; flex-direction:column;
   padding-bottom:env(safe-area-inset-bottom, 0px);
 }
@@ -450,7 +450,7 @@ html[data-menu="on"] .mast{ padding-left:59px; }
   border-radius:10px; display:block; cursor:default;
 }
 .pbig-gone{
-  color:#CFE9DC; font-size:15px; text-align:center; max-width:32ch;
+  color:#B9C6FF; font-size:15px; text-align:center; max-width:32ch;
 }
 
 /* Arrows. ⚠️ 48px square and vertically centred, and they sit ON the
@@ -472,7 +472,7 @@ html[data-menu="on"] .mast{ padding-left:59px; }
 /* "3 of 7". Sits above the close button, not over the picture. */
 .pbig-count{
   position:absolute; left:50%; transform:translateX(-50%); bottom:78px;
-  margin:0; color:#CFE9DC; font-size:12.5px; letter-spacing:.04em;
+  margin:0; color:#B9C6FF; font-size:12.5px; letter-spacing:.04em;
   font-variant-numeric:tabular-nums;
 }
 
@@ -484,7 +484,7 @@ html[data-menu="on"] .mast{ padding-left:59px; }
   position:absolute; left:50%; transform:translateX(-50%);
   bottom:calc(22px + env(safe-area-inset-bottom, 0px));
   min-height:44px; padding:11px 26px; border-radius:22px; border:0;
-  background:#4FA97A; color:#08160F;
+  background:#2B3EDE; color:#08160F;
   font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-size:13px; font-weight:700;
   cursor:pointer;
 }
@@ -514,5 +514,5 @@ html[data-menu="on"] .mast{ padding-left:59px; }
 
 /* Illinois program: words only (29 Oct 2026) */
 .ph-words{ display:inline-block; font-size:12px; line-height:1.35; color:#6B7D72; max-width:260px; }
-.ph-why{ background:none; border:0; padding:0; color:#1B6B4A; font:inherit; font-weight:700; text-decoration:underline; cursor:pointer; }
+.ph-why{ background:none; border:0; padding:0; color:#1329B0; font:inherit; font-weight:700; text-decoration:underline; cursor:pointer; }
 .ph-why-t{ display:block; margin-top:4px; color:#4E6157; }

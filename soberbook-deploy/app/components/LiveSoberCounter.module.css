@@ -3,7 +3,7 @@
    The colour comes from --acc, which MemberProfile sets on .pad from the
    member's own accent; green is the fallback. */
 .sc {
-  --c: var(--acc, #1B6B4A);
+  --c: var(--acc, #1329B0);
   position: relative;
   overflow: hidden;
   color: #fff;
@@ -32,10 +32,10 @@
   background: rgba(255,255,255,.14); border: 1px solid rgba(255,255,255,.22);
   padding: 6px 11px 6px 9px; border-radius: 999px;
 }
-.dot { position: relative; width: 8px; height: 8px; border-radius: 50%; background: #7CF2B4; }
+.dot { position: relative; width: 8px; height: 8px; border-radius: 50%; background: #99A4FF; }
 .dot::after {
   content: ""; position: absolute; inset: -5px; border-radius: 50%;
-  border: 2px solid #7CF2B4; opacity: 0; animation: ring 2.2s ease-out infinite;
+  border: 2px solid #99A4FF; opacity: 0; animation: ring 2.2s ease-out infinite;
 }
 @keyframes ring { 0% { transform: scale(.4); opacity: .9; } 100% { transform: scale(1.5); opacity: 0; } }
 .dayword { font-size: 11.5px; font-weight: 600; opacity: .85; }
@@ -61,7 +61,7 @@
 .next span { font-size: 12.5px; opacity: .85; }
 
 .chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 14px 0 0; padding: 0; list-style: none; }
-.chip { font-size: 11px; font-weight: 700; padding: 5px 10px; border-radius: 999px; background: rgba(255,255,255,.95); color: #1C2320; }
+.chip { font-size: 11px; font-weight: 700; padding: 5px 10px; border-radius: 999px; background: rgba(255,255,255,.95); color: #121630; }
 .chipNext { background: transparent; color: #fff; border: 1.5px dashed rgba(255,255,255,.6); }
 
 @media (prefers-reduced-motion: reduce) {

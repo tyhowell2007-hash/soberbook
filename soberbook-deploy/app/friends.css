@@ -218,7 +218,7 @@
 
 .room{
   margin:0 0 20px;
-  background:#12241C; border-radius:16px; padding:13px 12px 12px;
+  background:#000080; border-radius:16px; padding:13px 12px 12px;
 }
 /* 🔴 A PHONE TURNED SIDEWAYS. Add it up on a landscape phone — masthead
    54, strip 37, tabs 40, the room's own header about 110, composer 76,
@@ -255,13 +255,13 @@
 .roomemoji{ font-size:17px; line-height:1; }
 .roomname{
   font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-size:14px;
-  font-weight:700; color:#EAF6EF; letter-spacing:0;
+  font-weight:700; color:#EEF2FF; letter-spacing:0;
 }
 /* Pushed right, and quiet. It says the room is populated without being a
    scoreboard — and it is a COUNT, never a list of who is here. Publishing
    who is in a room at 11pm publishes who is struggling and when, which is
    the presence-dot argument from August. */
-.roomcount{ margin-left:auto; font-size:11px; color:#7FBFA0; }
+.roomcount{ margin-left:auto; font-size:11px; color:#868FFF; }
 
 /* ⚠️ Its own scroll with a capped height so the member list underneath
    never gets pushed off the page. A room that grows forever would quietly
@@ -285,7 +285,7 @@
   padding:0 1px 2px; margin:0 0 10px;
 }
 
-.roomempty{ margin:4px 2px 8px; font-size:13px; line-height:1.6; color:#7FBFA0; }
+.roomempty{ margin:4px 2px 8px; font-size:13px; line-height:1.6; color:#868FFF; }
 
 .rmsg{ margin:0 0 10px; }
 /* 🔴 RENAMED FROM .rwho, 6 SEPT. IT COLLIDED WITH THE WALL'S REPLY AUTHOR.
@@ -300,15 +300,15 @@
    ⚠️ Same family as the `.composer` collision (16 Aug) and the four
    landing-page names that forced the `lp-` prefix (23 Aug). A class name
    is a global; two files owning one is a bug waiting for a route change. */
-.roomwho{ font-size:11px; color:#9FE1CB; margin:0 0 3px; font-weight:600; }
+.roomwho{ font-size:11px; color:#A4B0FF; margin:0 0 3px; font-weight:600; }
 .rbub{
   display:inline-block; max-width:88%; padding:8px 11px; border-radius:12px;
-  background:#1A3227; color:#EAF6EF; font-size:14px; line-height:1.5;
+  background:#1A3227; color:#EEF2FF; font-size:14px; line-height:1.5;
   /* A pasted link must not stretch the bubble off a phone screen. */
   overflow-wrap:anywhere;
 }
 .rmsg.mine{ text-align:right; }
-.rmsg.mine .rbub{ background:#2E6B4C; color:#EAF6EF; text-align:left; }
+.rmsg.mine .rbub{ background:#1B2689; color:#EEF2FF; text-align:left; }
 /* Yours, still in flight. Faded, not a spinner — a spinner on every
    message makes a calm room feel like it is struggling. */
 .rmsg.pending .rbub{ opacity:.55; }
@@ -331,7 +331,7 @@
    a smaller sibling reads as less tappable than it is. */
 .remo{
   flex:none; width:44px; height:44px; padding:0;
-  border:1px solid #2A4A38; background:none; border-radius:50%;
+  border:1px solid #141D67; background:none; border-radius:50%;
   font-size:17px; line-height:1; cursor:pointer;
 }
 .remo:hover{ background:#1A3227; }
@@ -339,7 +339,7 @@
 .rbar{ display:flex; gap:7px; align-items:center; }
 .rin{
   flex:1; min-width:0; padding:11px 14px; border-radius:22px;
-  border:1px solid #2A4A38; background:#1A3227; color:#EAF6EF;
+  border:1px solid #141D67; background:#1A3227; color:#EEF2FF;
   font-size:16px;   /* ⚠️ 16px or iOS zooms the whole page on focus */
   font-family:inherit;
   /* 📝 12 Sept — it is a <textarea> now so it can GROW, because an
@@ -369,7 +369,7 @@
   resize:none; max-height:calc(100vh - 190px); overflow-y:auto;
   line-height:1.45; display:block;
 }
-.rin::placeholder{ color:#7FBFA0; }
+.rin::placeholder{ color:#868FFF; }
 
 /* 🔴 YOU COULD NOT SEE WHAT YOU WERE TYPING, AND THIS IS WHY.
 
@@ -391,12 +391,12 @@
    ⚠️ (0,2,0) beats (0,1,1), so this wins without !important. The caret is
    set too — a light caret on white is its own small invisibility. */
 .rin:focus{
-  background:#1A3227; color:#EAF6EF; caret-color:#EAF6EF;
-  outline:2px solid #4FA97A; outline-offset:1px;
+  background:#1A3227; color:#EEF2FF; caret-color:#EEF2FF;
+  outline:2px solid #2B3EDE; outline-offset:1px;
 }
 .rgo{
   flex:none; padding:10px 16px; border-radius:22px; border:0;
-  background:#4FA97A; color:#08160F;
+  background:#2B3EDE; color:#08160F;
   font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-size:13px; font-weight:700;
   cursor:pointer;
   min-height:44px;  /* ⚠️ 44px tap target — the Aug 18 post-footer lesson */
@@ -451,11 +451,11 @@
    scrolling list, so that is the axis kept honest. */
 .rmsgdots{
   flex:none; min-width:32px; min-height:44px; padding:0 4px;
-  border:0; background:none; color:#7FBFA0;
+  border:0; background:none; color:#868FFF;
   font-size:17px; line-height:1; cursor:pointer; border-radius:8px;
 }
 .rmsgdots:hover{ background:#1A3227; }
-.rmsgdots:focus-visible{ outline:2px solid #4FA97A; outline-offset:1px; }
+.rmsgdots:focus-visible{ outline:2px solid #2B3EDE; outline-offset:1px; }
 
 /* =====================================================================
    ♥ THE HEART ON A MESSAGE.  3 Sept 2026.  (migration 0129)
@@ -485,7 +485,7 @@
    green-on-green would let it disappear into the chrome. */
 .rheart{
   flex:none; min-width:32px; min-height:44px; padding:0 4px;
-  border:0; background:none; color:#6FA98A;
+  border:0; background:none; color:#3146FB;
   font-size:16px; line-height:1; cursor:pointer; border-radius:8px;
   display:inline-flex; align-items:center; justify-content:center; gap:4px;
 }
@@ -495,8 +495,8 @@
    no tooltip on touch (the 2 Sept lesson from the anonymous eye). */
 .rheart.mine{ cursor:default; }
 .rheart:hover{ background:#1A3227; }
-.rheart:focus-visible{ outline:2px solid #4FA97A; outline-offset:1px; }
-.rheartn{ font-size:12px; color:#9FE1CB; }
+.rheart:focus-visible{ outline:2px solid #2B3EDE; outline-offset:1px; }
+.rheartn{ font-size:12px; color:#A4B0FF; }
 
 .rpics{ display:grid; gap:3px; width:min(264px, 100%); margin:0 0 6px; }
 .rpics.one { grid-template-columns:1fr; }
@@ -504,11 +504,11 @@
 .rpics.many{ grid-template-columns:repeat(3, 1fr); }
 
 .rpic{
-  padding:0; border:0; background:#0F241B; cursor:pointer;
+  padding:0; border:0; background:#000080; cursor:pointer;
   border-radius:9px; overflow:hidden; aspect-ratio:1; display:block;
 }
 .rpic img{ width:100%; height:100%; object-fit:cover; display:block; }
-.rpic:focus-visible{ outline:2px solid #4FA97A; outline-offset:2px; }
+.rpic:focus-visible{ outline:2px solid #2B3EDE; outline-offset:2px; }
 
 /* 🔴 A SINGLE PICTURE IS NEVER CROPPED, and that is not a nicety. Aug 18
    settled this for video — object-fit:cover hides somebody's head and you
@@ -527,7 +527,7 @@
 .rtray-one{ position:relative; width:72px; height:72px; }
 .rtray-one img{
   width:72px; height:72px; object-fit:cover; border-radius:9px; display:block;
-  border:1px solid #2A4A38;
+  border:1px solid #141D67;
 }
 /* ⚠️ 30px, not 44. A 44px × on a 72px thumbnail covers the picture it is
    asking you to identify. Nothing else in the tray is tappable, so a
@@ -536,8 +536,8 @@
    make it acceptable next to Send. */
 .rtray-x{
   position:absolute; top:-7px; right:-7px; width:30px; height:30px;
-  border-radius:50%; border:1px solid #2A4A38; background:#08160F;
-  color:#EAF6EF; font-size:16px; line-height:1; cursor:pointer; padding:0;
+  border-radius:50%; border:1px solid #141D67; background:#08160F;
+  color:#EEF2FF; font-size:16px; line-height:1; cursor:pointer; padding:0;
 }
 
 /* The 🖼️ beside the box. Matches .remo exactly — two round 44px buttons
@@ -545,8 +545,8 @@
    real than the other. */
 .rpick{
   flex:none; width:44px; height:44px; padding:0;
-  border:1px solid #2A4A38; background:none; border-radius:50%;
-  font-size:17px; line-height:1; cursor:pointer; color:#EAF6EF;
+  border:1px solid #141D67; background:none; border-radius:50%;
+  font-size:17px; line-height:1; cursor:pointer; color:#EEF2FF;
   font-family:inherit;
 }
 .rpick:hover{ background:#1A3227; }
@@ -583,8 +583,8 @@
 
 .rta{
   display:block; width:100%; box-sizing:border-box;
-  border:2px solid #4FA97A; border-radius:12px;
-  background:#1A3227; color:#EAF6EF; caret-color:#EAF6EF;
+  border:2px solid #2B3EDE; border-radius:12px;
+  background:#1A3227; color:#EEF2FF; caret-color:#EEF2FF;
   font-size:16px;   /* ⚠️ 16px or iOS zooms the whole page on focus */
   line-height:1.5; padding:9px 11px; font-family:inherit; resize:none;
 }
@@ -594,22 +594,22 @@
    wins outright. Same lesson as .rin:focus above — the bug that made the
    message box invisible exactly while somebody was typing in it. */
 .rta:focus, .redit .rta:focus{
-  background:#1A3227; color:#EAF6EF; caret-color:#EAF6EF;
-  outline:2px solid #4FA97A; outline-offset:1px;
+  background:#1A3227; color:#EEF2FF; caret-color:#EEF2FF;
+  outline:2px solid #2B3EDE; outline-offset:1px;
 }
 
 .rerow{ display:flex; align-items:center; gap:8px; margin-top:7px; }
 
 /* ⚠️ Takes the space on the left so Cancel and Save stay together on the
    right, where the Send button already trained the thumb to look. */
-.rcnt{ margin-right:auto; font-size:11px; color:#7FBFA0; line-height:1.4; }
+.rcnt{ margin-right:auto; font-size:11px; color:#868FFF; line-height:1.4; }
 
 .lnk{
-  background:none; border:0; color:#7FBFA0; cursor:pointer;
+  background:none; border:0; color:#868FFF; cursor:pointer;
   font-family:inherit; font-size:12px; padding:8px 6px;
   min-height:44px;   /* the Aug 18 tap-target lesson */
 }
-.lnk:hover{ color:#EAF6EF; }
+.lnk:hover{ color:#EEF2FF; }
 
 /* 🔴 THE MARKER. #C7E5D6 measures 4.70:1 on your own green bubble
    (#2E6B4C) and 10.20:1 on somebody else's (#1A3227) — quiet, but never
@@ -621,7 +621,7 @@
    Both numbers pass, so nothing was broken — but a guessed figure in a
    comment is how a later change "safely" darkens this to 4.2 and nobody
    notices. Measured, both surfaces, or don't write a number at all. */
-.redited{ color:#C7E5D6; font-size:11px; white-space:nowrap; }
+.redited{ color:#B4C1FF; font-size:11px; white-space:nowrap; }
 
 /* =====================================================================
    🌱 THE INVITATION — shown only to somebody who has never spoken here.
@@ -648,8 +648,8 @@
    ===================================================================== */
 .rnudge{
   margin:0 0 9px; padding:8px 11px;
-  border:1px dashed #57987A; border-radius:9px;
-  background:#1A3227; color:#9FE1CB;
+  border:1px dashed #2A3CD9; border-radius:9px;
+  background:#1A3227; color:#A4B0FF;
   font-size:12.5px; line-height:1.55;
 }
 
@@ -677,8 +677,8 @@
    Floor is 4.5. */
 .rshade{
   margin:0 0 9px; padding:8px 11px;
-  border:1px solid #6FB294; border-radius:9px;
-  background:#1A3227; color:#C7EFDD;
+  border:1px solid #3349FF; border-radius:9px;
+  background:#1A3227; color:#B9C6FF;
   font-size:12.5px; line-height:1.55;
 }
 
@@ -741,9 +741,9 @@
    assume their handle is showing, because everywhere else in this app it
    is. `.hush` gives it a touch more presence for that reason. */
 .roomblurb{
-  margin:0 0 10px; font-size:11.5px; line-height:1.55; color:#9FE1CB;
+  margin:0 0 10px; font-size:11.5px; line-height:1.55; color:#A4B0FF;
 }
-.roomblurb.hush{ color:#B7E7D3; }
+.roomblurb.hush{ color:#AFBCFF; }
 
 /* =====================================================================
    THE ROOM TABS.
@@ -755,15 +755,15 @@
 .rtabs{ display:flex; gap:6px; margin:0 0 10px; }
 .rtab{
   flex:1; min-height:40px; padding:8px 6px;
-  border:1px solid #2A4A38; border-radius:10px;
-  background:#152B21; color:#9FE1CB;
+  border:1px solid #141D67; border-radius:10px;
+  background:#152B21; color:#A4B0FF;
   font-family:inherit; font-size:12px; line-height:1.3; cursor:pointer;
   white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
 }
 .rtab.on{
-  background:#2E6B4C; color:#EAF6EF; border-color:#4FA97A;
+  background:#1B2689; color:#EEF2FF; border-color:#2B3EDE;
 }
-.rtab:focus-visible{ outline:2px solid #4FA97A; outline-offset:1px; }
+.rtab:focus-visible{ outline:2px solid #2B3EDE; outline-offset:1px; }
 
 /* 🔴 THE LINE THAT LEADS TO THE PHONE NUMBERS.
    Ten things this month were fully built with no way to reach them. A
@@ -784,10 +784,10 @@
 .roomhelp{ margin:0 0 10px; }
 .roomhelp a{
   display:inline-block; min-height:34px; line-height:34px;
-  font-size:12px; color:#9FE1CB; text-decoration:none;
-  border-bottom:1px solid #57987A;
+  font-size:12px; color:#A4B0FF; text-decoration:none;
+  border-bottom:1px solid #2A3CD9;
 }
-.roomhelp a:hover{ color:#EAF6EF; border-bottom-color:#9FE1CB; }
+.roomhelp a:hover{ color:#EEF2FF; border-bottom-color:#A4B0FF; }
 
 /* 🎬 A video in a room message (5 Sept). Sized like the picture grid so a
    clip and a photo sit at the same weight in the conversation.
@@ -855,23 +855,23 @@
 
 .rxp{
   display:inline-flex; align-items:center; gap:4px;
-  background:#24503A; border:1px solid transparent; border-radius:99px;
+  background:#141D68; border:1px solid transparent; border-radius:99px;
   padding:3px 9px 3px 7px; font-size:13px; line-height:1.3;
-  color:#EAF6EF; cursor:pointer;
+  color:#EEF2FF; cursor:pointer;
   font-family:'Plus Jakarta Sans', system-ui, sans-serif;
 }
-.rxp:hover{ background:#2A5C43; }
-.rxn{ font-size:11.5px; font-weight:700; color:#B9EBD4; }
+.rxp:hover{ background:#172279; }
+.rxn{ font-size:11.5px; font-weight:700; color:#B1BEFF; }
 
 /* yours — lighter fill AND a ring, because colour alone is not a signal
    somebody with low colour vision can read. */
-.rxp.on{ background:#37785A; border-color:#4FA97A; }
-.rxp.on .rxn{ color:#EAF6EF; }
+.rxp.on{ background:#1F2C9F; border-color:#2B3EDE; }
+.rxp.on .rxn{ color:#EEF2FF; }
 
 /* your own message: the counts, no buttons. Cursor stays default — there
    is nothing to press, and a pointer that does nothing is a small lie. */
-.rxp.on-mine{ cursor:default; background:#24503A; }
-.rxp.on-mine:hover{ background:#24503A; }
+.rxp.on-mine{ cursor:default; background:#141D68; }
+.rxp.on-mine:hover{ background:#141D68; }
 
 /* ⚠️ 32px and not 44px, and that is deliberate: this sits inside a dense
    conversation, and a 44px circle under every message pushes the talk off
@@ -879,10 +879,10 @@
    where the accuracy actually matters. */
 .rxadd{
   width:32px; height:32px; padding:0; flex:none;
-  border:1px solid #2A4A38; background:none; border-radius:50%;
-  color:#7FBFA0; font-size:14px; line-height:1; cursor:pointer;
+  border:1px solid #141D67; background:none; border-radius:50%;
+  color:#868FFF; font-size:14px; line-height:1; cursor:pointer;
 }
-.rxadd:hover, .rxadd.open{ background:#1C382A; color:#EAF6EF; }
+.rxadd:hover, .rxadd.open{ background:#0D24AA; color:#EEF2FF; }
 
 /* the picker bar. Sits ABOVE the row and never covers the message it
    belongs to — same rule the emoji panel follows for the composer. */
@@ -902,7 +902,7 @@
   position:absolute; bottom:calc(100% + 6px); left:0; right:auto; z-index:20;
   max-width:100%;
   display:flex; gap:2px; padding:5px 7px;
-  background:#173024; border:1px solid #2C5B43; border-radius:99px;
+  background:#173024; border:1px solid #182279; border-radius:99px;
   box-shadow:0 8px 20px rgba(0,0,0,.36);
 }
 .rmsg.mine .rxbar{ left:auto; right:0; }
@@ -911,10 +911,10 @@
   padding:0; border:0; background:none;
   border-radius:99px; font-size:21px; line-height:1; cursor:pointer;
 }
-.rxpick:hover{ background:#24503A; }
-.rxpick.on{ background:#37785A; }
+.rxpick:hover{ background:#141D68; }
+.rxpick.on{ background:#1F2C9F; }
 .rxpick:focus-visible, .rxp:focus-visible, .rxadd:focus-visible{
-  outline:2px solid #4FA97A; outline-offset:1px;
+  outline:2px solid #2B3EDE; outline-offset:1px;
 }
 
 /* =====================================================================
@@ -955,7 +955,7 @@
 .rfaceemo{ background:#1A3227; font-size:16px; }
 /* ⚠️ Dark ink on a light circle, not the reverse — 11.53. And the letter
    comes off display_name, which in an anonymous room IS the alias. */
-.rfaceltr{ background:#9FE1CB; color:#0C1F16; font-size:13px; font-weight:700;
+.rfaceltr{ background:#A4B0FF; color:#000080; font-size:13px; font-weight:700;
            font-family:'Plus Jakarta Sans', system-ui, sans-serif; }
 
 /* ⚠️ A grouped message keeps the 30px column so its bubble stays in line
@@ -966,15 +966,15 @@
 .roomwho.mine{ justify-content:flex-end; }
 .rtime{
   font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-size:10.5px; letter-spacing:.06em;
-  color:#7FBFA0; font-weight:400; flex:none;
+  color:#868FFF; font-weight:400; flex:none;
 }
 
 /* the divider. ⚠️ It is drawn only when a message crosses the boundary,
    so there is never more than one, and it never appears at the very top
    of a room you have not opened before. */
 .rnew{ display:flex; align-items:center; gap:10px; margin:6px 0 12px; }
-.rnew::before, .rnew::after{ content:''; flex:1; border-top:1px solid #2F5A44; }
+.rnew::before, .rnew::after{ content:''; flex:1; border-top:1px solid #18227B; }
 .rnew span{
   font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-size:10.5px; font-weight:700;
-  letter-spacing:.07em; text-transform:uppercase; color:#8FD1B0; white-space:nowrap;
+  letter-spacing:.07em; text-transform:uppercase; color:#949EFF; white-space:nowrap;
 }

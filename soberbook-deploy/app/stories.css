@@ -126,7 +126,7 @@
 }
 .sty-head .sty-face{ width:34px; height:34px; border:0; font-size:15px; }
 .sty-who{ font-size:14px; font-weight:700; }
-.sty-when{ font-size:12px; color:#CFE9DC; }
+.sty-when{ font-size:12px; color:#B9C6FF; }
 .sty-x{
   margin-left:auto; width:44px; height:44px; flex-shrink:0;
   background:transparent; border:0; color:#fff; cursor:pointer;
@@ -159,7 +159,7 @@
    which flipped in the dark and measured 1.04:1. These are literals and
    do not move with the theme, because the viewer does not either.
    MEASURED: moss 11.68 · clay 11.69 · night 14.87 · dawn 11.07 */
-.sty-card[data-tint="moss"] { background:#12331F; color:#D9F2E2; }
+.sty-card[data-tint="moss"] { background:#0C113C; color:#D9F2E2; }
 .sty-card[data-tint="clay"] { background:#3A2015; color:#F4DFD2; }
 .sty-card[data-tint="night"]{ background:#0B1220; color:#DCE6F5; }
 .sty-card[data-tint="dawn"] { background:#3A2F0E; color:#F6EBC8; }
@@ -175,7 +175,7 @@
 
 .sty-foot{
   display:flex; align-items:center; gap:10px;
-  padding:8px 14px 12px; color:#CFE9DC; font-size:12.5px; min-height:44px;
+  padding:8px 14px 12px; color:#B9C6FF; font-size:12.5px; min-height:44px;
 }
 /* "9 people saw this" — only ever on your own, and only ever a number. */
 .sty-count{ font-variant-numeric:tabular-nums; }

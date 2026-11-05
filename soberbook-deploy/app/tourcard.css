@@ -16,11 +16,11 @@
   margin: 0 0 14px;
   padding: 15px 17px;
   background: #fff;
-  border: 2px solid var(--gt, #2b5c3f);
+  border: 2px solid var(--gt, #172177);
   border-radius: 14px;
 }
-.tcH { margin: 0; font-size: 16px; font-weight: 600; color: var(--gd, #1d3b2a); }
-.tcP { margin: 6px 0 0; font-size: 14px; line-height: 1.55; color: var(--soft, #5f7a6a); }
+.tcH { margin: 0; font-size: 16px; font-weight: 600; color: var(--gd, #0d24aa); }
+.tcP { margin: 6px 0 0; font-size: 14px; line-height: 1.55; color: var(--soft, #2636c2); }
 
 /* ⚠️ Both buttons the SAME width and the same height. The 0098 rule:
    when one option is a bigger target than the other, the layout has
@@ -38,5 +38,5 @@
   text-decoration: none;
   cursor: pointer;
 }
-.tcGo { background: var(--gt, #2b5c3f); color: #fff; border: 2px solid var(--gt, #2b5c3f); }
-.tcNo { background: #fff; color: var(--soft, #5f7a6a); border: 2px solid #cfdcd4; }
+.tcGo { background: var(--gt, #172177); color: #fff; border: 2px solid var(--gt, #172177); }
+.tcNo { background: #fff; color: var(--soft, #2636c2); border: 2px solid #cfdcd4; }

@@ -63,21 +63,21 @@ export default async function AdminSurveyPage() {
   const Section = ({ title, data }) => (
     <section style={{ marginBottom: 30 }}>
       <h2 style={{ fontSize: 14, textTransform: 'uppercase', letterSpacing: '.06em',
-                   color: '#63716A', margin: '0 0 12px', fontWeight: 650 }}>{title}</h2>
+                   color: '#5E6788', margin: '0 0 12px', fontWeight: 650 }}>{title}</h2>
       {data.length === 0
-        ? <p style={{ fontSize: 14, color: '#63716A', margin: 0 }}>Nothing yet.</p>
+        ? <p style={{ fontSize: 14, color: '#5E6788', margin: 0 }}>Nothing yet.</p>
         : data.map(r => (
           <div key={r.answer} style={{ marginBottom: 10 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between',
-                          fontSize: 14.5, marginBottom: 4, color: '#1C2320' }}>
+                          fontSize: 14.5, marginBottom: 4, color: '#121630' }}>
               <span>{LABEL[r.answer] || r.answer}</span>
-              <span style={{ fontVariantNumeric: 'tabular-nums', color: '#63716A' }}>
+              <span style={{ fontVariantNumeric: 'tabular-nums', color: '#5E6788' }}>
                 {r.n} · {bar(r.n)}%
               </span>
             </div>
-            <div style={{ height: 8, background: '#E8F4ED', borderRadius: 99 }}>
+            <div style={{ height: 8, background: '#EEF2FF', borderRadius: 99 }}>
               <div style={{ height: '100%', width: `${bar(r.n)}%`,
-                            background: '#1B6B4A', borderRadius: 99 }} />
+                            background: '#1329B0', borderRadius: 99 }} />
             </div>
           </div>
         ))}
@@ -86,12 +86,12 @@ export default async function AdminSurveyPage() {
 
   return (
     <main style={{ maxWidth: 620, margin: '0 auto', padding: '24px 16px 60px',
-                   fontFamily: 'system-ui, -apple-system, sans-serif', color: '#1C2320' }}>
+                   fontFamily: 'system-ui, -apple-system, sans-serif', color: '#121630' }}>
       <h1 style={{ fontSize: 22, margin: '0 0 4px' }}>Survey</h1>
-      <p style={{ fontSize: 14, color: '#63716A', margin: '0 0 6px' }}>
+      <p style={{ fontSize: 14, color: '#5E6788', margin: '0 0 6px' }}>
         {total} {total === 1 ? 'response' : 'responses'}.
       </p>
-      <p style={{ fontSize: 12.5, color: '#63716A', margin: '0 0 28px', lineHeight: 1.5 }}>
+      <p style={{ fontSize: 12.5, color: '#5E6788', margin: '0 0 28px', lineHeight: 1.5 }}>
         Answers aren&rsquo;t linked to members — there is no name to show, by design.
         Free text is in a shuffled order for the same reason.
       </p>
@@ -102,16 +102,16 @@ export default async function AdminSurveyPage() {
 
       <section>
         <h2 style={{ fontSize: 14, textTransform: 'uppercase', letterSpacing: '.06em',
-                     color: '#63716A', margin: '0 0 12px', fontWeight: 650 }}>
+                     color: '#5E6788', margin: '0 0 12px', fontWeight: 650 }}>
           In their own words
         </h2>
         {(!text || text.length === 0)
-          ? <p style={{ fontSize: 14, color: '#63716A' }}>Nothing yet.</p>
+          ? <p style={{ fontSize: 14, color: '#5E6788' }}>Nothing yet.</p>
           : text.map((t, i) => (
-            <div key={i} style={{ border: '1px solid #DCE7E1', borderRadius: 10,
+            <div key={i} style={{ border: '1px solid #DDE3F5', borderRadius: 10,
                                   padding: '13px 15px', marginBottom: 10, background: '#fff' }}>
               <div style={{ fontSize: 11.5, textTransform: 'uppercase', letterSpacing: '.05em',
-                            color: '#63716A', marginBottom: 6 }}>
+                            color: '#5E6788', marginBottom: 6 }}>
                 {KINDS[t.kind] || t.kind} · {t.answered_on}
               </div>
               <div style={{ fontSize: 15, lineHeight: 1.55, whiteSpace: 'pre-wrap' }}>{t.body}</div>
