@@ -318,3 +318,14 @@
   .lx *,.lx *::before,.lx *::after{ animation:none !important; transition:none !important; }
   .lx-scrib path{ stroke-dashoffset:0; }
 }
+
+/* 5 Nov 2026 — Show/Hide inside the password box, and the "welcome back"
+   line for a phone that has signed in before. */
+.lx .lx-pw{ position:relative; }
+.lx .lx-pw input.lx-inp{ padding-right:84px; }
+.lx .lx-eye{ position:absolute; right:7px; top:50%; transform:translateY(-50%); min-height:40px; min-width:64px;
+  border:0; border-radius:10px; padding:0 12px; background:#EEF2FF; color:#1329B0; font-family:var(--lx-body);
+  font-size:14px; font-weight:800; cursor:pointer; }
+.lx .lx-eye:focus-visible{ outline:3px solid #1329B0; outline-offset:2px; }
+.lx .lx-back{ margin:0 0 12px; padding:10px 12px; border-radius:12px; background:#EEF2FF; color:#000080;
+  font-size:13.5px; font-weight:600; line-height:1.45; }

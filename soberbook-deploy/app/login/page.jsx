@@ -114,6 +114,19 @@ export default function Landing() {
      who might leave wins. */
   const [mode, setMode]       = useState('new');
 
+  /* ⭐ 5 Nov 2026 — Kenny found it hard to get his password in. A member
+     who has signed in on this phone before lands on Sign in, not "I'm
+     new" (where the password box says "At least 8 characters" and makes
+     an account instead). The flag is set here on any sign-in or sign-up,
+     and by the wall for anybody already signed in. ⚠️ It never guesses
+     for a stranger: no flag, the default above still wins. */
+  const [back, setBack]       = useState(false);
+  useEffect(() => {
+    try { if (window.localStorage.getItem('sb_seen') === '1') { setMode('in'); setBack(true); } } catch (e) { /* storage blocked */ }
+  }, []);
+  const [showIn, setShowIn]   = useState(false);   // password visible?
+  const [showUp, setShowUp]   = useState(false);
+
   /* ⚠️ OPTIONAL, AND IT HAS TO STAY OPTIONAL. Ty asked for the date here
      as well as on /me, over my objection that it puts a fourth field back
      on a screen we had just got down to three. His call, and he is right
@@ -328,6 +341,7 @@ export default function Landing() {
         email: inEmail, password: inPw,
       });
       if (error) throw error;
+      try { window.localStorage.setItem('sb_seen', '1'); } catch (e3) { /* fine */ }
       router.push(withRoom('/')); router.refresh();
     } catch (e2) { setErr(humanise(e2)); }
     finally { setBusy(''); }
@@ -351,6 +365,7 @@ export default function Landing() {
         program ? { email: upEmail, password: upPw, options: { data: { program } } }
                 : { email: upEmail, password: upPw });
       if (error) throw error;
+      try { window.localStorage.setItem('sb_seen', '1'); } catch (e3) { /* fine */ }
 
       /* 🔴 ASK THE RESPONSE WHAT HAPPENED. DO NOT ASSUME THE DASHBOARD SETTING.
          ---------------------------------------------------------------------
@@ -490,6 +505,11 @@ export default function Landing() {
     return () => { cancelAnimationFrame(raf); window.removeEventListener('resize', size); };
   }, []);
 
+  /* 5 Nov 2026: the bar now also shows while the form is still BELOW the
+     screen. On an iPhone the card starts ~900px down, so a returning member
+     opened the page and saw no way in at all until they scrolled. It still
+     hides whenever any part of the form is on screen, so it never sits on
+     top of the boxes you are typing in. */
   /* ⭐ THE BAR THAT FOLLOWS YOU. Once the form has scrolled off the top, a
      slim bar with "Make my account" and "Sign in" sits at the bottom of the
      screen, so nobody reading the features has to scroll back to find a
@@ -499,7 +519,7 @@ export default function Landing() {
   useEffect(() => {
     const el = door.current;
     if (!el || !('IntersectionObserver' in window)) return;
-    const io = new IntersectionObserver(([e]) => setDock(!e.isIntersecting && e.boundingClientRect.top < 0));
+    const io = new IntersectionObserver(([e]) => setDock(!e.isIntersecting));
     io.observe(el);
     return () => io.disconnect();
   }, []);
@@ -651,10 +671,14 @@ export default function Landing() {
                        placeholder="you@email.com" />
 
                 <label className="lx-lab" htmlFor="up-pw">Password</label>
-                <input id="up-pw" className="lx-inp" type="password" required minLength={8}
-                       autoComplete="new-password"
-                       value={upPw} onChange={(e) => setUpPw(e.target.value)}
-                       placeholder="At least 8 characters" />
+                <div className="lx-pw">
+                  <input id="up-pw" className="lx-inp" type={showUp ? 'text' : 'password'} required minLength={8}
+                         autoComplete="new-password" autoCapitalize="none" autoCorrect="off" spellCheck={false}
+                         value={upPw} onChange={(e) => setUpPw(e.target.value)}
+                         placeholder="At least 8 characters" />
+                  <button type="button" className="lx-eye" aria-controls="up-pw" aria-pressed={showUp}
+                          onClick={() => setShowUp(!showUp)}>{showUp ? 'Hide' : 'Show'}</button>
+                </div>
 
                 {/* ⭐ THE THIRD FIELD, AND IT IS NEVER BLANK. ⚠️ Nothing a
                     generated handle says may out somebody — see first-run.js. */}
@@ -722,6 +746,9 @@ export default function Landing() {
             <div className="lx-pane"
                  id="pane-in" role="tabpanel" aria-labelledby="tab-in"
                  hidden={mode !== 'in' || !!sent}>
+              {back && !reset && (
+                <p className="lx-back">👋 This phone has signed in before, so we opened Sign in for you.</p>
+              )}
               <h2>{reset ? 'Let’s get you back in' : 'Welcome back.'}</h2>
               <p className="lx-said">
                 {reset
@@ -738,9 +765,14 @@ export default function Landing() {
                 {!reset && (
                   <>
                     <label className="lx-lab" htmlFor="in-pw">Password</label>
-                    <input id="in-pw" className="lx-inp" type="password" required autoComplete="current-password"
-                           value={inPw} onChange={(e) => setInPw(e.target.value)}
-                           placeholder="Your password" />
+                    <div className="lx-pw">
+                      <input id="in-pw" className="lx-inp" type={showIn ? 'text' : 'password'} required autoComplete="current-password"
+                             autoCapitalize="none" autoCorrect="off" spellCheck={false}
+                             value={inPw} onChange={(e) => setInPw(e.target.value)}
+                             placeholder="Your password" />
+                      <button type="button" className="lx-eye" aria-controls="in-pw" aria-pressed={showIn}
+                              onClick={() => setShowIn(!showIn)}>{showIn ? 'Hide' : 'Show'}</button>
+                    </div>
                   </>
                 )}
 

@@ -211,6 +211,10 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
 
      ⚠️ Nothing is posted. The composer is seeded and the member still
      has to write and send it themselves. */
+  /* 5 Nov 2026 — remember that this phone belongs to a member, so the
+     sign-in page opens on "Sign in" next time (see app/login/page.jsx). */
+  useEffect(() => { try { window.localStorage.setItem('sb_seen', '1'); } catch (e) { /* storage blocked */ } }, []);
+
   useEffect(() => {
     let seed = null;
     try {
