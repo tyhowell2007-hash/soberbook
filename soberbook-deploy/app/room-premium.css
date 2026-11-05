@@ -37,7 +37,7 @@
 .roomscreen .rtab{
   min-height:44px; padding:8px 12px; border-radius:14px;
   background:#00006E; border:1px solid #101E78;
-  color:#BFD2C7; font-family:'Plus Jakarta Sans',system-ui,sans-serif;
+  color:#BFC2D2; font-family:'Plus Jakarta Sans',system-ui,sans-serif;
   font-size:13px; font-weight:700;
 }
 .roomscreen .rtab.on{
@@ -58,7 +58,7 @@
   font-size:18px; font-weight:800; letter-spacing:-.02em; color:#fff;
 }
 .roomscreen .roomcount{
-  font-size:11.5px; font-weight:700; color:#BFD2C7;
+  font-size:11.5px; font-weight:700; color:#BFC2D2;
   background:rgba(255,255,255,.06); border-radius:999px; padding:4px 10px;
 }
 
@@ -92,7 +92,7 @@
 .roomscreen .rbub{
   padding:10px 14px; border-radius:20px; font-size:15px; line-height:1.45;
   background:linear-gradient(180deg, rgba(255,255,255,.09), rgba(255,255,255,.055));
-  border:1px solid rgba(255,255,255,.07); color:#EEF5F1;
+  border:1px solid rgba(255,255,255,.07); color:#F6F7FC;
 }
 .roomscreen .rmsg.grouped .rbub{ border-top-left-radius:8px; }
 .roomscreen .rmsg.mine .rbub{
@@ -111,7 +111,7 @@
 .roomscreen .rface, .roomscreen .rfaceimg, .roomscreen .rfaceemo, .roomscreen .rfaceltr{ width:34px; height:34px; }
 .roomscreen .rmsg{ grid-template-columns:34px 1fr; }
 .roomscreen .rmsg.mine{ grid-template-columns:1fr; }
-.roomscreen .rfaceltr{ background:#ADBAFF; color:#0B1511; font-weight:800; font-size:14px; }
+.roomscreen .rfaceltr{ background:#ADBAFF; color:#0A0C16; font-weight:800; font-size:14px; }
 .roomscreen .rfaceemo{ background:rgba(255,255,255,.08); font-size:18px; }
 
 /* reactions: small chips tucked under the bubble */
@@ -123,14 +123,14 @@
 .roomscreen .rxp.on{ background:#172074; border-color:#2636C1; }
 .roomscreen .rxn{ font-size:11.5px; font-weight:800; }
 .roomscreen .rxadd{ border-radius:999px; }
-.roomscreen .rxbar{ border-radius:999px; background:#1B2D24; border:1px solid rgba(255,255,255,.08); box-shadow:0 10px 26px rgba(0,0,0,.45); }
+.roomscreen .rxbar{ border-radius:999px; background:#171B31; border:1px solid rgba(255,255,255,.08); box-shadow:0 10px 26px rgba(0,0,0,.45); }
 
 /* "New since you were here" — a gold hairline */
 .roomscreen .rnew::before, .roomscreen .rnew::after{ border-top-color:rgba(240,195,90,.35); }
 .roomscreen .rnew span{ font-family:'Plus Jakarta Sans',system-ui,sans-serif; color:#F0C35A; letter-spacing:.08em; }
 
 /* empty state, nudge, photo caution */
-.roomscreen .roomempty{ color:#9FB7AA; font-size:13.5px; }
+.roomscreen .roomempty{ color:#9FA2B7; font-size:13.5px; }
 .roomscreen .rnudge, .roomscreen .rshade{ border-radius:14px; }
 
 /* ---------- the message box ---------- */

@@ -52,7 +52,7 @@
   width: 100%;
   margin: 16px 0 0;
   border-radius: 12px;
-  background: #0d1a12;
+  background: #0D0E1A;
   aspect-ratio: 16 / 9;
 }
 
@@ -86,7 +86,7 @@
   padding: 7px 2px;
   font-size: 15px;
   line-height: 1.45;
-  color: #4A6357;
+  color: #4A4D63;
 }
 .tcov::before {
   content: '·';
@@ -114,7 +114,7 @@
   cursor: pointer;
 }
 .tchap:hover { background: #eef2ff; }
-.tchap.tsel { background: var(--gl, #e4f0e8); }
+.tchap.tsel { background: var(--gl, #EAECF9); }
 .tchap.tsel .tcl { font-weight: 600; }
 
 .tct {

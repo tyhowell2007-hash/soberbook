@@ -24,10 +24,10 @@
    ===================================================================== */
 
 .mecream{
-  --cr-page:#FFF8EC; --cr-ink:#2A1B0C; --cr-soft:#5F4B36; --cr-line:#111;
+  --cr-page:#F7F8FD; --cr-ink:#0E1240; --cr-soft:#4A5378; --cr-line:#0E1240;
   background:var(--cr-page); color:var(--cr-ink); min-height:100vh;
 }
-.mecream .bar{ background:#FFF3DC; color:var(--cr-ink); }
+.mecream .bar{ background:#EEF2FF; color:var(--cr-ink); }
 
 /* ---- the count (read view) — the one loud thing, acid on cream ---- */
 .mecream .count{
@@ -43,7 +43,7 @@
 /* ---- every card on the page ---- */
 .mecream .deets, .mecream .pcard, .mecream .item, .mecream .empty,
 .mecream .facepick, .mecream .facegrid{
-  background:#FFF3DC; border:2px solid var(--cr-line); border-radius:14px;
+  background:#EEF2FF; border:2px solid var(--cr-line); border-radius:14px;
   box-shadow:4px 4px 0 var(--cr-line);
 }
 .mecream .deets h3, .mecream .pcard h3{ color:var(--cr-ink); }
@@ -51,7 +51,7 @@
 /* ---- the sections (editor) ---- */
 .mecream .msec{
   border:2px solid var(--cr-line); border-radius:14px; margin:0 0 16px;
-  box-shadow:4px 4px 0 var(--cr-line); background:#FFF3DC; overflow:hidden;
+  box-shadow:4px 4px 0 var(--cr-line); background:#EEF2FF; overflow:hidden;
 }
 .mecream .msec[data-tint="acid"]  { background:#00FF00; }
 .mecream .msec[data-tint="sand"]  { background:#FFE9B8; }
@@ -61,8 +61,8 @@
 .mecream .msec[data-tint="mint"]  { background:#BECBFF; }
 .mecream .msec[data-tint="butter"]{ background:#FFE39A; }
 .mecream .msec[data-tint="peach"] { background:#FFD9C2; }
-.mecream .msec[data-tint="stone"] { background:#ECE6DA; }
-.mecream .msec[data-tint="cream"] { background:#FFF3DC; }
+.mecream .msec[data-tint="stone"] { background:#DFE2F6; }
+.mecream .msec[data-tint="cream"] { background:#EEF2FF; }
 .mecream .msum{
   color:var(--cr-ink); font-family:'Plus Jakarta Sans', system-ui, sans-serif;
   font-weight:700; font-size:17px; padding:14px 14px;
@@ -113,7 +113,7 @@
 .mecream .sbpill{
   background:#fff; color:var(--cr-ink); border:1.5px solid var(--cr-line); border-radius:999px;
 }
-.mecream .sbpill:hover{ background:#FFF3DC; }
+.mecream .sbpill:hover{ background:#EEF2FF; }
 .mecream .sbpill.sel{ background:var(--cr-line); color:#fff; border-color:var(--cr-line); }
 .mecream .pgL{ color:var(--cr-soft); }
 
@@ -166,7 +166,7 @@
   content:''; position:absolute; left:0; right:0; top:50%;
   height:44px; transform:translateY(-50%);
 }
-.mecream .eye.off{ background:#EFE9DC; color:var(--cr-soft); }
+.mecream .eye.off{ background:#E3E6F7; color:var(--cr-soft); }
 .mecream .eye:hover{ background:var(--cr-line); color:#fff; }
 .mecream .eye:disabled{ opacity:.45; }
 
@@ -184,10 +184,10 @@
    ⚠️ No :hover change and cursor:default — nothing happens on press,
    so nothing should suggest it will. */
 .mecream .eye.anon{
-  background:#EFE9DC; color:var(--cr-soft); border-color:#6B5B47;
+  background:#E3E6F7; color:var(--cr-soft); border-color:#5E6788;
   cursor:default;
 }
-.mecream .eye.anon:hover{ background:#EFE9DC; color:var(--cr-soft); }
+.mecream .eye.anon:hover{ background:#E3E6F7; color:var(--cr-soft); }
 .mecream .eyeL{ font-size:11px; }
 
 /* an eye inside a label (What you're into) sits on the same line */
@@ -197,7 +197,7 @@
 .mecream .pgrp-hid{ opacity:.72; }
 .mecream .pgrp-hid .pgL{ color:var(--cr-soft); }
 .mecream .pgrp-hid .sbpill.sel{
-  background:#6B6257; border-color:#6B6257;   /* white on this = 5.98, measured */
+  background:#5B6178; border-color:#5B6178;   /* white on this = 5.98, measured */
 }
 .mecream .pgL{ display:flex; align-items:center; gap:6px; }
 
@@ -249,7 +249,7 @@
 
 /* ⚠️ 44px minimum. Picking the wrong song is the failure mode that
    matters here, and this is a phone. */
-.mecream .hits li + li .hit{ border-top:1px solid #E4DBC8; }
+.mecream .hits li + li .hit{ border-top:1px solid #CBD0F0; }
 .mecream .hit{
   display:flex; align-items:center; gap:10px;
   width:100%; min-height:44px; padding:8px 10px;
@@ -258,7 +258,7 @@
 }
 .mecream .hit img{
   width:40px; height:40px; flex:none;
-  border-radius:6px; display:block; background:#EFE9DC;
+  border-radius:6px; display:block; background:#E3E6F7;
 }
 /* ⚠️ min-width:0 or a long title refuses to shrink and pushes the row
    wider than the panel — the flexbox default nobody remembers. */
@@ -285,7 +285,7 @@
 }
 .mecream .picked img{
   width:48px; height:48px; flex:none;
-  border-radius:6px; display:block; background:#EFE9DC;
+  border-radius:6px; display:block; background:#E3E6F7;
 }
 .mecream .pickedmeta{ display:flex; flex-direction:column; min-width:0; }
 /* ⚠️ A real colour on a real fill, never opacity on text — opacity
@@ -353,7 +353,7 @@
    about a person, and this whole list exists to make you think of one. */
 .mecream .ppnote{
   margin:0; padding:10px 15px; background:#FEFCF5;
-  border-bottom:1px solid #E7E0D0; font-size:12px; color:#7A6A38; line-height:1.5;
+  border-bottom:1px solid #D4D8F2; font-size:12px; color:#38417A; line-height:1.5;
 }
 
 .mecream .ppgrid{
@@ -374,7 +374,7 @@
 .mecream .pp-lilac{ background:#EDE7F8; color:#3B2A63; }
 .mecream .pp-rose { background:#FBE7E7; color:#6B2626; }
 .mecream .pp-blue { background:#E4EFF8; color:#123A5B; }
-.mecream .pp-sand { background:#F3EDE2; color:#4A4234; }
+.mecream .pp-sand { background:#EBEDF9; color:#292F55; }
 /* 🔴 The one tile that carries meaning. Heavier and darker on purpose —
    see the note about colour-blind readers above. */
 .mecream .pp-quiet{ background:#FBF0D2; color:#4A3708; border:2.5px solid #8A6410; }
@@ -384,9 +384,9 @@
   overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
 }
 .mecream .ppwhen{ display:block; margin-top:1px; font-size:11px; color:#5E6788; line-height:1.3; }
-.mecream .ppwhen.on{ color:#7A6A38; }
+.mecream .ppwhen.on{ color:#38417A; }
 
-.mecream .ppmore{ border-top:1px solid #E7E0D0; padding:11px 15px; text-align:center; }
+.mecream .ppmore{ border-top:1px solid #D4D8F2; padding:11px 15px; text-align:center; }
 .mecream .ppall{
   background:none; border:0; padding:6px 10px; margin:0; font:inherit;
   font-size:12.5px; color:#1329B0; cursor:pointer; min-height:44px;

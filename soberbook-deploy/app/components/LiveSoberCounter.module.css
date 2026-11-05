@@ -45,7 +45,7 @@
   background: rgba(0,0,0,.16); border: 1px solid rgba(255,255,255,.14); border-radius: 14px;
   padding: 10px 4px 8px; text-align: center; box-shadow: inset 0 1px 0 rgba(255,255,255,.12);
 }
-.days { background: rgba(255,255,255,.96); color: #121915; border-color: transparent; box-shadow: 0 6px 16px rgba(0,0,0,.18); }
+.days { background: rgba(255,255,255,.96); color: #0E101D; border-color: transparent; box-shadow: 0 6px 16px rgba(0,0,0,.18); }
 .num {
   font-weight: 900; font-size: 30px; line-height: 1; letter-spacing: -.02em;
   font-variant-numeric: tabular-nums; font-feature-settings: "tnum" 1;

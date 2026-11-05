@@ -657,13 +657,13 @@
      whole card, so it clears it many times over — but the BUTTON is the
      card, not a small triangle floating on top of it, which is what makes
      a thumb anywhere on the picture work. */
-  border:0; background:#12110F; color:#F2EDE3;
+  border:0; background:#0B0C16; color:#EBEDF9;
   cursor:pointer; padding:24px 16px;
   font:inherit;
 }
 .svplay:disabled{ cursor:default; }
 .svtri{ font-size:34px; line-height:1; }
-.svlabel{ font-size:14px; color:#B9B3A6; letter-spacing:.02em; }
+.svlabel{ font-size:14px; color:#A6A9B9; letter-spacing:.02em; }
 
 /* ⚠️ An absolutely-positioned fill, because .pphoto sets the aspect box
    and an iframe with no height collapses to 150px in every browser —
@@ -679,7 +679,7 @@
 .cvidcloud{
   display:flex; flex-direction:column; align-items:center; justify-content:center;
   gap:6px; min-height:120px; padding:18px;
-  background:#12110F; color:#F2EDE3; font-size:14px; text-align:center;
+  background:#0B0C16; color:#EBEDF9; font-size:14px; text-align:center;
 }
 .cvidtick{ font-size:26px; line-height:1; }
 

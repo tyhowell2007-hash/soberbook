@@ -6,8 +6,8 @@
    ===================================================================== */
 
 .talkx{
-  --tk-room:#0B1511; --tk-glass:rgba(255,255,255,.055); --tk-glass2:rgba(255,255,255,.09);
-  --tk-line:rgba(255,255,255,.08); --tk-ink:#EEF5F1; --tk-mute:#344AFF; --tk-soft:#BFD2C7;
+  --tk-room:#0A0C16; --tk-glass:rgba(255,255,255,.055); --tk-glass2:rgba(255,255,255,.09);
+  --tk-line:rgba(255,255,255,.08); --tk-ink:#F6F7FC; --tk-mute:#344AFF; --tk-soft:#BFC2D2;
   --tk-gl:#A0ABFF; --tk-gold:#F0C35A; --tk-red:#FF8A7A; --tk-live:#FF5A5F;
   font-family:'Plus Jakarta Sans',system-ui,-apple-system,sans-serif; color:var(--tk-ink);
   min-height:100vh;
@@ -46,7 +46,7 @@
 .talkx .tk-sx{flex:1;min-width:0}
 .talkx .tk-sx b{display:block;font-size:15.5px;font-weight:800}
 .talkx .tk-sx small{font-size:12.5px;color:var(--tk-soft)}
-.talkx .tk-startcard em{font-style:normal;font-size:13px;font-weight:800;color:#0B1511;background:var(--tk-gl);border-radius:999px;padding:9px 14px;flex:0 0 auto}
+.talkx .tk-startcard em{font-style:normal;font-size:13px;font-weight:800;color:#0A0C16;background:var(--tk-gl);border-radius:999px;padding:9px 14px;flex:0 0 auto}
 .talkx .tk-empty{padding:18px 14px;border-radius:18px;background:var(--tk-glass);border:1px dashed rgba(255,255,255,.14);font-size:14px;color:var(--tk-soft);text-align:center}
 .talkx .tk-talk{padding:14px;border-radius:20px;margin-bottom:10px;background:linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,.04));border:1px solid var(--tk-line)}
 .talkx .tk-row1{display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap}
@@ -55,10 +55,10 @@
 .talkx .tk-talk h3{font-size:16.5px;font-weight:800;line-height:1.3;color:#fff}
 .talkx .tk-row2{display:flex;align-items:center;gap:10px;margin-top:12px}
 .talkx .tk-faces{display:flex}
-.talkx .tk-faces span{width:30px;height:30px;border-radius:50%;margin-left:-8px;display:grid;place-items:center;font-size:12px;font-weight:800;color:#0B1511;background:#ADBAFF;border:2px solid #15221C}
+.talkx .tk-faces span{width:30px;height:30px;border-radius:50%;margin-left:-8px;display:grid;place-items:center;font-size:12px;font-weight:800;color:#0A0C16;background:#ADBAFF;border:2px solid #121425}
 .talkx .tk-faces span:nth-child(2){background:#E3C7F0}.talkx .tk-faces span:nth-child(3){background:#F2D5A8}
 .talkx .tk-faces span:first-child{margin-left:0}
-.talkx .tk-faces span.anon{background:#2A3D33;color:#fff;font-size:14px}
+.talkx .tk-faces span.anon{background:#212646;color:#fff;font-size:14px}
 .talkx .tk-who{flex:1;min-width:0;font-size:12.5px;color:var(--tk-soft);line-height:1.35}
 .talkx .tk-who b{color:#fff}
 .talkx .tk-join{display:inline-block;font-size:13px;font-weight:800;color:#fff;background:linear-gradient(135deg,#2B3EDD,#1C288E);border-radius:999px;padding:9px 16px;box-shadow:0 4px 12px rgba(38,54,193,.35);flex:0 0 auto}
@@ -109,16 +109,16 @@
 .talkx .tk-tt b{display:block;font-size:15.5px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#fff}
 .talkx .tk-tt small{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--tk-mute);margin-top:3px}
 .talkx .tk-leave{font-size:12.5px;font-weight:800;color:var(--tk-red);border:1px solid rgba(255,138,122,.35);border-radius:999px;padding:7px 12px}
-.talkx .tk-leave.sure{background:var(--tk-red);color:#0B1511}
+.talkx .tk-leave.sure{background:var(--tk-red);color:#0A0C16}
 .talkx .tk-guide{margin:10px 14px 0;display:flex;gap:8px;align-items:center;padding:9px 12px;border-radius:14px;background:linear-gradient(135deg,rgba(240,195,90,.12),rgba(240,195,90,.04));border:1px solid rgba(240,195,90,.22);font-size:12px;line-height:1.4;color:#F5E3B4}
 .talkx .tk-guide span{flex:1}
 .talkx .tk-guide b{color:var(--tk-gold)}
-.talkx .tk-988{font-size:11.5px;font-weight:800;color:#0B1511;background:var(--tk-red);border-radius:999px;padding:5px 9px;flex:0 0 auto}
-.talkx .tk-unlock{margin:10px 14px 0;padding:12px;border-radius:14px;background:var(--tk-gl);color:#0B1511;font-weight:800;font-size:14px}
+.talkx .tk-988{font-size:11.5px;font-weight:800;color:#0A0C16;background:var(--tk-red);border-radius:999px;padding:5px 9px;flex:0 0 auto}
+.talkx .tk-unlock{margin:10px 14px 0;padding:12px;border-radius:14px;background:var(--tk-gl);color:#0A0C16;font-weight:800;font-size:14px}
 .talkx .tk-stage{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:12px 14px 4px}
-.talkx .tk-tile{position:relative;aspect-ratio:5/4;border-radius:20px;overflow:hidden;background:#15241D;border:1px solid var(--tk-line);display:grid;place-items:center;transition:box-shadow .15s,border-color .15s}
+.talkx .tk-tile{position:relative;aspect-ratio:5/4;border-radius:20px;overflow:hidden;background:#131526;border:1px solid var(--tk-line);display:grid;place-items:center;transition:box-shadow .15s,border-color .15s}
 .talkx .tk-tile.talking{border:2px solid var(--tk-gl);box-shadow:0 0 0 4px rgba(160,171,255,.18)}
-.talkx .tk-bigav{width:62px;height:62px;border-radius:50%;display:grid;place-items:center;font-size:28px;font-weight:800;color:#0B1511;background:#A9C7F0;margin-bottom:22px}
+.talkx .tk-bigav{width:62px;height:62px;border-radius:50%;display:grid;place-items:center;font-size:28px;font-weight:800;color:#0A0C16;background:#A9C7F0;margin-bottom:22px}
 .talkx .tk-tile:nth-child(2) .tk-bigav{background:#E3C7F0}.talkx .tk-tile:nth-child(3) .tk-bigav{background:#F2D5A8}.talkx .tk-tile:nth-child(4) .tk-bigav{background:#ADBAFF}
 .talkx .tk-tile.talking .tk-bigav{box-shadow:0 0 0 6px rgba(160,171,255,.25),0 0 0 12px rgba(160,171,255,.1)}
 .talkx .tk-bigav.sm{width:38px;height:38px;font-size:15px;margin:0}
@@ -154,7 +154,7 @@
 .talkx .tk-ctl.mic{width:54px;height:54px;font-size:22px;background:rgba(255,138,122,.18);border-color:rgba(255,138,122,.4)}
 .talkx .tk-ctl.mic.on{background:linear-gradient(145deg,#2B3EDD,#1329B0);border-color:transparent;box-shadow:0 6px 16px rgba(38,54,193,.45)}
 .talkx .tk-ctl.hand{width:auto;height:46px;border-radius:999px;padding:0 14px;font-size:13px;font-weight:800;color:#2A1D02;background:var(--tk-gold);border:0;display:flex;gap:6px;align-items:center}
-.talkx .tk-ctl.hand.up{background:#fff;color:#0B1511}
+.talkx .tk-ctl.hand.up{background:#fff;color:#0A0C16}
 .talkx .tk-coins{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
 .talkx .tk-coinbtn{display:flex;flex-direction:column;align-items:center;gap:6px;padding:10px 4px;border-radius:16px;background:var(--tk-glass);border:1px solid var(--tk-line);font-size:11.5px;font-weight:700;color:var(--tk-soft)}
 .talkx .tk-act{display:block;width:100%;text-align:left;padding:13px 14px;margin-top:8px;border-radius:14px;background:var(--tk-glass);border:1px solid var(--tk-line);font-size:14px;font-weight:700;color:#fff}
@@ -178,7 +178,7 @@
 .talkx .tk-vid.mirror{transform:scaleX(-1)}
 .talkx .tk-seat.hero::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,rgba(0,0,0,.55) 0%,transparent 26%,transparent 70%,rgba(3,8,6,.7) 100%)}
 .talkx .tk-vo{position:absolute;inset:0;display:grid;place-items:center;background:radial-gradient(circle at 50% 42%,color-mix(in srgb,var(--tk-tint) 28%,transparent),transparent 62%),#000080}
-.talkx .tk-voav{width:58px;height:58px;border-radius:50%;display:grid;place-items:center;font-size:23px;font-weight:800;color:#07120E;background:var(--tk-tint);position:relative;margin-bottom:18px}
+.talkx .tk-voav{width:58px;height:58px;border-radius:50%;display:grid;place-items:center;font-size:23px;font-weight:800;color:#070812;background:var(--tk-tint);position:relative;margin-bottom:18px}
 .talkx .tk-seat.hero .tk-voav{width:112px;height:112px;font-size:44px;margin:0}
 .talkx .tk-seat.talking .tk-voav::before,.talkx .tk-seat.talking .tk-voav::after{content:"";position:absolute;inset:-8px;border-radius:50%;border:2px solid color-mix(in srgb,var(--tk-tint) 70%,transparent);animation:tkring 1.8s ease-out infinite}
 .talkx .tk-seat.talking .tk-voav::after{animation-delay:.9s}
@@ -205,7 +205,7 @@
 .talkx .tk-seat.open b{display:block;font-size:12px;font-weight:800;color:var(--tk-gl)}
 .talkx .tk-seat.open small{display:block;font-size:10.5px;color:var(--tk-mute);margin-top:2px;padding:0 4px}
 .talkx .tk-fm.fu p{background:none;padding:2px 0;color:var(--tk-gl);font-size:12px;font-weight:700}
-.talkx .tk-ctl.req{position:relative;background:linear-gradient(135deg,#A0ABFF,#3FD08A);border:0;color:#06120D;box-shadow:0 0 20px rgba(63,208,138,.45)}
+.talkx .tk-ctl.req{position:relative;background:linear-gradient(135deg,#A0ABFF,#3FD08A);border:0;color:#060812;box-shadow:0 0 20px rgba(63,208,138,.45)}
 .talkx .tk-badge{position:absolute;top:-3px;right:-3px;min-width:19px;height:19px;border-radius:10px;background:var(--tk-live);color:#fff;font-size:10.5px;font-weight:900;display:grid;place-items:center;padding:0 5px;border:2px solid var(--tk-room);animation:tkbp 1.6s infinite}
 @keyframes tkbp{0%{box-shadow:0 0 0 0 rgba(255,90,95,.7)}100%{box-shadow:0 0 0 10px rgba(255,90,95,0)}}
 .talkx .tk-ctl.cam.on{background:rgba(201,182,255,.2);border-color:rgba(201,182,255,.45)}
@@ -224,8 +224,8 @@
 /* the host's request list */
 .talkx .tk-n{display:inline-block;vertical-align:middle;background:var(--tk-live);color:#fff;font-size:12px;font-weight:900;border-radius:999px;padding:2px 9px;margin-left:6px}
 .talkx .tk-seg{display:grid;grid-template-columns:repeat(3,1fr);background:rgba(255,255,255,.06);border:1px solid var(--tk-line);border-radius:14px;padding:3px;margin-bottom:12px}
-.talkx .tk-seg button{text-align:center;font-size:12.5px;font-weight:800;padding:9px 0;border-radius:11px;color:#A9BDB2}
-.talkx .tk-seg button.on{background:linear-gradient(135deg,#A0ABFF,#3FD08A);color:#06120D}
+.talkx .tk-seg button{text-align:center;font-size:12.5px;font-weight:800;padding:9px 0;border-radius:11px;color:#A9ACBD}
+.talkx .tk-seg button.on{background:linear-gradient(135deg,#A0ABFF,#3FD08A);color:#060812}
 .talkx .tk-req{display:flex;gap:10px;padding:11px;border-radius:18px;background:rgba(255,255,255,.045);border:1px solid var(--tk-line);margin-bottom:8px}
 .talkx .tk-rbd{flex:1;min-width:0}
 .talkx .tk-rt{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
@@ -234,10 +234,10 @@
 .talkx .tk-mode{font-size:10.5px;font-weight:800;border-radius:999px;padding:2px 7px}
 .talkx .tk-mode.camera{background:rgba(201,182,255,.16);color:#D6C9FF;border:1px solid rgba(201,182,255,.3)}
 .talkx .tk-mode.voice{background:rgba(160,171,255,.12);color:var(--tk-gl);border:1px solid rgba(160,171,255,.28)}
-.talkx .tk-rnote{display:block;font-size:12.5px;color:#C6D4CC;margin-top:5px;line-height:1.4;font-style:italic;border-left:2px solid var(--tk-gold);padding-left:8px}
+.talkx .tk-rnote{display:block;font-size:12.5px;color:#BDC4EC;margin-top:5px;line-height:1.4;font-style:italic;border-left:2px solid var(--tk-gold);padding-left:8px}
 .talkx .tk-racts{display:flex;gap:6px;margin-top:9px;align-items:center}
 .talkx .tk-yes,.talkx .tk-alt{font-size:12.5px;font-weight:800;border-radius:999px;padding:8px 13px;white-space:nowrap}
-.talkx .tk-yes{background:linear-gradient(135deg,#A0ABFF,#3FD08A);color:#06120D}
+.talkx .tk-yes{background:linear-gradient(135deg,#A0ABFF,#3FD08A);color:#060812}
 .talkx .tk-alt{background:rgba(255,255,255,.08);border:1px solid var(--tk-line);color:#DDE3F5}
 .talkx .tk-yes:disabled,.talkx .tk-alt:disabled{opacity:.4}
 .talkx .tk-no{margin-left:auto;width:32px;height:32px;border-radius:50%;border:1px solid rgba(255,154,143,.35);color:#FF9A8F;font-size:13px}
@@ -254,9 +254,9 @@
 .talkx .tk-cdn{font-size:74px;font-weight:800;color:#fff;line-height:1}
 /* the list: a drawn preview, never a live picture (no data spent, nobody watched before they join) */
 .talkx .tk-talk.v2{display:flex;gap:12px;align-items:center}
-.talkx .tk-thumb{width:68px;height:90px;border-radius:14px;overflow:hidden;position:relative;flex:none;border:1px solid var(--tk-line);background:linear-gradient(170deg,#131B62,#00006E 60%,#07120E)}
+.talkx .tk-thumb{width:68px;height:90px;border-radius:14px;overflow:hidden;position:relative;flex:none;border:1px solid var(--tk-line);background:linear-gradient(170deg,#131B62,#00006E 60%,#070812)}
 .talkx .tk-thumb::before{content:"";position:absolute;left:12%;top:24%;width:76%;height:52%;border-radius:50%;filter:blur(14px);background:radial-gradient(circle,#C98E62,#7A4C35 60%,transparent 76%);opacity:.5;animation:tkdrift 8s ease-in-out infinite}
-.talkx .tk-thumb.voice{background:radial-gradient(circle at 50% 45%,rgba(201,182,255,.25),transparent 70%),#15241D}
+.talkx .tk-thumb.voice{background:radial-gradient(circle at 50% 45%,rgba(201,182,255,.25),transparent 70%),#131526}
 .talkx .tk-thumb.voice::before{display:none}
 .talkx .tk-thumb .tk-livetag{position:absolute;top:5px;left:5px;font-size:8.5px;padding:2px 4px;z-index:2}
 .talkx .tk-thumb .tk-ti{position:absolute;inset:0;display:grid;place-items:center;font-size:24px}
@@ -264,5 +264,5 @@
 .talkx .tk-tbody{flex:1;min-width:0}
 .talkx .tk-tbody h3{font-size:15px}
 .talkx .tk-tags{display:flex;gap:4px;flex-wrap:wrap;margin-top:7px}
-.talkx .tk-tags span{font-size:10.5px;font-weight:800;border-radius:999px;padding:3px 8px;background:rgba(255,255,255,.08);color:#C9D7CF}
+.talkx .tk-tags span{font-size:10.5px;font-weight:800;border-radius:999px;padding:3px 8px;background:rgba(255,255,255,.08);color:#C2C8ED}
 .talkx .tk-tags span.s{background:rgba(160,171,255,.14);color:var(--tk-gl)}

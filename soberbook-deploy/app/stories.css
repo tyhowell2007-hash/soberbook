@@ -105,7 +105,7 @@
    120 and the drawer's 100, because a story is the thing on top. */
 .sty-view{
   position:fixed; inset:0; z-index:130;
-  background:#06120C;
+  background:#060812;
   display:flex; flex-direction:column;
   padding-top:env(safe-area-inset-top, 0px);
   padding-bottom:env(safe-area-inset-bottom, 0px);
@@ -159,7 +159,7 @@
    which flipped in the dark and measured 1.04:1. These are literals and
    do not move with the theme, because the viewer does not either.
    MEASURED: moss 11.68 · clay 11.69 · night 14.87 · dawn 11.07 */
-.sty-card[data-tint="moss"] { background:#0C113C; color:#D9F2E2; }
+.sty-card[data-tint="moss"] { background:#0C113C; color:#E3E6F7; }
 .sty-card[data-tint="clay"] { background:#3A2015; color:#F4DFD2; }
 .sty-card[data-tint="night"]{ background:#0B1220; color:#DCE6F5; }
 .sty-card[data-tint="dawn"] { background:#3A2F0E; color:#F6EBC8; }

@@ -66,7 +66,7 @@
    conversation — in a room where people are talking to each other,
    hiding the talk to pick a smiley is the wrong trade. */
 .emp{
-  border: 1px solid #C9C2B2;
+  border: 1px solid #B2B5C9;
   border-radius: 12px;
   background: #FFFFFF;
   margin: 0 0 9px;
@@ -78,7 +78,7 @@
 .emp-tabs{
   display: flex; gap: 2px; padding: 6px;
   overflow-x: auto;
-  border-bottom: 1px solid #E4DFD3;
+  border-bottom: 1px solid #D4D8F2;
   -webkit-overflow-scrolling: touch;
 }
 .emp-tab{
@@ -99,7 +99,7 @@
   border: 0; background: none; cursor: pointer;
   font-size: 20px; line-height: 1; padding: 6px 0; border-radius: 6px;
 }
-.emp-one:hover{ background: #F2F0E9; }
+.emp-one:hover{ background: #F0F1FB; }
 .emp-one:focus-visible{ outline: 2px solid #1329B0; outline-offset: -2px; }
 
 /* ---------------------------------------------------------------------
@@ -110,7 +110,7 @@
    ⚠️ --gm as text on this panel measures 3.84 and is banned here; every
    colour below is one already measured for this surface.
    --------------------------------------------------------------------- */
-.emp-green{ border-color: #141D67; background: #152B21; }
+.emp-green{ border-color: #141D67; background: #15182B; }
 .emp-green .emp-tabs{ border-bottom-color: #111858; }
 .emp-green .emp-tab.on{ background: #1B2689; }
 .emp-green .emp-one:hover{ background: #101E78; }

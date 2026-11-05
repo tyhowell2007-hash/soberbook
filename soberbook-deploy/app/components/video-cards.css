@@ -9,4 +9,4 @@
 .vcard-foot{display:flex;flex-direction:column;gap:3px;font-family:'Plus Jakarta Sans', system-ui, sans-serif;font-size:10.5px}
 .vcard-row{display:flex;justify-content:space-between;align-items:center;gap:6px}
 .vcard-play{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.18);border:2px solid rgba(255,255,255,.7);display:grid;place-items:center;font-size:14px}
-.vcards-note{font-family:'Plus Jakarta Sans', system-ui, sans-serif;font-size:11px;color:var(--soft,#5F5B50);margin:0 0 8px}
+.vcards-note{font-family:'Plus Jakarta Sans', system-ui, sans-serif;font-size:11px;color:var(--soft,#50525F);margin:0 0 8px}

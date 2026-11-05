@@ -195,3 +195,27 @@ html:not([data-theme="black"]) .tk-mcard .tk-ma { background: var(--pl-green-gra
 html:not([data-theme="black"]) .tk-mcard .tk-mb { background: rgba(255, 255, 255, .08); color: #fff; }
 html:not([data-theme="black"]) [class*="LiveSoberCounter_dot"] { background: #00FF00; }
 html:not([data-theme="black"]) :is(.gr-go, .sg-go) { background: var(--pl-green-grad); color: var(--pl-action-ink); box-shadow: var(--pl-glow); }
+
+/* =====================================================================
+   8. ONE BRAND LOOK, STEP 2 — 4 Nov 2026
+   Step 1 swapped the greens for blue. These are the leftovers: the
+   olive greys on Meetings, the cream on Readings and You, and the one
+   neon slab on Meetings that wasn't a button. Big neon is for things
+   you tap; everything else wears navy.
+   ===================================================================== */
+html:not([data-theme="black"]) .mt-hero .mt-kick { color: #AEB8F0; }
+html:not([data-theme="black"]) .mt-hero .mt-numq { color: #4B5BD0; }
+html:not([data-theme="black"]) .mt-hero .mt-heroname { border-top-color: rgba(255, 255, 255, .14); }
+html:not([data-theme="black"]) .mt-item .mt-rail { background: #000060; color: #AEB8F0; }
+html:not([data-theme="black"]) .mt-item.live .mt-rail {
+  background: linear-gradient(180deg, #1a36cf, #000080); color: #C9D2FF;
+  box-shadow: inset 4px 0 0 #00FF00;
+}
+html:not([data-theme="black"]) .mt-item.live .mt-rail b { color: #00FF00; }
+/* Readings: the "what nobody tells you" slab was a full neon block.
+   Same idea, softer: pale green with a bright edge, navy words. */
+html:not([data-theme="black"]) .rd-nobody {
+  background: linear-gradient(135deg, #E6FFEC, #CFFFDA);
+  border-color: #00C84A; box-shadow: inset 5px 0 0 #00FF00;
+}
+html:not([data-theme="black"]) .rd-nobody :is(.rd-nlabel, .rd-ntext) { color: #000060; }

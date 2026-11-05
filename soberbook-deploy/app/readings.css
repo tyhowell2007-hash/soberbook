@@ -22,7 +22,7 @@
    ===================================================================== */
 
 .rd-wrap, .rd-one {
-  background: #E4DFD3;
+  background: #DDE3F5;
   min-height: 100vh;
   padding: 22px 18px 30px;
   color: #0A0A09;
@@ -89,7 +89,7 @@
   /* ⚠️ Two hard edges rather than a rounded card. The whole look is
      photocopied paper, and a 12px radius drags it straight back to
      every other app. Square corners are the treatment. */
-  background: #F2EFE6;
+  background: #EDEFFA;
   border: 2px solid #0A0A09;
   border-radius: 0;
   padding: 13px 14px;
@@ -235,13 +235,13 @@
   text-transform: uppercase;
   /* ⚠️ #141800 on acid, never #0A0A09-on-paper values carried over by
      habit. 14.9:1, measured. */
-  color: #141800;
+  color: #000060;
   margin: 0 0 6px;
 }
 .rd-ntext {
   font-size: 16px;
   line-height: 1.55;
-  color: #141800;
+  color: #000060;
   margin: 0;
 }
 
@@ -313,7 +313,7 @@
   letter-spacing: .03em;
   text-transform: uppercase;
   color: #0A0A09;
-  background: #F2EFE6;
+  background: #EDEFFA;
   border: 2px solid #0A0A09;
   border-radius: 0;
   padding: 10px 14px;
@@ -336,7 +336,7 @@
   text-transform: none;
   letter-spacing: .04em;
 }
-.rd-listen:disabled:hover { background: #F2EFE6; }
+.rd-listen:disabled:hover { background: #EDEFFA; }
 
 /* ---- the question ----------------------------------------------------
    ⭐ INK SLAB, not acid. The two blocks are the two halves of the page
@@ -365,7 +365,7 @@
   font-weight: 700;
   line-height: 1.32;
   letter-spacing: -0.015em;
-  color: #E4DFD3;
+  color: #D4D8F2;
   margin: 0;
   overflow-wrap: anywhere;
 }
@@ -374,7 +374,7 @@
   font-size: 10px;
   letter-spacing: .03em;
   text-transform: uppercase;
-  color: #BDB8AC;
+  color: #ACAEBD;
   margin: 10px 0 0;
 }
 
@@ -388,7 +388,7 @@
   justify-content: space-between;
   gap: 12px;
   text-align: left;
-  background: #F2EFE6;
+  background: #EDEFFA;
   border: 2px solid #0A0A09;
   border-radius: 0;
   padding: 13px 14px;

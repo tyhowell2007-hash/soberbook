@@ -21,7 +21,7 @@
 /* the card before you tap — drawn by us, nothing fetched */
 .vp-poster{position:absolute;inset:0;border:0;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:24px 70px 24px 24px;text-align:center;cursor:pointer;font:inherit}
 .vp-poster:focus-visible{outline:3px solid #00FF00;outline-offset:-6px}
-.vp-pday{font-family:'Anton',Impact,'Arial Narrow',sans-serif;font-size:clamp(56px,18vw,96px);line-height:.9;color:#F2F0E9}
+.vp-pday{font-family:'Anton',Impact,'Arial Narrow',sans-serif;font-size:clamp(56px,18vw,96px);line-height:.9;color:#F0F1FB}
 .vp-plabel{font-family:'Plus Jakarta Sans', system-ui, sans-serif;font-size:12px;letter-spacing:.03em;text-transform:uppercase;opacity:.8}
 .vp-play{margin-top:12px;width:76px;height:76px;border-radius:50%;background:rgba(255,255,255,.14);border:2px solid rgba(255,255,255,.7);display:grid;place-items:center}
 .vp-play i{display:block;width:0;height:0;border-left:24px solid #fff;border-top:15px solid transparent;border-bottom:15px solid transparent;margin-left:6px}
@@ -43,7 +43,7 @@
 /* end card */
 .vp-end{position:absolute;inset:0;z-index:8;background:rgba(10,12,10,.86);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);display:flex;flex-direction:column;justify-content:center;gap:14px;padding:22px;animation:vpfadein .4s}
 @keyframes vpfadein{from{opacity:0}to{opacity:1}}
-.vp-end h2{margin:0;font-family:'Anton',Impact,'Arial Narrow',sans-serif;font-weight:400;font-size:clamp(32px,9vw,44px);line-height:1;color:#F2F0E9;letter-spacing:.01em;text-transform:none;text-shadow:none}
+.vp-end h2{margin:0;font-family:'Anton',Impact,'Arial Narrow',sans-serif;font-weight:400;font-size:clamp(32px,9vw,44px);line-height:1;color:#F0F1FB;letter-spacing:.01em;text-transform:none;text-shadow:none}
 .vp-sum{display:flex;align-items:center;gap:10px;margin:0;font-size:14px}
 .vp-stack{display:inline-flex}
 .vp-stack .sbcoin + .sbcoin{margin-left:-6px}
@@ -53,9 +53,9 @@
 .vp-ebtn.sent{grid-column:1/-1;background:transparent;border-style:dashed;cursor:default}
 .vp-ebtn:focus-visible,.vp-next:focus-visible{outline:3px solid #00FF00;outline-offset:2px}
 .vp-next{display:flex;align-items:center;gap:12px;border:0;border-top:1px solid rgba(255,255,255,.18);padding:12px 0 0;background:none;color:#fff;text-align:left;font:inherit;cursor:pointer}
-.vp-next small{display:block;font-family:'Plus Jakarta Sans', system-ui, sans-serif;font-size:10.5px;color:#A7A396;letter-spacing:.05em;text-transform:uppercase}
+.vp-next small{display:block;font-family:'Plus Jakarta Sans', system-ui, sans-serif;font-size:10.5px;color:#9698A7;letter-spacing:.05em;text-transform:uppercase}
 .vp-mini{width:44px;height:58px;border-radius:8px;display:grid;place-items:center;font-size:16px;flex:none}
-.vp-nobody{margin:0;font-family:'Plus Jakarta Sans', system-ui, sans-serif;font-size:11.5px;color:#A7A396;line-height:1.45}
+.vp-nobody{margin:0;font-family:'Plus Jakarta Sans', system-ui, sans-serif;font-size:11.5px;color:#9698A7;line-height:1.45}
 
 /* under the video: who, words, counts, and our coin timeline */
 .vp-info{flex:none;padding:10px 14px 12px;display:flex;flex-direction:column;gap:6px;background:linear-gradient(180deg,rgba(0,0,0,0),#000 18px)}
@@ -78,7 +78,7 @@
 @keyframes vprise{0%{transform:translate(-50%,0) scale(.6);opacity:0}15%{opacity:1}100%{transform:translate(calc(-50% + var(--dx)),-170px) scale(1.05) rotate(var(--rot));opacity:0}}
 .vp-times{display:flex;justify-content:space-between;font-family:'Plus Jakarta Sans', system-ui, sans-serif;font-size:10.5px;opacity:.75}
 
-.vp-toast{position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 64px);transform:translateX(-50%);z-index:2100;background:#F2F0E9;color:#26251F;font-weight:700;font-size:13px;padding:8px 14px;border-radius:999px;white-space:nowrap;display:flex;gap:8px;align-items:center;box-shadow:0 8px 24px rgba(0,0,0,.4);animation:vpfade 2.6s ease-out forwards}
+.vp-toast{position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 64px);transform:translateX(-50%);z-index:2100;background:#F0F1FB;color:#161A2F;font-weight:700;font-size:13px;padding:8px 14px;border-radius:999px;white-space:nowrap;display:flex;gap:8px;align-items:center;box-shadow:0 8px 24px rgba(0,0,0,.4);animation:vpfade 2.6s ease-out forwards}
 .vp-empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:24px;text-align:center}
 .vp-empty p{margin:0}
 .vp-small{font-family:'Plus Jakarta Sans', system-ui, sans-serif;font-size:12px;opacity:.7}

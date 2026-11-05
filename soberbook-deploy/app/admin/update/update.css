@@ -20,7 +20,7 @@
 }
 .tuadmin textarea{
   width:100%; min-height:120px; resize:vertical;
-  border:3px solid var(--x); background:var(--boxfill, #F2EFE6);
+  border:3px solid var(--x); background:var(--boxfill, #EDEFFA);
   color:var(--body); padding:10px;
   font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-size:15px; line-height:1.5;
 }

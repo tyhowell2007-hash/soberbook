@@ -3,7 +3,7 @@
    collides with nothing on the wall. The masthead above it is the app's
    own .mast. */
 .rpl { max-width: 520px; margin: 0 auto; padding: 14px 14px 30px; display: grid; gap: 12px;
-  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif; color: #141B17; }
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif; color: #0F1120; }
 .rpl * { font-family: inherit; }
 .rpl-e { font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif; line-height: 1; }
 .rpl-card { background: #fff; border-radius: 18px; box-shadow: 0 1px 2px rgba(20,27,23,.04), 0 4px 16px rgba(20,27,23,.06); }
@@ -25,7 +25,7 @@
 
 .rpl-sec { padding: 14px 14px 12px; }
 .rpl-sh { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; gap: 8px; }
-.rpl-sh h2 { margin: 0; display: flex; align-items: center; gap: 7px; font-size: 15px; font-weight: 800; color: #141B17;
+.rpl-sh h2 { margin: 0; display: flex; align-items: center; gap: 7px; font-size: 15px; font-weight: 800; color: #0F1120;
   text-transform: none; letter-spacing: normal; text-shadow: none; }
 .rpl-sh > span { font-size: 12px; font-weight: 700; color: #6A736E; }
 .rpl-small { margin: 8px 0 0; font-size: 12.5px; color: #6A736E; }
@@ -40,8 +40,8 @@
 .rpl-chip { display: flex; align-items: center; gap: 6px; border-radius: 999px; padding: 5px 10px 5px 5px; font-size: 12.5px; font-weight: 800;
   background: #F0F4FF; color: #1329B0; }
 .rpl-chip > span { min-width: 22px; height: 22px; padding: 0 4px; border-radius: 999px; background: #1329B0; color: #fff; display: grid; place-items: center; font-size: 11px; }
-.rpl-chip.lock { background: #F0EEE8; color: #9AA19C; }
-.rpl-chip.lock > span { background: #CFCBC2; }
+.rpl-chip.lock { background: #EDEFFA; color: #9AA19C; }
+.rpl-chip.lock > span { background: #C2C4CF; }
 
 .rpl-felt { position: relative; height: 150px; border-bottom: 2px solid #DDE3F5; }
 .rpl-felt > svg { position: absolute; inset: 0; width: 100%; height: 100%; }
@@ -50,29 +50,29 @@
 .rpl-m { position: absolute; bottom: 6px; transform: translateX(-50%); z-index: 1; line-height: 0; }
 .rpl-axis { display: flex; justify-content: space-between; font-size: 11px; color: #6A736E; margin-top: 4px; }
 .rpl-trio { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 10px; }
-.rpl-trio div { background: #F6F4EF; border-radius: 12px; padding: 9px; }
+.rpl-trio div { background: #F7F8FD; border-radius: 12px; padding: 9px; }
 .rpl-trio b { display: block; font-size: 19px; }
 .rpl-trio span { font-size: 11px; color: #6A736E; }
 
 .rpl-chart { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 8px; align-items: end; height: 130px; }
 .rpl-col { display: grid; grid-template-rows: auto 1fr auto; justify-items: center; height: 100%; gap: 5px; }
-.rpl-col em { font-style: normal; font-size: 11.5px; font-weight: 800; color: #2C3631; align-self: end; }
+.rpl-col em { font-style: normal; font-size: 11.5px; font-weight: 800; color: #202442; align-self: end; }
 .rpl-col i { display: block; width: 100%; max-width: 34px; border-radius: 8px 8px 4px 4px; background: #DDE3F5; align-self: end; }
 .rpl-col.today i { background: #1329B0; }
 .rpl-col span { font-size: 11px; font-weight: 700; color: #6A736E; }
 .rpl-col.today span { color: #1329B0; }
-.rpl-foot { display: flex; justify-content: space-between; gap: 8px; font-size: 12.5px; color: #6A736E; margin-top: 10px; padding-top: 10px; border-top: 1px solid #F0EEE8; }
-.rpl-foot b { color: #141B17; }
+.rpl-foot { display: flex; justify-content: space-between; gap: 8px; font-size: 12.5px; color: #6A736E; margin-top: 10px; padding-top: 10px; border-top: 1px solid #EDEFFA; }
+.rpl-foot b { color: #0F1120; }
 
 .rpl-cbar { display: flex; gap: 2px; height: 12px; border-radius: 999px; overflow: hidden; margin-bottom: 8px; }
-.rpl-crow { display: flex; align-items: center; gap: 10px; padding: 8px 0; font-size: 14px; font-weight: 600; color: #2C3631; }
-.rpl-crow + .rpl-crow { border-top: 1px solid #F0EEE8; }
-.rpl-crow b { font-weight: 800; color: #141B17; }
+.rpl-crow { display: flex; align-items: center; gap: 10px; padding: 8px 0; font-size: 14px; font-weight: 600; color: #202442; }
+.rpl-crow + .rpl-crow { border-top: 1px solid #EDEFFA; }
+.rpl-crow b { font-weight: 800; color: #0F1120; }
 .rpl-pct { margin-left: auto; font-size: 12px; color: #6A736E; width: 38px; text-align: right; }
 .rpl-who { list-style: none; margin: 12px 0 0; padding: 0; display: grid; gap: 10px; }
 .rpl-who li { display: flex; gap: 10px; align-items: flex-start; }
-.rpl-bub { flex: 1; background: #F6F4EF; border-radius: 4px 14px 14px 14px; padding: 9px 12px; font-size: 13.5px; }
-.rpl-bub a, .rpl-bub b { font-weight: 800; color: #141B17; text-decoration: none; }
+.rpl-bub { flex: 1; background: #F7F8FD; border-radius: 4px 14px 14px 14px; padding: 9px 12px; font-size: 13.5px; }
+.rpl-bub a, .rpl-bub b { font-weight: 800; color: #0F1120; text-decoration: none; }
 .rpl-bub q { display: block; font-size: 14px; margin-top: 2px; }
 .rpl-bub > span { display: block; font-size: 12.5px; color: #6A736E; margin-top: 2px; }
 .rpl-bub small { display: block; font-size: 11.5px; color: #6A736E; margin-top: 5px; }
@@ -82,14 +82,14 @@
 /* ⚠️ globals.css styles every bare <label> (Courier, uppercase). These
    rules undo that for the switches, the same trap /find-care hit. */
 .rpl-ctl { display: flex; align-items: center; gap: 12px; padding: 12px 0; margin: 0; cursor: pointer;
-  font-family: inherit; font-size: 14px; font-weight: 400; letter-spacing: normal; text-transform: none; color: #141B17; }
-.rpl-ctl + .rpl-ctl { border-top: 1px solid #F0EEE8; }
-.rpl-cico { width: 36px; height: 36px; border-radius: 11px; background: #F0EEE8; display: grid; place-items: center; font-size: 19px; flex: none;
+  font-family: inherit; font-size: 14px; font-weight: 400; letter-spacing: normal; text-transform: none; color: #0F1120; }
+.rpl-ctl + .rpl-ctl { border-top: 1px solid #EDEFFA; }
+.rpl-cico { width: 36px; height: 36px; border-radius: 11px; background: #EDEFFA; display: grid; place-items: center; font-size: 19px; flex: none;
   font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif; }
 .rpl-ctt { flex: 1; }
 .rpl-ctt b { display: block; font-size: 14px; font-weight: 700; }
 .rpl-ctt small { font-size: 12px; color: #6A736E; }
-.rpl-ctl input { appearance: none; -webkit-appearance: none; flex: none; margin: 0; width: 48px; height: 28px; border-radius: 999px; background: #CFCBC2;
+.rpl-ctl input { appearance: none; -webkit-appearance: none; flex: none; margin: 0; width: 48px; height: 28px; border-radius: 999px; background: #C2C4CF;
   position: relative; cursor: pointer; transition: background .15s; border: 0; padding: 0; }
 .rpl-ctl input::after { content: ""; position: absolute; left: 3px; top: 3px; width: 22px; height: 22px; border-radius: 50%; background: #fff;
   box-shadow: 0 1px 3px rgba(0,0,0,.2); transition: left .15s; }
@@ -98,14 +98,14 @@
 .rpl-ctl input:focus-visible { outline: 3px solid #E0B23E; outline-offset: 2px; }
 .rpl-ctl input:disabled { opacity: .6; }
 
-.rpl-priv { display: flex; gap: 12px; margin: 0; padding: 14px; background: #fff; border: 1px dashed #CFD8D2; border-radius: 16px; font-size: 13px; line-height: 1.5; color: #2C3631; }
+.rpl-priv { display: flex; gap: 12px; margin: 0; padding: 14px; background: #fff; border: 1px dashed #C7CDEF; border-radius: 16px; font-size: 13px; line-height: 1.5; color: #202442; }
 .rpl-priv .rpl-e { font-size: 22px; }
 
 /* The night room (theme-black): dark cards, light words. */
 html[data-theme="black"] .rpl { color: #EEF2FF; }
-html[data-theme="black"] .rpl-card, html[data-theme="black"] .rpl-priv { background: #121630; box-shadow: none; border-color: #2E3832; }
+html[data-theme="black"] .rpl-card, html[data-theme="black"] .rpl-priv { background: #121630; box-shadow: none; border-color: #212645; }
 html[data-theme="black"] .rpl-sh h2, html[data-theme="black"] .rpl-crow b, html[data-theme="black"] .rpl-foot b,
 html[data-theme="black"] .rpl-bub a, html[data-theme="black"] .rpl-bub b, html[data-theme="black"] .rpl-ctl,
 html[data-theme="black"] .rpl-col em, html[data-theme="black"] .rpl-crow, html[data-theme="black"] .rpl-priv { color: #EEF2FF; }
-html[data-theme="black"] .rpl-bub, html[data-theme="black"] .rpl-trio div, html[data-theme="black"] .rpl-cico { background: #252D28; }
-html[data-theme="black"] .rpl-crow + .rpl-crow, html[data-theme="black"] .rpl-ctl + .rpl-ctl, html[data-theme="black"] .rpl-foot { border-color: #2E3832; }
+html[data-theme="black"] .rpl-bub, html[data-theme="black"] .rpl-trio div, html[data-theme="black"] .rpl-cico { background: #1B1E37; }
+html[data-theme="black"] .rpl-crow + .rpl-crow, html[data-theme="black"] .rpl-ctl + .rpl-ctl, html[data-theme="black"] .rpl-foot { border-color: #212645; }

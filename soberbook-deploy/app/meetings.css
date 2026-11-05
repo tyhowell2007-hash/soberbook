@@ -76,7 +76,7 @@
 /* Deliberately NOT red or amber-warning. A closed meeting isn't a
    problem, it's a different room. Warm neutral, no alarm. */
 .mt-tag.closed{ background:#F6EFE3;     color:#6A3F12; }
-.mt-tag.unk{    background:#EEF1F0;     color:#465350; }
+.mt-tag.unk{    background:#F3F4FB;     color:#464853; }
 .mt-tag.dur{    background:transparent; color:var(--soft); border:1px solid var(--line); }
 
 .mt-note{
@@ -449,10 +449,10 @@
    ===================================================================== */
 .mt-hero, .mt-item, .mt-herogo{
   --mt-acid:#00FF00;
-  --mt-acid-ink:#141800;
+  --mt-acid-ink:#000060;
   --mt-signal:#FF6A13;
   --mt-signal-ink:#2A1200;
-  --mt-rail-ink:#8C9A84;
+  --mt-rail-ink:#84879A;
   --mt-near:#0A0A09;
 }
 
@@ -490,7 +490,7 @@
   padding:12px 0 15px; margin-top:15px;
   border-top:1px solid #2A2A24;
 }
-.mt-heronone .mt-heroname{ font-weight:400; color:#CFCCC2; }
+.mt-heronone .mt-heroname{ font-weight:400; color:#C2C4CF; }
 .mt-herogo{
   display:block; text-align:center; text-decoration:none;
   background:var(--mt-acid); color:var(--mt-acid-ink);
@@ -584,10 +584,10 @@
 /* The "Start a room" button is the one invitation on this page, so it gets
    the acid rather than the green. ⚠️ Fill + dark ink, never acid as text. */
 .rmstart .btn{
-  background:#00FF00; color:#141800; font-weight:800; border:0;
+  background:#00FF00; color:#000060; font-weight:800; border:0;
   min-height:48px; letter-spacing:.01em;
 }
-.rmstart .btn:hover{ background:#00FF00; color:#141800; }
+.rmstart .btn:hover{ background:#00FF00; color:#000060; }
 .rmstart .btn:disabled{ background:var(--line); color:var(--soft); }
 
 @media (max-width: 340px){

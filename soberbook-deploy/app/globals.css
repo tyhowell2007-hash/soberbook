@@ -16,7 +16,7 @@
      🔴 A colour that must change with the theme is a VARIABLE. A second
      rule in a second file that re-states it is a thing that can silently
      stop matching, and this is the bug it caused. */
-  --boxfill:#F2EFE6;
+  --boxfill:#EDEFFA;
 
   /* 🔴 13 Sept — THE SAME BUG AS --boxfill, ONE DAY LATER, WEARING IT THE
      OTHER WAY ROUND. `.sea-turn` and `.cir-mine` set their BACKGROUND to
@@ -35,13 +35,13 @@
   --slab-ink:#B9C6FF;
   --slab-edge:#000080;
 
-  --paper:#F2F0E9;
+  --paper:#F0F1FB;
   --paper2:#FFFFFF;
-  --body:#26251F;
-  --soft:#5F5B50;
-  --line:#DAD5C7;
+  --body:#161A2F;
+  --soft:#50525F;
+  --line:#C3C8EE;
   --acid:#00FF00;
-  --acid-ink:#141800;
+  --acid-ink:#000060;
   --wear:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='w'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.035 .07' numOctaves='4' seed='7'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23w)'/%3E%3C/svg%3E");
 }
 *{ box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
@@ -106,7 +106,7 @@ h1{ font-family:'Anton',Impact,sans-serif; font-weight:400; font-size:34px;
 label{ display:block; font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-size:11px; font-weight:700;
   letter-spacing:.03em; text-transform:uppercase; color:var(--x); margin:18px 0 6px; }
 input[type=text], input[type=email], input[type=password], input[type=date]{
-  width:100%; border:4px solid var(--x); background:#F2EFE6; padding:13px;
+  width:100%; border:4px solid var(--x); background:#EDEFFA; padding:13px;
   font-size:16px; font-family:'Plus Jakarta Sans', system-ui, sans-serif; color:var(--x); outline:none; }
 input:focus{ background:#fff; }
 input:focus-visible{ outline:4px solid var(--acid); outline-offset:0; box-shadow:0 0 0 4px var(--x); }
@@ -135,7 +135,7 @@ input:focus-visible{ outline:4px solid var(--acid); outline-offset:0; box-shadow
 .choice.sel .cd{ color:var(--acid-ink); }
 .choice.sel.dark{ background:var(--x); }
 .choice.sel.dark .ct{ color:var(--acid); }
-.choice.sel.dark .cd{ color:#C9C4B7; }
+.choice.sel.dark .cd{ color:#B7B9C9; }
 .choice:focus-visible{ outline:4px solid var(--x); outline-offset:4px; }
 
 /* =====================================================================
@@ -484,7 +484,7 @@ html[data-menu="on"] .mast{ padding-left:59px; }
   position:absolute; left:50%; transform:translateX(-50%);
   bottom:calc(22px + env(safe-area-inset-bottom, 0px));
   min-height:44px; padding:11px 26px; border-radius:22px; border:0;
-  background:#2B3EDE; color:#08160F;
+  background:#2B3EDE; color:#080A16;
   font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-size:13px; font-weight:700;
   cursor:pointer;
 }
@@ -515,4 +515,4 @@ html[data-menu="on"] .mast{ padding-left:59px; }
 /* Illinois program: words only (29 Oct 2026) */
 .ph-words{ display:inline-block; font-size:12px; line-height:1.35; color:#6B7D72; max-width:260px; }
 .ph-why{ background:none; border:0; padding:0; color:#1329B0; font:inherit; font-weight:700; text-decoration:underline; cursor:pointer; }
-.ph-why-t{ display:block; margin-top:4px; color:#4E6157; }
+.ph-why-t{ display:block; margin-top:4px; color:#4E5161; }

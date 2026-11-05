@@ -303,7 +303,7 @@
 .roomwho{ font-size:11px; color:#A4B0FF; margin:0 0 3px; font-weight:600; }
 .rbub{
   display:inline-block; max-width:88%; padding:8px 11px; border-radius:12px;
-  background:#1A3227; color:#EEF2FF; font-size:14px; line-height:1.5;
+  background:#191C33; color:#EEF2FF; font-size:14px; line-height:1.5;
   /* A pasted link must not stretch the bubble off a phone screen. */
   overflow-wrap:anywhere;
 }
@@ -334,12 +334,12 @@
   border:1px solid #141D67; background:none; border-radius:50%;
   font-size:17px; line-height:1; cursor:pointer;
 }
-.remo:hover{ background:#1A3227; }
+.remo:hover{ background:#191C33; }
 
 .rbar{ display:flex; gap:7px; align-items:center; }
 .rin{
   flex:1; min-width:0; padding:11px 14px; border-radius:22px;
-  border:1px solid #141D67; background:#1A3227; color:#EEF2FF;
+  border:1px solid #141D67; background:#191C33; color:#EEF2FF;
   font-size:16px;   /* ⚠️ 16px or iOS zooms the whole page on focus */
   font-family:inherit;
   /* 📝 12 Sept — it is a <textarea> now so it can GROW, because an
@@ -391,12 +391,12 @@
    ⚠️ (0,2,0) beats (0,1,1), so this wins without !important. The caret is
    set too — a light caret on white is its own small invisibility. */
 .rin:focus{
-  background:#1A3227; color:#EEF2FF; caret-color:#EEF2FF;
+  background:#191C33; color:#EEF2FF; caret-color:#EEF2FF;
   outline:2px solid #2B3EDE; outline-offset:1px;
 }
 .rgo{
   flex:none; padding:10px 16px; border-radius:22px; border:0;
-  background:#2B3EDE; color:#08160F;
+  background:#2B3EDE; color:#080A16;
   font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-size:13px; font-weight:700;
   cursor:pointer;
   min-height:44px;  /* ⚠️ 44px tap target — the Aug 18 post-footer lesson */
@@ -454,7 +454,7 @@
   border:0; background:none; color:#868FFF;
   font-size:17px; line-height:1; cursor:pointer; border-radius:8px;
 }
-.rmsgdots:hover{ background:#1A3227; }
+.rmsgdots:hover{ background:#191C33; }
 .rmsgdots:focus-visible{ outline:2px solid #2B3EDE; outline-offset:1px; }
 
 /* =====================================================================
@@ -494,7 +494,7 @@
    to press, and a disabled button is skipped by screen readers and shows
    no tooltip on touch (the 2 Sept lesson from the anonymous eye). */
 .rheart.mine{ cursor:default; }
-.rheart:hover{ background:#1A3227; }
+.rheart:hover{ background:#191C33; }
 .rheart:focus-visible{ outline:2px solid #2B3EDE; outline-offset:1px; }
 .rheartn{ font-size:12px; color:#A4B0FF; }
 
@@ -536,7 +536,7 @@
    make it acceptable next to Send. */
 .rtray-x{
   position:absolute; top:-7px; right:-7px; width:30px; height:30px;
-  border-radius:50%; border:1px solid #141D67; background:#08160F;
+  border-radius:50%; border:1px solid #141D67; background:#080A16;
   color:#EEF2FF; font-size:16px; line-height:1; cursor:pointer; padding:0;
 }
 
@@ -549,7 +549,7 @@
   font-size:17px; line-height:1; cursor:pointer; color:#EEF2FF;
   font-family:inherit;
 }
-.rpick:hover{ background:#1A3227; }
+.rpick:hover{ background:#191C33; }
 .rpick:disabled{ opacity:.5; cursor:default; }
 
 /* 🔴 PhotoUpload's error line is styled in photos.css as #8A2B2B — a dark
@@ -584,7 +584,7 @@
 .rta{
   display:block; width:100%; box-sizing:border-box;
   border:2px solid #2B3EDE; border-radius:12px;
-  background:#1A3227; color:#EEF2FF; caret-color:#EEF2FF;
+  background:#191C33; color:#EEF2FF; caret-color:#EEF2FF;
   font-size:16px;   /* ⚠️ 16px or iOS zooms the whole page on focus */
   line-height:1.5; padding:9px 11px; font-family:inherit; resize:none;
 }
@@ -594,7 +594,7 @@
    wins outright. Same lesson as .rin:focus above — the bug that made the
    message box invisible exactly while somebody was typing in it. */
 .rta:focus, .redit .rta:focus{
-  background:#1A3227; color:#EEF2FF; caret-color:#EEF2FF;
+  background:#191C33; color:#EEF2FF; caret-color:#EEF2FF;
   outline:2px solid #2B3EDE; outline-offset:1px;
 }
 
@@ -649,7 +649,7 @@
 .rnudge{
   margin:0 0 9px; padding:8px 11px;
   border:1px dashed #2A3CD9; border-radius:9px;
-  background:#1A3227; color:#A4B0FF;
+  background:#191C33; color:#A4B0FF;
   font-size:12.5px; line-height:1.55;
 }
 
@@ -678,7 +678,7 @@
 .rshade{
   margin:0 0 9px; padding:8px 11px;
   border:1px solid #3349FF; border-radius:9px;
-  background:#1A3227; color:#B9C6FF;
+  background:#191C33; color:#B9C6FF;
   font-size:12.5px; line-height:1.55;
 }
 
@@ -756,7 +756,7 @@
 .rtab{
   flex:1; min-height:40px; padding:8px 6px;
   border:1px solid #141D67; border-radius:10px;
-  background:#152B21; color:#A4B0FF;
+  background:#15182B; color:#A4B0FF;
   font-family:inherit; font-size:12px; line-height:1.3; cursor:pointer;
   white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
 }
@@ -902,7 +902,7 @@
   position:absolute; bottom:calc(100% + 6px); left:0; right:auto; z-index:20;
   max-width:100%;
   display:flex; gap:2px; padding:5px 7px;
-  background:#173024; border:1px solid #182279; border-radius:99px;
+  background:#171A30; border:1px solid #182279; border-radius:99px;
   box-shadow:0 8px 20px rgba(0,0,0,.36);
 }
 .rmsg.mine .rxbar{ left:auto; right:0; }
@@ -947,12 +947,12 @@
 
 .rface{ grid-column:1; grid-row:1 / span 2; width:30px; height:30px; }
 .rfaceimg{ width:30px; height:30px; border-radius:50%; object-fit:cover; display:block;
-           background:#1A3227; }
+           background:#191C33; }
 .rfaceemo, .rfaceltr{
   width:30px; height:30px; border-radius:50%; display:flex;
   align-items:center; justify-content:center; line-height:1;
 }
-.rfaceemo{ background:#1A3227; font-size:16px; }
+.rfaceemo{ background:#191C33; font-size:16px; }
 /* ⚠️ Dark ink on a light circle, not the reverse — 11.53. And the letter
    comes off display_name, which in an anonymous room IS the alias. */
 .rfaceltr{ background:#A4B0FF; color:#000080; font-size:13px; font-weight:700;

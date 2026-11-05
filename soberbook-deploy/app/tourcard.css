@@ -39,4 +39,4 @@
   cursor: pointer;
 }
 .tcGo { background: var(--gt, #172177); color: #fff; border: 2px solid var(--gt, #172177); }
-.tcNo { background: #fff; color: var(--soft, #2636c2); border: 2px solid #cfdcd4; }
+.tcNo { background: #fff; color: var(--soft, #2636c2); border: 2px solid #CBCFF0; }
