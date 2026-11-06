@@ -127,11 +127,11 @@ export default async function Search({ searchParams }) {
               <div className="map">
                 <svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet" role="img" aria-label={es ? 'Mapa de resultados' : 'Map of results'}>
                   {mapPins.pins.map(({ x, y, r: row }) => (
-                    <a key={row.id} href={b + placePath(row)} className={row.badge ? 'v' : ''}><title>{cleanName(row.name).name}, {row.city}</title><circle cx={x} cy={y} r="1.8" /></a>
+                    <a key={row.id} href={b + placePath(row)}><title>{cleanName(row.name).name}, {row.city}</title><circle cx={x} cy={y} r="1.8" /></a>
                   ))}
                   <circle className="me" cx={mapPins.me[0]} cy={mapPins.me[1]} r="2.2" />
                 </svg>
-                <span className="maplab">{es ? 'Morado = usted · dorado = revisado por la Dra. Labor' : 'Purple = you · gold = checked by Dr. Labor · tap a pin'}</span>
+                <span className="maplab">{es ? 'Morado = usted · toque un punto' : 'Purple = you · tap a pin'}</span>
               </div>
             )}
             {err && <p className="rm-empty" role="alert">{es ? 'Algo falló. Intente de nuevo.' : 'Something went wrong loading results. Please try again.'}</p>}
@@ -146,7 +146,7 @@ export default async function Search({ searchParams }) {
                       <span className={`pill p-${k}`}>{HELP[L][k]}</span>
                       <h3><a href={b + placePath(x)}>{n.name}</a></h3>
                       <p className="meta"><span className="mi">{miles(x.miles, L)}</span> · {x.city}, {x.state}{n.site ? ` · ${n.site}` : ''}</p>
-                      {x.badge ? <span className="vb"><i>✓</i>{t('checked_by', L)}</span> : <span className="src">{t('from_samhsa', L)}</span>}
+                      <span className="src">{t('from_samhsa', L)}</span>
                       <div className="rm-chips">{levels(x.levels_of_care, L).slice(0, 4).map((c) => <span className="rm-chip" key={c}>{c}</span>)}{programs(x.specialties, L).slice(0, 1).map((c) => <span className="rm-chip" key={c}>{c}</span>)}</div>
                     </div>
                     <div className="right">
