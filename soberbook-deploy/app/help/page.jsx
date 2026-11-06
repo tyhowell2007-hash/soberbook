@@ -131,12 +131,9 @@ export default async function HelpPage() {
         <div className="hpcard">
           <h3 className="hpname">Find Care</h3>
           <p className="hpwhat">
-            19,490 treatment centres and sober living houses, searchable by state
-            and town — the ones that take Medicaid, the ones on a sliding scale,
-            and the ones that will treat you while you&rsquo;re on methadone or
-            suboxone. Built by <b>Dr. Nicole Labor</b>, an addiction medicine
-            doctor in Seville, Ohio, who gave her directory to Sober Book. Nobody
-            paid to be on it and nobody can.
+            Treatment centres and sober living houses, searchable by state
+            and town. Filter for Medicaid, sliding-scale fees and medication
+            (methadone or Suboxone).
           </p>
           <Link className="hptel" href="/find-care">Find care near you</Link>
         </div>
