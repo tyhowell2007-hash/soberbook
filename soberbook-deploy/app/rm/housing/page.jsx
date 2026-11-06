@@ -22,7 +22,7 @@ export default function Housing() {
       </form>
       <div className="grid2">
         <div className="card teal"><h3>{es ? '¿Toma Suboxone, metadona o Vivitrol?' : 'On Suboxone, methadone or Vivitrol?'}</h3><p>{es ? 'Algunas casas todavía rechazan a personas con medicamentos. Toda Oxford House acepta medicamentos por política nacional.' : 'Some houses still turn people away for it. Every Oxford House welcomes medication by national policy, so they’re a good place to start.'}</p></div>
-        <div className="card lav"><h3>Oxford House</h3><p>{es ? 'Casas dirigidas por sus residentes en 46 estados, para hombres o mujeres. Vea las vacantes de hoy en el buscador oficial.' : 'Peer-run houses in 46 states, for men or for women. See today’s openings in Oxford House’s own finder. Coming to RecoveryMap’s search next.'}</p><a className="rm-btn sm" href="https://www.oxfordhouse.org" target="_blank" rel="noopener noreferrer">{es ? 'Buscador de Oxford House' : 'Oxford House finder'}</a></div>
+        <div className="card lav"><h3>Oxford House</h3><p>{es ? 'Casas dirigidas por sus residentes, para hombres o mujeres. Vea las vacantes en el buscador oficial.' : 'Peer-run houses for men or for women. See openings in Oxford House’s own finder.'}</p><a className="rm-btn sm" href="https://www.oxfordhouse.org" target="_blank" rel="noopener noreferrer">{es ? 'Buscador de Oxford House' : 'Oxford House finder'}</a></div>
       </div>
       <section style={{ display: 'grid', gap: 12 }}><h2>{es ? 'Cuatro tipos de vivienda' : 'Four kinds of recovery housing'}</h2>
         <div className="levels">
