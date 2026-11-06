@@ -20,10 +20,9 @@ export default function RmCard({ onClick, style }) {
   return (
     <Link href="/rm" className="rmcard" onClick={onClick} style={style}>
       <img src="/rm/icon-192.png" alt="" width="58" height="58" />
-      <span className="rmcard-t"><b>RecoveryMap</b><i>by Dr. Nicole Labor, DO</i></span>
+      <span className="rmcard-t"><b>RecoveryMap</b><i>Find treatment near you</i></span>
       <span className="rmcard-s">
-        19,490 places to get help: treatment, detox, sober living and meetings
-        near you. Nobody paid to be on it.
+        Treatment, detox, sober living and meetings near you.
       </span>
       <span className="rmcard-go">Find help near you <em>Open →</em></span>
     </Link>

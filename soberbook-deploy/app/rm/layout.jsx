@@ -4,7 +4,7 @@ import { t } from '../../lib/rm/t';
 import { MenuButton, LangButton, QuickExit } from './Chrome';
 
 /* =====================================================================
-   RECOVERYMAP BY DR. NICOLE LABOR, DO — the frame around every page.
+   RECOVERYMAP — the frame around every page.
    31 Oct 2026. Ty: "This all looks perfect."
 
    ⚠️ THIS SITS INSIDE SOBER BOOK'S ROOT LAYOUT (app/layout.jsx), which
@@ -17,8 +17,8 @@ import { MenuButton, LangButton, QuickExit } from './Chrome';
 export function generateMetadata() {
   return {
     metadataBase: new URL(siteUrl().replace(/\/rm$/, '')),
-    title: { default: 'RecoveryMap by Dr. Nicole Labor', template: '%s · RecoveryMap' },
-    description: 'Free help finding addiction treatment, mental health care, recovery housing and meetings near you, from addiction physician Dr. Nicole Labor, DO. No paid listings.',
+    title: { default: 'RecoveryMap', template: '%s · RecoveryMap' },
+    description: 'Find addiction treatment, mental health care, recovery housing and meetings near you.',
     /* 🔴 Sober Book's install manifest and Apple web-app settings must not
        follow RecoveryMap onto its own domain. */
     manifest: null,
@@ -55,22 +55,20 @@ export default function RmLayout({ children }) {
           <a href={`${b}/housing`}>{t('nav_housing', L)}</a>
           <a href={`${b}/meetings`}>{t('nav_meetings', L)}</a>
           <a href={`${b}/narcan`}>{t('nav_narcan', L)}</a>
-          <a href={`${b}/ask`}>{t('nav_ask', L)}</a>
           <LangButton lang={L} />
         </nav>
       </div></header>
       <QuickExit label={t('quick_exit', L)} />
       <main id="main" className="wrap">{children}</main>
       <footer className="foot"><div className="wrap">
-        <div><b>RecoveryMap by Dr. Nicole Labor, DO</b>
-          <p>{L === 'es' ? 'Un proyecto de Laborhood Change Project, operado con Sober Book. Gratis. Sin anuncios pagados. Sin comisiones por referidos, nunca.' : 'A project of the Laborhood Change Project, run with Sober Book. Free. No paid listings. No referral fees, ever.'}</p></div>
+        <div><b>RecoveryMap</b>
+          <p>{L === 'es' ? 'Un servicio de Sober Book.' : 'A service of Sober Book.'}</p></div>
         <div><b>{t('footer_nma', L)}</b><p>{t('footer_nma_body', L)}</p></div>
         <div><b>{L === 'es' ? 'Sitio' : 'Site'}</b><ul>
           <li><a href={`${b}/guide`}>{L === 'es' ? '¿No sabe qué necesita?' : 'Not sure what you need?'}</a></li>
           <li><a href={`${b}/for-you`}>{L === 'es' ? 'Empiece aquí' : 'Start here for…'}</a></li>
           <li><a href={`${b}/no-insurance`}>{L === 'es' ? '¿Sin seguro?' : 'No insurance?'}</a></li>
           <li><a href={`${b}/online`}>{L === 'es' ? 'Atención en línea' : 'Online care'}</a></li>
-          <li><a href={`${b}/about`}>{L === 'es' ? 'Conozca a la Dra. Labor' : 'Meet Dr. Labor'}</a></li>
         </ul></div>
         <div><b>{L === 'es' ? 'Lo legal' : 'The fine print'}</b><ul>
           <li><a href={`${b}/privacy`}>{L === 'es' ? 'Privacidad' : 'Privacy'}</a></li>

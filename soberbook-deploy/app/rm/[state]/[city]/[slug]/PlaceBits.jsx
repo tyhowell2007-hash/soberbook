@@ -13,8 +13,8 @@ export function NumberWorked({ center, lang }) {
     if (!ok) { try { await browserClient().rpc('rm_report_number', { p_center: center }); } catch {} }
   };
   if (done) return <div className="worked" role="status"><b>{done === 'yes'
-    ? (es ? 'Gracias. Eso ayuda a la próxima persona.' : 'Thanks. That helps the next person.')
-    : (es ? 'Gracias. Nuestro equipo revisará este número en una semana.' : 'Thanks. Our team will check this number within a week.')}</b></div>;
+    ? (es ? 'Gracias por avisarnos.' : 'Thanks for letting us know.')
+    : (es ? 'Gracias. Marcamos este número para revisión.' : 'Thanks. We’ve flagged this number for review.')}</b></div>;
   return (
     <div className="worked">
       <b>{es ? '¿Funcionó este número?' : 'Did this number work?'}</b>
