@@ -1,8 +1,9 @@
+import { redirect } from 'next/navigation';
 import { base, lang } from '../../../lib/rm/server';
 import { CONTENT_APPROVED } from '../../../lib/rm/words';
 import { t } from '../../../lib/rm/t';
 
-export const metadata = { title: 'Ask the Doc', description: 'Answers to the questions families ask most, from addiction physician Dr. Nicole Labor, DO.' };
+export const metadata = { title: 'RecoveryMap' };
 
 /* ⚠️ DRAFT ANSWERS. Written for Dr. Labor to rewrite in her own voice.
    The page says so until CONTENT_APPROVED is flipped. */
@@ -17,6 +18,9 @@ const Q = [
   ['Is what I search here private?', 'Yes. We don’t track you or sell anything, and Quick exit gets you off the page fast.'],
 ];
 export default function Ask() {
+  /* Hidden 6 Nov 2026 (Kenny): RecoveryMap no longer carries a personal
+     brand. The old page is kept below, unreachable, in case it returns. */
+  redirect(base() || '/');
   const L = lang();
   return (
     <div className="page">
