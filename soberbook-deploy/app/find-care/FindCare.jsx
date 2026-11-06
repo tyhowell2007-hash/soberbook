@@ -87,8 +87,7 @@ export default function FindCare({ snapshot }) {
       <p className="fc-intro">
         <b>{TOTAL_IN_DIRECTORY.toLocaleString()} places</b> to get help — the{' '}
         <a href="/rm">RecoveryMap</a>
-        {' '}directory, built by <b>Dr. Nicole Labor</b>.
-        {' '}Nobody paid to be on this list, and nobody can.
+        {' '}directory.
       </p>
 
       <div className="fc-controls">
@@ -210,10 +209,8 @@ export default function FindCare({ snapshot }) {
           A directory that hides its own age sends somebody to a number
           that stopped working. */}
       <p className="fc-foot">
-        Checked {snapshot}. Directory by Dr. Nicole Labor&apos;s{' '}
-        <a href="/rm">RecoveryMap</a>,
-        a project of the Laborhood Change Project. Sober Book doesn&apos;t take
-        money from treatment centres and never will.
+        Checked {snapshot}. Directory from{' '}
+        <a href="/rm">RecoveryMap</a>. Call to confirm details.
       </p>
     </div>
   );
