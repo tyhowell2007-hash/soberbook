@@ -1,11 +1,15 @@
-import { lang } from '../../../lib/rm/server';
+import { redirect } from 'next/navigation';
+import { lang, base } from '../../../lib/rm/server';
 
-export const metadata = { title: 'Meet Dr. Nicole Labor', description: 'Dr. Nicole Labor, DO, FASAM: addiction medicine physician, author, and the doctor behind RecoveryMap.' };
+export const metadata = { title: 'RecoveryMap' };
 
 /* Every line comes from ASAM's published biography and theaddictsdoc.com.
    🔴 She is a DO, not an MD. Don't write "MD" anywhere. No "bestselling",
    no follower counts, no awards: none could be confirmed. */
 export default function About() {
+  /* Hidden 6 Nov 2026 (Kenny): RecoveryMap no longer carries a personal
+     brand. The old page is kept below, unreachable, in case it returns. */
+  redirect(base() || '/');
   const es = lang() === 'es';
   return (
     <div className="page">

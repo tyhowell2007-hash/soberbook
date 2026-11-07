@@ -13,14 +13,14 @@ const M = [
   ['Recovery Dharma', 'Buddhist-inspired, peer-led', 'https://recoverydharma.org'],
   ['Al-Anon', 'For family and friends of people who drink', 'https://al-anon.org'],
   ['Nar-Anon', 'For family and friends of people who use drugs', 'https://www.nar-anon.org'],
-  ['In The Rooms', 'Online meetings from many fellowships, any hour', 'https://www.intherooms.com'],
+  ['In The Rooms', 'Online meetings from many fellowships', 'https://www.intherooms.com'],
 ];
 export default function Meetings() {
   const es = lang() === 'es';
   return (
     <div className="page">
       <div style={{ display: 'grid', gap: 10 }}><div className="eyebrow">{es ? 'Reuniones' : 'Meetings'}</div><h1>{es ? 'Reuniones gratuitas, en persona y en línea' : 'Free meetings, in person and online'}</h1>
-        <p className="lede">{es ? 'Cada enlace abre el buscador oficial de esa comunidad. Pronto: los horarios de esta noche cerca de usted, aquí mismo.' : 'Each one opens that fellowship’s own official meeting finder, which is always current. Coming next: tonight’s meeting times near you, right here.'}</p></div>
+        <p className="lede">{es ? 'Cada enlace abre el buscador oficial de esa comunidad.' : 'Each link opens that fellowship’s official meeting finder.'}</p></div>
       <div className="list">{M.map(([n, d, u]) => (
         <div className="rm-item" key={n}><div><b>{n}</b><p>{d}</p></div><a className="rm-btn sm" href={u} target="_blank" rel="noopener noreferrer">{es ? 'Buscar reunión' : 'Find a meeting'}</a></div>
       ))}</div>

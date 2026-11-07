@@ -8,7 +8,7 @@ export const revalidate = 86400;
 
 export async function GET() {
   const site = 'https://myrecoverymap.org';
-  const pages = ['', '/search', '/guide', '/housing', '/meetings', '/narcan', '/online', '/no-insurance', '/for-you', '/ask', '/about', '/privacy', '/terms', '/contact'];
+  const pages = ['', '/search', '/guide', '/housing', '/meetings', '/narcan', '/online', '/no-insurance', '/for-you', '/privacy', '/terms', '/contact'];
   const rows = [];
   for (let off = 0; off < 30000; off += 10000) {
     const { data } = await db().rpc('rm_sitemap', { p_offset: off });

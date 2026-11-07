@@ -29,7 +29,7 @@ export function TapLink({ id, dial, className, children }) {
    ⚠️ The sms: link may do nothing on a desktop; the Copy button always
    works, and the page never claims a message was sent. */
 export function smsText(rows, lang) {
-  const head = lang === 'es' ? 'Lugares para llamar (de RecoveryMap por la Dra. Nicole Labor):' : 'Places to call (from RecoveryMap by Dr. Nicole Labor):';
+  const head = lang === 'es' ? 'Lugares para llamar (de RecoveryMap):' : 'Places to call (from RecoveryMap):';
   const foot = lang === 'es' ? 'En crisis: llame o envíe un texto al 988.' : 'In crisis: call or text 988.';
   return `${head}\n\n${rows.map((r) => `${r.n}, ${r.c}\n${r.dial}${r.ext ? ` ext. ${r.ext}` : ''}`).join('\n\n')}\n\n${foot}`;
 }

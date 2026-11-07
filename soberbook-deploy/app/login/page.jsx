@@ -537,7 +537,7 @@ export default function Landing() {
   }
 
   const TICK_A = ['18+ only', 'Live sober clock', 'Recovery coins', 'Talk Rooms', 'Meetings any hour', 'Anonymous if you want', 'All paths welcome'];
-  const TICK_B = ['RecoveryMap by Dr. Labor', 'A plan for 3 a.m.', 'Daily pledge', 'Readings', 'Rooms for every path', 'Chat', 'Somewhere quiet'];
+  const TICK_B = ['RecoveryMap', 'A plan for 3 a.m.', 'Daily pledge', 'Readings', 'Rooms for every path', 'Chat', 'Somewhere quiet'];
   const strip = (arr) => [...arr, ...arr].map((w, i) => (
     <span key={i}><span>{w}</span><span className="lx-star">✦</span></span>));
 
@@ -845,14 +845,13 @@ export default function Landing() {
             <div className="lx-rays" aria-hidden="true" />
             <div className="lx-rm-top">
               <img src="/rm/icon-192.png" alt="" width="56" height="56" />
-              <div><div className="lx-rm-nm">RecoveryMap</div><div className="lx-rm-by">by Dr. Nicole Labor, DO</div></div>
+              <div><div className="lx-rm-nm">RecoveryMap</div><div className="lx-rm-by">Find treatment near you</div></div>
               <span className="lx-rm-new">INSIDE SOBER BOOK</span>
             </div>
-            <h3>A doctor’s map<br />to care.</h3>
-            <p>Find treatment, recovery housing, telehealth and free meetings near you.
-               Made by a board-certified addiction medicine doctor.</p>
+            <h3>Find care<br />near you.</h3>
+            <p>Treatment, recovery housing, telehealth and free meetings.</p>
             <div className="lx-stats">
-              <div><b>12,916</b><span>programs</span></div><div><b>Every</b><span>state</span></div><div><b>$0</b><span>paid listings</span></div>
+              <div><b>Every</b><span>state</span></div><div><b>Free</b><span>to use</span></div>
             </div>
             <div className="lx-ways"><span>Treatment near you</span><span>Recovery housing</span><span>Telehealth</span><span>Narcan, free</span><span>Quick exit</span></div>
             <div className="lx-rm-go">Open RecoveryMap →</div>

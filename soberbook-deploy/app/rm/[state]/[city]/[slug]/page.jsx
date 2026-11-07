@@ -59,16 +59,11 @@ export default async function Place({ params }) {
         <span className={`pill p-${k}`}>{HELP[L][k]}</span>
         <h1>{n.name}</h1>
         <p className="lede" style={{ marginTop: -6 }}>{n.site ? `${n.site} · ` : ''}{c.city}, {STATE_NAME[c.state] || c.state}</p>
-        {c.badge
-          ? <span className="vb"><i>✓</i>{es ? 'Revisado por la Dra. Nicole Labor, DO' : 'Checked by Dr. Nicole Labor, DO'} · {new Date(c.badge.checked_on).toLocaleDateString(es ? 'es-US' : 'en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' })}</span>
-          : <span className="src">{t('from_samhsa', L)} · {t('not_checked', L)}</span>}
+        <span className="src">{t('from_samhsa', L)}</span>
       </div>
 
       <div className="detail">
         <div>
-          {c.badge?.note && (
-            <div className="drnote"><img src="/rm/drlabor.jpg" alt="" width="52" height="52" /><div><b>{t('dr_note', L)}</b><p>{c.badge.note}</p></div></div>
-          )}
           <dl>
             <div className="row"><dt>{t('kinds', L)}</dt><dd>{levels(c.levels_of_care, L).join(' · ') || (es ? 'Llame para preguntar' : 'Call to ask')}</dd></div>
             <div className="row"><dt>{t('helps', L)}</dt><dd>{HELP_LONG[L][k]}</dd></div>
@@ -90,7 +85,7 @@ export default async function Place({ params }) {
               </dd></div>
             )}
             <div className="row"><dt>{t('address', L)}</dt><dd>{c.address_line1 ? addr : (es ? `Llame para la dirección · ${c.city}, ${c.state}` : `Call for the address · ${c.city}, ${c.state}`)}{c.address_line1 && <a href={dirs} target="_blank" rel="noopener noreferrer">{t('directions', L)}</a>}</dd></div>
-            <div className="row"><dt>{t('source', L)}</dt><dd><span>{es ? 'Directorio nacional 2025 de SAMHSA' : 'SAMHSA’s 2025 national directory'}{c.badge ? (es ? ', revisado por la Dra. Labor' : ', checked by Dr. Labor') : ''}.</span>{n.changed && <span className="small">{es ? 'Nombre en SAMHSA' : 'Listed by SAMHSA as'} “{n.original}”</span>}</dd></div>
+            <div className="row"><dt>{t('source', L)}</dt><dd><span>{es ? 'Directorio nacional de SAMHSA' : 'SAMHSA’s national directory'}. {es ? 'Llame para confirmar.' : 'Call to confirm details.'}</span>{n.changed && <span className="small">{es ? 'Nombre en SAMHSA' : 'Listed by SAMHSA as'} “{n.original}”</span>}</dd></div>
           </dl>
           <details className="card">
             <summary style={{ fontWeight: 700, cursor: 'pointer' }}>{t('work_here', L)}</summary>

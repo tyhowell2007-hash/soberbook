@@ -256,3 +256,6 @@ html body:has(> .rm){max-width:none;margin:0;border:0;background:transparent;min
 .rm .doc h2{margin-top:10px}
 .rm .doc ul{padding-left:20px;display:grid;gap:6px}
 @media (prefers-reduced-motion:reduce){.rm *{transition:none!important;animation:none!important}}
+
+/* Home hero without the portrait column (6 Nov 2026). */
+.rm .hero.solo{grid-template-columns:1fr;max-width:760px}
