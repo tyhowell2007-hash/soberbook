@@ -155,6 +155,18 @@ function who(p) {
   );
 }
 
+/* ⭐ 8 Nov 2026 — SHORT POSTS SHOW BIG (type.css, .bd.big). Ty approved
+   the "30 days today. Didn't think I'd make it." card in the refined type
+   prototype. Short means one line of plain words: 70 characters or fewer,
+   no line break, no link (a link becomes a player, and a giant URL is not
+   a moment), and no photo or video (the picture is the moment then). */
+function isShortPost(p) {
+  const t = (p.body || '').trim();
+  if (!t || t.length > 70 || /\n/.test(t) || /https?:\/\/|www\./i.test(t)) return false;
+  if (p.photo_url || (p.photo_urls && p.photo_urls.length) || p.video_url || p.stream_uid) return false;
+  return true;
+}
+
 /* `me` defaults rather than being required, so this component still
    renders if it's ever mounted without it — a missing name should cost
    you a greeting, never a blank page. */
@@ -1992,7 +2004,7 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
               {/* A photo-only post has an empty body. Rendering the empty
                   paragraph anyway leaves a blank gap above the picture that
                   looks like text failed to load. */}
-              {p.body && !recs[p.id] && !adItem ? <p className="bd"><Body text={p.body} tags={tags[p.id]} hl={didBroadcast.has(p.id)} /></p> : null}
+              {p.body && !recs[p.id] && !adItem ? <p className={'bd' + (isShortPost(p) ? ' big' : '')}><Body text={p.body} tags={tags[p.id]} hl={didBroadcast.has(p.id)} /></p> : null}
 
               {/* ⭐ Aug 23. A member posted his music and the link came out
                   as plain text you had to copy and leave for. It plays

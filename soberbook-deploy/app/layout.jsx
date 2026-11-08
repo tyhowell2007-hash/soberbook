@@ -22,6 +22,10 @@ import './coins.css';
    the masthead and the floating tab bar on the green theme. Remove this
    one line to undo it. See the header of app/polish.css. */
 import './polish.css';
+/* 🔤 8 Nov 2026 — our fonts: SB Breaker (the name) + SB Text (everything
+   people read and tap). Imported LAST so it sits on top. See the note at
+   the top of type.css before touching the Google Fonts link below. */
+import './type.css';
 import { serverClient } from '../lib/supabase-server';
 
 /* ⚠️ theme-green.css IS DELIBERATELY NOT IMPORTED HERE. DO NOT ADD IT BACK.
@@ -225,7 +229,7 @@ export default async function RootLayout({ children }) {
              and the wide typewriter letter-spacing on those labels was
              tightened to .03em. door.css (the sign-in page) was left alone.
              Courier Prime stays in this URL only because door.css uses it. */
-          href="https://fonts.googleapis.com/css2?family=Anton&family=Courier+Prime:wght@400;700&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400&family=Permanent+Marker&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;700&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Anton&family=Courier+Prime:wght@400;700&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400&family=Permanent+Marker&family=Space+Grotesk:wght@400;500;700&display=swap"
           rel="stylesheet"
         />
       </head>
