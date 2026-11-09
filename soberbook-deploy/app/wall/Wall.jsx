@@ -366,6 +366,7 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
       const line = String(e.detail || '').slice(0, 2000);
       if (!line) return;
       setText((t) => (t ? t : line));
+      setTab('post');
       requestAnimationFrame(() => {
         const el = boxRef.current;
         if (!el) return;
@@ -374,6 +375,60 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
     };
     window.addEventListener('sb:compose', onCompose);
     return () => window.removeEventListener('sb:compose', onCompose);
+  }, []);
+
+  /* ⭐ 9 Nov 2026 — THE "SAY IT" CARD (Kenny). Post, Check in and Grateful
+     used to be three cards stacked down the page, so the composer sat a
+     full screen below hello. Now they are three tabs on ONE card.
+
+     🔴 TABS, NOT ONE BOX, BECAUSE THE PRIVACY IS DIFFERENT. A pledge's
+     why is private forever (see Pledge.jsx); a post goes on the wall.
+     Folding them into one text box would put the most private line in
+     the app one tap from the most public place. Each tab keeps its own
+     component and its own rules — this only changes where they sit.
+
+     ⚠️ WHICH TAB OPENS. Check in is the most-used thing on Home (114 of
+     339 members in 30 days), so the card opens on Check in until today's
+     pledge is said, and on Post after that. `null` means "not decided
+     yet": it shows Post, and the pledge's answer only moves it if the
+     member hasn't touched the card or started typing.
+
+     ⚠️ All three stay MOUNTED and inactive ones are `hidden`, so switching
+     tabs never loses a half-written post or pledge. */
+  const [tab, setTab] = useState(null);           // null | 'post' | 'checkin' | 'grateful'
+  const [pledgeOpen, setPledgeOpen] = useState(false);  // today's pledge not said yet
+  const tabTouched = useRef(false);
+  const shownTab = tab || 'post';
+  function pickTab(t) { tabTouched.current = true; setTab(t); }
+  function onPledgeStatus(saidToday) {
+    setPledgeOpen(!saidToday);
+    if (tabTouched.current) return;
+    setTab((cur) => (cur ? cur : (saidToday || boxRef.current?.value ? 'post' : 'checkin')));
+  }
+  /* The "Check in" doors (/wall#pledge from More, #pledge on the bar)
+     must open the Check in tab, or they land on a hidden card. A click
+     on an anchor that is already the current hash fires no hashchange,
+     hence the click listener as well. */
+  useEffect(() => {
+    const toCheckin = () => {
+      tabTouched.current = true;
+      setTab('checkin');
+      requestAnimationFrame(() => {
+        try { document.getElementById('pledge')?.scrollIntoView({ block: 'start' }); } catch { /* fine */ }
+      });
+    };
+    if (window.location.hash === '#pledge') { tabTouched.current = true; setTab('checkin'); }
+    const onHash = () => { if (window.location.hash === '#pledge') toCheckin(); };
+    const onClick = (e) => {
+      const a = e.target && e.target.closest && e.target.closest('a[href="#pledge"], a[href="/wall#pledge"]');
+      if (a) toCheckin();
+    };
+    window.addEventListener('hashchange', onHash);
+    document.addEventListener('click', onClick);
+    return () => {
+      window.removeEventListener('hashchange', onHash);
+      document.removeEventListener('click', onClick);
+    };
   }, []);
 
   /* ⭐ A LOOKUP, NOT A REGEX. A name has spaces and there is no way to
@@ -1335,7 +1390,6 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
           ⚠️ It renders nothing at all once you've answered tomorrow's
           version of it — see Pledge.jsx. A card that stays after it's
           done is just furniture between you and the room. */}
-      <Pledge />
 
       {/* ---- ONE GOOD THING ----
           🔴 DIRECTLY UNDER THE PLEDGE, AND NEVER ABOVE IT. Ty: "we want to
@@ -1353,16 +1407,11 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
           the ask at somebody who already wrote this morning — and once
           they have, it becomes a two-line record rather than more
           furniture between them and the room. */}
-      <Gratitude />
-
-      {/* ---- WHERE EVERYONE IS · YOUR CIRCLE · ARTISTS (9 Nov 2026) ----
-          After you've checked in, the room: who else is here and in what
-          season, your circle, then the composer. Rendered by page.jsx. */}
-      {/* ⭐ 9 Nov 2026 — one quiet friend, one tap to say hi. Renders
-          nothing unless you have a friend who's been quiet two weeks. */}
-      <QuietNudge />
-
-      {community}
+      {/* ⭐ 9 Nov 2026 — THE PLEDGE AND GRATITUDE CARDS ARE NOW TABS on the
+          "say it" card below (Post · Check in · Grateful), so the composer
+          is no longer a screen down. The two notes above still hold for
+          what each card IS; only where it sits changed. See `tab` near the
+          top of this file. */}
 
       {/* ---- THE COMPOSER, MOVED TO THE TOP ----
           It used to sit under the wall. Two reasons it belongs here:
@@ -1396,6 +1445,37 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
         });
       }} />
 
+      <section className="saybox" aria-label="Post, check in, or say one good thing">
+        <div className="saybox-tabs" role="tablist">
+          <button type="button" role="tab" id="saytab-post" aria-controls="saypane-post"
+                  aria-selected={shownTab === 'post'}
+                  className={'saybox-tab' + (shownTab === 'post' ? ' on' : '')}
+                  onClick={() => pickTab('post')}>💬 Post</button>
+          <button type="button" role="tab" id="saytab-checkin" aria-controls="saypane-checkin"
+                  aria-selected={shownTab === 'checkin'}
+                  className={'saybox-tab' + (shownTab === 'checkin' ? ' on' : '')}
+                  onClick={() => pickTab('checkin')}>
+            🌱 Check in
+            {/* A quiet dot, not a number or a badge: "not done yet today",
+                nothing more. Gone the moment the pledge is said. */}
+            {pledgeOpen && shownTab !== 'checkin' && <span className="saybox-dot" aria-label="(not yet today)" />}
+          </button>
+          <button type="button" role="tab" id="saytab-grateful" aria-controls="saypane-grateful"
+                  aria-selected={shownTab === 'grateful'}
+                  className={'saybox-tab' + (shownTab === 'grateful' ? ' on' : '')}
+                  onClick={() => pickTab('grateful')}>🙏 Grateful</button>
+        </div>
+
+        <div className="saybox-pane" role="tabpanel" id="saypane-checkin"
+             aria-labelledby="saytab-checkin" hidden={shownTab !== 'checkin'}>
+          <Pledge onStatus={onPledgeStatus} />
+        </div>
+        <div className="saybox-pane" role="tabpanel" id="saypane-grateful"
+             aria-labelledby="saytab-grateful" hidden={shownTab !== 'grateful'}>
+          <Gratitude />
+        </div>
+        <div className="saybox-pane" role="tabpanel" id="saypane-post"
+             aria-labelledby="saytab-post" hidden={shownTab !== 'post'}>
       <form className="composer" onSubmit={post}>
         <div className="ctop">
           {/* 📝 12 Sept — THIS WAS AN <input> UNTIL A MEMBER REPORTED IT.
@@ -1834,6 +1914,8 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
           </p>
         )}
       </form>
+        </div>
+      </section>
 
       {/* ⚠️ OUTSIDE the <form>, immediately under it. Inside, its buttons
           would be submit buttons by default and "Not now" would re-post.
@@ -1861,6 +1943,16 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
           member is due both, the notification ask is the one that has to
           land — it is what makes the NEXT reply reach them at all. */}
       <InviteAsk hold={!!askPush} />
+
+      {/* ---- WHERE EVERYONE IS · YOUR CIRCLE · ARTISTS (9 Nov 2026) ----
+          After you've checked in, the room: who else is here and in what
+          season, your circle, then the composer. Rendered by page.jsx. */}
+      {/* ⭐ 9 Nov 2026 — one quiet friend, one tap to say hi. Renders
+          nothing unless you have a friend who's been quiet two weeks. */}
+      <QuietNudge />
+
+      {community}
+
 
 
 
