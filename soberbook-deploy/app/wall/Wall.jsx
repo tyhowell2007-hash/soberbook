@@ -12,7 +12,7 @@ import { openPhoto } from '../components/photoBig';
 import StreamVideo from '../components/StreamVideo';
 import { Body, Player } from '../components/Linked';
 import EmojiPicker from '../friends/EmojiPicker';
-import { fetchPreviews, PREVIEW_COUNT } from '../../lib/previews';
+import { fetchPreviews } from '../../lib/previews';
 import { fetchDrops } from '../../lib/drops';
 import { fetchTags, attachTags } from '../../lib/tags';
 import { fetchBroadcasts } from '../../lib/highlights';
@@ -1945,8 +1945,8 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
       <InviteAsk hold={!!askPush} />
 
       {/* ---- WHERE EVERYONE IS · YOUR CIRCLE · ARTISTS (9 Nov 2026) ----
-          After you've checked in, the room: who else is here and in what
-          season, your circle, then the composer. Rendered by page.jsx. */}
+          After the "say it" card above, the room: who else is here and in
+          what season, your circle, artists. Rendered by page.jsx. */}
       {/* ⭐ 9 Nov 2026 — one quiet friend, one tap to say hi. Renders
           nothing unless you have a friend who's been quiet two weeks. */}
       <QuietNudge />
