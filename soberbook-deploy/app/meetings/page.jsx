@@ -91,10 +91,16 @@ export default async function MeetingsPage() {
           failure has nothing to do with them, and a person at 2am should
           not lose the room somebody here has open because a volunteer
           server in another state is down. */}
-      <div className="pad" style={{ paddingBottom: 0 }}>
-        <CheckinCard />
-        <TalkCard />
-      </div>
+      {/* ⭐ 9 Nov 2026 — when the list loads, these render INSIDE it, right
+          under "Rooms open right now" (see `tools` and List's afterHero).
+          When the NA feed is down they stay up here, so members' own rooms
+          are never lost to somebody else's server. */}
+      {!ok && (
+        <div className="pad" style={{ paddingBottom: 0 }}>
+          <CheckinCard />
+          <TalkCard />
+        </div>
+      )}
 
       {/* ⭐ FOR WHEN A MEETING ISN'T THE THING.
 
@@ -107,11 +113,13 @@ export default async function MeetingsPage() {
           came here for a meeting should not have treatment marketed at
           them. In this industry the loud version of this link is the
           problem. */}
-      <div className="pad" style={{ paddingTop: 10, paddingBottom: 0 }}>
-        <Link className="mt-care" href="/find-care">
-          Need more than a meeting? Find treatment and sober living near you →
-        </Link>
-      </div>
+      {!ok && (
+        <div className="pad" style={{ paddingTop: 10, paddingBottom: 0 }}>
+          <Link className="mt-care" href="/find-care">
+            Need more than a meeting? Find treatment and sober living near you →
+          </Link>
+        </div>
+      )}
 
       {!ok ? (
         <div className="pad">
@@ -133,7 +141,14 @@ export default async function MeetingsPage() {
           </div>
         </div>
       ) : (
-        <List meetings={meetings} fetchedAt={fetchedAt} source={SOURCE} going={going} />
+        <List meetings={meetings} fetchedAt={fetchedAt} source={SOURCE} going={going}
+              afterHero={<div style={{ display: 'grid', gap: 10, margin: '12px 0' }}>
+                <TalkCard />
+                <CheckinCard />
+                <Link className="mt-care" href="/find-care">
+                  Need more than a meeting? Find treatment and sober living near you →
+                </Link>
+              </div>} />
       )}
     </>
   );
