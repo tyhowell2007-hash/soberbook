@@ -31,6 +31,7 @@ import InviteAsk from './InviteAsk';
 import Pledge from '../components/Pledge';
 import Gratitude from '../components/Gratitude';
 import QuietNudge from '../components/QuietNudge';
+import WaitingOnYou from '../components/WaitingOnYou';
 import MilestoneCard from './MilestoneCard';
 import { markLabel } from '../../lib/milestones';
 import ArtistCheck from '../components/ArtistCheck';
@@ -1277,6 +1278,12 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
 
           ⚠️ It renders NOTHING when there is no note, so a quiet week
           leaves this page byte-for-byte what it was. */}
+      {/* ⭐ 9 Nov 2026 — SOMEBODY IS WAITING ON YOU. Right under hello, above
+          everything else on Home: a message to answer or a friend request to
+          accept. Renders nothing when nobody is waiting. See WaitingOnYou.jsx
+          for the numbers behind putting it first. */}
+      <WaitingOnYou />
+
       {/* ⭐ 9 Nov 2026 — THE TEAM NOTE NO LONGER RENDERS ON HOME (Kenny + Ty).
           Part of the guided-experience pass: announcements about what the
           team changed or added are information a member has to read past
