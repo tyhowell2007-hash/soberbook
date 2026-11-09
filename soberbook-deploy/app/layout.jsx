@@ -63,7 +63,6 @@ import AudioUnlock from './components/AudioUnlock';
    put a back arrow in the right-hand slot, so a per-page button would
    have collided on most of the app AND been 24 chances to miss one.
    Renders nothing when signed out, so the grunge door is untouched. */
-import MastMenu from './components/MastMenu';
 /* The full-size picture viewer. ⚠️ Root layout, not a per-page import —
    photos are tappable on the wall, in replies, in DMs, in the room and on
    both profile pages, and the overlay has to be able to sit on top of any
@@ -165,8 +164,7 @@ export default async function RootLayout({ children }) {
     /* ⚠️ data-menu is what pads the masthead across for a button it does
        not contain (globals.css). Absent when signed out, so the door's
        wordmark stays exactly where it is. */
-    <html lang="en" data-theme={theme === 'black' ? 'black' : undefined}
-          data-menu={signedIn ? 'on' : undefined}>
+    <html lang="en" data-theme={theme === 'black' ? 'black' : undefined}>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
@@ -237,7 +235,9 @@ export default async function RootLayout({ children }) {
         {children}
         {/* Registers the service worker after the page has loaded. Renders
             nothing. Without it Chrome will not offer to install the app. */}
-        <MastMenu on={signedIn} />
+        {/* ⭐ 9 Nov 2026 — the ☰ drawer (MastMenu) no longer mounts. It listed
+            the same rows as the More tab, so members had two ways to the same
+            list. Its 988 row moved to the top of /more (CrisisRow). */}
         <PhotoBig />
         <DayMark on={signedIn} />
         <PullToRefresh on={signedIn} />

@@ -140,3 +140,8 @@ select.ds-in{ appearance:none; }
   margin:0; padding:16px 14px; font-family:'Plus Jakarta Sans', system-ui, sans-serif;
   font-size:12px; color:var(--soft,#5E6788);
 }
+
+/* 9 Nov 2026 — the record chip now sits on the one-line .cas-one row
+   (Wall.jsx) instead of its own .casrec row; same look. */
+.cas-one .asme.rec{ border-color:var(--soft); color:var(--soft); }
+.cas-one .asme.rec.on{ background:#00FF00; border-color:#0A0A09; color:#0A0A09; font-weight:700; }

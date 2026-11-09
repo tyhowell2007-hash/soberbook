@@ -516,3 +516,11 @@ html[data-menu="on"] .mast{ padding-left:59px; }
 .ph-words{ display:inline-block; font-size:12px; line-height:1.35; color:#6B7D72; max-width:260px; }
 .ph-why{ background:none; border:0; padding:0; color:#1329B0; font:inherit; font-weight:700; text-decoration:underline; cursor:pointer; }
 .ph-why-t{ display:block; margin-top:4px; color:#4E5161; }
+
+/* 9 Nov 2026 — QuietNudge (Home): one quiet friend, one tap to say hi. */
+.qn{ margin:12px 16px; padding:12px 14px; border-radius:14px; background:var(--gl, #EAF6EE);
+     color:var(--gt, #0B3D1E); display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; }
+.qn-t{ margin:0; font-size:14px; line-height:1.35; }
+.qn-a{ display:flex; gap:8px; align-items:center; }
+.qn-go{ background:var(--gt, #0B3D1E); color:#fff; border-radius:99px; padding:9px 14px; font-weight:700; font-size:13px; text-decoration:none; min-height:36px; display:inline-flex; align-items:center; }
+.qn-no{ background:none; border:0; color:inherit; opacity:.75; font-size:13px; padding:8px 4px; cursor:pointer; min-height:36px; }
