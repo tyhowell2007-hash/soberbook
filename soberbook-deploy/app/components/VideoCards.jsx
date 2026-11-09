@@ -45,7 +45,7 @@ export default function VideoCards({ videos, handle, dayNow = null }) {
           const day = dayNow != null && dayNow - back > 0 ? dayNow - back : null;
           const total = coinTotal(v);
           const seenN = Number(v.seen_count);
-          const seen = v.seen_count == null ? '' : (!v.is_mine && seenN < 10) ? '✨ New' : `${seenN} watched`;
+          const seen = v.seen_count == null ? '' : (!v.is_mine && seenN < 10) ? '' : `${seenN} watched`;
           return (
             <Link key={v.id} className="vcard" style={{ background: `linear-gradient(160deg, ${a}, ${b})` }}
                   href={`/videos?u=${encodeURIComponent(handle)}&v=${v.id}`}
