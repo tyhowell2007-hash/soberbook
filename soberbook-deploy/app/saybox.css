@@ -80,14 +80,16 @@
    is the card now. Two borders and two corner radii nested inside each
    other is what "three tiles crawling down" looked like in miniature.
    --------------------------------------------------------------------- */
-/* ⚠️ `html body` IN FRONT ON PURPOSE. polish.css gives every card its
-   shape with `html:not([data-theme="black"]) :is(.pl, .gr, .composer…)`,
-   which outranks a plain `.saybox .pl` — the first deploy shipped with
-   the pledge still wearing its own border and shadow inside the card.
-   Measured on soberbook.app, 9 Nov. */
-html body .saybox .pl,
-html body .saybox .gr,
-html body .saybox .composer {
+/* ⚠️ `html body .saybox.saybox` ON PURPOSE. polish.css gives every card
+   its shape with `html:not([data-theme="black"]) :is(.pl, …, .wall .item)`.
+   :is() takes the specificity of its MOST specific argument (.wall .item),
+   so that rule scores (0,3,1) and beat both `.saybox .pl` and
+   `html body .saybox .pl` — the pledge kept its own border and shadow
+   inside the card on two deploys. This scores (0,3,2). Checked with
+   getComputedStyle on soberbook.app, 9 Nov, not by eye. */
+html body .saybox.saybox .pl,
+html body .saybox.saybox .gr,
+html body .saybox.saybox .composer {
   margin: 0;
   border: 0;
   border-radius: 0;
@@ -97,8 +99,8 @@ html body .saybox .composer {
 
 /* The green edge said "this one is yours to answer" on a lone card. The
    tab underline says it now. */
-html body .saybox .pl-ask,
-html body .saybox .gr-ask { border-left: 0; }
+html body .saybox.saybox .pl-ask,
+html body .saybox.saybox .gr-ask { border-left: 0; }
 
 /* In the light theme the card itself wears the same shape polish.css gives
    every other card on Home, so it doesn't look like the odd one out. */
