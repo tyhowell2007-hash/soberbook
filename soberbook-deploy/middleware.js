@@ -276,7 +276,13 @@ export async function middleware(request) {
                 /* 0199: the public share card (soberbook.app/@handle). It shows
                    only what share_card() returns, and nothing at all for a card
                    that is turned off. */
-                '/card/'];
+                '/card/',
+                /* 0203: a member's shared meeting slips (soberbook.app/slips/<id>),
+                   for a PO or house manager who isn't on Sober Book. Shows only
+                   what shared_slips() returns, and nothing for a link that's off.
+                   ⚠️ '/slips/' WITH THE SLASH — the member's own '/slip' page and
+                   the chair's '/sign/…' page stay signed-in only. */
+                '/slips/'];
   const isOpen = open.some((p) => request.nextUrl.pathname.startsWith(p)) || request.nextUrl.pathname === '/rm';
 
   /* 🔴 A STRANGER AT THE FRONT DOOR GETS THE PITCH, NOT A PASSWORD BOX.

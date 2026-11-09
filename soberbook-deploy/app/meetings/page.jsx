@@ -5,6 +5,10 @@ import { fetchMeetings, SOURCE } from '../../lib/meetings';
 import List from './List';
 /* 1 Nov 2026 — Talk Rooms replaces the Daily "Start a room" box (Rooms.jsx, left unlinked). */
 import TalkCard from './TalkCard';
+/* ✓ 8 Nov 2026 — "Went to a meeting today?" (0202). Sits above Talk
+   Rooms: it's the first thing to do after a meeting, and it draws nothing
+   at all until 0202 is run or for a signed-out visitor. */
+import CheckinCard from './CheckinCard';
 
 /* =====================================================================
    MEETINGS.
@@ -88,6 +92,7 @@ export default async function MeetingsPage() {
           not lose the room somebody here has open because a volunteer
           server in another state is down. */}
       <div className="pad" style={{ paddingBottom: 0 }}>
+        <CheckinCard />
         <TalkCard />
       </div>
 

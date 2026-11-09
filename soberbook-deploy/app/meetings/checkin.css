@@ -1,0 +1,32 @@
+/* ✓ Meeting check-in card on /meetings — 8 Nov 2026 (CheckinCard.jsx).
+   Every rule under .mc-card: meetings.css and wall.css own a lot of short
+   class names. Blue is the app, green is the action. */
+.mc-card{background:#fff;border-radius:20px;padding:16px;box-shadow:0 6px 18px rgba(0,0,90,.08);margin:0 0 12px;color:#000060;font-family:'SB Text','Plus Jakarta Sans',system-ui,sans-serif}
+.mc-card .mc-hd{font-family:'Anton',Impact,sans-serif;font-weight:400;font-size:28px;line-height:1.05;letter-spacing:.01em;text-transform:uppercase;color:#000080;margin:0 0 10px}
+.mc-card .mc-lab{display:block;font-size:11.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#4A5590;margin:0 0 6px}
+.mc-card .mc-lab span{font-weight:500;text-transform:none;letter-spacing:0}
+.mc-card .mc-in{width:100%;box-sizing:border-box;border:1.5px solid #D5DCF3;border-radius:14px;padding:11px 12px;font:500 15px 'SB Text','Plus Jakarta Sans',system-ui,sans-serif;color:#000060;background:#fff;margin:0 0 10px}
+.mc-card .mc-in:focus{outline:none;border-color:#1329B0}
+.mc-card .mc-go{width:100%;min-height:48px;border:0;border-radius:999px;background:linear-gradient(180deg,#2BFF5A,#00C84A);color:#000060;font:800 15.5px 'SB Text','Plus Jakarta Sans',system-ui,sans-serif;cursor:pointer}
+.mc-card .mc-go:disabled{opacity:.6}
+.mc-card .mc-go:focus-visible,.mc-card .mc-undo:focus-visible{outline:3px solid #1329B0;outline-offset:2px}
+.mc-card .mc-done{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.mc-card .mc-done p{margin:0;font-weight:800;color:#006B2A;font-size:15px}
+.mc-card .mc-done b{color:#000060;font-weight:650}
+.mc-card .mc-undo{border:0;background:none;color:#4A5590;font:600 13px 'SB Text','Plus Jakarta Sans',system-ui,sans-serif;text-decoration:underline;text-underline-offset:3px;min-height:44px;cursor:pointer}
+.mc-card .mc-counts{display:flex;gap:10px;margin:12px 0 0}
+.mc-card .mc-counts div{flex:1;background:#EEF1FF;border-radius:14px;padding:10px;text-align:center}
+.mc-card .mc-counts b{display:block;font-family:'Anton',Impact,sans-serif;font-weight:400;font-size:28px;line-height:1.05;color:#000080}
+.mc-card .mc-counts span{font-size:11.5px;font-weight:700;color:#4A5590}
+.mc-card .mc-note{margin:10px 0 0;font-size:12px;color:#4A5590;line-height:1.45}
+.mc-card .mc-slip{display:block;margin:8px 0 0;font-size:13.5px;font-weight:700;color:#1329B0;text-decoration:underline;text-underline-offset:3px}
+.mc-card .mc-err{margin:8px 0 0;font-size:13px;font-weight:700;color:#B3261E}
+
+html[data-theme="black"] .mc-card{background:#141816;color:#E8F0EA;box-shadow:none;border:1px solid #2A322D}
+html[data-theme="black"] .mc-card .mc-hd,html[data-theme="black"] .mc-card .mc-counts b{color:#E8F0EA}
+html[data-theme="black"] .mc-card .mc-lab,html[data-theme="black"] .mc-card .mc-counts span,html[data-theme="black"] .mc-card .mc-note,html[data-theme="black"] .mc-card .mc-undo{color:#A9B7AE}
+html[data-theme="black"] .mc-card .mc-in{background:#0E110F;border-color:#2A322D;color:#E8F0EA}
+html[data-theme="black"] .mc-card .mc-counts div{background:#1C221E}
+html[data-theme="black"] .mc-card .mc-done p{color:#5BE37D}
+html[data-theme="black"] .mc-card .mc-done b{color:#E8F0EA}
+html[data-theme="black"] .mc-card .mc-slip{color:#8FD3A4}

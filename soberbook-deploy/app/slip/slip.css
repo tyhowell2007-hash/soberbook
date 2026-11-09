@@ -1,0 +1,123 @@
+/* Meeting slips, premium — /slip, /sign/<code>, /slips/<id>. 9 Nov 2026 (0203).
+   From the "Meeting slips, premium" prototype Ty approved: night-blue pass
+   with a perforated stub, live countdown, press-and-hold to sign, gold seal,
+   ticket stubs, one switch for the private link, letterhead for the PO.
+   Every rule is sl- prefixed: wall.css and globals.css own the short names
+   and bare h1/label/input rules (the RecoveryMap lesson). The member and
+   chair screens are dark on purpose in BOTH themes, like a ticket. */
+.sl-wrap{--sl-night:#070A24;--sl-line:rgba(160,175,255,.16);--sl-soft:#AEB8EE;--sl-lime:#00FF00;
+  max-width:520px;margin:0 auto;padding:16px 14px 34px;display:grid;gap:14px;box-sizing:border-box;min-height:calc(100vh - 60px);
+  font-family:'SB Text','Plus Jakarta Sans',system-ui,sans-serif;color:#EEF1FF;
+  background:radial-gradient(120% 50% at 50% -8%,#2236C9 0%,transparent 55%),radial-gradient(80% 40% at 100% 100%,rgba(0,200,74,.12),transparent 60%),var(--sl-night)}
+@media (min-width:560px){.sl-wrap{border-radius:28px;margin:12px auto 24px;min-height:0}}
+.sl-wrap .sl-eyebrow{font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--sl-soft)}
+.sl-wrap .sl-big{font-size:27px;font-weight:800;line-height:1.12;letter-spacing:-.02em;margin:2px 0 0;color:#fff}
+.sl-wrap .sl-p{margin:0;font-size:14.5px;line-height:1.55;color:#C6CDF3}
+.sl-wrap .sl-p b{color:#fff}
+.sl-wrap .sl-stack{display:grid;gap:12px}
+.sl-wrap .sl-lab{display:block;font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--sl-soft);margin:0 0 6px}
+.sl-wrap .sl-lab span{font-weight:500;text-transform:none;letter-spacing:0}
+.sl-wrap .sl-in{width:100%;box-sizing:border-box;border:1px solid var(--sl-line);border-radius:16px;padding:13px 14px;font:600 15px 'SB Text','Plus Jakarta Sans',system-ui,sans-serif;color:#fff;background:rgba(255,255,255,.06)}
+.sl-wrap .sl-in::placeholder{color:#7F8AC4}
+.sl-wrap .sl-in:focus{outline:none;border-color:#6F80FF;background:rgba(255,255,255,.09)}
+.sl-wrap .sl-go{min-height:54px;border:0;border-radius:18px;padding:0 18px;background:linear-gradient(180deg,#3BFF66,#00C84A);color:#001A4D;font:800 16px 'SB Text','Plus Jakarta Sans',system-ui,sans-serif;cursor:pointer;box-shadow:0 10px 24px rgba(0,200,74,.28),inset 0 1px 0 rgba(255,255,255,.5)}
+.sl-wrap .sl-go:disabled{opacity:.6}
+.sl-wrap .sl-ghost{min-height:46px;border:1px solid var(--sl-line);border-radius:16px;background:rgba(255,255,255,.05);color:#E2E7FF;font:700 14px 'SB Text','Plus Jakarta Sans',system-ui,sans-serif;cursor:pointer;padding:0 16px;text-decoration:none;display:inline-flex;align-items:center;justify-content:center}
+.sl-wrap :is(.sl-go,.sl-ghost,.sl-hold,.sl-toggle,.sl-in):focus-visible{outline:3px solid #8FA0FF;outline-offset:2px}
+
+/* the pass */
+.sl-wrap .sl-pass{position:relative;border-radius:24px;background:linear-gradient(160deg,#1A2CB8 0%,#0B1366 55%,#060A3C 100%);box-shadow:0 18px 40px rgba(0,0,0,.45),inset 0 0 0 1px rgba(255,255,255,.08);overflow:hidden}
+.sl-wrap .sl-pass::before{content:"";position:absolute;inset:0;background:radial-gradient(60% 45% at 85% 0%,rgba(255,255,255,.16),transparent 70%);pointer-events:none}
+.sl-wrap .sl-ph{position:relative;display:flex;justify-content:space-between;align-items:center;padding:16px 18px 6px}
+.sl-wrap .sl-logo{font-family:'SB Breaker','Anton',Impact,sans-serif;color:var(--sl-lime);font-size:17px;letter-spacing:.02em;text-transform:uppercase}
+.sl-wrap .sl-tag{font-size:10px;font-weight:800;letter-spacing:.16em;color:#C9D2FF;border:1px solid rgba(255,255,255,.22);border-radius:999px;padding:4px 9px}
+.sl-wrap .sl-pm{position:relative;padding:4px 18px 14px}
+.sl-wrap .sl-pm b{display:block;font-size:22px;font-weight:800;letter-spacing:-.015em;line-height:1.15;color:#fff;overflow-wrap:anywhere}
+.sl-wrap .sl-pm span{display:block;font-size:13px;color:#B9C3F5;margin-top:3px}
+.sl-wrap .sl-perf{position:relative;height:22px}
+.sl-wrap .sl-perf::before,.sl-wrap .sl-perf::after{content:"";position:absolute;top:0;width:22px;height:22px;border-radius:50%;background:var(--sl-night)}
+.sl-wrap .sl-perf::before{left:-11px}.sl-wrap .sl-perf::after{right:-11px}
+.sl-wrap .sl-perf i{position:absolute;left:18px;right:18px;top:10px;border-top:2px dashed rgba(255,255,255,.22)}
+.sl-wrap .sl-pq{position:relative;padding:6px 18px 20px;display:grid;justify-items:center;gap:12px;text-align:center}
+.sl-wrap .sl-qr{width:min(220px,70vw);background:#fff;border-radius:18px;padding:12px;box-sizing:border-box;box-shadow:0 0 0 6px rgba(59,255,102,.12),0 0 40px rgba(59,255,102,.25)}
+.sl-wrap .sl-qr svg{display:block;width:100%;height:auto}
+.sl-wrap .sl-timer{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:#DDE3FF}
+.sl-wrap .sl-timer .t{font-variant-numeric:tabular-nums;color:#fff}
+.sl-wrap .sl-dot{width:8px;height:8px;border-radius:50%;background:var(--sl-lime);animation:sl-pulse 1.6s infinite}
+@keyframes sl-pulse{0%{box-shadow:0 0 0 0 rgba(0,255,0,.55)}70%{box-shadow:0 0 0 10px rgba(0,255,0,0)}100%{box-shadow:0 0 0 0 rgba(0,255,0,0)}}
+.sl-wrap .sl-seal{position:relative;width:132px;height:132px;border-radius:50%;display:grid;place-items:center;text-align:center;color:#4A3000;
+  background:radial-gradient(circle at 35% 30%,#FFF4C2,#F4C651 45%,#C88D17 75%,#8A5A08);box-shadow:0 10px 30px rgba(232,181,58,.45),inset 0 -6px 12px rgba(0,0,0,.18),inset 0 4px 10px rgba(255,255,255,.5);animation:sl-stamp .6s cubic-bezier(.2,1.6,.4,1) both}
+.sl-wrap .sl-seal::after{content:"";position:absolute;inset:9px;border-radius:50%;border:2px dashed rgba(90,60,0,.35)}
+.sl-wrap .sl-seal b{font-family:'SB Breaker','Anton',Impact,sans-serif;font-size:22px;letter-spacing:.04em;display:block}
+.sl-wrap .sl-seal span{font-size:10px;font-weight:800;letter-spacing:.14em;display:block}
+@keyframes sl-stamp{0%{transform:scale(2.2) rotate(-18deg);opacity:0}100%{transform:scale(1) rotate(-8deg);opacity:1}}
+.sl-wrap .sl-signed{font-size:13.5px;color:#DDE3FF;line-height:1.5}
+.sl-wrap .sl-signed b{color:#fff}
+
+/* chair: press and hold */
+.sl-wrap .sl-priv{display:flex;gap:10px;align-items:flex-start;background:rgba(255,255,255,.05);border:1px solid var(--sl-line);border-radius:16px;padding:12px;font-size:13.5px;line-height:1.5;color:#C6CDF3}
+.sl-wrap .sl-priv b{color:#fff}
+.sl-wrap .sl-hold{position:relative;width:100%;min-height:62px;border:0;border-radius:20px;overflow:hidden;background:rgba(255,255,255,.08);color:#fff;font:800 16px 'SB Text','Plus Jakarta Sans',system-ui,sans-serif;cursor:pointer;box-shadow:inset 0 0 0 1px rgba(59,255,102,.45);user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;touch-action:none}
+.sl-wrap .sl-hold i{position:absolute;left:0;top:0;bottom:0;background:linear-gradient(90deg,#3BFF66,#00C84A)}
+.sl-wrap .sl-hold span{position:relative;z-index:1}
+.sl-wrap .sl-hold.full span{color:#001A4D}
+.sl-wrap .sl-hold:disabled{opacity:.7}
+.sl-wrap .sl-done{display:grid;gap:14px;justify-items:center;text-align:center;padding-top:24px}
+
+/* your slips */
+.sl-wrap .sl-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.sl-wrap .sl-stat{border-radius:18px;padding:14px;background:rgba(255,255,255,.05);border:1px solid var(--sl-line)}
+.sl-wrap .sl-stat b{display:block;font-family:'SB Breaker','Anton',Impact,sans-serif;font-size:34px;line-height:1;color:#fff;letter-spacing:.02em}
+.sl-wrap .sl-stat span{font-size:11.5px;font-weight:700;color:var(--sl-soft);letter-spacing:.06em;text-transform:uppercase}
+.sl-wrap .sl-stubs{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.sl-wrap .sl-stub{display:grid;grid-template-columns:58px 1fr auto;align-items:center;gap:12px;border-radius:18px;padding:12px;background:linear-gradient(135deg,rgba(255,255,255,.08),rgba(255,255,255,.03));border:1px solid var(--sl-line)}
+.sl-wrap .sl-stub.new{border-color:rgba(232,181,58,.55);animation:sl-in .5s ease both}
+@keyframes sl-in{from{transform:translateY(-8px);opacity:0}to{transform:none;opacity:1}}
+.sl-wrap .sl-d{border-radius:14px;background:#0B1366;border:1px solid rgba(255,255,255,.12);text-align:center;padding:6px 0}
+.sl-wrap .sl-d small{display:block;font-size:10px;font-weight:800;letter-spacing:.12em;color:var(--sl-soft)}
+.sl-wrap .sl-d b{display:block;font-size:22px;font-weight:800;line-height:1.05;color:#fff}
+.sl-wrap .sl-m{min-width:0}
+.sl-wrap .sl-m b{display:block;font-size:14.5px;font-weight:750;color:#fff;overflow-wrap:anywhere}
+.sl-wrap .sl-m span{display:block;font-size:12px;color:#AEB8EE;margin-top:2px}
+.sl-wrap .sl-mini{width:30px;height:30px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#FFF4C2,#F4C651 45%,#C88D17 80%);box-shadow:0 4px 10px rgba(232,181,58,.35);display:grid;place-items:center;font-size:13px;color:#4A3000;font-weight:900}
+.sl-wrap .sl-share{border-radius:22px;padding:16px;background:linear-gradient(160deg,rgba(26,44,184,.55),rgba(11,19,102,.4));border:1px solid rgba(160,175,255,.25);display:grid;gap:12px}
+.sl-wrap .sl-sw{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.sl-wrap .sl-sw b{font-size:15.5px;color:#fff}
+.sl-wrap .sl-sw .sl-p{font-size:12.5px;margin-top:2px}
+.sl-wrap .sl-toggle{width:52px;height:30px;border-radius:999px;border:0;background:rgba(255,255,255,.18);position:relative;cursor:pointer;flex:none;padding:0}
+.sl-wrap .sl-toggle::after{content:"";position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#fff;transition:left .2s}
+.sl-wrap .sl-toggle[aria-checked="true"]{background:linear-gradient(180deg,#3BFF66,#00C84A)}
+.sl-wrap .sl-toggle[aria-checked="true"]::after{left:25px}
+.sl-wrap .sl-toggle:disabled{opacity:.6}
+.sl-wrap .sl-link{display:flex;gap:8px}
+.sl-wrap .sl-link .sl-in{flex:1;min-width:0;font-size:13px;color:#DDE3FF;background:rgba(0,0,0,.25)}
+.sl-wrap .sl-link .sl-go{min-height:46px;border-radius:14px;font-size:14px;padding:0 16px}
+.sl-wrap .sl-fine{margin:0;font-size:11.5px;line-height:1.5;color:#8E99D6}
+.sl-wrap .sl-err{margin:0;font-size:13.5px;font-weight:700;color:#FF8A80}
+@media (prefers-reduced-motion:reduce){.sl-wrap .sl-seal,.sl-wrap .sl-stub.new,.sl-wrap .sl-dot{animation:none}}
+
+/* what the PO opens — /slips/<id>, a light letterhead (they may print it) */
+.sl-pub{min-height:100vh;box-sizing:border-box;background:#F3F4F8;padding:20px 14px 40px;font-family:'SB Text','Plus Jakarta Sans',system-ui,sans-serif;color:#0B1033}
+.sl-pub .sl-sheet{max-width:620px;margin:0 auto;background:#fff;border-radius:18px;box-shadow:0 10px 30px rgba(10,16,60,.10);overflow:hidden}
+.sl-pub .sl-lhead{background:linear-gradient(160deg,#1A2CB8,#060A3C);padding:20px;color:#fff}
+.sl-pub .sl-logo{font-family:'SB Breaker','Anton',Impact,sans-serif;color:#00FF00;font-size:20px;letter-spacing:.02em;text-transform:uppercase}
+.sl-pub h1{margin:8px 0 0;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:#C9D2FF;font-weight:800}
+.sl-pub .sl-who{margin-top:4px;font-size:23px;font-weight:800;letter-spacing:-.015em;overflow-wrap:anywhere}
+.sl-pub .sl-sum{display:grid;grid-template-columns:repeat(3,1fr);border-bottom:1px solid #EEF0F6}
+.sl-pub .sl-sum div{padding:12px 6px;text-align:center;border-right:1px solid #EEF0F6}
+.sl-pub .sl-sum div:last-child{border-right:0}
+.sl-pub .sl-sum b{display:block;font-size:20px;font-weight:800}
+.sl-pub .sl-sum span{font-size:10.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#6A7099}
+.sl-pub .sl-rec{list-style:none;margin:0;padding:4px 18px}
+.sl-pub .sl-rec li{display:grid;grid-template-columns:auto 1fr;gap:14px;padding:12px 0;border-bottom:1px solid #EEF0F6}
+.sl-pub .sl-rec li:last-child{border-bottom:0}
+.sl-pub .sl-dt{font-size:12px;font-weight:800;color:#1329B0;min-width:64px;text-transform:uppercase}
+.sl-pub .sl-dt small{display:block;font-weight:600;color:#6A7099;font-size:11px;text-transform:none}
+.sl-pub .sl-rec b{display:block;font-size:14.5px;overflow-wrap:anywhere}
+.sl-pub .sl-rec span{font-size:12.5px;color:#5A6190}
+.sl-pub .sl-sig{font-family:'Segoe Script','Brush Script MT','Snell Roundhand',cursive;font-size:15.5px;color:#1329B0}
+.sl-pub .sl-foot{padding:12px 18px 18px;font-size:11.5px;line-height:1.5;color:#6A7099;background:#FAFBFD;border-top:1px solid #EEF0F6}
+.sl-pub .sl-off{padding:30px 20px;text-align:center}
+.sl-pub .sl-off b{display:block;font-size:18px;margin-bottom:4px}
+.sl-pub .sl-off span{font-size:13.5px;color:#5A6190}
+@media print{.sl-pub{background:#fff;padding:0}.sl-pub .sl-sheet{box-shadow:none}.sl-pub .sl-lhead{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
