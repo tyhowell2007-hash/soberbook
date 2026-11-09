@@ -1,0 +1,96 @@
+/* =====================================================================
+   THE "SAY IT" CARD — Post · Check in · Grateful on one card.  9 Nov 2026.
+
+   Imported by app/wall/layout.jsx only. The pledge, the gratitude card and
+   the composer used to be three cards stacked down Home; now they are tabs
+   on one. See the `tab` note near the top of app/wall/Wall.jsx for why
+   they stay separate components (privacy) and which tab opens first.
+
+   ⚠️ ITS OWN SMALL FILE, NOT A BLOCK IN wall.css — same reason as
+   pledge.css: small files land first time.
+
+   ⚠️ EVERY CLASS IS PREFIXED .saybox AND THAT WAS CHECKED: no stylesheet
+   or component used `saybox` before this file.
+
+   Colours are the theme's own tokens only (--paper2, --line, --gd, --gl,
+   --gt, --soft), so the light and dark themes both carry it without a
+   single new measured contrast pair.
+   ===================================================================== */
+
+.saybox {
+  margin: 14px;
+  background: var(--paper2);
+  border: 1px solid var(--line);
+  border-radius: 13px;
+  overflow: hidden;
+}
+
+.saybox-tabs {
+  display: flex;
+  gap: 4px;
+  padding: 6px 6px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.saybox-tab {
+  flex: 1 1 0;
+  min-width: 0;
+  position: relative;
+  padding: 10px 6px 9px;
+  border: 0;
+  border-bottom: 3px solid transparent;
+  background: none;
+  color: var(--soft);
+  font: inherit;
+  font-weight: 700;
+  font-size: 0.92rem;
+  white-space: nowrap;
+  cursor: pointer;
+  /* 44px tall with the padding: a thumb target, not a mouse target. */
+  min-height: 44px;
+}
+
+.saybox-tab.on {
+  color: var(--gt);
+  /* --gm-t is the dark theme's readable green; light falls back to --gd. */
+  border-bottom-color: var(--gm-t, var(--gd));
+}
+
+.saybox-tab:focus-visible {
+  outline: 2px solid var(--gm-t, var(--gd));
+  outline-offset: -2px;
+  border-radius: 8px;
+}
+
+/* "Not done yet today." Decoration on the word, never instead of it. */
+.saybox-dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  margin-left: 5px;
+  vertical-align: middle;
+  border-radius: 50%;
+  background: var(--gm-t, var(--gd));
+}
+
+.saybox-pane[hidden] { display: none; }
+
+/* ---------------------------------------------------------------------
+   The three cards inside lose their OWN card chrome — the box around them
+   is the card now. Two borders and two corner radii nested inside each
+   other is what "three tiles crawling down" looked like in miniature.
+   --------------------------------------------------------------------- */
+.saybox .pl,
+.saybox .gr,
+.saybox .composer {
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  background: transparent;
+}
+
+/* The green edge said "this one is yours to answer" on a lone card. The
+   tab underline says it now. */
+.saybox .pl-ask,
+.saybox .gr-ask { border-left: 0; }
