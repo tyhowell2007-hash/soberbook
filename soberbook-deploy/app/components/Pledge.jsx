@@ -108,6 +108,7 @@ export default function Pledge() {
   const [busy, setBusy] = useState(false);
   const [openReview, setOpenReview] = useState(false);
   const [note, setNote] = useState('');
+  const [offered, setOffered] = useState(false);
 
   /* 🔴 TELL THE SERVER WHERE THIS PERSON ACTUALLY IS — 3 Sept.
 
@@ -160,6 +161,16 @@ export default function Pledge() {
 
   useEffect(() => { load().catch(() => setS(false)); }, []);
 
+  /* 9 Nov 2026 — "Check in" links to /wall#pledge. The card only exists
+     once the server answers, so the browser's own jump to #pledge has
+     nothing to land on yet; do it here the moment the card draws. */
+  useEffect(() => {
+    if (!s) return;
+    try {
+      if (window.location.hash === '#pledge') document.getElementById('pledge')?.scrollIntoView({ block: 'start' });
+    } catch { /* fine */ }
+  }, [!!s]);
+
   async function say() {
     setBusy(true);
     try {
@@ -191,7 +202,7 @@ export default function Pledge() {
   /* ---------------- not said yet: the ask ---------------- */
   if (!s.said_today) {
     return (
-      <div className="pl pl-ask">
+      <div className="pl pl-ask" id="pledge" style={{ scrollMarginTop: 80 }}>
         <p className="pl-day">{DAYS[new Date().getDay()]}</p>
         <p className="pl-head">🌱 One more day.</p>
         <p className="pl-sub">✍️ Why today? One line is plenty.</p>
@@ -282,7 +293,7 @@ export default function Pledge() {
 
   /* ---------------- said it: the record for the rest of the day ------- */
   return (
-    <div className="pl pl-done">
+    <div className="pl pl-done" id="pledge" style={{ scrollMarginTop: 80 }}>
       <p className="pl-day">🌱 Said it today</p>
       <p className="pl-streak">
         {s.streak === 1 ? 'Day 1' : `${s.streak} in a row`}
@@ -298,6 +309,22 @@ export default function Pledge() {
       </p>
 
       {s.today_why && <p className="pl-why">“{s.today_why}”</p>}
+
+      {/* ⭐ 9 Nov 2026 — SAY IT ON THE WALL? (Kenny + Ty, guided experience)
+          The why-today line is often a first post waiting to happen. This
+          only OFFERS: one tap copies the line into the composer below,
+          where the member can edit it, go anonymous, or not post at all.
+          🔴 The stored `why` stays private exactly as described at the top
+          of this file — nothing is posted or shared unless they press Post
+          themselves. Hidden once tapped. */}
+      {s.today_why && !offered && (
+        <button type="button" className="pl-rev" onClick={() => {
+          setOffered(true);
+          try { window.dispatchEvent(new CustomEvent('sb:compose', { detail: s.today_why })); } catch { /* old browser */ }
+        }}>
+          💬 Say it on the wall?
+        </button>
+      )}
 
       {/* ⚠️ Past tense, and it names the CRAVING rather than the person.
           "The craving was rough" is a fact about an hour that has already

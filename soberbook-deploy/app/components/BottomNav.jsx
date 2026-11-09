@@ -46,7 +46,7 @@ const TABS = [
   { href: '/wall',     icon: '🏠', label: 'Home',  dot: 'home',
     /* what the dot means, for a screen reader */
     said: 'someone replied to your post' },
-  { href: '/chat',     icon: '💬', label: 'Chat',  dot: 'chat',
+  { href: '/chat',     icon: '💬', label: 'Messages',  dot: 'chat',
     said: 'you have a new message' },
   /* Aug 17. The second tab to earn its way in. It lists real meetings
      from NA's own open data — nothing here is a picture of a button.
@@ -67,7 +67,7 @@ const TABS = [
      still reaches you: it writes a notification, and a 'friend'
      notification opens that person's profile, where Accept and Ignore
      are. One door instead of two, and the one that still works. */
-  { href: '/friends',  icon: '👋', label: 'People' },
+  { href: '/friends',  icon: '👋', label: 'Rooms' },
   /* Aug 21. The fourth to earn its way in, and the only tab with NO DOT
      BY DESIGN rather than by omission.
 
