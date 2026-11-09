@@ -80,9 +80,14 @@
    is the card now. Two borders and two corner radii nested inside each
    other is what "three tiles crawling down" looked like in miniature.
    --------------------------------------------------------------------- */
-.saybox .pl,
-.saybox .gr,
-.saybox .composer {
+/* ⚠️ `html body` IN FRONT ON PURPOSE. polish.css gives every card its
+   shape with `html:not([data-theme="black"]) :is(.pl, .gr, .composer…)`,
+   which outranks a plain `.saybox .pl` — the first deploy shipped with
+   the pledge still wearing its own border and shadow inside the card.
+   Measured on soberbook.app, 9 Nov. */
+html body .saybox .pl,
+html body .saybox .gr,
+html body .saybox .composer {
   margin: 0;
   border: 0;
   border-radius: 0;
@@ -92,5 +97,14 @@
 
 /* The green edge said "this one is yours to answer" on a lone card. The
    tab underline says it now. */
-.saybox .pl-ask,
-.saybox .gr-ask { border-left: 0; }
+html body .saybox .pl-ask,
+html body .saybox .gr-ask { border-left: 0; }
+
+/* In the light theme the card itself wears the same shape polish.css gives
+   every other card on Home, so it doesn't look like the odd one out. */
+html:not([data-theme="black"]) .saybox {
+  margin: 0 12px 14px;
+  border: 1px solid var(--pl-line);
+  border-radius: 20px;
+  box-shadow: var(--pl-shadow);
+}
