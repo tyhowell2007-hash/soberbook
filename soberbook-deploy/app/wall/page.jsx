@@ -468,14 +468,18 @@ export default async function WallPage() {
           around a component that returns null leaves a 110px empty band
           at the top of Home. The rail carries its own padding. */}
       <StoryRail />
-      {/* Artists on Sober Book (19 Sept) — hideable, renders nothing until
-          there is at least one verified artist to show. */}
-      <ArtistStrip />
-      <Seasons initialSeason={profile.season || null} />
-      {/* 🔴 NOTICEABLE ON PURPOSE (Ty, 11 Sept). The dark slab is the only
-          non-white card on this feed, because a page nobody can find is the
-          bug this app has shipped thirteen times. */}
-      <CircleCard />
+      {/* ⭐ 9 NOV 2026 — THE HOME SCREEN AS ONE PATH (Kenny + Ty).
+          Seasons, your circle and the artists strip used to sit HERE, above
+          "Welcome home". Measured on the live site that put the greeting,
+          the pledge and the composer two screens down: the same "first in
+          the component is not first on the page" trap the story rail note
+          above describes. They now render inside Wall, after the day's
+          check-in (pledge + gratitude) and before the composer, so the page
+          reads in the order a visit goes: hello -> today's check-in -> where
+          everyone is -> say something -> the room.
+          ⚠️ NOTHING IS HIDDEN OR REMOVED. Every card still renders on this
+          screen; only the order changed. The doors and the today row stay
+          exactly where they were. */}
       {error
         ? <div className="pad"><div className="err">Couldn&apos;t load the wall: {error.message}</div></div>
         : <Wall
@@ -497,6 +501,16 @@ export default async function WallPage() {
             drops={drops}
             dropUrls={dropUrls}
             teamUpdate={teamUpdate}
+            community={<>
+              <Seasons initialSeason={profile.season || null} />
+              {/* 🔴 NOTICEABLE ON PURPOSE (Ty, 11 Sept). The dark slab is the only
+                  non-white card on this feed, because a page nobody can find is the
+                  bug this app has shipped thirteen times. */}
+              <CircleCard />
+              {/* Artists on Sober Book (19 Sept) — hideable, renders nothing until
+                  there is at least one verified artist to show. */}
+              <ArtistStrip />
+            </>}
           />}
     </>
   );

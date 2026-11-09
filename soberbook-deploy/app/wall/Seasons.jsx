@@ -90,12 +90,21 @@ export default function Seasons({ initialSeason = null }) {
      ------------------------------------------------------------------- */
   const moves = movementLines(data.moved);
 
+  /* ⭐ 9 NOV 2026 — FOLDED TO ONE LINE ONCE YOU'VE PICKED (Kenny + Ty).
+     The whole card stays on the wall and the line says the thing that
+     matters: your season and how many people share it. One tap opens
+     the bars, this month's movement and "Change my season", exactly as
+     before. ⚠️ The not-picked-yet ask above is NOT folded: there the
+     whole card is the point. */
   return (
     <section className="sea" aria-label="Where everyone is">
-      <h2 className="sea-h">Where everyone is</h2>
-      <p className="sea-sub">
-        {chosen ? <>You&rsquo;re in {chosen.emoji} {chosen.label}</> : 'tonight'}
-      </p>
+      <details className="sea-fold">
+      <summary>
+        <span className="sea-h">Where everyone is</span>
+        <span className="sea-sub">
+          {chosen ? <>You&rsquo;re in {chosen.emoji} {chosen.label} &middot; {peopleLine(chosen)}</> : 'tonight'}
+        </span>
+      </summary>
 
       {/* ⭐ 14 Sept — THIS MOVED UP HERE FROM THE BOTTOM, at Nic's ask:
           "that should be at the top of the feature since that's how you
@@ -202,6 +211,7 @@ export default function Seasons({ initialSeason = null }) {
           ))}
         </div>
         {err ? <p className="sea-err">{err}</p> : null}
+      </details>
       </details>
     </section>
   );
