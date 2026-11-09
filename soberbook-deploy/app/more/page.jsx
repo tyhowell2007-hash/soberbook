@@ -30,6 +30,7 @@ const GROUPS = [
       { href: '/gratitude', label: 'Gratitude',         sub: 'One good thing' },
       { href: '/tenth',     label: 'Tenth step',        sub: 'Look back at your day' },
       { href: '/plan',      label: 'Your safety plan',  sub: 'What to do on a hard day' },
+      { href: '/resume',    label: '📝 Resume builder', sub: 'Free, professional, ready in minutes' },
     ],
   },
   {
