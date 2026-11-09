@@ -177,7 +177,11 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
                                drops = {}, dropUrls = {}, canHide = false,
                                /* 📌 0191 — null on a quiet week, and the
                                   card draws nothing at all for null. */
-                               teamUpdate = null }) {
+                               teamUpdate = null,
+                               /* ⭐ 9 Nov 2026 — Seasons, Circle and Artists,
+                                  handed in by page.jsx and drawn after the
+                                  day's check-in. See the note there. */
+                               community = null }) {
   const router = useRouter();
   const supabase = browserClient();
   /* The milestone landing today, if there is one and it hasn't been
@@ -1322,6 +1326,11 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
           they have, it becomes a two-line record rather than more
           furniture between them and the room. */}
       <Gratitude />
+
+      {/* ---- WHERE EVERYONE IS · YOUR CIRCLE · ARTISTS (9 Nov 2026) ----
+          After you've checked in, the room: who else is here and in what
+          season, your circle, then the composer. Rendered by page.jsx. */}
+      {community}
 
       {/* ---- THE COMPOSER, MOVED TO THE TOP ----
           It used to sit under the wall. Two reasons it belongs here:

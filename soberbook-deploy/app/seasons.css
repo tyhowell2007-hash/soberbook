@@ -124,3 +124,19 @@
   padding:8px 0; min-height:44px; display:flex; align-items:center;
 }
 .sea-change[open] > summary{ margin-bottom:7px; }
+
+/* ⭐ 9 Nov 2026 — the picked card folds to one line (Seasons.jsx). */
+.sea-fold > summary{
+  list-style:none; cursor:pointer; display:grid; gap:2px;
+  min-height:44px; padding-right:28px; position:relative;
+}
+.sea-fold > summary::-webkit-details-marker{ display:none; }
+.sea-fold > summary .sea-h{ display:block; }
+.sea-fold > summary .sea-sub{ display:block; margin:0; }
+.sea-fold > summary::after{
+  content:"\203A"; position:absolute; right:4px; top:50%;
+  transform:translateY(-50%); font-size:22px; color:var(--gt);
+  transition:transform .15s;
+}
+.sea-fold[open] > summary::after{ transform:translateY(-50%) rotate(90deg); }
+.sea-fold[open] > summary{ margin-bottom:10px; }
