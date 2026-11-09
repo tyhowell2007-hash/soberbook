@@ -48,7 +48,7 @@ export default function Team() {
       <div style={{ display: 'grid', gap: 8 }}>
         <div className="eyebrow">RecoveryMap · private</div>
         <h1>Team dashboard</h1>
-        <p className="lede">{me.doctor ? 'Signed in as Dr. Labor: you can approve updates and add your gold badge.' : 'You can approve updates. Only Dr. Labor can add her gold badge.'}</p>
+        <p className="lede">You can approve updates.</p>
       </div>
 
       {dash && (
@@ -107,11 +107,9 @@ export default function Team() {
 
       {tab === 'launch' && (
         <div className="card"><h3>Before myrecoverymap.org switches over</h3><ul className="rm-ask">
-          <li>Dr. Labor approves her bio, the plain-English explanations, the Narcan steps, “Start here for…”, Ask the Doc and the guide (then flip CONTENT_APPROVED in lib/rm/words.js).</li>
-          <li>Attorney reviews the privacy page, terms, “no referral fees” wording and the gold badge.</li>
           <li>A native Spanish speaker reads the Spanish once.</li>
           <li>Add myrecoverymap.org and www to the Sober Book project in Vercel, then point the domain’s DNS there.</li>
-          <li>Check the live site, then Dr. Labor shuts down her Replit. She keeps the domain.</li>
+          <li>Check the live site.</li>
         </ul></div>
       )}
     </div>
