@@ -56,6 +56,10 @@ import '../pledge.css';
    one layout was missing one import. ⚠️ Its own small file rather than a
    block in wall.css — see the note at its head. */
 import '../gratitude.css';
+/* The "say it" card — Post · Check in · Grateful as tabs on one card
+   (9 Nov 2026). ⚠️ AFTER pledge.css and gratitude.css: it strips their
+   card chrome when they sit inside it, so it has to come later. */
+import '../saybox.css';
 /* 🔴 IMPORTED FOR EXACTLY ONE RULE: .tenth-door, the link on the pledge
    card. The 10th step CARD never renders on Home — only its doorway does.
    ⚠️ Deleting this line does not break anything visibly; it strips the
