@@ -100,7 +100,12 @@ const CRAVING = [
   ['rough',  'Rough',  '😖'],
 ];
 
-export default function Pledge() {
+/* ⭐ 9 Nov 2026 — `onStatus` (optional). Home now shows the pledge as one
+   tab of the "say it" card (Post · Check in · Grateful). The card opens on
+   Check in when today's pledge hasn't been said yet, and on Post once it
+   has, so it needs to know which. Only a yes/no leaves this component —
+   never the why. */
+export default function Pledge({ onStatus } = {}) {
   const [s, setS] = useState(null);      // null = still asking the server
   const [count, setCount] = useState(null);
   const [why, setWhy] = useState('');
@@ -160,6 +165,11 @@ export default function Pledge() {
   }
 
   useEffect(() => { load().catch(() => setS(false)); }, []);
+
+  const said = s ? !!s.said_today : null;
+  useEffect(() => {
+    if (said !== null && onStatus) onStatus(said);
+  }, [said]); // eslint-disable-line react-hooks/exhaustive-deps
 
   /* 9 Nov 2026 — "Check in" links to /wall#pledge. The card only exists
      once the server answers, so the browser's own jump to #pledge has
