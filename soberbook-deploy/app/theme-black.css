@@ -819,3 +819,5 @@ html[data-theme="black"] .mecream .sgo:hover{ background:#1A6647; color:#fff; }
   box-shadow:0 0 0 4px #18211C;
 }
 [data-theme="black"] .ucount .chips .chip.on{ background:rgba(255,255,255,.94); color:#141A17; }
+
+[data-theme="black"] .cas-one .asme.rec.on{ background:#0F1512; border-color:#5E7A69; color:#E8EFE9; }

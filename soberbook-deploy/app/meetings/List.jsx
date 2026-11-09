@@ -231,7 +231,7 @@ function webClientHref(link) {
   } catch { return link; }
 }
 
-export default function List({ meetings, fetchedAt, source, going: initialGoing }) {
+export default function List({ meetings, fetchedAt, source, going: initialGoing, afterHero = null }) {
   /* ⚠️ null until mounted, on purpose. The server has no clock that means
      anything to this reader, so it renders no times at all — if it guessed
      and the browser disagreed, React would throw a hydration mismatch and
@@ -821,6 +821,12 @@ export default function List({ meetings, fetchedAt, source, going: initialGoing 
           <div className="mt-heroname">The next one is below. The 24/7 rooms always have someone.</div>
         </div>
       )}
+
+      {/* ⭐ 9 Nov 2026 — guided experience (Kenny + Ty): the open-room hero
+          now opens the page, and Talk Rooms, the meeting check-in and the
+          treatment link sit right under it, handed in by page.jsx. Nothing
+          moved off the page; the door you can walk through now comes first. */}
+      {afterHero}
 
       {/* ⚠️ THE OPEN/CLOSED CONTROL EXISTS BECAUSE OF WHO ELSE IS HERE.
           A closed meeting is for people who have the addiction themselves.

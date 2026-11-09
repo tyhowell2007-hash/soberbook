@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import RmCard from '../components/RmCard';
+import CrisisRow from '../components/CrisisRow';
 
 /* =====================================================================
    /more — THE TAB THAT REPLACED THE UNLABELLED ☰, 20 Sept.
@@ -25,7 +26,7 @@ const GROUPS = [
   {
     head: 'Your day',
     items: [
-      { href: '/checkin',   label: 'Check in',          sub: 'How you’re doing today' },
+      { href: '/wall#pledge',   label: 'Check in',          sub: 'How you’re doing today' },
       { href: '/gratitude', label: 'Gratitude',         sub: 'One good thing' },
       { href: '/tenth',     label: 'Tenth step',        sub: 'Look back at your day' },
       { href: '/plan',      label: 'Your safety plan',  sub: 'What to do on a hard day' },
@@ -73,6 +74,8 @@ export default function MorePage() {
         {/* Her map leads, exactly as it does in the drawer — same row,
             same words. See MastMenu for why it claims she built the
             directory and not that she endorses Sober Book. */}
+        {/* 988 first — moved here from the old ☰ drawer (CRCC ask, 29 Oct). */}
+        <CrisisRow />
         <RmCard />
 
         {GROUPS.map((g) => (
