@@ -26,7 +26,7 @@ export async function generateMetadata({ params }) {
   if (!c) return { title: 'Not found' };
   const n = cleanName(c.name), ph = splitPhone(c.admissions_phone || c.phone);
   const what = levels(c.levels_of_care).slice(0, 3).join(', ').toLowerCase();
-  const desc = `${n.name}${n.site ? ` (${n.site})` : ''} in ${c.city}, ${STATE_NAME[c.state] || c.state}. ${what ? what[0].toUpperCase() + what.slice(1) + '. ' : ''}${ph.dial ? 'Call ' + ph.dial + '. ' : ''}${c.badge ? 'Checked by Dr. Nicole Labor, DO.' : 'Free directory, no paid listings.'}`;
+  const desc = `${n.name}${n.site ? ` (${n.site})` : ''} in ${c.city}, ${STATE_NAME[c.state] || c.state}. ${what ? what[0].toUpperCase() + what.slice(1) + '. ' : ''}${ph.dial ? 'Call ' + ph.dial + '. ' : ''}Call to confirm details.`;
   return {
     title: `${n.name}, ${c.city}, ${c.state}`,
     description: desc,
