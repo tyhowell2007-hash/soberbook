@@ -4,6 +4,8 @@ import { useEffect, useRef, useState } from 'react';
 import { browserClient } from '../../lib/supabase-browser';
 import { fetchCircle, whoLine, aliveLine, weekLine } from '../../lib/circles';
 import WouldYouRather from '../components/WouldYouRather';
+/* 🎯 9 Nov 2026 (0204) — the circle challenge. Draws nothing until 0204 is run. */
+import Challenge from './Challenge';
 
 /* =====================================================================
    ⭕ YOUR CIRCLE.
@@ -93,6 +95,8 @@ export default function Circle() {
           number worth answering. 🔴 It renders NOTHING when there is no
           question, so on a day with no prompt this screen is exactly the
           screen it was before. */}
+      <Challenge />
+
       <WouldYouRather />
 
       <ul className="cir-wall">

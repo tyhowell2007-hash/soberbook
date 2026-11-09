@@ -22,6 +22,21 @@ export default function CheckinCard() {
   const [name, setName] = useState('');
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState('');
+  const [circle, setCircle] = useState(null);   // 0204: { total, goal, counting } while a challenge runs
+  const [plus, setPlus] = useState(false);
+
+  /* 🎯 0204 — the circle challenge. Only drawn while one is running; until
+     0204 is run (or with no challenge) this stays null and nothing shows. */
+  async function loadCircle() {
+    const { data, error } = await browserClient().rpc('circle_challenge');
+    if (error) return null;
+    const r = Array.isArray(data) ? data[0] : data;
+    const c = r && r.status === 'active' ? { total: r.total, goal: r.goal, counting: !!r.counting } : null;
+    setCircle(c);
+    return c;
+  }
+
+  useEffect(() => { loadCircle(); }, []);
 
   useEffect(() => {
     let live = true;
@@ -43,6 +58,16 @@ export default function CheckinCard() {
     if (error) { setErr('That didn’t go through. Try again in a second.'); return; }
     const r = Array.isArray(data) ? data[0] : data;
     setState({ today: true, month: r?.this_month || 0, total: r?.total || 0 });
+    const c = await loadCircle();
+    if (c && c.counting) setPlus(true);
+  }
+
+  async function setCounting(on) {
+    if (busy) return;
+    setBusy(true);
+    const { error } = await browserClient().rpc('set_circle_counting', { p_on: on });
+    setBusy(false);
+    if (!error) { setPlus(false); await loadCircle(); }
   }
 
   async function undo() {
@@ -52,6 +77,8 @@ export default function CheckinCard() {
     setBusy(false);
     if (error) { setErr('Couldn’t take it back. Try again in a second.'); return; }
     setState((s) => s && { today: false, month: Math.max(0, s.month - 1), total: Math.max(0, s.total - 1) });
+    setPlus(false);
+    loadCircle();
   }
 
   if (!state) return null;
@@ -76,10 +103,25 @@ export default function CheckinCard() {
         </div>
       )}
 
+      {plus && circle && (
+        <div className="mc-plus" role="status">
+          <span className="mc-pc">+1</span>
+          <span className="mc-pt"><b>Added to your circle</b><span>{Math.min(circle.total, circle.goal)} of {circle.goal} together</span>
+            <i className="mc-pbar"><i style={{ width: Math.min(100, (circle.total / circle.goal) * 100) + '%' }} /></i></span>
+        </div>
+      )}
+
       <div className="mc-counts">
         <div><b>{state.month}</b><span>this month</span></div>
         <div><b>{state.total}</b><span>since you started</span></div>
       </div>
+      {circle && (
+        <div className="mc-circle">
+          <span><b>Count mine toward my circle</b><span>Your circle has a challenge on. Only ever as a number. <a href="/circle">See it →</a></span></span>
+          <button type="button" className="mc-tg" role="switch" aria-checked={circle.counting} disabled={busy}
+                  aria-label="Count my check-ins toward my circle" onClick={() => setCounting(!circle.counting)} />
+        </div>
+      )}
       <p className="mc-note">Your word is enough. No location, and nobody else sees your check-ins.</p>
       {/* 0203 — the meeting slip lives on its own page. */}
       <a className="mc-slip" href="/slip">Need proof for court or your house? Get a signed meeting slip →</a>

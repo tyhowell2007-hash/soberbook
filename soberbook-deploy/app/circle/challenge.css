@@ -1,0 +1,85 @@
+/* 🎯 Circle challenge — 9 Nov 2026 (Challenge.jsx, 0204).
+   The premium night-blue look Ty approved. Every rule is cc- prefixed:
+   circle.css, wall.css and globals.css own the short names. It is dark in
+   BOTH themes on purpose, like the Talk Rooms card: dark so it gets found. */
+.cc-wrap,.cc-pass,.cc-win,.cc-glass{--cc-line:rgba(160,175,255,.16);--cc-soft:#AEB8EE;
+  font-family:'SB Text','Plus Jakarta Sans',system-ui,sans-serif;color:#EEF1FF;box-sizing:border-box;margin:0 0 14px}
+.cc-wrap,.cc-pass{position:relative;border-radius:24px;padding:18px 16px 16px;display:grid;gap:12px;overflow:hidden;
+  background:linear-gradient(160deg,#1A2CB8 0%,#0B1366 55%,#060A3C 100%);box-shadow:0 14px 32px rgba(0,0,60,.28),inset 0 0 0 1px rgba(255,255,255,.08)}
+.cc-wrap::before,.cc-pass::before{content:"";position:absolute;inset:0;background:radial-gradient(60% 45% at 85% 0%,rgba(255,255,255,.16),transparent 70%);pointer-events:none}
+.cc-wrap>*,.cc-pass>*{position:relative}
+.cc-ph{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.cc-tag{font-size:10px;font-weight:800;letter-spacing:.16em;color:#C9D2FF;border:1px solid rgba(255,255,255,.22);border-radius:999px;padding:4px 9px}
+.cc-when{font-size:11px;font-weight:700;color:var(--cc-soft)}
+.cc-live{display:flex;align-items:center;gap:6px;font-size:10.5px;font-weight:800;letter-spacing:.1em;color:#9FFFB0}
+.cc-dot{width:8px;height:8px;border-radius:50%;background:#00FF00;animation:cc-pulse 1.6s infinite}
+@keyframes cc-pulse{0%{box-shadow:0 0 0 0 rgba(0,255,0,.55)}70%{box-shadow:0 0 0 10px rgba(0,255,0,0)}100%{box-shadow:0 0 0 0 rgba(0,255,0,0)}}
+.cc-eyebrow{font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--cc-soft)}
+.cc-wrap .cc-big{font-size:24px;font-weight:800;line-height:1.12;letter-spacing:-.02em;margin:2px 0 0;color:#fff;font-family:inherit;text-transform:none}
+.cc-pass .cc-goal{font-size:21px;font-weight:800;letter-spacing:-.015em;line-height:1.15;color:#fff;text-align:center;margin:0;font-family:inherit;text-transform:none}
+.cc-p{margin:0;font-size:14px;line-height:1.55;color:#C6CDF3}
+.cc-small{margin:0;font-size:12px;line-height:1.5;color:#8E99D6}
+.cc-lab{font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--cc-soft)}
+.cc-go{min-height:52px;width:100%;border:0;border-radius:18px;background:linear-gradient(180deg,#3BFF66,#00C84A);color:#001A4D;font:800 16px 'SB Text','Plus Jakarta Sans',system-ui,sans-serif;cursor:pointer;box-shadow:0 10px 24px rgba(0,200,74,.28),inset 0 1px 0 rgba(255,255,255,.5)}
+.cc-go:disabled{opacity:.6}
+.cc-ghost{min-height:46px;width:100%;border:1px solid var(--cc-line);border-radius:16px;background:rgba(255,255,255,.05);color:#E2E7FF;font:700 14px 'SB Text','Plus Jakarta Sans',system-ui,sans-serif;cursor:pointer}
+.cc-err{margin:0;font-size:13px;font-weight:700;color:#FF8A80}
+:is(.cc-wrap,.cc-pass,.cc-win) :is(button,a):focus-visible{outline:3px solid #8FA0FF;outline-offset:2px}
+
+/* the ring */
+.cc-ring{position:relative;width:min(220px,64vw);aspect-ratio:1;justify-self:center;max-width:100%}
+.cc-ring svg{width:100%;height:100%;display:block;transform:rotate(-90deg);overflow:visible}
+.cc-trk{stroke:rgba(255,255,255,.10)}
+.cc-tick{stroke:rgba(255,255,255,.18)}
+.cc-arc{stroke:url(#ccg);filter:drop-shadow(0 0 8px rgba(59,255,102,.55));transition:stroke-dashoffset .8s cubic-bezier(.3,1.2,.4,1)}
+.cc-ctr{position:absolute;inset:0;display:grid;place-items:center;text-align:center}
+.cc-ctr b{display:block;font-family:'SB Breaker','Anton',Impact,sans-serif;font-weight:400;font-size:clamp(44px,15vw,58px);line-height:.9;color:#fff;letter-spacing:.02em}
+.cc-ctr span{font-size:12px;font-weight:800;letter-spacing:.12em;color:var(--cc-soft)}
+.cc-ms{position:absolute;width:30px;height:30px;margin:-15px 0 0 -15px;border-radius:50%;display:grid;place-items:center;font-size:10px;font-weight:900;color:#8E99D6;background:#0B1366;border:1.5px solid rgba(255,255,255,.2)}
+.cc-ms.hit{color:#4A3000;border-color:transparent;background:radial-gradient(circle at 35% 30%,#FFF4C2,#F4C651 45%,#C88D17 85%);box-shadow:0 0 14px rgba(232,181,58,.6)}
+.cc-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.cc-stats div{border-radius:16px;padding:10px 6px;background:rgba(255,255,255,.06);border:1px solid var(--cc-line);text-align:center}
+.cc-stats b{display:block;font-family:'SB Breaker','Anton',Impact,sans-serif;font-weight:400;font-size:22px;color:#fff;line-height:1.05}
+.cc-stats span{font-size:10.5px;font-weight:700;color:var(--cc-soft)}
+.cc-lock{display:flex;gap:8px;font-size:12px;color:var(--cc-soft);line-height:1.45;border-top:1px dashed rgba(255,255,255,.18);padding-top:12px}
+.cc-pass .cc-link{font-size:13px;font-weight:700;color:#9FFFB0;text-decoration:underline;text-underline-offset:3px}
+
+/* start form */
+.cc-opts{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.cc-opt{min-height:58px;border-radius:16px;border:1px solid var(--cc-line);background:rgba(255,255,255,.05);color:#fff;cursor:pointer;font:800 15px 'SB Text','Plus Jakarta Sans',system-ui,sans-serif;padding:6px 4px}
+.cc-opt.cc-num{font:400 24px 'SB Breaker','Anton',Impact,sans-serif;letter-spacing:.02em}
+.cc-opt small{display:block;font:700 10.5px 'SB Text','Plus Jakarta Sans',system-ui,sans-serif;color:var(--cc-soft)}
+.cc-opt[aria-pressed="true"]{background:linear-gradient(160deg,rgba(59,255,102,.22),rgba(0,200,74,.08));border-color:rgba(59,255,102,.7);box-shadow:0 0 18px rgba(59,255,102,.25)}
+.cc-two{grid-template-columns:1fr 1fr}
+.cc-hint{display:flex;gap:10px;border-radius:16px;padding:12px;background:rgba(232,181,58,.10);border:1px solid rgba(232,181,58,.35);font-size:13px;line-height:1.5;color:#F3E6C0}
+.cc-hint b{color:#FFE08A}
+
+/* reached */
+.cc-win{position:relative;border-radius:24px;padding:24px 16px 18px;text-align:center;display:grid;gap:12px;justify-items:center;overflow:hidden;
+  background:radial-gradient(70% 45% at 50% 22%,rgba(255,214,102,.28),transparent 70%),linear-gradient(160deg,#1A2CB8,#060A3C);border:1px solid rgba(232,181,58,.35)}
+.cc-win>*{position:relative}
+.cc-win .cc-rays{position:absolute;left:50%;top:110px;width:520px;height:520px;margin:-260px 0 0 -260px;border-radius:50%;background:repeating-conic-gradient(rgba(255,224,138,.10) 0 8deg,transparent 8deg 22deg);animation:cc-rot 18s linear infinite;pointer-events:none}
+@keyframes cc-rot{to{transform:rotate(360deg)}}
+.cc-coin{width:140px;height:140px;border-radius:50%;display:grid;place-items:center;color:#4A3000;
+  background:radial-gradient(circle at 35% 30%,#FFF4C2,#F4C651 45%,#C88D17 75%,#8A5A08);box-shadow:0 14px 40px rgba(232,181,58,.55),inset 0 -6px 12px rgba(0,0,0,.18),inset 0 4px 10px rgba(255,255,255,.5)}
+.cc-coin::after{content:"";position:absolute;inset:10px;border-radius:50%;border:2px dashed rgba(90,60,0,.35)}
+.cc-coin b{display:block;font-family:'SB Breaker','Anton',Impact,sans-serif;font-weight:400;font-size:42px;line-height:.95}
+.cc-coin span{display:block;font-size:10px;font-weight:800;letter-spacing:.16em}
+.cc-coin small{font-size:9px;font-weight:800;letter-spacing:.12em;opacity:.75}
+.cc-coin.spin{animation:cc-flip 1.3s cubic-bezier(.2,1.4,.4,1) both}
+@keyframes cc-flip{0%{transform:scale(.2) rotateY(720deg);opacity:0}100%{transform:none;opacity:1}}
+.cc-win .cc-wt{margin:0;font-family:'SB Breaker','Anton',Impact,sans-serif;font-weight:400;font-size:24px;letter-spacing:.03em;color:#fff;line-height:1;text-transform:none}
+.cc-win p{margin:0;font-size:14px;color:#DDE3FF;line-height:1.5}
+.cc-win p b{color:#FFE08A}
+.cc-win .cc-go,.cc-win .cc-ghost{max-width:300px}
+.cc-conf{position:absolute;inset:0;pointer-events:none}
+.cc-conf i{position:absolute;top:-12px;width:7px;height:12px;border-radius:2px;animation:cc-fall 2.8s linear 2 both}
+@keyframes cc-fall{to{transform:translateY(560px) rotate(600deg)}}
+
+/* coin case */
+.cc-glass{border-radius:20px;padding:14px 16px;display:grid;gap:10px;background:linear-gradient(135deg,#141C55,#0B1140);border:1px solid var(--cc-line)}
+.cc-case{display:flex;flex-wrap:wrap;gap:10px}
+.cc-mini{width:46px;height:46px;border-radius:50%;display:grid;place-items:center;color:#4A3000;background:radial-gradient(circle at 35% 30%,#FFF4C2,#F4C651 45%,#C88D17 85%);box-shadow:0 4px 14px rgba(232,181,58,.4)}
+.cc-mini b{font-family:'SB Breaker','Anton',Impact,sans-serif;font-weight:400;font-size:16px}
+
+@media (prefers-reduced-motion:reduce){.cc-dot,.cc-win .cc-rays,.cc-coin.spin,.cc-conf i{animation:none}.cc-conf{display:none}}
