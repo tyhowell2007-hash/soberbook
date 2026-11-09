@@ -9,7 +9,7 @@ export default function Privacy() {
     <div className="page"><div className="doc">
       <div className="eyebrow">Privacy · last updated November 1, 2026</div>
       <h1>Your privacy on RecoveryMap</h1>
-      <span className="draft">Waiting on attorney review</span>
+      {/* INTERNAL: this page is waiting on attorney review. Not shown to visitors (Kenny, 6 Nov 2026). */}
       <p className="lede">Short version: you don’t sign up, we don’t track you, and we never sell or share what you search.</p>
       <h2>What we don’t collect</h2>
       <ul><li>No accounts, no sign-up, no advertising trackers, no analytics cookies.</li>
