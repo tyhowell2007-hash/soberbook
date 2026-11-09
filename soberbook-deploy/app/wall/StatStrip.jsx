@@ -27,17 +27,23 @@ export default function StatStrip({ post, onCoins }) {
   const hidden = seen === null || seen === undefined;
   const n = Number(seen) || 0;
 
+  /* ⭐ 9 Nov 2026 — NO "✨ New" BADGE (Kenny + Ty, guided experience).
+     Under 10 seen, the first box used to say "✨ New · Just shared" on
+     almost every post. It now just isn't drawn, which keeps the rule
+     above (never a sad number) without adding a label to read. If no
+     box has anything to say, the strip draws nothing at all. */
+  const showSeen = hidden || !(n < 10 && !post.is_mine);
+  if (!showSeen && coins <= 0 && replies <= 0) return null;
+
   return (
     <div className="statstrip">
-      <div className="statcell">
+      {showSeen && <div className="statcell">
         {hidden ? (
           <span className="statk solo">{word}</span>
-        ) : n < 10 && !post.is_mine ? (
-          <><span className="statnew">✨ New</span><span className="statk">Just shared</span></>
-        ) : (
+        ) : n < 10 && !post.is_mine ? null : (
           <><b className="statv">{n.toLocaleString()}</b><span className="statk">{word}</span></>
         )}
-      </div>
+      </div>}
       {coins > 0 ? (
         post.is_mine && onCoins ? (
           <button type="button" className="statcell statbtn" onClick={onCoins}>

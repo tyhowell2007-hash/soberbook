@@ -19,7 +19,6 @@ import { fetchBroadcasts } from '../../lib/highlights';
 import { buildIndex, findMentions, activeQuery, suggest, saysHighlight } from '../../lib/mentions';
 import { mixFeed } from '../../lib/mix';
 /* 📌 0191 — the team's pinned note. Renders nothing when there isn't one. */
-import TeamUpdate from './TeamUpdate';
 import ContentCard from '../components/ContentCard';
 /* 🔴 The wall's post list is fetched in ONE place now — see lib/feed-posts.js.
    These three client re-fetches used to be plain limit(60) queries, which
@@ -29,7 +28,6 @@ import DropCard from '../components/DropCard';
 import DropSheet from './DropSheet';
 import PushAsk from '../components/PushAsk';
 import InviteAsk from './InviteAsk';
-import TourCard from '../components/TourCard';
 import Pledge from '../components/Pledge';
 import Gratitude from '../components/Gratitude';
 import MilestoneCard from './MilestoneCard';
@@ -1261,7 +1259,12 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
 
           ⚠️ It renders NOTHING when there is no note, so a quiet week
           leaves this page byte-for-byte what it was. */}
-      <TeamUpdate update={teamUpdate} />
+      {/* ⭐ 9 Nov 2026 — THE TEAM NOTE NO LONGER RENDERS ON HOME (Kenny + Ty).
+          Part of the guided-experience pass: announcements about what the
+          team changed or added are information a member has to read past
+          to reach the room. Features are meant to show up where they are
+          used, not be announced. TeamUpdate.jsx and /admin/update are left
+          in place, unused here, so this is one line to undo. */}
 
       {/* ---- THE MILESTONE OFFER ----
 
@@ -1847,7 +1850,10 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
           never posted or replied; they are here for about four seconds
           and never scroll. Below the fold is the same as not existing
           for exactly the people this is for. */}
-      <TourCard />
+      {/* ⭐ 9 Nov 2026 — the walkthrough card is gone from Home, and "Take
+          the tour" from More (Kenny + Ty, guided experience). The app should
+          lead people to things by where it puts them, not by a film about
+          them. /tour itself still exists so links in old emails work. */}
 
       <div className="wall">
         {posts.length === 0 && (
