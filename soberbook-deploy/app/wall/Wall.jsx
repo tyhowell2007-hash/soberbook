@@ -30,6 +30,7 @@ import PushAsk from '../components/PushAsk';
 import InviteAsk from './InviteAsk';
 import Pledge from '../components/Pledge';
 import Gratitude from '../components/Gratitude';
+import QuietNudge from '../components/QuietNudge';
 import MilestoneCard from './MilestoneCard';
 import { markLabel } from '../../lib/milestones';
 import ArtistCheck from '../components/ArtistCheck';
@@ -356,6 +357,23 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
   const [pick, setPick] = useState(0);        // highlighted row in the menu
   const [emoji, setEmoji] = useState(false);  // the emoji sheet (5 Sept)
   const boxRef = useRef(null);
+
+  /* ⭐ 9 Nov 2026 — "Say it on the wall?" on the pledge card drops the
+     member's own line into this composer. Nothing posts until they do. */
+  useEffect(() => {
+    const onCompose = (e) => {
+      const line = String(e.detail || '').slice(0, 2000);
+      if (!line) return;
+      setText((t) => (t ? t : line));
+      requestAnimationFrame(() => {
+        const el = boxRef.current;
+        if (!el) return;
+        try { el.scrollIntoView({ behavior: 'smooth', block: 'center' }); el.focus(); } catch { /* fine */ }
+      });
+    };
+    window.addEventListener('sb:compose', onCompose);
+    return () => window.removeEventListener('sb:compose', onCompose);
+  }, []);
 
   /* ⭐ A LOOKUP, NOT A REGEX. A name has spaces and there is no way to
      tell from the text where "@Nic Rossiter and I" stops being a name.
@@ -1333,6 +1351,10 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
       {/* ---- WHERE EVERYONE IS · YOUR CIRCLE · ARTISTS (9 Nov 2026) ----
           After you've checked in, the room: who else is here and in what
           season, your circle, then the composer. Rendered by page.jsx. */}
+      {/* ⭐ 9 Nov 2026 — one quiet friend, one tap to say hi. Renders
+          nothing unless you have a friend who's been quiet two weeks. */}
+      <QuietNudge />
+
       {community}
 
       {/* ---- THE COMPOSER, MOVED TO THE TOP ----
@@ -1731,17 +1753,21 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
         {uploading && <p className="canon-note">Adding it…</p>}
         {postErr && <p className="phserr" role="alert">{postErr}</p>}
 
-        <div className="cas">
-          <span>Posting as</span>
+        {/* ⭐ 9 Nov 2026 — ONE LINE OF CHOICES (Kenny + Ty, guided experience).
+            "Posting as", "Who sees it" and "Putting out" used to be three
+            labelled rows, each with a "tap to…" hint: six lines of reading
+            before anyone typed. They are now three chips on one line. Every
+            choice is still here and still one tap; the label and hint moved
+            into each chip's aria-label and tooltip. The hiding rules below
+            (audience and record hidden while anonymous) are unchanged. */}
+        <div className="cas cas-one">
           <button type="button" className={'asme' + (anon ? ' anon' : '')}
                   aria-pressed={anon}
+                  aria-label={anon ? 'Posting anonymously. Tap to use your name.' : 'Posting with your name. Tap to post anonymously.'}
+                  title={anon ? 'tap to use your name' : 'tap to post anonymously'}
                   onClick={toggleAnon}>
             {anon ? '🤫 anonymous' : '🌱 ' + (me.name || 'you')}
           </button>
-          <span className="cas-hint">
-            {anon ? 'tap to use your name' : 'tap to post anonymously'}
-          </span>
-        </div>
 
         {/* Who can see it. Hidden entirely while anonymous — not disabled,
             hidden. A greyed-out "Friends only" next to the anonymous chip
@@ -1749,20 +1775,14 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
             turn anonymity off to reach it. When it can't apply it isn't
             part of the composer. Same call as the camera above. */}
         {!anon && (
-          <div className="cas cas-aud">
-            <span>Who sees it</span>
             <button type="button"
                     className={'asme' + (audience === 'friends' ? ' fr' : '')}
                     aria-pressed={audience === 'friends'}
+                    aria-label={audience === 'friends' ? 'Only your people see it. Tap to open it to everyone.' : 'Everyone sees it. Tap to keep it to friends.'}
+                    title={audience === 'friends' ? 'tap to open it up' : 'tap to keep it to friends'}
                     onClick={() => setAudience(audience === 'friends' ? 'open' : 'friends')}>
               {audience === 'friends' ? '👋 your people' : '🌍 everyone'}
             </button>
-            <span className="cas-hint">
-              {audience === 'friends'
-                ? 'tap to open it up'
-                : 'tap to keep it to friends'}
-            </span>
-          </div>
         )}
 
         {/* ---- PUTTING OUT A RECORD — the second option ----
@@ -1783,18 +1803,15 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
             outright — so offering it here would be offering something the
             database will reject. */}
         {!anon && (
-          <div className="cas cas-aud casrec">
-            <span>Putting out</span>
-            <button type="button" className={'asme' + (rec ? ' on' : '')}
+            <button type="button" className={'asme rec' + (rec ? ' on' : '')}
                     aria-pressed={!!rec}
+                    aria-label={rec ? `Putting out ${rec.title}. Tap to take it off.` : 'Putting out a record. Tap if you made something.'}
+                    title={rec ? 'tap to take it off' : 'tap if you made something'}
                     onClick={() => (rec ? setRec(null) : setSheet(true))}>
               {rec ? `♪ ${rec.title}` : '♪ a record'}
             </button>
-            <span className="cas-hint">
-              {rec ? 'tap to take it off' : 'tap if you made something'}
-            </span>
-          </div>
         )}
+        </div>
 
         {/* The explanation, and only when it's relevant. A permanent note
             about anonymous photo rules on a composer nobody is using

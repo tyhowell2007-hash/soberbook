@@ -394,7 +394,11 @@ export default async function WallPage() {
           is no new colour. */}
       <div className="bar bar-doors">
         <Link href="/now" className="dr dr-now">Right now</Link>
-        <Link href="/checkin" className="dr dr-in">Check in</Link>
+        {/* ⭐ 9 Nov 2026 — "Check in" opens the pledge card on this page.
+            /checkin is the "Hey. Checking in on you." page a member gets
+            when Ty or Kenny presses Reach out (0194, 30 Oct); since then
+            this door had been sending EVERYBODY to that message. */}
+        <a href="#pledge" className="dr dr-in">Check in</a>
         <Link href="/resources" className="dr dr-ask">◆ Ask Sage</Link>
       </div>
       {/* 🔴 THE SECOND ROW, 20 SEPT — THE DOORS NOBODY COULD FIND.
