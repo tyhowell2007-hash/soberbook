@@ -53,6 +53,7 @@ export default function RmLayout({ children }) {
         <nav className="links" id="rm-links" aria-label="Main">
           <a href={`${b}/search`}>{t('nav_find', L)}</a>
           <a href={`${b}/housing`}>{t('nav_housing', L)}</a>
+          <a href={`${b}/online`}>{t('nav_online', L)}</a>
           <a href={`${b}/meetings`}>{t('nav_meetings', L)}</a>
           <a href={`${b}/narcan`}>{t('nav_narcan', L)}</a>
           <LangButton lang={L} />
@@ -62,14 +63,11 @@ export default function RmLayout({ children }) {
       <main id="main" className="wrap">{children}</main>
       <footer className="foot"><div className="wrap">
         <div><b>RecoveryMap</b>
-          <p>{L === 'es' ? 'Un servicio de Sober Book.' : 'A service of Sober Book.'}</p></div>
+          <p>{L === 'es' ? 'Un servicio de Sober Book.' : 'A service of Sober Book.'}</p>
+          {/* Everything else is in the menu above. Start here is the one
+              page that isn't, so it gets a link down here. */}
+          <p><a href={`${b}/for-you`}>{L === 'es' ? '¿No sabe por dónde empezar? Empiece aquí' : 'Not sure where to begin? Start here'}</a></p></div>
         <div><b>{t('footer_nma', L)}</b><p>{t('footer_nma_body', L)}</p></div>
-        <div><b>{L === 'es' ? 'Sitio' : 'Site'}</b><ul>
-          <li><a href={`${b}/guide`}>{L === 'es' ? '¿No sabe qué necesita?' : 'Not sure what you need?'}</a></li>
-          <li><a href={`${b}/for-you`}>{L === 'es' ? 'Empiece aquí' : 'Start here for…'}</a></li>
-          <li><a href={`${b}/no-insurance`}>{L === 'es' ? '¿Sin seguro?' : 'No insurance?'}</a></li>
-          <li><a href={`${b}/online`}>{L === 'es' ? 'Atención en línea' : 'Online care'}</a></li>
-        </ul></div>
         <div><b>{L === 'es' ? 'Lo legal' : 'The fine print'}</b><ul>
           <li><a href={`${b}/privacy`}>{L === 'es' ? 'Privacidad' : 'Privacy'}</a></li>
           <li><a href={`${b}/terms`}>{L === 'es' ? 'Términos de uso' : 'Terms of use'}</a></li>

@@ -1,6 +1,6 @@
 import { base, lang } from '../../lib/rm/server';
 import { t } from '../../lib/rm/t';
-import { CONTENT_APPROVED } from '../../lib/rm/words';
+import { CONTENT_APPROVED, LEVEL } from '../../lib/rm/words';
 import NearMe from './NearMe';
 
 export const dynamic = 'force-dynamic';
@@ -23,7 +23,7 @@ export default async function Home() {
             <NearMe action={`${b}/search`} label={t('near_me', L)} />
             <button className="rm-btn" type="submit">{t('find', L)}</button>
           </form>
-          <a href={`${b}/guide`} style={{ fontWeight: 700 }}>{t('not_sure', L)}</a>
+          <a href={`${b}/for-you#guide`} style={{ fontWeight: 700 }}>{t('not_sure', L)}</a>
         </div>
       </section>
 
@@ -45,7 +45,8 @@ export default async function Home() {
           <a href={`${b}/for-you#moms`}>{es ? 'Embarazada o mamá reciente' : 'Pregnant or a new mom'}</a>
           <a href={`${b}/for-you#veterans`}>{es ? 'Veterano' : 'A veteran'}</a>
           <a href={`${b}/for-you#reentry`}>{es ? 'Saliendo de la cárcel' : 'Leaving jail or prison'}</a>
-          <a href={`${b}/no-insurance`}>{es ? 'Sin seguro' : 'Without insurance'}</a>
+          <a href={`${b}/for-you#medication`}>{es ? 'Tomando medicamentos (MAT)' : 'On medication (MAT)'}</a>
+          <a href={`${b}/for-you#money`}>{es ? 'Sin seguro' : 'Without insurance'}</a>
         </div>
       </section>
 
@@ -55,19 +56,16 @@ export default async function Home() {
         <h2>{es ? 'Qué significan las palabras' : 'What the words mean'}</h2>
         {!CONTENT_APPROVED && <span className="draft">{t('draft', L)}</span>}
         <div className="levels">
-          <div className="lvl"><b>{es ? 'Desintoxicación' : 'Detox'}</b><p>{es ? 'Atención médica mientras su cuerpo deja una droga. Es el primer paso, no todo el tratamiento.' : 'Medical care while your body comes off a drug. A first step, not the whole treatment.'}</p></div>
-          <div className="lvl"><b>{es ? 'Tratamiento residencial' : 'Live-in treatment'}</b><p>{es ? 'Usted vive allí durante el tratamiento.' : 'You live there during treatment. Also called residential or inpatient.'}</p></div>
-          <div className="lvl"><b>{es ? 'Tratamiento de día' : 'Day treatment'}</b><p>{es ? 'Gran parte del día, y en la noche a casa.' : 'Treatment for much of the day, then home at night. Also called PHP.'}</p></div>
-          <div className="lvl"><b>{es ? 'Ambulatorio intensivo' : 'Intensive outpatient'}</b><p>{es ? 'Varias horas al día, varios días a la semana.' : 'Several hours a day, several days a week. Also called IOP.'}</p></div>
-          <div className="lvl"><b>{es ? 'Medicamentos (MAT)' : 'Medication (MAT)'}</b><p>{es ? 'Suboxone, metadona, Vivitrol y otros. Los medicamentos cuentan como recuperación.' : 'Suboxone, methadone, Vivitrol and others. Medication counts as recovery.'}</p></div>
-          <div className="lvl"><b>{es ? 'Vivienda de recuperación' : 'Recovery housing'}</b><p>{es ? 'Un lugar sobrio para vivir mientras se reconstruye. No es tratamiento.' : 'A sober place to live while you rebuild. Not treatment itself.'}</p></div>
+          {[
+            ['detox', 'Atención médica mientras su cuerpo deja una droga. Es el primer paso, no todo el tratamiento.', 'Medical care while your body comes off a drug. A first step, not the whole treatment.'],
+            ['residential', 'Usted vive allí durante el tratamiento.', 'You live there during treatment. Also called residential or inpatient.'],
+            ['php', 'Gran parte del día, y en la noche a casa.', 'Treatment for much of the day, then home at night. Also called PHP.'],
+            ['iop', 'Varias horas al día, varios días a la semana.', 'Several hours a day, several days a week. Also called IOP.'],
+            ['medication_assisted', 'Suboxone, metadona, Vivitrol y otros. Los medicamentos cuentan como recuperación.', 'Suboxone, methadone, Vivitrol and others. Medication counts as recovery.'],
+            ['sober_living', 'Un lugar sobrio para vivir mientras se reconstruye. No es tratamiento.', 'A sober place to live while you rebuild. Also called recovery housing. Not treatment itself.'],
+          ].map(([k, e, n]) => <div className="lvl" key={k}><b>{LEVEL[L][k]}</b><p>{es ? e : n}</p></div>)}
         </div>
       </section>
-
-      <div className="grid2">
-        <div className="card lav"><h3>{es ? '¿Busca ayuda para alguien que ama?' : 'Looking for someone you love?'}</h3><p>{es ? 'Busque de la misma manera y, si pueden, llamen juntos.' : 'Search the same way, then call together if you can.'}</p><a className="rm-btn sm" href={`${b}/for-you#family`}>{es ? 'Empiece aquí' : 'Start here'}</a></div>
-        <div className="card teal"><h3>{es ? '¿Toma medicamentos? Usted es bienvenido.' : 'On medication? You belong here.'}</h3><p>{es ? 'Suboxone, metadona y Vivitrol cuentan como recuperación.' : 'Suboxone, methadone and Vivitrol count as recovery. Filter for programs and houses that welcome it.'}</p><a className="rm-btn teal sm" href={`${b}/search?near=&level=medication_assisted`}>{es ? 'Programas con medicamentos' : 'Programs with medication'}</a></div>
-      </div>
 
       <div className="sbk"><b>{es ? '¿Necesita personas, no solo un programa?' : 'Need people, not just a program?'}</b><p>{es ? 'Sober Book es una red social gratuita para personas en recuperación.' : 'Sober Book is a free social network for people in recovery.'}</p><a className="rm-btn sm" href="https://soberbook.app">{es ? 'Únase a Sober Book' : 'Join Sober Book'}</a></div>
 
