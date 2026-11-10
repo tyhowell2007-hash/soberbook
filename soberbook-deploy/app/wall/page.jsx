@@ -21,6 +21,7 @@ import LiveTalks from './LiveTalks';
 import StoryRail from '../components/StoryRail';
 import ArtistStrip from '../components/ArtistStrip';
 import Seasons from './Seasons';
+import Doors from './Doors';
 /* ⭕ The way in to your circle. ⚠️ Default import only — a named one
    out of a 'use client' module lands on the server as a proxy and throws. */
 /* CircleCard is not rendered on Home since 9 Nov 2026 — see `community` below. */
@@ -71,6 +72,42 @@ export default async function WallPage() {
      refresh. Both runtimes call the same function now, so they cannot
      drift again. Read that file before changing the window. */
   const { posts, error } = await fetchFeedPosts(supabase, assertReadable('feed_posts'));
+
+  /* ⭐ 9 Nov 2026 — SOMEBODY NEW JUST SPOKE (Kenny). The single most
+     valuable thing on this page is a reply to somebody's first post, and
+     it was left to chance: "Hi! I am new here…" sat second on the wall
+     with nothing pointing at it.
+
+     Picks the newest post from the last three days that is its author's
+     FIRST post on the wall, has fewer than two replies, and isn't yours,
+     anonymous, a milestone or an ad. Wall.jsx draws one "New here — say hi"
+     card for it under the say-it card.
+
+     ⚠️ Anonymous posts are never picked: "new here" would be a fact about
+     a person who chose not to be one.
+     ⚠️ Failure is silent, like openRoom below — Home can lose this card,
+     it must never lose the wall. */
+  let newcomer = null;
+  try {
+    const DAY = 24 * 60 * 60 * 1000;
+    const recent = (posts || []).filter((p) => !p.is_mine && !p.is_anonymous
+      && p.author_id && p.author_handle && !p.milestone_days && !p.content_item_id
+      && (p.comment_count || 0) < 2
+      && Date.now() - new Date(p.created_at).getTime() < 3 * DAY);
+    if (recent.length) {
+      const ids = [...new Set(recent.map((p) => p.author_id))];
+      const { data: firsts } = await supabase
+        .from(assertReadable('feed_posts'))
+        .select('id, author_id, created_at')
+        .in('author_id', ids)
+        .order('created_at', { ascending: true })
+        .limit(1000);
+      const firstOf = {};
+      for (const r of firsts || []) if (!(r.author_id in firstOf)) firstOf[r.author_id] = r.id;
+      const p = recent.find((x) => firstOf[x.author_id] === x.id);
+      if (p) newcomer = { id: p.id, handle: p.author_handle, name: p.display_name || p.author_handle };
+    }
+  } catch { newcomer = null; }
 
   /* Every photo on the page signed in ONE round trip, before render.
      ⚠️ Done here on the server rather than in the browser on purpose: a
@@ -392,15 +429,13 @@ export default async function WallPage() {
           everywhere else. Three unmeasured contrast figures went into
           comments this week and two were failures; the safest new colour
           is no new colour. */}
-      <div className="bar bar-doors">
-        <Link href="/now" className="dr dr-now">Right now</Link>
-        {/* ⭐ 9 Nov 2026 — "Check in" opens the pledge card on this page.
-            /checkin is the "Hey. Checking in on you." page a member gets
-            when Ty or Kenny presses Reach out (0194, 30 Oct); since then
-            this door had been sending EVERYBODY to that message. */}
-        <a href="#pledge" className="dr dr-in">Check in</a>
-        <Link href="/resources" className="dr dr-ask">◆ Ask Sage</Link>
-      </div>
+      {/* ⭐ 9 Nov 2026 — ONE ROW NOW: Right now · ◆ Ask Sage · More for today.
+          The two rows that were here (seven doors before hello) live in
+          Doors.jsx as one row plus a daily-tools drawer. Check in and
+          Gratitude left this bar because they are tabs on the "say it"
+          card. The notes above and below still explain why each door
+          exists; Doors.jsx explains the new shape. */}
+      <Doors />
       {/* 🔴 THE SECOND ROW, 20 SEPT — THE DOORS NOBODY COULD FIND.
           Counted over 30 days, out of 339 members: Check in, which is
           one tap above this line, 114 people. Gratitude, Tenth step and
@@ -416,12 +451,6 @@ export default async function WallPage() {
 
           ⚠️ No new colour: var(--gt) on the bar's --gl, the 10.80 pair
           already proven by "Check in" beside it. */}
-      <div className="bar bar-today" aria-label="Today">
-        <Link href="/gratitude" className="td">🙏<span>Gratitude</span></Link>
-        <Link href="/tenth" className="td">🔟<span>Tenth step</span></Link>
-        <Link href="/readings" className="td">📖<span>Readings</span></Link>
-        <Link href="/plan" className="td">🧭<span>Your plan</span></Link>
-      </div>
       {/* Renders nothing. Keeps the podcast feed fresh when the Vercel
           cron doesn't fire — which, as of 29 Aug, is most days. */}
       <FeedRefresh />
@@ -505,6 +534,10 @@ export default async function WallPage() {
             drops={drops}
             dropUrls={dropUrls}
             teamUpdate={teamUpdate}
+            newcomer={newcomer}
+            /* ⭐ 9 Nov 2026 — Artists moved INTO the feed, after the first
+               few posts, instead of sitting above it (Kenny). */
+            artists={<ArtistStrip />}
             community={<>
               <Seasons initialSeason={profile.season || null} />
               {/* ⭐ 9 Nov 2026 — THE CIRCLE CARD IS OFF HOME (Kenny). It was the
@@ -515,8 +548,8 @@ export default async function WallPage() {
                   place: putting `<CircleCard />` back here (and its import at
                   the top) is the whole undo. */}
               {/* Artists on Sober Book (19 Sept) — hideable, renders nothing until
-                  there is at least one verified artist to show. */}
-              <ArtistStrip />
+                  there is at least one verified artist to show. ⭐ 9 Nov 2026:
+                  now handed to Wall as `artists` and drawn inside the feed. */}
             </>}
           />}
     </>
