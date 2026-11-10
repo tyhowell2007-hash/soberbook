@@ -28,49 +28,94 @@
 .saybox-tabs {
   display: flex;
   gap: 4px;
-  padding: 6px 6px 0;
-  border-bottom: 1px solid var(--line);
+  margin: 10px 10px 4px;
+  padding: 4px;
+  border-radius: 16px;
+  background: var(--gl);
 }
 
+/* ⭐ 9 Nov 2026 — A SEGMENTED CONTROL, NOT UNDERLINED WORDS (Kenny: "a
+   better visual cuing of the setup and options"). The first version was
+   three grey words with a thin line under one; the choices didn't read as
+   choices and the selected one was easy to miss. Now the three sit on one
+   pale track and the chosen one is a filled pill, the way a phone's own
+   settings show "pick one of these".
+
+   ⚠️ No new colours. Unchosen: --gt on --gl (10.80 light, 12.16 dark,
+   both already measured for chips). Chosen: white on --gd (the primary
+   button fill; 8.52 in dark). */
 .saybox-tab {
   flex: 1 1 0;
   min-width: 0;
   position: relative;
-  padding: 10px 6px 9px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  /* 58px tall: a thumb target, and room for the who-sees-it line. */
+  min-height: 58px;
+  padding: 8px 4px 7px;
   border: 0;
-  border-bottom: 3px solid transparent;
-  background: none;
-  color: var(--soft);
+  border-radius: 12px;
+  background: transparent;
+  color: var(--gt);
   font: inherit;
-  font-weight: 700;
-  font-size: 0.92rem;
-  white-space: nowrap;
   cursor: pointer;
-  /* 44px tall with the padding: a thumb target, not a mouse target. */
-  min-height: 44px;
+  transition: background-color .18s ease, color .18s ease, box-shadow .18s ease;
 }
 
+.saybox-tab:hover { background: var(--paper2); }
+
 .saybox-tab.on {
-  color: var(--gt);
-  /* --gm-t is the dark theme's readable green; light falls back to --gd. */
-  border-bottom-color: var(--gm-t, var(--gd));
+  background: var(--gd);
+  color: #fff;
+  box-shadow: 0 2px 6px rgba(0, 0, 60, .22);
 }
 
 .saybox-tab:focus-visible {
   outline: 2px solid var(--gm-t, var(--gd));
-  outline-offset: -2px;
-  border-radius: 8px;
+  outline-offset: 2px;
 }
 
-/* "Not done yet today." Decoration on the word, never instead of it. */
+.saybox-ico { font-size: 1.15rem; line-height: 1; }
+
+.saybox-lbl {
+  font-weight: 800;
+  font-size: 0.9rem;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+/* Who sees it. Small, but never removed: it is the difference between
+   the three tabs. */
+.saybox-sub {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.68rem;
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--soft);
+}
+.saybox-tab.on .saybox-sub { color: rgba(255, 255, 255, .88); }
+
+@media (prefers-reduced-motion: reduce) {
+  .saybox-tab { transition: none; }
+}
+
+/* "Not done yet today." A corner dot, decoration on the word, never
+   instead of it. The ring keeps it separate from the track behind it. */
 .saybox-dot {
-  display: inline-block;
-  width: 7px;
-  height: 7px;
-  margin-left: 5px;
-  vertical-align: middle;
+  position: absolute;
+  top: 7px;
+  right: 9px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
   background: var(--gm-t, var(--gd));
+  box-shadow: 0 0 0 2px var(--gl);
 }
 
 .saybox-pane[hidden] { display: none; }
