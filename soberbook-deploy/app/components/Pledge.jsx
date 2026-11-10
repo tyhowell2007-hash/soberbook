@@ -352,6 +352,26 @@ export default function Pledge({ onStatus } = {}) {
         </p>
       )}
 
+      {/* ⭐ 9 Nov 2026 — WHEN THE CRAVING WAS LOUD, OFFER THE TOOLS RIGHT HERE
+          (Kenny: lead people to the features instead of listing them).
+          The app already has the right three things for this hour — the
+          urge-surfing practice on Quiet, the safety plan, and Right now —
+          and before this they were three menus away from the one moment
+          somebody told us they needed them.
+          ⚠️ OFFERS ONLY, NO VERDICT. It never says "you're struggling" —
+          same rule as the line above, which names the craving, not the
+          person. 'Some' doesn't trigger it; only strong and rough.
+          ⚠️ /quiet?p=urge opens the practice directly (quiet/Wall.jsx). */}
+      {(s.today_craving === 'strong' || s.today_craving === 'rough') && (
+        <div className="pl-help">
+          <p className="pl-help-q">If it’s still loud:</p>
+          <div className="pl-help-row">
+            <Link href="/quiet?p=urge" className="pl-help-go">🌊 Ride it out <span>3 min</span></Link>
+            <Link href="/plan" className="pl-help-go">🧭 Your plan</Link>
+            <Link href="/now" className="pl-help-go pl-help-now">Right now</Link>
+          </div>
+        </div>
+      )}
       {/* The evening half. ⚠️ Never chased, never required — the MORNING
           is the streak. Two required halves is two ways to fail instead
           of one thing to do. */}
@@ -401,6 +421,10 @@ export default function Pledge({ onStatus } = {}) {
           an inventory link over "One more day" at 6am is the wrong
           sentence at the wrong hour. */}
       <Link href="/tenth" className="tenth-door">◆ Your 10th step ›</Link>
+      {/* ⭐ 9 Nov 2026 — the day's reading, offered next to the 10th step
+          once today is said (it left the top-of-Home buttons). Same
+          always-here rule as the line above: a link you can find twice. */}
+      <Link href="/readings" className="tenth-door pl-read-door">📖 Today’s reading ›</Link>
 
       {/* ⭐ THE ONLY THING ANYBODY ELSE TOUCHES: A COUNT. No names, no
           handles, no ranking, and no member's number ever sits next to

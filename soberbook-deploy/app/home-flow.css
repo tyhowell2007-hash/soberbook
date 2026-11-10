@@ -1,0 +1,84 @@
+/* =====================================================================
+   HOME FLOW — 9 Nov 2026 (Kenny). Imported by app/wall/layout.jsx only.
+
+   Three small pieces of the Home pass:
+   - .dr-more     the "More for today" door (Doors.jsx)
+   - .hi-new      the "New here — say hi" card (Wall.jsx)
+   - .wall-artists  the artists strip, now inside the feed
+
+   ⚠️ Its own small file, like pledge.css and saybox.css. Every class here
+   was grepped against all stylesheets first; none existed.
+   ⚠️ No new colours: --gl/--gt (the chip pair, 10.80 light, 12.16 dark),
+   --paper2, --soft, --gd.
+   ===================================================================== */
+
+/* ---------- More for today ----------
+   A <button>, so it needs the browser's button chrome taken off before
+   the door styles (.dr, .dr-in, polish.css) can make it look like its
+   two neighbours. Border sides are cleared one by one so .dr-in's left
+   rule — the separator in the dark theme — survives. */
+.dr-more {
+  border-top: 0; border-right: 0; border-bottom: 0;
+  background: transparent;
+  padding: 0 6px;
+  cursor: pointer;
+  white-space: nowrap;
+  gap: 4px;
+}
+.dr-caret { font-size: 11px; line-height: 1; }
+
+/* ---------- New here: say hi ---------- */
+.hi-new {
+  margin: 0 12px 14px;
+  padding: 13px 14px 12px;
+  border-radius: 16px;
+  background: var(--gl);
+  color: var(--gt);
+}
+.hi-new-top {
+  margin: 0 0 2px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+.hi-new-what { margin: 0; font-size: 14.5px; line-height: 1.4; }
+.hi-new-body {
+  margin: 6px 0 0;
+  font-size: 14px;
+  line-height: 1.45;
+  font-style: italic;
+  overflow-wrap: anywhere;
+}
+.hi-new-acts { display: flex; gap: 8px; align-items: center; margin-top: 10px; }
+.hi-new-go {
+  min-height: 40px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--gd);
+  color: #fff;
+  font: inherit;
+  font-weight: 800;
+  font-size: 14px;
+  cursor: pointer;
+}
+.hi-new-no {
+  min-height: 40px;
+  padding: 0 8px;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-size: 13px;
+  opacity: .8;
+  cursor: pointer;
+}
+.hi-new-go:focus-visible,
+.hi-new-no:focus-visible { outline: 3px solid var(--gm-t, var(--gd)); outline-offset: 2px; }
+
+/* ---------- Artists, inside the feed ----------
+   .wall already insets its children 14px; the strip carries its own
+   14px side margin from when it sat outside, so it is zeroed here or the
+   card would sit 28px in, narrower than the posts around it. */
+.wall-artists .art-strip { margin: 0; }

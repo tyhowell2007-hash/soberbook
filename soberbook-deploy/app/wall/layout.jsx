@@ -60,6 +60,9 @@ import '../gratitude.css';
    (9 Nov 2026). ⚠️ AFTER pledge.css and gratitude.css: it strips their
    card chrome when they sit inside it, so it has to come later. */
 import '../saybox.css';
+/* Home flow (9 Nov 2026): the More-for-today door, the New-here card, and
+   the artists strip inside the feed. Its own small file. */
+import '../home-flow.css';
 /* 🔴 IMPORTED FOR EXACTLY ONE RULE: .tenth-door, the link on the pledge
    card. The 10th step CARD never renders on Home — only its doorway does.
    ⚠️ Deleting this line does not break anything visibly; it strips the

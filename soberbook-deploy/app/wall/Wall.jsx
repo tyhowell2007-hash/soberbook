@@ -112,6 +112,15 @@ function loneliest(list) {
    They look identical on screen and they mean opposite things — one is a
    celebration, the other is a person being ignored. We only ever say the
    second one out loud, and only to other people. */
+/* ⭐ 9 Nov 2026 — put one extra node into a rendered list at position
+   `at` (or at the end if the list is shorter). Used to draw the artists
+   strip inside the feed rather than above it. */
+function spliceIn(list, at, node) {
+  if (!node) return list;
+  const i = Math.min(at, list.length);
+  return [...list.slice(0, i), node, ...list.slice(i)];
+}
+
 function unanswered(p) {
   return !p.milestone_days
     /* 🔴 And never an advert — same reason as loneliest() above (0164).
@@ -181,7 +190,13 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
                                /* ⭐ 9 Nov 2026 — Seasons, Circle and Artists,
                                   handed in by page.jsx and drawn after the
                                   day's check-in. See the note there. */
-                               community = null }) {
+                               community = null,
+                               /* ⭐ 9 Nov 2026 — { id, handle, name } of a
+                                  first post that needs a hello, or null. */
+                               newcomer = null,
+                               /* ⭐ 9 Nov 2026 — the artists strip, drawn
+                                  inside the feed after the first posts. */
+                               artists = null }) {
   const router = useRouter();
   const supabase = browserClient();
   /* The milestone landing today, if there is one and it hasn't been
@@ -395,11 +410,61 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
 
      ⚠️ All three stay MOUNTED and inactive ones are `hidden`, so switching
      tabs never loses a half-written post or pledge. */
+  /* ⭐ 9 Nov 2026 — "Not now" on the New-here card hides it for THAT post
+     on this phone. Wrapped: storage can throw or come back empty. */
+  const [hiNo, setHiNo] = useState(null);
+  useEffect(() => {
+    try { setHiNo(window.localStorage.getItem('sb_hi_no')); } catch { /* storage blocked */ }
+  }, []);
+  function notNowHi(id) {
+    setHiNo(id);
+    try { window.localStorage.setItem('sb_hi_no', id); } catch { /* storage blocked */ }
+  }
+  const newPost = newcomer && newcomer.id !== hiNo
+    ? posts.find((x) => x.id === newcomer.id) || null : null;
+
   const [tab, setTab] = useState(null);           // null | 'post' | 'checkin' | 'grateful'
   const [pledgeOpen, setPledgeOpen] = useState(false);  // today's pledge not said yet
   const tabTouched = useRef(false);
   const shownTab = tab || 'post';
-  function pickTab(t) { tabTouched.current = true; setTab(t); }
+  function pickTab(t) { tabTouched.current = true; setHint(-1); setTab(t); }
+
+  /* ⭐ 9 Nov 2026 — SHOW THAT THERE ARE THREE (Kenny). Before the member
+     touches the card, a soft highlight steps across the three tabs, two
+     rounds at ~0.9s, then stops for good.
+
+     ⚠️ IT HIGHLIGHTS, IT NEVER SWITCHES. Kenny's idea was the selected tab
+     alternating; actually switching would swap the pledge, gratitude and
+     composer in and out underneath somebody who is reading or about to
+     type. The outline moves; the content stays still.
+     ⚠️ Two rounds, not forever: motion that won't stop on a recovery app's
+     front door is noise (and WCAG 2.2.2). Any touch on the card stops it,
+     reduced-motion skips it, and it only plays on a member's first three
+     visits (localStorage, wrapped). */
+  const [hint, setHint] = useState(-1);
+  useEffect(() => {
+    let seen = 0;
+    try {
+      if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return undefined;
+      seen = Number(window.localStorage.getItem('sb_tab_hint') || 0);
+      if (seen >= 3) return undefined;
+      window.localStorage.setItem('sb_tab_hint', String(seen + 1));
+    } catch { /* storage blocked — still play once */ }
+    let step = 0;
+    const start = setTimeout(() => {
+      setHint(0);
+      const t = setInterval(() => {
+        step += 1;
+        if (step >= 6 || tabTouched.current) { clearInterval(t); setHint(-1); return; }
+        setHint(step % 3);
+      }, 900);
+      stopHint.current = () => { clearInterval(t); setHint(-1); };
+    }, 1200);
+    return () => { clearTimeout(start); stopHint.current(); };
+  }, []);
+  const stopHint = useRef(() => {});
+  const TAB_ORDER = ['post', 'checkin', 'grateful'];
+  const hinted = hint >= 0 ? TAB_ORDER[hint] : null;
   function onPledgeStatus(saidToday) {
     setPledgeOpen(!saidToday);
     if (tabTouched.current) return;
@@ -1445,11 +1510,13 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
         });
       }} />
 
-      <section className="saybox" aria-label="Post, check in, or say one good thing">
+      <section className="saybox" aria-label="Post, check in, or say one good thing"
+               onPointerDown={() => { tabTouched.current = true; stopHint.current(); }}
+               onFocus={() => { stopHint.current(); }}>
         <div className="saybox-tabs" role="tablist">
           <button type="button" role="tab" id="saytab-post" aria-controls="saypane-post"
                   aria-selected={shownTab === 'post'}
-                  className={'saybox-tab' + (shownTab === 'post' ? ' on' : '')}
+                  className={'saybox-tab' + (shownTab === 'post' ? ' on' : '') + (hinted === 'post' && shownTab !== 'post' ? ' hint' : '')}
                   onClick={() => pickTab('post')}>
             {/* ⭐ 9 Nov 2026 — each tab says WHO SEES IT, not just what it is.
                 The three tabs differ most in privacy, and that was the one
@@ -1462,7 +1529,7 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
           </button>
           <button type="button" role="tab" id="saytab-checkin" aria-controls="saypane-checkin"
                   aria-selected={shownTab === 'checkin'}
-                  className={'saybox-tab' + (shownTab === 'checkin' ? ' on' : '')}
+                  className={'saybox-tab' + (shownTab === 'checkin' ? ' on' : '') + (hinted === 'checkin' && shownTab !== 'checkin' ? ' hint' : '')}
                   onClick={() => pickTab('checkin')}>
             <span className="saybox-ico" aria-hidden="true">🌱</span>
             <span className="saybox-lbl">Check in</span>
@@ -1473,7 +1540,7 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
           </button>
           <button type="button" role="tab" id="saytab-grateful" aria-controls="saypane-grateful"
                   aria-selected={shownTab === 'grateful'}
-                  className={'saybox-tab' + (shownTab === 'grateful' ? ' on' : '')}
+                  className={'saybox-tab' + (shownTab === 'grateful' ? ' on' : '') + (hinted === 'grateful' && shownTab !== 'grateful' ? ' hint' : '')}
                   onClick={() => pickTab('grateful')}>
             <span className="saybox-ico" aria-hidden="true">🙏</span>
             <span className="saybox-lbl">Grateful</span>
@@ -1932,6 +1999,33 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
         </div>
       </section>
 
+      {/* ⭐ 9 Nov 2026 — NEW HERE: SAY HI (Kenny). Somebody's first post,
+          picked by page.jsx, with a one-tap way into its replies. It sits
+          straight under the say-it card because a first reply is the most
+          useful thing anybody can do on this page, and the post itself is
+          usually a screen or two down.
+          ⚠️ Gone once it has two replies (page.jsx), after three days, or
+          when this member taps Not now. Never for an anonymous post. */}
+      {newPost && (
+        <div className="hi-new">
+          <p className="hi-new-top"><span aria-hidden="true">👋</span> New here</p>
+          <p className="hi-new-what">
+            <b>{newcomer.name}</b> just posted for the first time.
+          </p>
+          {newPost.body && (
+            <p className="hi-new-body">“{newPost.body.length > 120 ? newPost.body.slice(0, 117).trimEnd() + '…' : newPost.body}”</p>
+          )}
+          <div className="hi-new-acts">
+            <button type="button" className="hi-new-go" onClick={() => setOpen(newPost)}>
+              Say hi
+            </button>
+            <button type="button" className="hi-new-no" onClick={() => notNowHi(newcomer.id)}>
+              Not now
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* ⚠️ OUTSIDE the <form>, immediately under it. Inside, its buttons
           would be submit buttons by default and "Not now" would re-post.
           Under it rather than over it because the eye is already there —
@@ -2003,7 +2097,9 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
             The rules that protect the wall's promise live in that file, not
             here — chiefly that a card never sits directly above the post
             the wall has singled out for being unanswered. */}
-        {mixFeed(posts, content, { lonelyId }).map((row) => {
+        {/* ⭐ 9 Nov 2026 — the artists strip is spliced in after the first
+            three rows (spliceIn) instead of sitting above the wall. */}
+        {spliceIn(mixFeed(posts, content, { lonelyId }).map((row) => {
           if (row.type === 'content') {
             /* ⚠️ `pinned` is passed, not derived from item.pinned_at.
                Several items can be pinned; only ONE is shown as the pin,
@@ -2503,7 +2599,7 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
               </div>
             </article>
           );
-        })}
+        }), 3, artists && <div key="artists-in-feed" className="wall-artists">{artists}</div>)}
       </div>
 
       {/* The composer and the anonymous toggle used to live down here.

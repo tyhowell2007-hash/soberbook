@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { browserClient } from '../../lib/supabase-browser';
 import { plainError } from '../../lib/plain-error';
@@ -63,6 +63,17 @@ export default function Wall({ answers, mine }) {
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState('');
   const [practice, setPractice] = useState(null);
+  /* ⭐ 9 Nov 2026 — /quiet?p=<id> opens that practice straight away. The
+     pledge card links here with ?p=urge when the craving was strong or
+     rough: somebody in that hour should land IN the practice, not on a
+     list they have to read to find it. Unknown ids are ignored. */
+  useEffect(() => {
+    try {
+      const id = new URLSearchParams(window.location.search).get('p');
+      const hit = id && PRACTICES.find((x) => x.id === id);
+      if (hit) setPractice(hit);
+    } catch { /* fine — the list is still here */ }
+  }, []);
 
   const has = !!mine;
   const left = 280 - body.length;
