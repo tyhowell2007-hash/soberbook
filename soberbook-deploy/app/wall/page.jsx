@@ -23,7 +23,7 @@ import ArtistStrip from '../components/ArtistStrip';
 import Seasons from './Seasons';
 /* ⭕ The way in to your circle. ⚠️ Default import only — a named one
    out of a 'use client' module lands on the server as a proxy and throws. */
-import CircleCard from './CircleCard';
+/* CircleCard is not rendered on Home since 9 Nov 2026 — see `community` below. */
 /* 🔴 pickRoom comes from lib/, NOT from OpenRoom.jsx. That file is
    'use client', and a named export of a client module arrives here as a
    client reference rather than a function — calling it threw a
@@ -507,10 +507,13 @@ export default async function WallPage() {
             teamUpdate={teamUpdate}
             community={<>
               <Seasons initialSeason={profile.season || null} />
-              {/* 🔴 NOTICEABLE ON PURPOSE (Ty, 11 Sept). The dark slab is the only
-                  non-white card on this feed, because a page nobody can find is the
-                  bug this app has shipped thirteen times. */}
-              <CircleCard />
+              {/* ⭐ 9 Nov 2026 — THE CIRCLE CARD IS OFF HOME (Kenny). It was the
+                  dark slab near the top of the feed, made loud on purpose (Ty,
+                  11 Sept) so the page could be found. Kenny didn't want it
+                  holding a top spot over the room. /circle still works and is
+                  still on More ("⭕ Your circle"), and CircleCard.jsx is left in
+                  place: putting `<CircleCard />` back here (and its import at
+                  the top) is the whole undo. */}
               {/* Artists on Sober Book (19 Sept) — hideable, renders nothing until
                   there is at least one verified artist to show. */}
               <ArtistStrip />
