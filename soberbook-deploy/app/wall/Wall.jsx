@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { browserClient } from '../../lib/supabase-browser';
+import { tap } from '../../lib/tap';
 import Thread from './Thread';
 import InlineReply from './InlineReply';
 import PostMenu from './PostMenu';
@@ -422,12 +423,16 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
   }
   const newPost = newcomer && newcomer.id !== hiNo
     ? posts.find((x) => x.id === newcomer.id) || null : null;
+  const hiLogged = useRef(false);
+  useEffect(() => {
+    if (newPost && !hiLogged.current) { hiLogged.current = true; tap('hi_shown'); }
+  }, [!!newPost]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const [tab, setTab] = useState(null);           // null | 'post' | 'checkin' | 'grateful'
   const [pledgeOpen, setPledgeOpen] = useState(false);  // today's pledge not said yet
   const tabTouched = useRef(false);
   const shownTab = tab || 'post';
-  function pickTab(t) { tabTouched.current = true; setHint(-1); setTab(t); }
+  function pickTab(t) { tabTouched.current = true; setHint(-1); setTab(t); tap('tab_' + t); }
 
   /* ⭐ 9 Nov 2026 — SHOW THAT THERE ARE THREE (Kenny). Before the member
      touches the card, a soft highlight steps across the three tabs, two
@@ -452,6 +457,7 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
     } catch { /* storage blocked — still play once */ }
     let step = 0;
     const start = setTimeout(() => {
+      tap('hint_played');
       setHint(0);
       const t = setInterval(() => {
         step += 1;
@@ -463,6 +469,15 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
     return () => { clearTimeout(start); stopHint.current(); };
   }, []);
   const stopHint = useRef(() => {});
+  /* ⭐ 9 Nov 2026 — insights: one 'home_view' per load (the denominator
+     for every other tap), and which tab the card opened on by itself. */
+  useEffect(() => { tap('home_view'); }, []);
+  const openedLogged = useRef(false);
+  useEffect(() => {
+    if (openedLogged.current || !tab || tabTouched.current) return;
+    openedLogged.current = true;
+    tap('opened_' + tab);
+  }, [tab]);
   const TAB_ORDER = ['post', 'checkin', 'grateful'];
   const hinted = hint >= 0 ? TAB_ORDER[hint] : null;
   function onPledgeStatus(saidToday) {
@@ -1196,6 +1211,7 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
       const postId = (crypto.randomUUID && crypto.randomUUID())
         || (URL.createObjectURL(new Blob()).split('/').pop());
 
+      tap('post_sent');
       const { error } = await supabase.from('posts')
         .insert({ id: postId, author_id: user.id, body, is_anonymous: anon,
                   audience: anon ? 'open' : audience,
@@ -2016,10 +2032,10 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
             <p className="hi-new-body">“{newPost.body.length > 120 ? newPost.body.slice(0, 117).trimEnd() + '…' : newPost.body}”</p>
           )}
           <div className="hi-new-acts">
-            <button type="button" className="hi-new-go" onClick={() => setOpen(newPost)}>
+            <button type="button" className="hi-new-go" onClick={() => { tap('hi_sayhi'); setOpen(newPost); }}>
               Say hi
             </button>
-            <button type="button" className="hi-new-no" onClick={() => notNowHi(newcomer.id)}>
+            <button type="button" className="hi-new-no" onClick={() => { tap('hi_notnow'); notNowHi(newcomer.id); }}>
               Not now
             </button>
           </div>
