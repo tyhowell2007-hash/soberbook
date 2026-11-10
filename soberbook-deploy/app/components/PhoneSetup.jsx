@@ -97,6 +97,7 @@ export default function PhoneSetup() {
   const [n, setN] = useState(1);          // steps 1-5, 6 = ready
   const [askState, setAskState] = useState('ask'); // ask | busy | done
   const prompt = useRef(null);
+  const [why, setWhy] = useState(null); // ?setup=1 only: what this phone looks like to us
 
   useEffect(() => {
     const keep = (e) => { e.preventDefault(); prompt.current = e; };
@@ -114,10 +115,26 @@ export default function PhoneSetup() {
   }, []);
 
   useEffect(() => {
-    if (isIosApp() || path !== '/wall') return;
     const ua = navigator.userAgent || '';
-    if (IN_APP.test(ua)) return;
     const force = new URLSearchParams(window.location.search).get('setup') === '1';
+    /* ⚠️ ?setup=1 also draws a small line saying what this phone looks like
+       to us, so "it didn't show" can be answered from a screenshot. Added the
+       night Ty's own iPhone didn't show the card. Remove once it's solved. */
+    if (force) {
+      let perm = 'none';
+      try { perm = typeof Notification === 'undefined' ? 'none' : Notification.permission; } catch {}
+      setWhy([
+        'page ' + path,
+        isIosApp() ? 'IN THE IPHONE APP' : 'browser',
+        isStandalone() ? 'HOME-SCREEN ICON' : 'not from icon',
+        /iPhone|iPod/i.test(ua) ? 'iPhone' : 'NOT iPhone',
+        IN_APP.test(ua) ? 'INSIDE FACEBOOK-TYPE APP' : 'normal browser',
+        'alerts ' + perm,
+        ua.slice(0, 160),
+      ].join(' · '));
+    }
+    if (isIosApp() || path !== '/wall') return;
+    if (IN_APP.test(ua)) return;
     const t = setTimeout(() => {
       if (isStandalone()) {
         if (!pushSupport().supported) return;
@@ -133,7 +150,8 @@ export default function PhoneSetup() {
     return () => clearTimeout(t);
   }, [path]);
 
-  if (!mode) return null;
+  const dbg = why ? <div className="ps-debug" role="note">{why}</div> : null;
+  if (!mode) return dbg;
   const close = (key, days) => { if (key) snooze(key, days); setMode(null); };
 
   if (mode === 'ask') {

@@ -58,3 +58,7 @@
   animation:ps-up .4s cubic-bezier(.2,1.3,.4,1) both;font-family:inherit}
 .ps-center{text-align:center;justify-items:center}
 .ps-emoji{font-size:44px;line-height:1}
+
+/* ?setup=1 only — what this phone looks like to us (testing). */
+.ps-debug{position:fixed;left:8px;right:8px;top:calc(4px + env(safe-area-inset-top,0px));z-index:9100;background:#FFF7C2;color:#3A2600;
+  border:2px solid #E8B53A;border-radius:12px;padding:8px 10px;font:600 12px/1.4 -apple-system,system-ui,sans-serif;word-break:break-word}
