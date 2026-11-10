@@ -357,3 +357,29 @@
   font-size: 13px;
   color: var(--gm-t);
 }
+
+/* ---------------------------------------------------------------------
+   9 Nov 2026 — WHEN THE CRAVING WAS LOUD (Pledge.jsx, done card).
+   Three links to the tools for that hour. Offers, no verdict.
+   ⚠️ No new colours: --gl/--gt chips, and Right now keeps its clay word
+   colour from the doors bar (#8A2B2B on white).
+   --------------------------------------------------------------------- */
+.pl-help { margin: 0.7rem 0 0.2rem; }
+.pl-help-q { margin: 0 0 0.4rem; font-size: 13.5px; color: var(--soft); }
+.pl-help-row { display: flex; flex-wrap: wrap; gap: 8px; }
+.pl-help-go {
+  display: inline-flex; align-items: center; gap: 6px;
+  min-height: 40px; padding: 0 14px;
+  border-radius: 999px;
+  background: var(--gl);
+  color: var(--gt);
+  font-size: 14px; font-weight: 700;
+  text-decoration: none;
+}
+.pl-help-go span { font-size: 11.5px; font-weight: 600; opacity: .8; }
+.pl-help-now { background: #fbecea; color: #8A2B2B; }
+[data-theme="black"] .pl-help-now { background: var(--gl); color: #F4A6A6; }
+.pl-help-go:focus-visible { outline: 3px solid var(--gm-t, var(--gd)); outline-offset: 2px; }
+
+/* The reading door sits beside the 10th-step door and wears its style. */
+.pl-read-door { margin-left: 14px; }
