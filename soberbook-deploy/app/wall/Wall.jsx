@@ -1450,12 +1450,23 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
           <button type="button" role="tab" id="saytab-post" aria-controls="saypane-post"
                   aria-selected={shownTab === 'post'}
                   className={'saybox-tab' + (shownTab === 'post' ? ' on' : '')}
-                  onClick={() => pickTab('post')}>💬 Post</button>
+                  onClick={() => pickTab('post')}>
+            {/* ⭐ 9 Nov 2026 — each tab says WHO SEES IT, not just what it is.
+                The three tabs differ most in privacy, and that was the one
+                thing the old one-word labels didn't show. The lines match
+                the promises each card already makes ("Only you ever see
+                this", "Nobody sees whose they are"). */}
+            <span className="saybox-ico" aria-hidden="true">💬</span>
+            <span className="saybox-lbl">Post</span>
+            <span className="saybox-sub">To the wall</span>
+          </button>
           <button type="button" role="tab" id="saytab-checkin" aria-controls="saypane-checkin"
                   aria-selected={shownTab === 'checkin'}
                   className={'saybox-tab' + (shownTab === 'checkin' ? ' on' : '')}
                   onClick={() => pickTab('checkin')}>
-            🌱 Check in
+            <span className="saybox-ico" aria-hidden="true">🌱</span>
+            <span className="saybox-lbl">Check in</span>
+            <span className="saybox-sub">Only you see it</span>
             {/* A quiet dot, not a number or a badge: "not done yet today",
                 nothing more. Gone the moment the pledge is said. */}
             {pledgeOpen && shownTab !== 'checkin' && <span className="saybox-dot" aria-label="(not yet today)" />}
@@ -1463,7 +1474,11 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
           <button type="button" role="tab" id="saytab-grateful" aria-controls="saypane-grateful"
                   aria-selected={shownTab === 'grateful'}
                   className={'saybox-tab' + (shownTab === 'grateful' ? ' on' : '')}
-                  onClick={() => pickTab('grateful')}>🙏 Grateful</button>
+                  onClick={() => pickTab('grateful')}>
+            <span className="saybox-ico" aria-hidden="true">🙏</span>
+            <span className="saybox-lbl">Grateful</span>
+            <span className="saybox-sub">No names shown</span>
+          </button>
         </div>
 
         <div className="saybox-pane" role="tabpanel" id="saypane-checkin"
