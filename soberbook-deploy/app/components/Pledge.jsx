@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { browserClient } from '../../lib/supabase-browser';
+import { tap } from '../../lib/tap';
 
 /* =====================================================================
    ONE MORE DAY — the daily pledge.  1 Sept.
@@ -184,6 +185,7 @@ export default function Pledge({ onStatus } = {}) {
   async function say() {
     setBusy(true);
     try {
+      tap('pledge_said');
       await browserClient().rpc('pledge_today',
         { p_why: why || null, p_craving: craving });
       await load();
@@ -366,9 +368,9 @@ export default function Pledge({ onStatus } = {}) {
         <div className="pl-help">
           <p className="pl-help-q">If it’s still loud:</p>
           <div className="pl-help-row">
-            <Link href="/quiet?p=urge" className="pl-help-go">🌊 Ride it out <span>3 min</span></Link>
-            <Link href="/plan" className="pl-help-go">🧭 Your plan</Link>
-            <Link href="/now" className="pl-help-go pl-help-now">Right now</Link>
+            <Link href="/quiet?p=urge" className="pl-help-go" onClick={() => tap('help_urge')}>🌊 Ride it out <span>3 min</span></Link>
+            <Link href="/plan" className="pl-help-go" onClick={() => tap('help_plan')}>🧭 Your plan</Link>
+            <Link href="/now" className="pl-help-go pl-help-now" onClick={() => tap('help_now')}>Right now</Link>
           </div>
         </div>
       )}
@@ -420,11 +422,11 @@ export default function Pledge({ onStatus } = {}) {
           ⚠️ On the DONE card only. The ask state is the morning screen;
           an inventory link over "One more day" at 6am is the wrong
           sentence at the wrong hour. */}
-      <Link href="/tenth" className="tenth-door">◆ Your 10th step ›</Link>
+      <Link href="/tenth" className="tenth-door" onClick={() => tap('pledge_tenth')}>◆ Your 10th step ›</Link>
       {/* ⭐ 9 Nov 2026 — the day's reading, offered next to the 10th step
           once today is said (it left the top-of-Home buttons). Same
           always-here rule as the line above: a link you can find twice. */}
-      <Link href="/readings" className="tenth-door pl-read-door">📖 Today’s reading ›</Link>
+      <Link href="/readings" className="tenth-door pl-read-door" onClick={() => tap('pledge_reading')}>📖 Today’s reading ›</Link>
 
       {/* ⭐ THE ONLY THING ANYBODY ELSE TOUCHES: A COUNT. No names, no
           handles, no ranking, and no member's number ever sits next to
