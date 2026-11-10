@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { tap } from '../../lib/tap';
 
 /* =====================================================================
    THE DOORS — one row at the top of Home.  9 Nov 2026 (Kenny).
@@ -42,6 +43,7 @@ export default function Doors() {
   function toggle() {
     setOpen((o) => {
       const next = !o;
+      tap(next ? 'today_open' : 'today_close');
       try { window.localStorage.setItem(KEY, next ? '1' : '0'); } catch { /* storage blocked */ }
       return next;
     });
@@ -50,8 +52,8 @@ export default function Doors() {
   return (
     <>
       <div className="bar bar-doors">
-        <Link href="/now" className="dr dr-now">Right now</Link>
-        <Link href="/resources" className="dr dr-ask">◆ Ask Sage</Link>
+        <Link href="/now" className="dr dr-now" onClick={() => tap('door_now')}>Right now</Link>
+        <Link href="/resources" className="dr dr-ask" onClick={() => tap('door_sage')}>◆ Ask Sage</Link>
         <button type="button" className="dr dr-in dr-more"
                 aria-expanded={open} aria-controls="today-tools" onClick={toggle}>
           More for today <span className="dr-caret" aria-hidden="true">{open ? '▴' : '▾'}</span>
@@ -59,10 +61,10 @@ export default function Doors() {
       </div>
       {open && (
         <div className="bar bar-today" id="today-tools" aria-label="For today">
-          <Link href="/tenth" className="td">🔟<span>Tenth step</span></Link>
-          <Link href="/readings" className="td">📖<span>Readings</span></Link>
-          <Link href="/plan" className="td">🧭<span>Your plan</span></Link>
-          <Link href="/quiet" className="td">⛪<span>Quiet</span></Link>
+          <Link href="/tenth" className="td" onClick={() => tap('today_tenth')}>🔟<span>Tenth step</span></Link>
+          <Link href="/readings" className="td" onClick={() => tap('today_readings')}>📖<span>Readings</span></Link>
+          <Link href="/plan" className="td" onClick={() => tap('today_plan')}>🧭<span>Your plan</span></Link>
+          <Link href="/quiet" className="td" onClick={() => tap('today_quiet')}>⛪<span>Quiet</span></Link>
         </div>
       )}
     </>
