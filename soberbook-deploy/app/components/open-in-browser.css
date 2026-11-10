@@ -1,0 +1,14 @@
+/* "Open in Safari" card — app/components/OpenInBrowser.jsx. Shown only
+   inside Facebook/Instagram-style in-app browsers. oib- prefix: the root
+   CSS owns plenty of short class names. */
+.oib{position:relative;z-index:30;margin:10px 12px 0;border-radius:18px;padding:14px;
+  background:linear-gradient(180deg,#FFE9A8,#F4C651);color:#3A2600;display:grid;gap:8px;
+  box-shadow:0 10px 30px rgba(0,0,40,.25);font-family:inherit;text-align:left}
+.oib b{font-size:16px;font-weight:800}
+.oib p{margin:0;font-size:14px;line-height:1.45;color:#3A2600}
+.oib .oib-go{min-height:50px;border:0;border-radius:14px;background:#0B1366;color:#fff;
+  font-weight:800;font-size:16px;font-family:inherit;cursor:pointer;width:100%}
+.oib .oib-no{min-height:36px;border:0;background:none;color:#5A4200;font-weight:700;
+  font-size:13.5px;font-family:inherit;cursor:pointer}
+.oib .oib-how{font-size:13px;background:rgba(0,0,0,.07);border-radius:12px;padding:9px 11px}
+.oib .oib-how b{font-size:13px}

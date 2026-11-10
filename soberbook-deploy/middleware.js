@@ -112,6 +112,43 @@ export async function middleware(request) {
 
   const { data: { user } } = await supabase.auth.getUser();
 
+  /* =====================================================================
+     ⭐ STAY SIGNED IN FOR A YEAR — 9 Nov 2026, "easier than an app" part 1.
+     Ty: "How can we make this easier to use without having to sign in
+     every time you use it?"
+
+     🔴 WHY PEOPLE WERE BEING SIGNED OUT. The sign-in lives in the sb-…
+     auth-token cookies. Supabase asks for a 400-day life, but whenever the
+     BROWSER refreshes the session (it does, quietly, every hour a tab is
+     open) it rewrites those cookies with document.cookie — and Safari caps
+     any cookie written by a script at 7 DAYS. So the last write before a
+     member puts their phone down is usually a 7-day one, and a member who
+     comes back on day 8 meets the sign-in page. To them, Sober Book "logs
+     you out every week".
+
+     ⭐ THE FIX. A cookie sent by the SERVER (a Set-Cookie header) is not
+     capped. So on every visit by a signed-in member, the same values are
+     sent back from here with Supabase's own settings and the full 400-day
+     life. Nothing about the session changes — same values, same names,
+     longer life — and every visit pushes the date out again.
+
+     ⚠️ Only the auth cookies (sb-<project>-auth-token and its .0/.1
+     chunks), only when getUser() said yes, and never a name Supabase
+     already set on this response a moment ago (a fresh refresh wins).
+     ⚠️ httpOnly stays FALSE on purpose: the browser client has to read
+     these cookies, and Supabase's own defaults say false too.
+     ===================================================================== */
+  if (user) {
+    const setNow = new Set(response.cookies.getAll().map((c) => c.name));
+    const secure = request.nextUrl.protocol === 'https:';
+    for (const c of request.cookies.getAll()) {
+      if (!/^sb-[a-z0-9]+-auth-token(\.\d+)?$/.test(c.name) || setNow.has(c.name)) continue;
+      response.cookies.set(c.name, c.value, {
+        path: '/', sameSite: 'lax', httpOnly: false, secure, maxAge: 400 * 24 * 60 * 60,
+      });
+    }
+  }
+
   /* ⚠️ /reset MUST BE OPEN, AND THIS IS NOT A CONVENIENCE — WITHOUT IT
      PASSWORD RESET CANNOT WORK AT ALL.
 

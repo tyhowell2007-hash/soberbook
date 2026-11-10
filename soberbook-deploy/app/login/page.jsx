@@ -6,6 +6,7 @@ import { browserClient } from '../../lib/supabase-browser';
 import { makeHandles, createProfile, cleanHandle } from '../../lib/first-run';
 import { isIosApp } from '../../lib/is-ios-app';
 import DatePick from '../components/DatePick';
+import OpenInBrowser from '../components/OpenInBrowser';
 import { PROGRAM_FROM_URL } from '../../lib/program';
 
 /* =====================================================================
@@ -543,6 +544,10 @@ export default function Landing() {
 
   return (
     <div className="lx">
+
+      {/* ⭐ 9 Nov 2026 — only inside Facebook/Instagram-style browsers, which
+          never keep anyone signed in. See components/OpenInBrowser.jsx. */}
+      <OpenInBrowser />
 
       {/* ⭐ 29 Oct 2026 — CRISIS LINE ON THE FRONT DOOR. CRCC (Illinois) asked
           for 988 and the Illinois Helpline to be visible on the public landing
