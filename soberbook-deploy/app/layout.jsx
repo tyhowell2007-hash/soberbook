@@ -52,6 +52,9 @@ import RegisterSW from './components/RegisterSW';
    tapped, and keeping this phone's Apple token current. Renders nothing,
    and does nothing outside the iPhone app. */
 import NativePush from './components/NativePush';
+/* ⭐ 9 Nov 2026 — home-screen card, the one alert question, and clearing
+   the red number on the icon. See components/PhoneSetup.jsx. */
+import PhoneSetup from './components/PhoneSetup';
 /* ⚠️ IN THE ROOT LAYOUT ON PURPOSE, unlike theme-green.css above. It has
    to see the FIRST tap anybody makes, and for most people that tap is on
    the sign-in screen — several screens before they ever reach a profile.
@@ -243,6 +246,7 @@ export default async function RootLayout({ children }) {
         <PullToRefresh on={signedIn} />
         <RegisterSW />
         <NativePush />
+        <PhoneSetup on={signedIn} />
         {/* Blesses the shared audio element on the first tap, so profile
             songs can start on their own afterwards. See lib/song-audio.js
             for why this is the only thing that works on a phone. */}

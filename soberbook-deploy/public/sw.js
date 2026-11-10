@@ -219,9 +219,26 @@ self.addEventListener('push', (event) => {
       renotify: urgent,
       requireInteraction: urgent,
       data: { to },
-    })
+    }).then(bumpBadge)
   );
 });
+
+/* ⭐ 9 Nov 2026 — THE RED NUMBER ON THE ICON ("easier than an app" part 2).
+   Every alert adds one; PhoneSetup.jsx clears it when the app is opened.
+   The count lives in a tiny cache entry because a worker has no memory
+   between pushes. ⚠️ Named sb-v1-… so the activate step above, which
+   deletes every cache not starting with VERSION, leaves it alone.
+   ⚠️ Never throws: a phone without badges still gets the alert. */
+async function bumpBadge() {
+  try {
+    if (!self.navigator || !('setAppBadge' in self.navigator)) return;
+    const c = await caches.open(VERSION + '-badge');
+    const r = await c.match('/n');
+    const n = (r ? parseInt(await r.text(), 10) || 0 : 0) + 1;
+    await c.put('/n', new Response(String(n)));
+    await self.navigator.setAppBadge(n);
+  } catch { /* the alert itself already showed */ }
+}
 
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
