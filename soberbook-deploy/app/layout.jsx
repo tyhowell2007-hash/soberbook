@@ -246,7 +246,7 @@ export default async function RootLayout({ children }) {
         <PullToRefresh on={signedIn} />
         <RegisterSW />
         <NativePush />
-        <PhoneSetup on={signedIn} />
+        <PhoneSetup />
         {/* Blesses the shared audio element on the first tap, so profile
             songs can start on their own afterwards. See lib/song-audio.js
             for why this is the only thing that works on a phone. */}
