@@ -34,7 +34,7 @@ export default function Privacy() {
         everything yourself at any time.
       </p>
 
-      <p className="upd">Last updated 30 October 2026</p>
+      <p className="upd">Last updated 11 November 2026</p>
 
       <h2>What we store</h2>
       <p>Only what you type in, plus what the app needs to work:</p>
@@ -52,6 +52,15 @@ export default function Privacy() {
         <li><strong>Housekeeping</strong> — who you&apos;ve blocked, what
           you&apos;ve reported, which posts you liked, when you last read a
           thread.</li>
+        {/* ⭐ 11 Nov 2026 (Kenny) — tap counts. ui_taps has been live since
+            9 Nov (supabase/ui_taps.sql, lib/tap.js); this line says so in
+            plain sight. Keep it in step with what tap() actually logs. */}
+        <li><strong>Which buttons you tap</strong> on Home and the check-in
+          card — just the button&apos;s name and when, like &ldquo;opened More
+          for today&rdquo;. Never anything you type. We look at the totals to
+          learn which parts of the app help and which don&apos;t. Only Kenny
+          and Ty can see these counts; no member can see anyone&apos;s taps,
+          including their own.</li>
       </ul>
 
       <h2>What we never collect</h2>
