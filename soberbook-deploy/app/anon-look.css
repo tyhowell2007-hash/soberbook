@@ -1,0 +1,64 @@
+/* =====================================================================
+   ANONYMOUS, PRETTIER — 11 Nov 2026 (Ty picked option B, "Dotted outline").
+
+   Anonymous replies and posts used to be marked with a thick dashed black
+   left bar plus a grey halftone fill. On a phone the bar read like a
+   glitch. Ty: keep it dotted so it's different from everybody else, but
+   make it prettier.
+
+   So the dots move from the FILL to the FRAME: a soft lavender dotted
+   outline all the way round, a clean pale bubble, and 🤫 before the name.
+   Same meaning everywhere — posts, reply previews on the wall, replies in
+   the open thread.
+
+   ⚠️ Imported LAST by app/wall/layout.jsx so it wins over wall.css,
+   theme-green.css and type.css without !important. ⚠️ type.css styles
+   .rpvr.screened as html:not([data-theme="black"]) .rpvr.screened — the
+   same specificity is used here, and later import order wins the tie.
+   ===================================================================== */
+
+/* --- reply previews on the wall --- */
+html:not([data-theme="black"]) .rpvr.screened{
+  border:2px dotted #8F86C9;
+  border-radius:16px;
+  background:#F7F6FD;
+  padding:7px 11px;
+}
+html:not([data-theme="black"]) .rpvr.screened::after{ display:none; }
+html:not([data-theme="black"]) .rpvr.screened .rpvw{ color:#5B45A8; }
+html:not([data-theme="black"]) .rpvr.screened .rpvw::before{ content:"🤫 "; font-style:normal; }
+
+/* --- replies inside an open post --- */
+html:not([data-theme="black"]) .reply.screened{
+  border:2px dotted #8F86C9;
+  border-radius:14px;
+  background:#F7F6FD;
+  padding:9px 12px;
+}
+html:not([data-theme="black"]) .reply.screened::after{ display:none; }
+html:not([data-theme="black"]) .reply.screened .rwho{ color:#5B45A8; }
+html:not([data-theme="black"]) .reply.screened .rwho::before{ content:"🤫 "; }
+
+/* --- anonymous posts on the wall --- */
+html:not([data-theme="black"]) .item.screened{
+  border:2px dotted #8F86C9;
+  background:#F7F6FD;
+}
+html:not([data-theme="black"]) .item.screened::after{ display:none; }
+
+/* --- the black theme: same frame, its own colours --- */
+html[data-theme="black"] .rpvr.screened,
+html[data-theme="black"] .reply.screened,
+html[data-theme="black"] .item.screened{
+  border:2px dotted #8F86C9;
+  background:#17142A;
+}
+html[data-theme="black"] .rpvr.screened,
+html[data-theme="black"] .reply.screened{ border-radius:14px; padding:7px 11px; }
+html[data-theme="black"] .rpvr.screened::after,
+html[data-theme="black"] .reply.screened::after,
+html[data-theme="black"] .item.screened::after{ display:none; }
+html[data-theme="black"] .rpvr.screened .rpvw,
+html[data-theme="black"] .reply.screened .rwho{ color:#C9C0F5; }
+html[data-theme="black"] .rpvr.screened .rpvw::before,
+html[data-theme="black"] .reply.screened .rwho::before{ content:"🤫 "; font-style:normal; }

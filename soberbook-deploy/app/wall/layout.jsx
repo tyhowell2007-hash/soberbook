@@ -118,6 +118,9 @@ import '../stories.css';
    and the next person to add a sheet below it will quietly win instead.
    Scoped to the wall and held off [data-theme="black"] inside the file. */
 import '../wall-ridge.css';
+/* 11 Nov 2026 — anonymous posts and replies: dotted lavender outline + 🤫.
+   ⚠️ Must stay the LAST stylesheet import here so it wins the cascade. */
+import '../anon-look.css';
 
 import NavBar from '../components/NavBar';
 
