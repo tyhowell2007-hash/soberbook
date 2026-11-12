@@ -1,11 +1,14 @@
 /* 11 Nov 2026 — the Rules agreement (Apple Guideline 1.2).
    Used by the sign-up form (login/page.jsx) and RulesGate.jsx.
    ⚠️ Class names checked free across all stylesheets: ra-box, rg-*. */
-.ra-box{ display:grid; grid-template-columns:22px minmax(0,1fr); gap:10px; align-items:start;
+/* ⚠️ globals.css styles every <label> as an 11px uppercase caption, so the
+   box resets that here — the agreement is a sentence, not a caption. */
+.ra-box{ text-transform:none; letter-spacing:normal; font-size:14px; font-weight:400; display:grid; grid-template-columns:22px minmax(0,1fr); gap:10px; align-items:start;
   margin:14px 0 4px; padding:12px 13px; border:2px solid rgba(21,18,14,.18); border-radius:14px;
   background:#fff; cursor:pointer; text-align:left; }
 .ra-box.on{ border-color:#000080; background:#EEF1FF; }
 .ra-box input{ width:20px; height:20px; margin:1px 0 0; accent-color:#000080; cursor:pointer; }
+.ra-box b, .ra-box small, .ra-box a{ text-transform:none; letter-spacing:normal; }
 .ra-box b{ display:block; font-size:14px; color:#15120E; }
 .ra-box small{ display:block; font-size:12.5px; line-height:1.45; color:#484B5F; margin-top:3px; }
 .ra-box a{ color:#000080; font-weight:700; text-decoration:underline; }
