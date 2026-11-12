@@ -165,10 +165,28 @@ export default function Rules() {
         Race, religion, who somebody is, who they love, how they got here. No.
       </p>
 
+      <h2>Zero tolerance</h2>
+      <p>
+        Everyone agrees to these rules to join. Abuse, harassment, threats,
+        hate, and sexual or objectionable content are not allowed here, not
+        once and not as a joke. Posts, replies and messages are checked
+        before they go up, and anything that crosses these lines is held
+        back.
+      </p>
+      <p>
+        <strong>Every report is reviewed within 24 hours.</strong> When a post,
+        reply, message or profile breaks these rules, it comes down, and the
+        account that posted it is removed from Sober Book. Anonymous posts
+        follow the same rules: we can remove the post and the account behind
+        it without ever showing anyone who wrote it.
+      </p>
+
       <h2>What happens when somebody breaks one</h2>
       <p>
         Every post, reply, profile, message and room message has a{' '}
-        <strong>⋯</strong>. Tap it and choose <strong>Report</strong>.
+        <strong>⋯</strong>. Tap it and choose <strong>Report</strong>. On a
+        post you can also choose <strong>Hide this post</strong>: it leaves
+        your wall straight away, only for you.
       </p>
       <p>
         It goes to a queue only the person who runs Sober Book can see, and it is

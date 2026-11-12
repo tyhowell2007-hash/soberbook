@@ -55,6 +55,8 @@ import NativePush from './components/NativePush';
 /* ⭐ 9 Nov 2026 — home-screen card, the one alert question, and clearing
    the red number on the icon. See components/PhoneSetup.jsx. */
 import PhoneSetup from './components/PhoneSetup';
+/* 11 Nov 2026 — Apple Guideline 1.2: every member agrees to the Rules once. */
+import RulesGate from './components/RulesGate';
 /* ⚠️ IN THE ROOT LAYOUT ON PURPOSE, unlike theme-green.css above. It has
    to see the FIRST tap anybody makes, and for most people that tap is on
    the sign-in screen — several screens before they ever reach a profile.
@@ -247,6 +249,7 @@ export default async function RootLayout({ children }) {
         <RegisterSW />
         <NativePush />
         <PhoneSetup />
+        <RulesGate />
         {/* Blesses the shared audio element on the first tap, so profile
             songs can start on their own afterwards. See lib/song-audio.js
             for why this is the only thing that works on a phone. */}

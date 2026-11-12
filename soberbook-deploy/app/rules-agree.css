@@ -1,0 +1,32 @@
+/* 11 Nov 2026 — the Rules agreement (Apple Guideline 1.2).
+   Used by the sign-up form (login/page.jsx) and RulesGate.jsx.
+   ⚠️ Class names checked free across all stylesheets: ra-box, rg-*. */
+.ra-box{ display:grid; grid-template-columns:22px minmax(0,1fr); gap:10px; align-items:start;
+  margin:14px 0 4px; padding:12px 13px; border:2px solid rgba(21,18,14,.18); border-radius:14px;
+  background:#fff; cursor:pointer; text-align:left; }
+.ra-box.on{ border-color:#000080; background:#EEF1FF; }
+.ra-box input{ width:20px; height:20px; margin:1px 0 0; accent-color:#000080; cursor:pointer; }
+.ra-box b{ display:block; font-size:14px; color:#15120E; }
+.ra-box small{ display:block; font-size:12.5px; line-height:1.45; color:#484B5F; margin-top:3px; }
+.ra-box a{ color:#000080; font-weight:700; text-decoration:underline; }
+
+.rg-wrap{ position:fixed; inset:0; z-index:2147483000; background:rgba(10,10,9,.62);
+  display:flex; align-items:center; justify-content:center;
+  padding:max(16px, env(safe-area-inset-top,0px)) max(16px, env(safe-area-inset-right,0px))
+          max(16px, env(safe-area-inset-bottom,0px)) max(16px, env(safe-area-inset-left,0px)); }
+.rg-card{ width:100%; max-width:420px; background:#F0F1FB; color:#161A2F; border:4px solid #0A0A09;
+  box-shadow:8px 8px 0 #0A0A09; font-family:'Plus Jakarta Sans', system-ui, sans-serif; }
+.rg-bar{ background:#0A0A09; color:#00FF00; font-family:'Anton', Impact, sans-serif; text-transform:uppercase;
+  letter-spacing:.03em; font-size:19px; padding:11px 15px; }
+.rg-body{ padding:16px; }
+.rg-body h2{ font-family:'Anton', Impact, sans-serif; font-weight:400; text-transform:uppercase; font-size:24px;
+  line-height:1; margin:0 0 8px; color:#0A0A09; }
+.rg-body p{ font-size:14px; line-height:1.5; margin:0 0 10px; }
+.rg-body ul{ margin:0 0 12px; padding-left:18px; font-size:13.5px; line-height:1.5; }
+.rg-body a{ color:#000080; font-weight:700; }
+.rg-go{ display:block; width:100%; background:#0A0A09; color:#00FF00; border:0; padding:13px;
+  font:400 17px 'Anton', Impact, sans-serif; text-transform:uppercase; letter-spacing:.04em; cursor:pointer; margin-top:6px; }
+.rg-go[disabled]{ background:#9A9CA8; color:#ECEDF2; cursor:not-allowed; }
+.rg-err{ color:#B4321E; font-size:13px; font-weight:700; margin-top:8px; }
+.rg-wrap .ra-box{ border-radius:0; border:3px solid #0A0A09; }
+.rg-wrap .ra-box.on{ background:#E6FFE6; border-color:#0A0A09; }

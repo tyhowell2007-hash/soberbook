@@ -127,6 +127,39 @@ export default function PostMenu({ post, onClose, onBlocked, onEdited }) {
     }
   }
 
+  /* ⭐ 11 Nov 2026 — HIDE THIS POST (Apple Guideline 1.2: "a mechanism for
+     users to immediately remove posts from the feed"). Only for the person
+     who taps it: feed_posts leaves out anything in post_hides for the
+     viewer. Same shape as block — wait for the database, then re-read the
+     wall — so a post never looks gone when it isn't. Undo lives in this
+     sheet, so Wall.jsx needs no change. */
+  async function hide() {
+    setErr(''); setBusy(true);
+    try {
+      const { error } = await supabase.rpc('hide_post', { p_post: post.id });
+      if (error) throw error;
+      await onBlocked();
+      setView('hidden');
+    } catch (e) {
+      setErr(e.message);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function unhide() {
+    setErr(''); setBusy(true);
+    try {
+      const { error } = await supabase.rpc('unhide_post', { p_post: post.id });
+      if (error) throw error;
+      await onBlocked();
+      onClose();
+    } catch (e) {
+      setErr(e.message);
+      setBusy(false);
+    }
+  }
+
   async function block() {
     setErr(''); setBusy(true);
     try {
@@ -150,7 +183,8 @@ export default function PostMenu({ post, onClose, onBlocked, onEdited }) {
               : view === 'blockConfirm' ? 'Block this person?'
               : view === 'delConfirm' ? 'Delete this?'
               : view === 'edit' ? 'Edit this post'
-              : view === 'done' ? 'Sent' : 'This post'}
+              : view === 'done' ? 'Sent'
+              : view === 'hidden' ? 'Hidden' : 'This post'}
           </span>
           <button className="x" aria-label="Close" onClick={onClose}>✕</button>
         </div>
@@ -246,6 +280,10 @@ export default function PostMenu({ post, onClose, onBlocked, onEdited }) {
 
           {view === 'menu' && !post.is_mine && (
             <>
+              <button className="mrow" disabled={busy} onClick={hide}>
+                <span className="mt2">🙈 Hide this post</span>
+                <span className="md">Gone from your wall now. Only you are affected.</span>
+              </button>
               <button className="mrow" onClick={() => setView('report')}>
                 <span className="mt2">🚩 Report this post</span>
                 <span className="md">Something here breaks the rules, or worries me.</span>
@@ -307,6 +345,22 @@ export default function PostMenu({ post, onClose, onBlocked, onEdited }) {
               </button>
               <button className="back2" type="button" onClick={() => setView('menu')}>
                 never mind
+              </button>
+            </>
+          )}
+
+          {view === 'hidden' && (
+            <>
+              <p className="mnote">
+                Hidden from your wall. Nobody else is affected, and nobody is told.
+                If it breaks the rules, you can still report it.
+              </p>
+              <button className="btn" type="button" onClick={onClose}>Done</button>
+              <button className="back2" type="button" disabled={busy} onClick={unhide}>
+                {busy ? 'One second…' : 'undo'}
+              </button>
+              <button className="back2" type="button" onClick={() => setView('report')}>
+                report it instead
               </button>
             </>
           )}

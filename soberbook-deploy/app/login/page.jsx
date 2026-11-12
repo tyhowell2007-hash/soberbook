@@ -7,6 +7,7 @@ import { makeHandles, createProfile, cleanHandle } from '../../lib/first-run';
 import { isIosApp } from '../../lib/is-ios-app';
 import DatePick from '../components/DatePick';
 import OpenInBrowser from '../components/OpenInBrowser';
+import '../rules-agree.css';
 import { PROGRAM_FROM_URL } from '../../lib/program';
 
 /* =====================================================================
@@ -167,6 +168,10 @@ export default function Landing() {
      the SAME name, so the second one hits a collision on a handle they
      never chose. Same reasoning /welcome already uses. */
   const [upHandle, setUpHandle] = useState('');
+  /* ⭐ 11 Nov 2026 — Apple Guideline 1.2: agreeing to the Rules is required
+     to make an account. Rides along as signup metadata; migration
+     apple_ugc_safety stamps profiles.rules_agreed_at from it. */
+  const [upAgree, setUpAgree] = useState(false);
   const [mine, setMine]         = useState(false);  // did they type it themselves?
   useEffect(() => { setUpHandle(makeHandles(1)[0]); }, []);
 
@@ -362,9 +367,10 @@ export default function Landing() {
         const p = new URLSearchParams(window.location.search).get('program');
         if (p && PROGRAM_FROM_URL.includes(p)) program = p;
       } catch { /* no URL, no program */ }
+      if (!upAgree) { setErr('Tick the box to agree to the Rules first.'); setBusy(''); return; }
       const { data, error } = await supabase.auth.signUp(
-        program ? { email: upEmail, password: upPw, options: { data: { program } } }
-                : { email: upEmail, password: upPw });
+        program ? { email: upEmail, password: upPw, options: { data: { program, rules_agreed: true } } }
+                : { email: upEmail, password: upPw, options: { data: { rules_agreed: true } } });
       if (error) throw error;
       try { window.localStorage.setItem('sb_seen', '1'); } catch (e3) { /* fine */ }
 
@@ -709,8 +715,21 @@ export default function Landing() {
                     : 'Not your email, not your real name — and you can change it later.'}
                 </p>
 
+                <label className={'ra-box' + (upAgree ? ' on' : '')}>
+                  <input type="checkbox" checked={upAgree}
+                         onChange={(e) => setUpAgree(e.target.checked)} />
+                  <span>
+                    <b>I agree to the Sober Book Rules</b>
+                    <small>
+                      Zero tolerance for abuse, harassment, threats, hate, or sexual or
+                      objectionable content. Accounts that post it are removed.{' '}
+                      <a href="/rules" target="_blank" rel="noopener noreferrer">Read the Rules</a>
+                    </small>
+                  </span>
+                </label>
+
                 <button className="lx-go" type="submit"
-                        disabled={!!busy || upHandle.length < 3}>
+                        disabled={!!busy || upHandle.length < 3 || !upAgree}>
                   {busy === 'up' ? 'One second…' : <>Create my account <span className="lx-arr">→</span></>}
                 </button>
               </form>
