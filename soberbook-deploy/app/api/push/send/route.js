@@ -77,6 +77,7 @@ export async function POST(req) {
            : n.kind === 'friend'  ? '/friends'
            : n.kind === 'meeting' ? '/meetings'
            : n.kind === 'checkin' ? '/checkin'   // 0194: "Reach out"
+           : n.kind === 'ticket'  ? '/tickets'   // 0202: a reply or fix on your problem ticket
            /* 0195/0196 — a coin opens your post's coins, a milestone chip
               opens "How it's doing". The service worker picks the words
               from these two path endings alone. */

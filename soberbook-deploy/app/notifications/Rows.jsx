@@ -260,6 +260,7 @@ export default function Rows({ initial, askPush: askPushInitial }) {
              itself puts the one that is starting at the top. */
           n.kind === 'meeting' ? '/meetings' :
           n.kind === 'checkin' ? '/checkin' :
+          n.kind === 'ticket' ? '/tickets' :
           null;
 
         const icon = n.kind === 'message' ? '✉️'
@@ -272,6 +273,7 @@ export default function Rows({ initial, askPush: askPushInitial }) {
           : n.kind === 'friend' ? '👋'
           : n.kind === 'meeting' ? '🕐'
           : n.kind === 'checkin' ? '💚'
+          : n.kind === 'ticket' ? '🛠️'
           : '💬';
 
         /* ⚠️ A highlight used to fall through to "answered your post",
@@ -325,6 +327,8 @@ export default function Rows({ initial, askPush: askPushInitial }) {
              person being checked on is never told they were reported, and
              "Someone answered your post" would be the highlight bug again. */
           : n.kind === 'checkin' ? 'Sober Book checked in on you'
+          /* 0202 — a reply or a fix on your problem ticket. */
+          : n.kind === 'ticket' ? 'Update on your problem ticket'
           : `${n.who} answered your post`;
 
         const body = (

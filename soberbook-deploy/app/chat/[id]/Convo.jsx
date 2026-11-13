@@ -38,6 +38,7 @@ export default function Convo({ thread, initial }) {
   const [body, setBody] = useState('');
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState('');
+  const [errBug, setErrBug] = useState(false);   // 0202
   const foot = useRef(null);
   const inputRef = useRef(null);
   /* 14 Sept — the spacer now measures the thing it clears. See the note on
@@ -303,7 +304,7 @@ export default function Convo({ thread, initial }) {
        an upload is still in flight, or the path isn't in the tray yet and
        the picture is silently dropped from the message. */
     if ((!text && !paths.length) || busy || upBusy) return;
-    setBusy(true); setErr('');
+    setBusy(true); setErr(''); setErrBug(false);
 
     const supabase = browserClient();
     const { data: { user } } = await supabase.auth.getUser();
@@ -323,7 +324,13 @@ export default function Convo({ thread, initial }) {
        replied, and the refusal comes back as plain English written in the
        trigger. Show it as-is: it says nothing the sender doesn't already
        know, and rewording it here would risk saying more. */
-    if (error) { setErr(error.message.replace(/^.*?:\s*/, '')); return; }
+    /* 0202: a failure that isn't one of our own refusals (the filter, a
+       block, a closed chat) gets a "Report this problem" link. */
+    if (error) {
+      setErr(error.message.replace(/^.*?:\s*/, ''));
+      setErrBug(!['SB001', 'P0001', '42501'].includes(error.code));
+      return;
+    }
 
     /* ⚠️ 14 Sept — THE HEIGHT, NOT JUST THE TEXT. The box is sized by an
        inline style written only by onInput, and setBody('') does not fire
@@ -443,7 +450,9 @@ export default function Convo({ thread, initial }) {
         <div ref={foot} />
       </div>
 
-      {err && <div className="pad"><div className="err">{err}</div></div>}
+      {err && <div className="pad"><div className="err">{err}
+        {errBug && <><br /><a className="tk-errlink" href={`/report?cat=messages&screen=Chat&error=${encodeURIComponent('Message didn’t send: ' + err.slice(0, 200))}`}>Still not working? Report this problem ›</a></>}
+      </div></div>}
 
       {/* Clears the fixed bar AND the tab bar under it. ⚠️ The 76px in
           wall.css is now only the STARTING height — the effect above

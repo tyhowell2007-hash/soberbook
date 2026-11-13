@@ -300,6 +300,12 @@ export async function middleware(request) {
   const open = ['/login', '/auth', '/reset', '/privacy', '/tour', '/survey',
                 '/delete-account', '/rules', '/support',
                 '/api/push/send',
+                /* 0202: the problem-ticket form on /support is for people who
+                   CAN'T sign in, so its route has to answer without a session.
+                   It protects itself (honeypot, per-email and per-connection
+                   limits). /api/ticket/act checks for Ty or Kenny itself and
+                   404s for anyone else. */
+                '/api/ticket',
                 /* 0194: pinged by the report_alert trigger through pg_net, with
                    no session, exactly like /api/push/send. It checks the same
                    x-push-secret itself and 404s without it. */

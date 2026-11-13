@@ -55,7 +55,10 @@ const GROUPS = [
       { href: '/help',    label: 'Hotlines and help', sub: 'Places that aren’t us' },
       { href: '/rules',   label: 'The rules',         sub: 'What gets you removed' },
       { href: '/privacy', label: 'Privacy',           sub: 'What we keep, what we don’t' },
-      { href: '/support', label: 'Something’s broken', sub: 'Tell Ty' },
+      /* 0202 — problem tickets. Report a problem goes straight to Ty and Kenny. */
+      { href: '/report',  label: '🛠️ Report a problem', sub: 'Ty and Kenny see it right away' },
+      { href: '/tickets', label: 'My tickets',          sub: 'Problems you’ve told us about' },
+      { href: '/support', label: 'Support',             sub: 'Help with your account' },
     ],
   },
 ];

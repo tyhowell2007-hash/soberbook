@@ -1,0 +1,53 @@
+/* 0202 — problem tickets: /report, /tickets, /support's form, /admin/tickets.
+   Own tk-* classes only. Every label overrides globals.css's uppercase
+   caption style on purpose (the 11 Nov rules-agree lesson). */
+
+.tk-form,.tk-card,.tk-done,.tk-empty{background:rgba(255,255,255,.85);border:1px solid rgba(255,255,255,.95);
+  border-radius:18px;padding:14px;margin-bottom:12px;color:#12154A;text-transform:none;letter-spacing:normal}
+.tk-h{margin:0 0 10px;font-size:18px;font-weight:800;color:#12154A}
+.tk-chips{display:flex;flex-wrap:wrap;gap:7px}
+.tk-chip{border:1.5px solid #C5CCEB;background:#fff;color:#2F3FB8;border-radius:20px;padding:6px 12px;
+  font:inherit;font-size:13px;font-weight:700;cursor:pointer;text-transform:none}
+.tk-chip.on{background:#2F3FB8;color:#fff;border-color:#2F3FB8}
+.tk-lbl{display:block;font-size:11.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#4A5180;margin:14px 0 6px}
+.tk-ta,.tk-in{display:block;width:100%;box-sizing:border-box;background:#fff;border:2px solid #C5CCEB;border-radius:14px;
+  padding:10px 11px;font:inherit;font-size:15px;color:#0A0A3A;text-transform:none}
+.tk-ta:focus,.tk-in:focus{outline:none;border-color:#2F3FB8}
+.tk-shot{display:flex;align-items:center;gap:8px;background:#fff;border:1.5px dashed #9AA2D6;border-radius:12px;
+  padding:10px 12px;font-size:14px;font-weight:700;color:#2F3FB8;cursor:pointer;text-transform:none;letter-spacing:normal}
+.tk-shot input{position:absolute;width:1px;height:1px;opacity:0}
+.tk-hp{position:absolute;left:-9999px;width:1px;height:1px;opacity:0}
+.tk-auto{background:#EEF0FB;border-radius:12px;padding:9px 11px;font-size:12.5px;line-height:1.5;color:#3C4170}
+.tk-auto b{color:#1F2A8A}
+.tk-send{margin-top:14px;width:100%}
+.tk-foot{font-size:13px;color:#4A5180;margin:6px 4px 0;line-height:1.5}
+.tk-done{text-align:center;padding:26px 16px}
+.tk-tick{width:64px;height:64px;border-radius:50%;background:#3BE36B;color:#0A3A18;display:grid;place-items:center;
+  font-size:32px;font-weight:900;margin:0 auto 12px}
+.tk-num{font-size:26px;font-weight:900;color:#12154A}
+.tk-got{margin:6px 0 4px;font-weight:800}
+.tk-soft{margin:0 0 14px;font-size:14px;color:#3C4170}
+.tk-empty h2{margin:0 0 4px;font-size:18px}.tk-empty p{margin:0;color:#3C4170}
+.tk-row{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.tk-row b{font-size:15px}
+.tk-when{display:block;font-size:12.5px;color:#5A5F79;margin-top:2px}
+.tk-desc{margin:8px 0 0;font-size:14.5px;line-height:1.45;white-space:pre-wrap;overflow-wrap:anywhere}
+.tk-st,.tk-same{font-size:11px;font-weight:800;padding:3px 9px;border-radius:20px;white-space:nowrap}
+.tk-st-new{background:#E8EBFA;color:#2F3FB8}.tk-st-prog{background:#FFF2D6;color:#7A4A00}
+.tk-st-fix{background:#DDF5E5;color:#0E5A2A}.tk-st-done{background:#ECEDF2;color:#4A5180}
+.tk-same{background:#FFEDE5;color:#9A3412}
+.tk-reply{background:#EEF0FB;border-radius:12px;padding:8px 10px;font-size:13.5px;color:#1F2A8A;margin-top:8px;overflow-wrap:anywhere}
+.tk-new{display:block;text-align:center;margin-top:6px}
+.tk-meta{display:grid;grid-template-columns:auto 1fr;gap:2px 10px;font-size:12.5px;color:#3C4170;margin:8px 0 0}
+.tk-meta dt{font-weight:800;color:#1F2A8A}.tk-meta dd{margin:0;overflow-wrap:anywhere}
+.tk-shotimg img{display:block;max-width:100%;max-height:360px;border-radius:12px;margin-top:8px;border:1px solid #DCE2F5}
+.tk-acts{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;align-items:center}
+.tk-acts .btn{flex:1 1 auto}
+.tk-ok{color:#0E5A2A;font-weight:800;font-size:13.5px;margin:0}
+.tk-replybox{margin-top:10px}
+.tk-tabs{display:flex;gap:6px;margin-bottom:12px}
+.tk-tab{flex:1;border:0;border-radius:12px;padding:8px 0;font:inherit;font-size:13px;font-weight:800;
+  background:rgba(255,255,255,.6);color:#4A5180;cursor:pointer;text-transform:none}
+.tk-tab.on{background:#2F3FB8;color:#fff}
+/* The link inside a failed-send error (Convo.jsx) and the error screen. */
+.tk-errlink{display:inline-block;margin-top:6px;font-weight:800;text-decoration:underline}

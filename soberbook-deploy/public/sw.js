@@ -197,6 +197,9 @@ self.addEventListener('push', (event) => {
              : urgent ? 'Urgent report: someone may be in danger. Open the queue.'
              : to === '/admin' ? 'A new report is waiting. Open the queue when you can.'
              : to === '/checkin' ? 'Someone here is thinking of you.'
+             /* 0202 — problem tickets. Still constants, never what the ticket says. */
+             : to === '/admin/tickets' ? 'A new problem ticket came in. Open the board when you can.'
+             : to === '/tickets' ? 'There’s an update on your problem ticket.'
              /* 0195/0196 — still a constant chosen by the path alone. */
              : to.endsWith('/stats/coins') ? 'Somebody sent you a coin.'
              : to.endsWith('/stats') ? 'Your post just earned a milestone chip.'

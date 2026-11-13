@@ -1,4 +1,7 @@
 import Link from 'next/link';
+import { serverClient } from '../../lib/supabase-server';
+import ReportForm from '../components/ReportForm';
+import '../tickets.css';
 
 /* =====================================================================
    SUPPORT — the public page.
@@ -38,7 +41,12 @@ export const metadata = {
     'How to get help with Sober Book: signing in, your account, reporting someone, and who to call if you need somebody right now.',
 };
 
-export default function Support() {
+export default async function Support() {
+  let signedIn = false;
+  try {
+    const { data: { user } } = await serverClient().auth.getUser();
+    signedIn = !!user;
+  } catch { /* signed out is the safe answer */ }
   return (
     <div className="legal">
       <h1>Support</h1>
@@ -126,6 +134,12 @@ export default function Support() {
         Nearly everything we have fixed since August was found by somebody
         using the app and saying so, not by us looking. It is not a bother.
       </p>
+      {/* 0202 — the ticket form. Signed out (locked out, or not a member)
+          it asks for an email to answer; signed in it sends you to
+          /report, which knows your account. */}
+      {signedIn
+        ? <p><Link href="/report" className="btn">Report a problem in the app</Link></p>
+        : <ReportForm signedOut />}
 
       <h2>Changing or deleting your account</h2>
       <p>

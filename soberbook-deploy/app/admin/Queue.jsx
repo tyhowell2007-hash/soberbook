@@ -81,6 +81,10 @@ export default function Queue({ rows, urls }) {
         <Link href="/wall" className="rt melink">back to the wall ›</Link>
       </div>
       <div className="bar">Reports · {open.length} waiting</div>
+      {/* 0202 — the problem-ticket board lives next door. */}
+      <p style={{ margin: '10px 16px 0', textAlign: 'right' }}>
+        <Link href="/admin/tickets" className="melink">Problem tickets ›</Link>
+      </p>
 
       <div className="pad">
         {err && <div className="err">{err}</div>}
