@@ -1,0 +1,40 @@
+/* 0201 — the "You're not alone tonight" card (components/CrisisSheet.jsx)
+   and the "Who can message you" setting (components/DmFromSwitch.jsx).
+   Own class names (cs-*, dmf-*) so nothing else on the page can move them. */
+
+.cs-wrap{position:fixed;inset:0;z-index:9000;display:flex;align-items:flex-end;justify-content:center}
+.cs-dim{position:absolute;inset:0;background:rgba(10,10,58,.35);animation:cs-fade .25s ease}
+.cs-sheet{position:relative;width:100%;max-width:520px;background:#fff;color:#12154A;
+  border-radius:22px 22px 0 0;padding:20px 18px calc(18px + env(safe-area-inset-bottom,0px));
+  box-shadow:0 -10px 30px rgba(10,10,58,.25);animation:cs-up .35s ease;text-transform:none;letter-spacing:normal}
+.cs-h{margin:0 0 6px;font-size:21px;font-weight:800;line-height:1.2;color:#12154A}
+.cs-p{margin:0 0 12px;font-size:14px;line-height:1.45;color:#3C4170}
+.cs-num{display:block;text-decoration:none;background:#EEF7F0;border:1px solid #CFE9D5;border-radius:14px;
+  padding:11px 13px;margin-bottom:8px}
+.cs-num b{display:block;font-size:22px;font-weight:800;color:#0E7A3A;line-height:1.15}
+.cs-num span{display:block;font-size:12.5px;font-weight:600;color:#2E5A3A;margin-top:2px}
+.cs-btn{display:block;width:100%;box-sizing:border-box;text-align:center;border-radius:14px;
+  font:inherit;font-size:15px;font-weight:800;padding:12px;margin-top:8px;cursor:pointer;text-decoration:none}
+.cs-go{background:#3BE36B;color:#0A3A18;border:0}
+.cs-ok{background:#fff;color:#2F3FB8;border:2px solid #2F3FB8}
+@keyframes cs-up{from{transform:translateY(100%)}to{transform:none}}
+@keyframes cs-fade{from{opacity:0}to{opacity:1}}
+@media (prefers-reduced-motion:reduce){.cs-sheet,.cs-dim{animation:none}}
+
+/* "Who can message you" */
+.dmf-opt{display:flex;gap:10px;align-items:flex-start;width:100%;text-align:left;background:#fff;
+  border:2px solid #DCE2F5;border-radius:14px;padding:11px 12px;margin-bottom:8px;cursor:pointer;font:inherit;color:#12154A}
+.dmf-opt.sel{border-color:#2F3FB8;background:#F3F5FF}
+.dmf-radio{width:18px;height:18px;border-radius:50%;border:2px solid #9AA2D6;flex:0 0 auto;margin-top:2px;
+  display:grid;place-items:center;box-sizing:border-box}
+.dmf-opt.sel .dmf-radio{border-color:#2F3FB8}
+.dmf-opt.sel .dmf-radio::after{content:"";width:9px;height:9px;border-radius:50%;background:#2F3FB8}
+.dmf-opt b{display:block;font-size:14px;text-transform:none;letter-spacing:normal}
+.dmf-opt small{display:block;font-size:12.5px;color:#5A5F79;margin-top:1px;text-transform:none;letter-spacing:normal}
+.dmf-note{background:#E8EBFA;border-radius:12px;padding:9px 11px;font-size:12.5px;color:#2F3FB8;font-weight:600;margin:2px 0 0}
+
+/* "They're only taking messages from friends" */
+.fo-box{background:#FFF4E5;border:1px solid #F5D7A8;border-radius:14px;padding:10px 12px;font-size:13.5px;
+  color:#6B4200;margin-top:10px;text-transform:none;letter-spacing:normal}
+.fo-box b{display:block;color:#5A3600;margin-bottom:2px}
+.fo-box .btn{margin-top:8px}

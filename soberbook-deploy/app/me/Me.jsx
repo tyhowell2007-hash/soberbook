@@ -29,6 +29,8 @@ import DeleteAccount from './DeleteAccount';
 import Blocked from './Blocked';
 import PushSwitch from '../components/PushSwitch';
 import EmailSwitch from '../components/EmailSwitch';
+/* 0201 — Who can message you (Everyone / Only friends). */
+import DmFromSwitch from '../components/DmFromSwitch';
 import PendingTags from './PendingTags';
 
 /* The faces you can pick from.
@@ -1591,6 +1593,7 @@ export default function Me({ email, profile, initialAvatarUrl,
           <NightSwitch theme={theme} setTheme={setTheme} save={save} busy={busy} />
           <PushSwitch />
           <EmailSwitch />
+          <DmFromSwitch />
         </Section>
         <Section title="🔑 Account" tint="cream">
           <p className="hint">Signed in as {email}</p>

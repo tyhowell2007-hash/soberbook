@@ -112,7 +112,8 @@ export default function Queue({ rows, urls }) {
             <div className="mq-top">
               {r.urgent && <span className="mq-kind mq-red">Urgent</span>}
               <span className={'mq-kind ' + r.kind}>
-                {r.kind === 'concern' ? 'Worried about them' : 'Against the rules'}
+                {r.auto ? 'Flagged by the app'
+                  : r.kind === 'concern' ? 'Worried about them' : 'Against the rules'}
               </span>
               {r.sage_label && LABEL[r.sage_label] && (
                 <span className="mq-kind mq-sage">{LABEL[r.sage_label]}</span>
@@ -121,7 +122,11 @@ export default function Queue({ rows, urls }) {
             </div>
 
             <div className="mq-who">
-              {r.content_is_anonymous
+              {/* 0201 🔴 A private message: no words, no name, ever. Reach out
+                  still reaches them — the database finds the sender. */}
+              {r.in_private
+                ? <span className="mq-anon">🔒 in a private message — words and name not shown</span>
+                : r.content_is_anonymous
                 ? <span className="mq-anon">🤫 posted anonymously — author not shown</span>
                 : <span>@{r.author_handle || 'unknown'}</span>}
               {r.prior_reports > 0 && (
@@ -138,7 +143,10 @@ export default function Queue({ rows, urls }) {
               {r.author_suspended && <span className="mq-susp">already suspended</span>}
             </div>
 
-            {r.content_gone
+            {r.in_private
+              ? <p className="mq-body">Someone wrote something in a private message that reads like
+                  they may need support. They saw the 988 card.</p>
+              : r.content_gone
               ? <p className="mq-gone">The post has already been deleted.</p>
               : <>
                   <p className="mq-body">{r.body}</p>
@@ -167,7 +175,13 @@ export default function Queue({ rows, urls }) {
                 nothing to remove and nobody to suspend. The useful action
                 is reaching the person, so the number is right here rather
                 than in a document. */}
-            {r.kind === 'concern' && (
+            {r.auto && (
+              <p className="mq-988">
+                Nobody reported this. The app spotted crisis words in their own post and
+                showed them the 988 card. The post stayed up. Reach out, or mark it handled.
+              </p>
+            )}
+            {r.kind === 'concern' && !r.auto && (
               <p className="mq-988">
                 This was filed out of worry, not a rule break. If someone may be in
                 danger: <strong>988</strong> (call or text, US) is the Suicide &amp;
@@ -192,8 +206,11 @@ export default function Queue({ rows, urls }) {
               )}
               <button className="btn ghost" disabled={busy === r.report_id}
                       onClick={() => act(r.report_id, 'mod_dismiss')}>
-                Nothing wrong here
+                {r.auto ? 'Mark as handled' : 'Nothing wrong here'}
               </button>
+              {/* 0201: an app flag is somebody reaching out, not a rule break, so
+                  there is nothing to take down and nobody to suspend. */}
+              {!r.auto && <>
               {/* 🔴 NOT SHOWN ON A MEMBER REPORT. A report filed against a
                   person has no content attached, so there is nothing to
                   take down — and until 0094 this button quietly marked
@@ -216,6 +233,7 @@ export default function Queue({ rows, urls }) {
                           : 'Suspend whoever wrote this? Every post and comment they have made disappears from the app immediately.')}>
                 {r.target_type === 'profile' ? 'Suspend them' : 'Suspend whoever wrote it'}
               </button>
+              </>}
             </div>
           </article>
         ))}

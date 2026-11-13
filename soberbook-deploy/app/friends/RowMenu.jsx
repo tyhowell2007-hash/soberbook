@@ -134,10 +134,10 @@ export default function RowMenu({
     setView('done');
   }
 
-  async function report(kind) {
+  async function report(kind, reason = null) {
     setBusy(true); setErr('');
     const { error } = await browserClient()
-      .rpc('report_member', { target_handle: handle, report_kind: kind, report_reason: null });
+      .rpc('report_member', { target_handle: handle, report_kind: kind, report_reason: reason });
     setBusy(false);
     if (error) { setErr('Couldn’t do that.'); return; }
     /* ⚠️ Never says whether anything will happen, or when. A promise about
@@ -191,6 +191,12 @@ export default function RowMenu({
                         onClick={() => report('rules')}>
                   <span className="rmenu-l1">They’re breaking the rules</span>
                   <span className="rmenu-l2">Selling, harassing, spam</span>
+                </button>
+                {/* 0201 — urgent, like "worried". See PostMenu.jsx. */}
+                <button type="button" className="rmenu-btn tall" disabled={busy}
+                        onClick={() => report('rules', 'Unwanted romantic or sexual attention')}>
+                  <span className="rmenu-l1">Unwanted romantic or sexual attention</span>
+                  <span className="rmenu-l2">Flirting, pressure, or asking to meet</span>
                 </button>
                 <button type="button" className="rmenu-btn tall" disabled={busy}
                         onClick={() => report('concern')}>

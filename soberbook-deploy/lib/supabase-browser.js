@@ -7,10 +7,30 @@ import { createBrowserClient } from '@supabase/ssr';
    importing it also pulled in `next/headers` — server-only — and the build
    failed. Splitting them is the fix, and it also means a client component
    can never accidentally reach for a server helper. */
+/* ⭐ 0201, 13 Nov 2026 — "something was just written".
+   After a post, reply or message saves, fire a 'sb:wrote' event on the
+   window. components/CrisisSheet.jsx listens for it, so the 988 card can
+   appear for the writer without Wall.jsx or Convo.jsx knowing anything
+   about it. It passes the response through untouched and never throws. */
+const WRITES = /\/rest\/v1\/(posts|comments|messages)(\?|$)/;
+function watchedFetch(input, init) {
+  return fetch(input, init).then((res) => {
+    try {
+      const url = typeof input === 'string' ? input : (input && input.url) || '';
+      const method = String((init && init.method) || (input && input.method) || 'GET').toUpperCase();
+      if (method === 'POST' && res.ok && WRITES.test(url) && typeof window !== 'undefined') {
+        window.dispatchEvent(new Event('sb:wrote'));
+      }
+    } catch { /* never in the way */ }
+    return res;
+  });
+}
+
 export function browserClient() {
   return createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+    { global: { fetch: watchedFetch } }
   );
 }
 

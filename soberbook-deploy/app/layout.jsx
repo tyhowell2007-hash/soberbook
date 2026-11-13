@@ -26,6 +26,8 @@ import './polish.css';
    people read and tap). Imported LAST so it sits on top. See the note at
    the top of type.css before touching the Google Fonts link below. */
 import './type.css';
+/* 0201 — the 988 card and the "Who can message you" setting. Own cs-/dmf-/fo- classes only. */
+import './crisis-sheet.css';
 import { serverClient } from '../lib/supabase-server';
 
 /* ⚠️ theme-green.css IS DELIBERATELY NOT IMPORTED HERE. DO NOT ADD IT BACK.
@@ -57,6 +59,9 @@ import NativePush from './components/NativePush';
 import PhoneSetup from './components/PhoneSetup';
 /* 11 Nov 2026 — Apple Guideline 1.2: every member agrees to the Rules once. */
 import RulesGate from './components/RulesGate';
+/* 0201, 13 Nov 2026 — "You're not alone tonight": the 988 card for somebody
+   whose own words read like a crisis. Renders nothing until then. */
+import CrisisSheet from './components/CrisisSheet';
 /* ⚠️ IN THE ROOT LAYOUT ON PURPOSE, unlike theme-green.css above. It has
    to see the FIRST tap anybody makes, and for most people that tap is on
    the sign-in screen — several screens before they ever reach a profile.
@@ -250,6 +255,7 @@ export default async function RootLayout({ children }) {
         <NativePush />
         <PhoneSetup />
         <RulesGate />
+        <CrisisSheet />
         {/* Blesses the shared audio element on the first tap, so profile
             songs can start on their own afterwards. See lib/song-audio.js
             for why this is the only thing that works on a phone. */}

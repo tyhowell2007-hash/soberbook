@@ -46,6 +46,11 @@ const DANGER = new RegExp(
   'i',
 );
 
+/* 0201, 13 Nov — the report menus' "Unwanted romantic or sexual attention"
+   lane. Urgent, like a danger report, and decided here, not by the model.
+   ⚠️ Same words as the menus (PostMenu, ReplyMenu, RowMenu, MsgMenu). */
+const ROMANCE = 'Unwanted romantic or sexual attention';
+
 const LABELS = ['danger', 'threat', 'selling', 'harassment', 'routine'];
 const URGENT = new Set(['danger', 'threat']);
 
@@ -166,12 +171,15 @@ export async function POST(req) {
   const text = [body, claimed.reason].filter(Boolean).join('\n');
 
   let label = null;
+  const romance = claimed.reason === ROMANCE;
   if (claimed.kind === 'concern' || DANGER.test(text)) {
     label = 'danger';
+  } else if (romance) {
+    label = 'harassment';
   } else if (claimed.target_type === 'post' || claimed.target_type === 'comment') {
     label = await askSage(text);
   }
-  const urgent = URGENT.has(label);
+  const urgent = URGENT.has(label) || romance;
 
   await admin.from('reports')
     .update({ urgent, sage_label: label, sage_at: new Date().toISOString() })

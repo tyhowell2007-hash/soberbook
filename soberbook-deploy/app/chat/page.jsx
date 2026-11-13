@@ -26,8 +26,12 @@ export default async function ChatPage({ searchParams }) {
      reasons is one an error message must not distinguish between. */
   const to = typeof searchParams?.to === 'string' ? searchParams.to : null;
   if (to) {
-    const { data: threadId } = await supabase.rpc('start_thread', { target_handle: to });
+    const { data: threadId, error: toErr } = await supabase.rpc('start_thread', { target_handle: to });
     if (threadId) redirect(`/chat/${threadId}`);
+    /* 0201: friends only — their page has the Message button, which offers
+       a friend request instead. Only SB002; every other refusal still
+       falls through silently, for the reason above. */
+    if (toErr?.code === 'SB002') redirect(`/u/${encodeURIComponent(to)}`);
   }
 
   /* RULE 1 again: the view, never the table. Here it does more work than

@@ -33,7 +33,7 @@ export default function PostMenu({ post, onClose, onBlocked, onEdited }) {
   const [err, setErr] = useState('');
   const [sent, setSent] = useState(null);     // 'rules' | 'concern'
 
-  async function report(kind) {
+  async function report(kind, reason = null) {
     setErr(''); setBusy(true);
     try {
       const { data: { user } } = await supabase.auth.getUser();
@@ -42,6 +42,7 @@ export default function PostMenu({ post, onClose, onBlocked, onEdited }) {
         target_type: 'post',
         target_id: post.id,
         kind,
+        reason,
       });
       if (error) throw error;
       setSent(kind);
@@ -301,6 +302,15 @@ export default function PostMenu({ post, onClose, onBlocked, onEdited }) {
                 <span className="mt2">It breaks the rules</span>
                 <span className="md">
                   Spam, selling, harassment, someone pushing treatment or product.
+                </span>
+              </button>
+              {/* 0201, 13 Nov — its own lane, urgent like "worried". Newcomers are the
+                  ones most often on the end of this. The reason text is what
+                  /api/report/triage looks for, so keep the two in step. */}
+              <button className="mrow" disabled={busy} onClick={() => report('rules', 'Unwanted romantic or sexual attention')}>
+                <span className="mt2">Unwanted romantic or sexual attention</span>
+                <span className="md">
+                  Flirting, pressure, or asking to meet that you didn&apos;t want.
                 </span>
               </button>
               {/* A separate lane, straight from the schema. A person saying

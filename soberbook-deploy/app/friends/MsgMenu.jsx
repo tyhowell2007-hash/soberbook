@@ -58,10 +58,10 @@ export default function MsgMenu({ id, mine, name, onGone, onEdit }) {
     onGone?.(id);
   }
 
-  async function report(kind) {
+  async function report(kind, reason = null) {
     setBusy(true); setErr('');
     const { error } = await browserClient()
-      .rpc('report_room_message', { msg_id: id, report_kind: kind, report_reason: null });
+      .rpc('report_room_message', { msg_id: id, report_kind: kind, report_reason: reason });
     setBusy(false);
     if (error) { setErr('Couldn’t do that.'); return; }
     /* ⚠️ Never promises what will happen or when. */
@@ -145,6 +145,12 @@ export default function MsgMenu({ id, mine, name, onGone, onEdit }) {
                         onClick={() => report('rules')}>
                   <span className="rmenu-l1">This breaks the rules</span>
                   <span className="rmenu-l2">Selling, harassing, spam</span>
+                </button>
+                {/* 0201 — urgent, like "worried". See PostMenu.jsx. */}
+                <button type="button" className="rmenu-btn tall" disabled={busy}
+                        onClick={() => report('rules', 'Unwanted romantic or sexual attention')}>
+                  <span className="rmenu-l1">Unwanted romantic or sexual attention</span>
+                  <span className="rmenu-l2">Flirting, pressure, or asking to meet</span>
                 </button>
                 <button type="button" className="rmenu-btn tall" disabled={busy}
                         onClick={() => report('concern')}>

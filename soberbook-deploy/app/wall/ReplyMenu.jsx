@@ -44,7 +44,7 @@ export default function ReplyMenu({ reply, onClose, onGone }) {
      report carries the comment's id and nothing about who wrote it.
      ⚠️ Deliberately the same shape PostMenu uses, so the two cannot
      drift into behaving differently on the same complaint. */
-  async function report(kind) {
+  async function report(kind, reason = null) {
     setErr(''); setBusy(true);
     try {
       const { data: { user } } = await supabase.auth.getUser();
@@ -53,6 +53,7 @@ export default function ReplyMenu({ reply, onClose, onGone }) {
         target_type: 'comment',
         target_id: reply.id,
         kind,
+        reason,
       });
       if (error) throw error;
       setSent(kind);
@@ -170,6 +171,15 @@ export default function ReplyMenu({ reply, onClose, onGone }) {
                 <span className="mt2">It breaks the rules</span>
                 <span className="md">
                   Spam, selling, harassment, someone pushing treatment or product.
+                </span>
+              </button>
+              {/* 0201, 13 Nov — its own lane, urgent like "worried". Newcomers are the
+                  ones most often on the end of this. The reason text is what
+                  /api/report/triage looks for, so keep the two in step. */}
+              <button className="mrow" disabled={busy} onClick={() => report('rules', 'Unwanted romantic or sexual attention')}>
+                <span className="mt2">Unwanted romantic or sexual attention</span>
+                <span className="md">
+                  Flirting, pressure, or asking to meet that you didn&apos;t want.
                 </span>
               </button>
               {/* The separate lane, straight from the schema. A person

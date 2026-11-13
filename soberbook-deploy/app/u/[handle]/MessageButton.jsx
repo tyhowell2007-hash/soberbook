@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { browserClient } from '../../../lib/supabase-browser';
+import FriendsOnly, { friendsOnly } from '../../components/FriendsOnly';
 
 /* THE WAY INTO A CONVERSATION.
 
@@ -18,11 +19,13 @@ import { browserClient } from '../../../lib/supabase-browser';
 export default function MessageButton({ handle }) {
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState('');
+  const [fo, setFo] = useState(false);   // 0201: they take messages from friends only
 
   async function go() {
-    setBusy(true); setErr('');
+    setBusy(true); setErr(''); setFo(false);
     const supabase = browserClient();
     const { data, error } = await supabase.rpc('start_thread', { target_handle: handle });
+    if (friendsOnly(error)) { setBusy(false); setFo(true); return; }
     if (error || !data) { setBusy(false); setErr(error?.message || 'Couldn’t open that.'); return; }
     window.location.href = `/chat/${data}`;
   }
@@ -43,6 +46,7 @@ export default function MessageButton({ handle }) {
       <p className="hint">
         This goes straight to their inbox.
       </p>
+      {fo && <FriendsOnly handle={handle} />}
       {err && <div className="err">{err}</div>}
     </>
   );

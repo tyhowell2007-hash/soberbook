@@ -7,6 +7,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { browserClient } from '../../lib/supabase-browser';
 import RowMenu from '../friends/RowMenu';
+import FriendsOnly, { friendsOnly } from '../components/FriendsOnly';
 
 /* =====================================================================
    EVERYBODY — the member directory inside Chat.
@@ -236,14 +237,16 @@ function line(m) {
 export default function Directory({ members }) {
   const [busy, setBusy] = useState(null);
   const [err, setErr] = useState('');
+  const [fo, setFo] = useState(null);   // 0201: handle that takes messages from friends only
 
   /* By handle, never by id — public_profiles deliberately doesn't carry
      anybody's uuid. start_thread() is the only thing allowed to turn one
      into the other, and it does that inside the database. */
   async function open(handle) {
-    setBusy(handle); setErr('');
+    setBusy(handle); setErr(''); setFo(null);
     const supabase = browserClient();
     const { data, error } = await supabase.rpc('start_thread', { target_handle: handle });
+    if (friendsOnly(error)) { setBusy(null); setFo(handle); return; }
     if (error || !data) {
       setBusy(null);
       /* ⚠️ One sentence for four different failures — no such handle,
@@ -266,6 +269,7 @@ export default function Directory({ members }) {
 
   return (
     <>
+      {fo && <FriendsOnly key={fo} handle={fo} />}
       {err && <div className="err">{err}</div>}
       {members.map((m) => {
         const joined = daysSince(m.joined_at);
