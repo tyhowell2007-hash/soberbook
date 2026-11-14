@@ -147,6 +147,11 @@ export default function Landing() {
      entire job is hiding a Date constructor. */
   const today = new Date().toISOString().slice(0, 10);
 
+  /* 18th birthday on or before today, compared as 'YYYY-MM-DD' strings in
+     LOCAL time — same reason DatePick never uses new Date(value). */
+  const _n = new Date();
+  const adultCut = `${_n.getFullYear() - 18}-${String(_n.getMonth() + 1).padStart(2, '0')}-${String(_n.getDate()).padStart(2, '0')}`;
+
   /* ⚠️ ON BY DEFAULT, AND THAT MATCHES WHAT THE CODE ALREADY DID.
      createProfile() has always defaulted privacy_mode to 'anonymous' so
      somebody who taps straight through ends up PROTECTED rather than
@@ -172,6 +177,14 @@ export default function Landing() {
      to make an account. Rides along as signup metadata; migration
      apple_ugc_safety stamps profiles.rules_agreed_at from it. */
   const [upAgree, setUpAgree] = useState(false);
+  /* ⭐ 13 Nov 2026 — 0205, 18+ CHECK. Ty: "We will confirm their age the old
+     way by having them put in their birth date." and "Just keep the note."
+     🔴 THE BIRTHDAY NEVER LEAVES THIS SCREEN. Only `age_18: true` rides
+     along as signup metadata; rules_from_signup stamps
+     profiles.age_confirmed_at from it. Members who joined before 0205 are
+     left alone (Ty: "Leave everybody alone that's already in there"). */
+  const [upBday, setUpBday] = useState('');
+  const under18 = !!upBday && upBday > adultCut;
   const [mine, setMine]         = useState(false);  // did they type it themselves?
   useEffect(() => { setUpHandle(makeHandles(1)[0]); }, []);
 
@@ -367,10 +380,12 @@ export default function Landing() {
         const p = new URLSearchParams(window.location.search).get('program');
         if (p && PROGRAM_FROM_URL.includes(p)) program = p;
       } catch { /* no URL, no program */ }
+      if (!upBday) { setErr('Pick your birthday first.'); setBusy(''); return; }
+      if (under18) { setBusy(''); return; }
       if (!upAgree) { setErr('Tick the box to agree to the Rules first.'); setBusy(''); return; }
       const { data, error } = await supabase.auth.signUp(
-        program ? { email: upEmail, password: upPw, options: { data: { program, rules_agreed: true } } }
-                : { email: upEmail, password: upPw, options: { data: { rules_agreed: true } } });
+        program ? { email: upEmail, password: upPw, options: { data: { program, rules_agreed: true, age_18: true } } }
+                : { email: upEmail, password: upPw, options: { data: { rules_agreed: true, age_18: true } } });
       if (error) throw error;
       try { window.localStorage.setItem('sb_seen', '1'); } catch (e3) { /* fine */ }
 
@@ -715,6 +730,24 @@ export default function Landing() {
                     : 'Not your email, not your real name — and you can change it later.'}
                 </p>
 
+                {/* ⭐ 0205 — birthday, checked here and never sent. */}
+                <label className="lx-lab" htmlFor="bd-m">Your birthday</label>
+                <DatePick value={upBday} disabled={!!busy} idPrefix="bd"
+                          yearsBack={100} onChange={setUpBday} />
+                {under18 ? (
+                  <div className="lx-count" role="alert"
+                       style={{ background: '#FFF4DC', color: '#5A3600', fontWeight: 600, lineHeight: 1.5 }}>
+                    <b style={{ display: 'block' }}>Sober Book is for adults 18 and over.</b>
+                    We can&rsquo;t make an account for you yet. If you&rsquo;re going through
+                    something right now, you can call or text 988 any time. It&rsquo;s free,
+                    and they talk with people of every age.
+                  </div>
+                ) : (
+                  <p className="lx-fine lx-left">
+                    Sober Book is for adults 18 and over. We check it here and keep only that you&rsquo;re 18+, never your birthday.
+                  </p>
+                )}
+
                 <label className={'ra-box' + (upAgree ? ' on' : '')}>
                   <input type="checkbox" checked={upAgree}
                          onChange={(e) => setUpAgree(e.target.checked)} />
@@ -729,7 +762,7 @@ export default function Landing() {
                 </label>
 
                 <button className="lx-go" type="submit"
-                        disabled={!!busy || upHandle.length < 3 || !upAgree}>
+                        disabled={!!busy || upHandle.length < 3 || !upAgree || under18}>
                   {busy === 'up' ? 'One second…' : <>Create my account <span className="lx-arr">→</span></>}
                 </button>
               </form>

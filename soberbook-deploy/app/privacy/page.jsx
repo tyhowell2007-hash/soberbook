@@ -195,7 +195,7 @@ export default function Privacy() {
       </p>
 
       <h2>Young people</h2>
-      <p>Sober Book is for people 18 and over.</p>
+      <p>Sober Book is for people 18 and over. When you sign up we ask your birthday to check that, then keep only the fact that you confirmed you&rsquo;re 18 or older and the date you did. Your birthday itself is never saved.</p>
 
       <h2>Asking us something</h2>
       <p>

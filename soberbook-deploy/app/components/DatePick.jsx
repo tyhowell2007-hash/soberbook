@@ -44,7 +44,7 @@ function daysIn(month, year) {
   return new Date(year, month, 0).getDate();
 }
 
-export default function DatePick({ value, onChange, disabled, idPrefix = 'dp' }) {
+export default function DatePick({ value, onChange, disabled, idPrefix = 'dp', yearsBack = 70 }) {
   const now = new Date();
   const thisYear = now.getFullYear();
 
@@ -58,9 +58,9 @@ export default function DatePick({ value, onChange, disabled, idPrefix = 'dp' })
 
   const years = useMemo(() => {
     const out = [];
-    for (let n = thisYear; n >= thisYear - 70; n--) out.push(n);
+    for (let n = thisYear; n >= thisYear - yearsBack; n--) out.push(n);   // 100 for birthdays (0205)
     return out;                       // newest first: the point of all this
-  }, [thisYear]);
+  }, [thisYear, yearsBack]);
 
   const dim = daysIn(m, y);
 
