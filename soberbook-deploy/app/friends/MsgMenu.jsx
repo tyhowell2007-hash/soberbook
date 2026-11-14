@@ -65,7 +65,10 @@ export default function MsgMenu({ id, mine, name, onGone, onEdit }) {
     setBusy(false);
     if (error) { setErr('Couldn’t do that.'); return; }
     /* ⚠️ Never promises what will happen or when. */
-    setDone('Thank you. Someone will look at this.');
+    setDone(kind === 'csam'
+      ? 'Thank you. The image is hidden for everyone. Please don’t screenshot or share it.'
+      : kind === 'ncii' ? 'Thank you. The image is hidden while we look. We act within 48 hours.'
+      : 'Thank you. Someone will look at this.');
     setView('done');
   }
 
@@ -151,6 +154,15 @@ export default function MsgMenu({ id, mine, name, onGone, onEdit }) {
                         onClick={() => report('rules', 'Unwanted romantic or sexual attention')}>
                   <span className="rmenu-l1">Unwanted romantic or sexual attention</span>
                   <span className="rmenu-l2">Flirting, pressure, or asking to meet</span>
+                </button>
+                {/* 0204 — image abuse; hides the picture at once. See PostMenu.jsx. */}
+                <button type="button" className="rmenu-btn tall" disabled={busy} onClick={() => report('csam')}>
+                  <span className="rmenu-l1">A sexual image of someone under 18</span>
+                  <span className="rmenu-l2">Hidden right away and reported</span>
+                </button>
+                <button type="button" className="rmenu-btn tall" disabled={busy} onClick={() => report('ncii')}>
+                  <span className="rmenu-l1">A private image shared without permission</span>
+                  <span className="rmenu-l2">Nude or sexual photos of a real person</span>
                 </button>
                 <button type="button" className="rmenu-btn tall" disabled={busy}
                         onClick={() => report('concern')}>

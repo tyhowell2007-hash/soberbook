@@ -172,14 +172,17 @@ export async function POST(req) {
 
   let label = null;
   const romance = claimed.reason === ROMANCE;
+  /* 0204 — image abuse is always urgent and decided here, never by the model.
+     The picture was already hidden by the database. */
+  const image = claimed.kind === 'csam' || claimed.kind === 'ncii';
   if (claimed.kind === 'concern' || DANGER.test(text)) {
     label = 'danger';
-  } else if (romance) {
+  } else if (romance || image) {
     label = 'harassment';
   } else if (claimed.target_type === 'post' || claimed.target_type === 'comment') {
     label = await askSage(text);
   }
-  const urgent = URGENT.has(label) || romance;
+  const urgent = URGENT.has(label) || romance || image;
 
   await admin.from('reports')
     .update({ urgent, sage_label: label, sage_at: new Date().toISOString() })

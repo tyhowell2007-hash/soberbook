@@ -1,6 +1,8 @@
 import Link from 'next/link';
 import { serverClient } from '../../lib/supabase-server';
 import ReportForm from '../components/ReportForm';
+/* 0204 — TAKE IT DOWN Act request form. */
+import TakedownForm from '../components/TakedownForm';
 import '../tickets.css';
 
 /* =====================================================================
@@ -140,6 +142,18 @@ export default async function Support() {
       {signedIn
         ? <p><Link href="/report" className="btn">Report a problem in the app</Link></p>
         : <ReportForm signedOut />}
+
+      {/* 0204, 13 Nov 2026 — the notice-and-removal process the TAKE IT DOWN
+          Act requires (in force since 19 May 2026). Open to anyone, signed in
+          or not; /support is on the middleware open list for exactly this. */}
+      <h2 id="takedown">A private image of you was shared here</h2>
+      <p>
+        If a nude or sexual image of you (real or faked) was posted on Sober
+        Book without your permission, ask us to take it down below. You
+        don&apos;t need an account. We remove it, and any copies we find,
+        within 48 hours, and email you when it&apos;s done.
+      </p>
+      <TakedownForm />
 
       <h2>Changing or deleting your account</h2>
       <p>

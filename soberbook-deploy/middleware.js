@@ -306,6 +306,9 @@ export async function middleware(request) {
                    limits). /api/ticket/act checks for Ty or Kenny itself and
                    404s for anyone else. */
                 '/api/ticket',
+                /* 0204: the TAKE IT DOWN Act request on /support must work signed
+                   out. Honeypot + limits; /api/takedown/act checks for Ty or Kenny. */
+                '/api/takedown',
                 /* 0203: pinged by raise_account_flag through pg_net with no session,
                    like /api/report/triage. Checks x-push-secret itself, 404s without it. */
                 '/api/flags/alert',

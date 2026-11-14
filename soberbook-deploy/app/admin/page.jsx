@@ -83,5 +83,14 @@ export default async function AdminPage() {
     }
   }
 
-  return <Queue rows={rows || []} urls={urls} />;
+  /* 0204 — open take-down requests (TAKE IT DOWN Act). Service role:
+     the table has no member grants. */
+  let takedowns = [];
+  if (adminConfigured()) {
+    const { data } = await adminClient().from('takedown_requests')
+      .select('id, num, where_text, post_id, signature, email, created_at')
+      .eq('status', 'new').order('created_at');
+    takedowns = data || [];
+  }
+  return <Queue rows={rows || []} urls={urls} takedowns={takedowns} />;
 }

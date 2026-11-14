@@ -180,6 +180,16 @@ export default function Rules() {
         follow the same rules: we can remove the post and the account behind
         it without ever showing anyone who wrote it.
       </p>
+      {/* 0204, 13 Nov 2026 — the TAKE IT DOWN Act asks for a clear notice of
+          how to get an intimate image removed. This is it, plus the link. */}
+      <p>
+        <strong>Sexual images of anyone under 18 are reported to the National
+        Center for Missing &amp; Exploited Children</strong>, and the account is
+        removed. If a private or sexual image of you was shared here without
+        your permission, ask us to take it down at{' '}
+        <a href="/support#takedown">soberbook.app/support</a>. You don&apos;t
+        need an account, and we act within 48 hours.
+      </p>
 
       <h2>What happens when somebody breaks one</h2>
       <p>

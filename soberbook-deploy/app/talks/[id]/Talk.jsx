@@ -99,10 +99,15 @@ export default function Talk({ id, initial }) {
   const [askMode, setAskMode] = useState('voice');
   const [askNote, setAskNote] = useState('');
   const [preview, setPreview] = useState(null);
+  /* 0204 — the host can lock the talk so nobody new joins. */
+  const [locked, setLocked] = useState(false);
 
   if (!sb.current && typeof window !== 'undefined') sb.current = browserClient();
 
   const flash = useCallback((t) => { setNote(t); setTimeout(() => setNote(''), 4000); }, []);
+  useEffect(() => {
+    sb.current?.rpc('talk_locked', { p_talk: id }).then(({ data }) => setLocked(data === true)).catch(() => {});
+  }, [id]);
   const rpc = useCallback(async (fn, args) => {
     const { data, error } = await sb.current.rpc(fn, args);
     if (error) { flash(error.message || 'That didn’t work. Try again.'); throw error; }
@@ -319,6 +324,22 @@ export default function Talk({ id, initial }) {
     if (data) setS(data);
   }
 
+  /* 0204 — lock / unlock (host only; the database checks). */
+  async function toggleLock() {
+    const next = !locked;
+    const { error } = await sb.current.rpc('talk_lock', { p_talk: id, p_on: next });
+    if (error) { flash('Only the host can lock the talk.'); return; }
+    setLocked(next);
+    flash(next ? 'Locked. Nobody new can join.' : 'Unlocked. People can join again.');
+  }
+
+  /* 0204 — report someone on stage. Goes to Ty and Kenny's safety queue. */
+  async function reportSeat(seat) {
+    setSheet(null);
+    const { error } = await sb.current.rpc('report_talk_seat', { p_talk: id, p_seat: seat });
+    flash(error ? 'That didn’t go through. Try again.' : 'Reported. Ty and Kenny can see it right now. You can leave any time.');
+  }
+
   async function setWho(who) {
     await rpc('talk_set_requests', { p_talk: id, p_who: who }).catch(() => {});
     setS((x) => ({ ...x, requests: who }));
@@ -379,7 +400,7 @@ export default function Talk({ id, initial }) {
         <button type="button" className="tk-go" disabled={joining} onClick={join}>
           {joining ? 'Connecting…' : me?.host ? (s.kind === 'video' && !anon ? '🎥 Open your talk' : '🎙️ Open your talk') : '🎧 Listen in'}
         </button>
-        <p className="tk-foot">🔒 Nothing is recorded. Listeners are never on camera.</p>
+        <p className="tk-foot">🔒 Nothing is recorded, and please don&rsquo;t record or screenshot. Listeners are never on camera.</p>
       </div>
     );
   }
@@ -478,6 +499,11 @@ export default function Talk({ id, initial }) {
                 onClick={() => (others.length === 1 ? setSheet(others[0]) : flash(others.length ? 'Tap someone on stage to send them a coin.' : 'Nobody else is on stage yet.'))}>
           <Coin kind="proud" size={22} />
         </button>
+        {me?.host && (
+          <button type="button" className="tk-ctl" aria-label={locked ? 'Unlock the talk' : 'Lock the talk'} onClick={toggleLock}>
+            {locked ? '🔒' : '🔓'}
+          </button>
+        )}
         {s.mod && (
           <button type="button" className="tk-ctl req" aria-label="People asking to join" onClick={() => setSheet('requests')}>
             ✋{hands.length > 0 && <span className="tk-badge">{hands.length}</span>}
@@ -590,6 +616,9 @@ export default function Talk({ id, initial }) {
                 )}
                 {sheet.me && !sheet.host && (
                   <button type="button" className="tk-act" onClick={() => mod('talk_move_down', null)}>⬇️ Step down to listening</button>
+                )}
+                {!sheet.me && (
+                  <button type="button" className="tk-act" onClick={() => reportSeat(sheet.seat)}>🚩 Report this person</button>
                 )}
                 {s.mod && !sheet.me && !sheet.host && (
                   <>

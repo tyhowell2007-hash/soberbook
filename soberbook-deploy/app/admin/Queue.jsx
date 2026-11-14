@@ -46,7 +46,118 @@ function ago(iso) {
    trade is the product. "Is it really anonymous?" — "Yes, including from
    me" is an answer worth more than the convenience it costs.
    ===================================================================== */
-export default function Queue({ rows, urls }) {
+/* =====================================================================
+   0204 — IMAGE ABUSE STEPS (13 Nov 2026).
+   csam: report to the NCMEC CyberTipline, type the number, suspend. Never
+   restored, never taken down here (the evidence must be kept 1 year).
+   ncii: TAKE IT DOWN Act. 48 hours from the report to remove it for good
+   or restore it. Not legal advice; the attorney should review.
+   ===================================================================== */
+function ImageSteps({ r, busy, act }) {
+  const [no, setNo] = useState(r.cybertip_no || '');
+  const [saved, setSaved] = useState(!!r.cybertip_no);
+  const [err, setErr] = useState('');
+  if (r.kind === 'csam') {
+    async function saveNo() {
+      setErr('');
+      const { error } = await browserClient().rpc('mod_cybertip', { p_report: r.report_id, p_no: no });
+      if (error) { setErr(error.message.includes('not allowed') ? 'That needs moderator rights.' : error.message); return; }
+      setSaved(true);
+    }
+    return (
+      <div className="mq-acts" style={{ display: 'block' }}>
+        <ol style={{ margin: '0 0 10px', paddingLeft: 20, lineHeight: 1.5 }}>
+          <li>Report it to the NCMEC CyberTipline at{' '}
+            <a href="https://report.cybertip.org" target="_blank" rel="noopener noreferrer">report.cybertip.org</a>
+            {' '}and follow its instructions. Never download, screenshot or forward it.</li>
+          <li>Type the CyberTipline report number:
+            <span style={{ display: 'flex', gap: 6, marginTop: 6 }}>
+              <input value={no} onChange={(e) => { setNo(e.target.value); setSaved(false); }} placeholder="Report number"
+                     style={{ flex: 1, minWidth: 0, padding: '8px 10px', borderRadius: 10, border: '1.5px solid #C5CCEB', font: 'inherit' }} />
+              <button type="button" className="btn" disabled={!no.trim() || saved} onClick={saveNo}>{saved ? 'Saved ✓' : 'Save'}</button>
+            </span></li>
+          <li>Suspend the account.</li>
+        </ol>
+        {err && <div className="err">{err}</div>}
+        <p className="mq-prior">Kept locked away for 1 year, as the law requires, then deleted. Nobody can open it in the app.</p>
+        {r.author_suspended
+          ? <span className="mq-prior">Suspended ✓</span>
+          : <button className="btn ghost mq-danger" disabled={busy}
+                    onClick={() => act(r.report_id, 'mod_suspend', 'Suspend whoever posted this? Everything they have posted disappears from the app.')}>
+              Suspend whoever posted it
+            </button>}
+      </div>
+    );
+  }
+  const left = Math.max(0, 48 - Math.floor((Date.now() - new Date(r.created_at).getTime()) / 36e5));
+  return (
+    <div className="mq-acts" style={{ display: 'block' }}>
+      <p className="mq-prior" style={{ fontWeight: 800, color: left <= 12 ? '#9A3412' : undefined }}>
+        {left > 0 ? `${left} hours left to decide (TAKE IT DOWN Act: 48 hours)` : 'Past 48 hours: decide now'}
+      </p>
+      <p className="mq-prior">Check the wall for other copies of the same picture and report those too.</p>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+        <button className="btn" disabled={busy}
+                onClick={() => act(r.report_id, 'mod_remove', 'Remove this post for good? This cannot be undone.')}>
+          Remove for good
+        </button>
+        <button className="btn ghost" disabled={busy}
+                onClick={() => act(r.report_id, 'mod_restore_media', 'Put the picture back? Only if it is not a private image of someone.')}>
+          Not a match, restore
+        </button>
+        {!r.author_suspended && (
+          <button className="btn ghost mq-danger" disabled={busy}
+                  onClick={() => act(r.report_id, 'mod_suspend', 'Suspend whoever posted this?')}>
+            Suspend them
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* 0204 — take-down requests from the Support page (TAKE IT DOWN Act).
+   A request that named a post already hid it and sits in the queue below;
+   this list is the request itself, so it can be closed and the person told. */
+function Takedowns({ list }) {
+  const router = useRouter();
+  const [busy, setBusy] = useState(null);
+  const [err, setErr] = useState('');
+  if (!list?.length) return null;
+  async function close(id, status) {
+    setBusy(id); setErr('');
+    const r = await fetch('/api/takedown/act', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, status }) });
+    setBusy(null);
+    if (!r.ok) { setErr('Couldn’t do that. Try again.'); return; }
+    router.refresh();
+  }
+  return (
+    <>
+      <h2 className="sec">Take-down requests · 48-hour clock</h2>
+      {err && <div className="err">{err}</div>}
+      {list.map((t) => {
+        const left = Math.max(0, 48 - Math.floor((Date.now() - new Date(t.created_at).getTime()) / 36e5));
+        return (
+          <article key={t.id} className="mq mq-urgent">
+            <div className="mq-top">
+              <span className="mq-kind mq-red">{left > 0 ? `${left}h left` : 'Past 48 hours'}</span>
+              <span className="mq-kind">TD-{String(t.num).padStart(4, '0')}</span>
+              <span className="mq-when">{t.post_id ? 'Picture already hidden (report below)' : 'Find it and report it as a private image'}</span>
+            </div>
+            <p className="mq-body">{t.where_text}</p>
+            <p className="mq-prior">Signed: {t.signature} · {t.email}</p>
+            <div className="mq-acts">
+              <button className="btn" disabled={busy === t.id} onClick={() => close(t.id, 'removed')}>It&rsquo;s removed, tell them</button>
+              <button className="btn ghost" disabled={busy === t.id} onClick={() => close(t.id, 'not_match')}>Couldn&rsquo;t find it, tell them</button>
+            </div>
+          </article>
+        );
+      })}
+    </>
+  );
+}
+
+export default function Queue({ rows, urls, takedowns = [] }) {
   const supabase = browserClient();
   const router = useRouter();
   const [busy, setBusy] = useState(null);
@@ -86,10 +197,13 @@ export default function Queue({ rows, urls }) {
         <Link href="/admin/tickets" className="melink">Problem tickets ›</Link>
         {' · '}
         <Link href="/admin/accounts" className="melink">Accounts ›</Link>
+        {' · '}
+        <Link href="/admin/live" className="melink">Live now ›</Link>
       </p>
 
       <div className="pad">
         {err && <div className="err">{err}</div>}
+        <Takedowns list={takedowns} />
 
         {open.some((r) => r.urgent) && (
           <p className="mq-sum">
@@ -118,7 +232,9 @@ export default function Queue({ rows, urls }) {
             <div className="mq-top">
               {r.urgent && <span className="mq-kind mq-red">Urgent</span>}
               <span className={'mq-kind ' + r.kind}>
-                {r.auto ? 'Flagged by the app'
+                {r.kind === 'csam' ? 'Image of a minor'
+                  : r.kind === 'ncii' ? 'Private image'
+                  : r.auto ? 'Flagged by the app'
                   : r.kind === 'concern' ? 'Worried about them' : 'Against the rules'}
               </span>
               {r.sage_label && LABEL[r.sage_label] && (
@@ -149,6 +265,13 @@ export default function Queue({ rows, urls }) {
               {r.author_suspended && <span className="mq-susp">already suspended</span>}
             </div>
 
+            {/* 0204 — image abuse. The picture was moved off the post the moment
+                this was filed; it is NEVER shown here, not even blurred. */}
+            {(r.kind === 'csam' || r.kind === 'ncii') && (
+              <div className="mq-gone" style={{ background: '#1B1F3B', color: '#C9CFF5', borderRadius: 12, padding: '18px 12px', textAlign: 'center', fontWeight: 800 }}>
+                {r.kind === 'csam' ? 'Image hidden · do not open' : 'Hidden from everyone'}
+              </div>
+            )}
             {r.in_private
               ? <p className="mq-body">Someone wrote something in a private message that reads like
                   they may need support. They saw the 988 card.</p>
@@ -181,7 +304,7 @@ export default function Queue({ rows, urls }) {
                 nothing to remove and nobody to suspend. The useful action
                 is reaching the person, so the number is right here rather
                 than in a document. */}
-            {r.auto && (
+            {r.auto && r.kind === 'concern' && (
               <p className="mq-988">
                 Nobody reported this. The app spotted crisis words in their own post and
                 showed them the 988 card. The post stayed up. Reach out, or mark it handled.
@@ -195,7 +318,9 @@ export default function Queue({ rows, urls }) {
               </p>
             )}
 
-            <div className="mq-acts">
+            {(r.kind === 'csam' || r.kind === 'ncii')
+              ? <ImageSteps r={r} busy={busy === r.report_id} act={act} />
+              : <div className="mq-acts">
               {/* 0194, "Reach out". Sends the author a fixed, kind check-in
                   with 988 on it (/checkin). You never learn who they are:
                   the database finds them, the same way mod_suspend does.
@@ -223,7 +348,7 @@ export default function Queue({ rows, urls }) {
                   the report "actioned" having done absolutely nothing.
                   The function refuses now; the button leaving is what
                   stops a moderator meeting that refusal. */}
-              {!r.content_gone && r.target_type !== 'profile' && (
+              {!r.content_gone && !['profile', 'talk_seat', 'message'].includes(r.target_type) && (
                 <button className="btn ghost" disabled={busy === r.report_id}
                         onClick={() => act(r.report_id, 'mod_remove',
                           r.target_type === 'room_message'
@@ -240,7 +365,7 @@ export default function Queue({ rows, urls }) {
                 {r.target_type === 'profile' ? 'Suspend them' : 'Suspend whoever wrote it'}
               </button>
               </>}
-            </div>
+            </div>}
           </article>
         ))}
 

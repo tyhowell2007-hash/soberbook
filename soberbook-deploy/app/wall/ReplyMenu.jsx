@@ -182,6 +182,18 @@ export default function ReplyMenu({ reply, onClose, onGone }) {
                   Flirting, pressure, or asking to meet that you didn&apos;t want.
                 </span>
               </button>
+              {/* 0204, 13 Nov 2026 — image abuse. Both hide the picture for
+                  everyone the moment they're filed (hold_on_image_report), and
+                  are urgent. csam goes to the NCMEC CyberTipline; ncii is the
+                  TAKE IT DOWN Act lane (48 hours). */}
+              <button className="mrow" disabled={busy} onClick={() => report('csam')}>
+                <span className="mt2">A sexual image of someone under 18</span>
+                <span className="md">We hide it right away and report it to the authorities.</span>
+              </button>
+              <button className="mrow" disabled={busy} onClick={() => report('ncii')}>
+                <span className="mt2">A private image shared without permission</span>
+                <span className="md">Nude or sexual photos of a real person, including fakes.</span>
+              </button>
               {/* The separate lane, straight from the schema. A person
                   saying they can't do this anymore must not queue behind
                   spam. ⚠️ This matters more under a post than on one: the
@@ -222,6 +234,8 @@ export default function ReplyMenu({ reply, onClose, onGone }) {
               <p className="mnote">
                 {sent === 'concern'
                   ? 'Thank you for telling someone. Ty has been alerted right now and looks at these first.'
+                  : sent === 'csam' ? 'Thank you. The image is hidden for everyone and Ty and Kenny have been alerted. Please don’t screenshot or share it, even to report it somewhere else.'
+                  : sent === 'ncii' ? 'Thank you. The image is hidden for everyone while we look. We act within 48 hours.'
                   : 'Thanks. A person reviews every report, usually within the hour.'}
               </p>
               {/* Shown to the PERSON REPORTING, not the person reported.
