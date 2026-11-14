@@ -32,6 +32,8 @@ export function pushWords(rawTo) {
              /* 0202 — problem tickets. Still constants, never what the ticket says. */
              : to === '/admin/tickets' ? 'A new problem ticket came in. Open the board when you can.'
              : to === '/tickets' ? 'There’s an update on your problem ticket.'
+             /* 0203 — fake/banned accounts. Never a handle on the lock screen. */
+             : to === '/admin/accounts' ? 'A new account needs a look. Open Accounts when you can.'
              : to.endsWith('/stats/coins') ? 'Somebody sent you a coin.'
              : to.endsWith('/stats') ? 'Your post just earned a milestone chip.'
              : 'Somebody answered you.';

@@ -84,6 +84,8 @@ export default function Queue({ rows, urls }) {
       {/* 0202 — the problem-ticket board lives next door. */}
       <p style={{ margin: '10px 16px 0', textAlign: 'right' }}>
         <Link href="/admin/tickets" className="melink">Problem tickets ›</Link>
+        {' · '}
+        <Link href="/admin/accounts" className="melink">Accounts ›</Link>
       </p>
 
       <div className="pad">

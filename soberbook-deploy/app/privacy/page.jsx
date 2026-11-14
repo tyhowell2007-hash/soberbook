@@ -34,7 +34,7 @@ export default function Privacy() {
         everything yourself at any time.
       </p>
 
-      <p className="upd">Last updated 11 November 2026</p>
+      <p className="upd">Last updated 13 November 2026</p>
 
       <h2>What we store</h2>
       <p>Only what you type in, plus what the app needs to work:</p>
@@ -61,6 +61,13 @@ export default function Privacy() {
           learn which parts of the app help and which don&apos;t. Only Kenny
           and Ty can see these counts; no member can see anyone&apos;s taps,
           including their own.</li>
+        {/* 0203, 13 Nov 2026 — Ty approved this wording. Keep it true to
+            record_account_mark(): salted SHA-256, 90 days, only compared
+            with suspended accounts. */}
+        <li><strong>A scrambled device code</strong>: to keep banned accounts
+          out, we keep a scrambled code for the device you sign up on for 90
+          days. It can&apos;t be turned back into your address, and it&apos;s
+          only ever checked against accounts we&apos;ve suspended.</li>
       </ul>
 
       <h2>What we never collect</h2>

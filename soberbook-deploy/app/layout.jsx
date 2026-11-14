@@ -81,6 +81,10 @@ import PhotoBig from './components/PhotoBig';
 /* "Opened the app today" — one date-only mark per member per day, for
    /admin/growth. See components/DayMark and migration 0176. */
 import DayMark from './components/DayMark';
+/* 0203, 13 Nov 2026 — once a day, a scrambled device code so a suspended
+   person coming back on a new account gets flagged for Ty and Kenny.
+   Renders nothing. See components/AccountMark.jsx. */
+import AccountMark from './components/AccountMark';
 /* One guarded touch listener for every signed-in screen. It only claims a
    downward gesture when the document is already at the top. */
 import PullToRefresh from './components/PullToRefresh';
@@ -250,6 +254,7 @@ export default async function RootLayout({ children }) {
             list. Its 988 row moved to the top of /more (CrisisRow). */}
         <PhotoBig />
         <DayMark on={signedIn} />
+        <AccountMark on={signedIn} />
         <PullToRefresh on={signedIn} />
         <RegisterSW />
         <NativePush />

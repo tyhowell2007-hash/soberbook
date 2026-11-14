@@ -306,6 +306,9 @@ export async function middleware(request) {
                    limits). /api/ticket/act checks for Ty or Kenny itself and
                    404s for anyone else. */
                 '/api/ticket',
+                /* 0203: pinged by raise_account_flag through pg_net with no session,
+                   like /api/report/triage. Checks x-push-secret itself, 404s without it. */
+                '/api/flags/alert',
                 /* 0194: pinged by the report_alert trigger through pg_net, with
                    no session, exactly like /api/push/send. It checks the same
                    x-push-secret itself and 404s without it. */
