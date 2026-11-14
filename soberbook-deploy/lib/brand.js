@@ -7,19 +7,14 @@
 
    ⭐ ONE APP, TWO NAMES. Same members, same wall, same everything. The
    only thing that decides the name is WHERE the page is opened:
-     · inside the Recovery Belongs beta build → Recovery Belongs
+     · inside the iPhone app (TestFlight, the beta) → Recovery Belongs
      · soberbook.app in a browser → Sober Book (unchanged)
 
-   ⚠️ THE SIGNAL is the BETA build's own user-agent tag, "RecoveryBelongs"
-   (capacitor.config.json ios.appendUserAgent "SoberBookiOS RecoveryBelongs").
-   🔴 NOT "SoberBookiOS" on its own — Ty's everyday iPhone app sends that
-   too and must keep saying Sober Book (Ty, 13 Nov: "I didn't want it on
-   my app. I wanted this on the test beta").
-
-   🔴 Only OUR words change. Anything a member wrote is never touched.
-   🔴 Emails, the public profile card and the PO's slip record stay Sober
-      Book: they're opened outside the app. "Sober Book LLC" is the legal
-      name and stays everywhere.
+   ⚠️ THE SIGNAL is the iPhone app's user agent: "SoberBookiOS" (every
+   TestFlight build) or "RecoveryBelongs" (Build 5 onward adds it).
+   ⭐ Ty, 13 Nov, 11 pm: the TestFlight app IS the beta, so it says
+   Recovery Belongs for everyone in it, Ty included. soberbook.app in a
+   browser (what members use today) stays Sober Book.
    ===================================================================== */
 
 export const BRANDS = {
@@ -27,7 +22,7 @@ export const BRANDS = {
   rb: { key: 'rb', name: 'Recovery Belongs', icon: '/rb-icon-192.png' },
 };
 
-const IN_APP = ['RecoveryBelongs'];
+const IN_APP = ['SoberBookiOS', 'RecoveryBelongs'];
 
 export function brandFromUA(ua) {
   return ua && IN_APP.some((t) => ua.includes(t)) ? BRANDS.rb : BRANDS.sb;
