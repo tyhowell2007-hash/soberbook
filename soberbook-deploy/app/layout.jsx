@@ -28,7 +28,13 @@ import './polish.css';
 import './type.css';
 /* 0201 — the 988 card and the "Who can message you" setting. Own cs-/dmf-/fo- classes only. */
 import './crisis-sheet.css';
+/* ⭐ 13 Nov 2026 — Recovery Belongs inside the iPhone app only. Every
+   rule hangs off html[data-brand="rb"]; on the web it matches nothing.
+   Imported last so it wins over type.css. See lib/brand.js. */
+import './brand.css';
 import { serverClient } from '../lib/supabase-server';
+import { serverBrand } from '../lib/brand-server';
+import { BrandProvider } from './components/BrandProvider';
 
 /* ⚠️ theme-green.css IS DELIBERATELY NOT IMPORTED HERE. DO NOT ADD IT BACK.
 
@@ -169,6 +175,7 @@ async function chosenThemeAndUser() {
 
 export default async function RootLayout({ children }) {
   const { theme, signedIn } = await chosenThemeAndUser();
+  const brand = serverBrand().key;          // 'rb' only inside the iPhone app
   return (
     /* ⚠️ Only 'black' is written out. `theme` already allows eight values
        in the database and seven of them have no stylesheet — rendering
@@ -178,7 +185,8 @@ export default async function RootLayout({ children }) {
     /* ⚠️ data-menu is what pads the masthead across for a button it does
        not contain (globals.css). Absent when signed out, so the door's
        wordmark stays exactly where it is. */
-    <html lang="en" data-theme={theme === 'black' ? 'black' : undefined}>
+    <html lang="en" data-theme={theme === 'black' ? 'black' : undefined}
+          data-brand={brand === 'rb' ? 'rb' : undefined}>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
@@ -246,6 +254,7 @@ export default async function RootLayout({ children }) {
         />
       </head>
       <body>
+        <BrandProvider brand={brand}>
         {children}
         {/* Registers the service worker after the page has loaded. Renders
             nothing. Without it Chrome will not offer to install the app. */}
@@ -265,6 +274,7 @@ export default async function RootLayout({ children }) {
             songs can start on their own afterwards. See lib/song-audio.js
             for why this is the only thing that works on a phone. */}
         <AudioUnlock />
+        </BrandProvider>
       </body>
     </html>
   );

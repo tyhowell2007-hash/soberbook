@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Wordmark from '../../components/Wordmark';
 
 /* Deliberately the same page for four different situations: no such
    thread, a thread you were never in, one you ignored, and one with
@@ -12,7 +13,7 @@ export default function NotFound() {
     <>
       <div className="mast">
         <Link href="/chat" className="back" aria-label="Back to chat">‹</Link>
-        <span className="lg">🌱 SOBER BOOK</span>
+        <Wordmark />
       </div>
       <div className="pad">
         <div className="empty">

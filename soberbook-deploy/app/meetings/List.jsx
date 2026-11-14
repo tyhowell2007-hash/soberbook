@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { browserClient } from '../../lib/supabase-browser';
+import BrandName from '../components/BrandName';
 
 /* =====================================================================
    WHAT'S ON NEXT — and, above it, WHERE PEOPLE ARE GOING.
@@ -876,7 +877,7 @@ export default function List({ meetings, fetchedAt, source, going: initialGoing,
       <div className="mt-src">
         <p>
           Meeting times and links come from <a href={source.url} target="_blank" rel="noopener noreferrer">{source.name} ↗</a>,
-          who publish them openly so apps like this can list them. Sober Book isn&apos;t
+          who publish them openly so apps like this can list them. <BrandName /> isn&apos;t
           affiliated with {source.fellowship} and doesn&apos;t speak for them.
         </p>
         <p className="mt-dim">

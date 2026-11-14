@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { browserClient } from '../../lib/supabase-browser';
+import BrandName from './BrandName';
 
 /* =====================================================================
    THE ARTIST PANEL on /u/<handle>.  19 Sept 2026.
@@ -59,7 +60,7 @@ export default function ArtistPanel({ handle }) {
 
       <div className="art-row">
         <span className="art-count">
-          <b>{n.toLocaleString()}</b> {n === 1 ? 'follower' : 'followers'} on Sober Book
+          <b>{n.toLocaleString()}</b> {n === 1 ? 'follower' : 'followers'} on <BrandName />
         </span>
         {a.is_mine
           ? <Link href="/artist" className="art-link">Edit artist page</Link>

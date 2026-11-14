@@ -32,6 +32,8 @@ import EmailSwitch from '../components/EmailSwitch';
 /* 0201 — Who can message you (Everyone / Only friends). */
 import DmFromSwitch from '../components/DmFromSwitch';
 import PendingTags from './PendingTags';
+import Wordmark from '../components/Wordmark';
+import BrandName from '../components/BrandName';
 
 /* The faces you can pick from.
 
@@ -589,7 +591,7 @@ export default function Me({ email, profile, initialAvatarUrl,
         <div className="datecard">
           <p className="dc-h">Time you&apos;d already put together</p>
           <p className="dc-s">
-            Before Sober Book. However you count it &mdash; nobody is
+            Before <BrandName />. However you count it &mdash; nobody is
             checking, and nobody else sees it unless you switch it on.
           </p>
           <div className="liferow">
@@ -728,7 +730,7 @@ export default function Me({ email, profile, initialAvatarUrl,
     <>
       <div className="mast">
         <Link href="/wall" className="back" aria-label="Back to the wall">←</Link>
-        <span className="lg">🌱 SOBER BOOK</span>
+        <Wordmark />
         <span className="rt">you</span>
       </div>
       <div className="bar">Nothing here is public</div>

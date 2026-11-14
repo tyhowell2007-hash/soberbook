@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import BrandName from '../components/BrandName';
 
 /* =====================================================================
    DELETING YOUR ACCOUNT — the public page.
@@ -39,12 +40,12 @@ export default function DeleteAccount() {
       <h1>Deleting your account</h1>
 
       <p className="lead">
-        You can delete your Sober Book account yourself, from inside the app,
+        You can delete your <BrandName /> account yourself, from inside the app,
         at any time. It happens straight away — there is no waiting period and
         nobody has to approve it.
       </p>
 
-      <p className="upd">Sober Book · soberbook.app · last updated 8 September 2026</p>
+      <p className="upd"><BrandName /> · soberbook.app · last updated 8 September 2026</p>
 
       <h2>From inside the app</h2>
       <p>

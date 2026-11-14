@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Wordmark from '../../components/Wordmark';
 
 /* Four different situations land here and they all look the same:
      • no such handle
@@ -16,7 +17,7 @@ export default function NotFound() {
     <>
       <div className="mast">
         <Link href="/wall" className="back" aria-label="Back to the wall">←</Link>
-        <span className="lg">🌱 SOBER BOOK</span>
+        <Wordmark />
       </div>
       <div className="bar">Nothing here</div>
 

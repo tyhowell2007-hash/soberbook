@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { browserClient } from '../../lib/supabase-browser';
+import BrandName from '../components/BrandName';
 /* ⚠️ dayLine is copied here, NOT imported from lib/share-card: that file
    pulls in the QR library, which belongs on the server only. */
 function dayLine(days) {
@@ -72,7 +73,7 @@ export default function ShareBits({ me, svg, url, label }) {
       )}
 
       <p className="shfine">
-        People who aren’t on Sober Book see {me.anonymous ? 'your @handle' : 'your name, @handle'}{me.day_public ? ' and day count' : ''}, then a button to join.
+        People who aren’t on <BrandName /> see {me.anonymous ? 'your @handle' : 'your name, @handle'}{me.day_public ? ' and day count' : ''}, then a button to join.
         Your posts, photos and everything else stay inside the app.
         {me.anonymous ? ' You’re in anonymous mode, so your name and face never show.' : ''}
       </p>

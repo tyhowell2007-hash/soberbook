@@ -9,6 +9,7 @@ import TalkCard from './TalkCard';
    Rooms: it's the first thing to do after a meeting, and it draws nothing
    at all until 0202 is run or for a signed-out visitor. */
 import CheckinCard from './CheckinCard';
+import Wordmark from '../components/Wordmark';
 
 /* =====================================================================
    MEETINGS.
@@ -70,7 +71,7 @@ export default async function MeetingsPage() {
   return (
     <>
       <div className="mast">
-        <span className="lg">🌱 SOBER BOOK</span>
+        <Wordmark />
         <span className="rt">meetings</span>
       </div>
       <div className="bar">Online · join from anywhere · nobody here sees that you went</div>

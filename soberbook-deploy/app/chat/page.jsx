@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation';
 import { serverClient, assertReadable } from '../../lib/supabase-server';
 import Inbox from './Inbox';
 import Link from 'next/link';
+import Wordmark from '../components/Wordmark';
 
 export const dynamic = 'force-dynamic';
 
@@ -105,7 +106,7 @@ export default async function ChatPage({ searchParams }) {
   return (
     <>
       <div className="mast">
-        <span className="lg">🌱 SOBER BOOK</span>
+        <Wordmark />
         <span className="rt">chat</span>
       </div>
       <div className="bar">One to one · nobody else can read this</div>

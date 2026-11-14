@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation';
 import { serverClient, assertReadable } from '../../lib/supabase-server';
 import { signPhotoPaths, collectPaths } from '../../lib/sign-photos';
 import RoomSwitch from './RoomSwitch';
+import Wordmark from '../components/Wordmark';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'The rooms — Sober Book' };
@@ -169,7 +170,7 @@ export default async function FriendsPage({ searchParams }) {
     <div className="roomscreen">
       <div className="mast">
         <Link href="/wall" className="back" aria-label="Back to the wall">←</Link>
-        <span className="lg">🌱 SOBER BOOK</span>
+        <Wordmark />
         <Link href="/find" className="rt melink">find someone ›</Link>
       </div>
       <div className="bar">Everybody here · say anything</div>

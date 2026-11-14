@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { serverClient, assertReadable } from '../../lib/supabase-server';
 import Wall from './Wall';
+import Wordmark from '../components/Wordmark';
 
 export const dynamic = 'force-dynamic';
 
@@ -58,7 +59,7 @@ export default async function QuietPage() {
           the bar is no longer a guaranteed way back out of this page. */}
       <div className="mast">
         <Link href="/wall" className="back" aria-label="Back to the wall">←</Link>
-        <span className="lg">🌱 SOBER BOOK</span>
+        <Wordmark />
         <span className="rt">quiet</span>
       </div>
       <div className="bar">Nobody here has to agree</div>

@@ -6,6 +6,7 @@ import { browserClient } from '../../../../lib/supabase-browser';
 import Coin from '../../../components/Coin';
 import { COINS, COIN } from '../../../../lib/coins';
 import './stats.css';
+import BrandName from '../../../components/BrandName';
 
 /* =====================================================================
    📈 RIPPLE — one post's page, for its author only.
@@ -279,7 +280,7 @@ export default function StatsView({ id, s, focus }) {
           ))}
         </section>
 
-        <p className="rpl-priv"><span className="rpl-e">🔒</span><span><b>Numbers only.</b> Nobody can see <i>who</i> {vid ? 'watched' : 'saw'} your post: not you, not other members, not the Sober Book team. You only see the names of people who chose to send a coin or reply.</span></p>
+        <p className="rpl-priv"><span className="rpl-e">🔒</span><span><b>Numbers only.</b> Nobody can see <i>who</i> {vid ? 'watched' : 'saw'} your post: not you, not other members, not the <BrandName /> team. You only see the names of people who chose to send a coin or reply.</span></p>
       </main>
     </>
   );

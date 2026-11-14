@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import QRCode from 'qrcode';
 import { browserClient } from '../../lib/supabase-browser';
+import BrandName from '../components/BrandName';
 
 /* =====================================================================
    The member's side of a meeting slip (0203) — premium look, 9 Nov 2026.
@@ -140,7 +141,7 @@ export default function SlipView() {
 
       {code && (
         <div className="sl-pass">
-          <div className="sl-ph"><span className="sl-logo">Sober Book</span><span className="sl-tag">MEETING SLIP</span></div>
+          <div className="sl-ph"><span className="sl-logo"><BrandName /></span><span className="sl-tag">MEETING SLIP</span></div>
           <div className="sl-pm">
             <b>{name.trim() || 'Meeting'}</b>
             <span>{TODAY()} · {fmtTime(code.made)}</span>
@@ -211,7 +212,7 @@ export default function SlipView() {
         )}
       </section>
 
-      <p className="sl-fine">A meeting slip shows a Sober Book member signed in person at that meeting. Sober Book doesn’t check who the chair is, and a slip isn’t a court document. Ask your PO or program if they accept it.</p>
+      <p className="sl-fine">A meeting slip shows a <BrandName /> member signed in person at that meeting. <BrandName /> doesn’t check who the chair is, and a slip isn’t a court document. Ask your PO or program if they accept it.</p>
       {err && <p className="sl-err" role="alert">{err}</p>}
     </div>
   );

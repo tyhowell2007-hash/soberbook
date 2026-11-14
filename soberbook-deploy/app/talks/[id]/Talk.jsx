@@ -7,6 +7,7 @@ import { browserClient } from '../../../lib/supabase-browser';
 import { TalkLine } from '../../../lib/talk-rtc';
 import { COINS } from '../../../lib/coins';
 import Coin from '../../components/Coin';
+import { brandNow } from '../../../lib/brand';
 
 /* =====================================================================
    INSIDE A TALK. 1 Nov 2026 — the approved "Talk Rooms" prototype.
@@ -157,7 +158,7 @@ export default function Talk({ id, initial }) {
         flash(me.host ? 'You’re live. Tap the mic when you’re ready to talk.' : 'You’re on stage, muted. Tap the mic to talk.');
       } catch (e) {
         flash(e?.name === 'NotAllowedError'
-          ? 'Sober Book needs your microphone to put you on stage. Allow it in your settings.'
+          ? `${brandNow().name} needs your microphone to put you on stage. Allow it in your settings.`
           : 'Couldn’t start your mic. Try again.');
         if (!me.host) await sb.current.rpc('talk_move_down', { p_talk: id, p_seat: null });
       } finally { busyPub.current = false; }

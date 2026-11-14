@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { browserClient } from '../../../lib/supabase-browser';
+import BrandName from '../../components/BrandName';
 
 /* The chair's side, premium look (9 Nov 2026). Press and hold to sign so
    nobody signs by accident; a gold seal when it's done.
@@ -85,7 +86,7 @@ export default function SignView({ token }) {
         <div className="sl-stack">
           <div><div className="sl-eyebrow">You’re signing</div><h1 className="sl-big">A meeting slip</h1></div>
           <div className="sl-pass">
-            <div className="sl-ph"><span className="sl-logo">Sober Book</span><span className="sl-tag">MEETING SLIP</span></div>
+            <div className="sl-ph"><span className="sl-logo"><BrandName /></span><span className="sl-tag">MEETING SLIP</span></div>
             <div className="sl-pm"><b>{peek?.meeting_name || 'A meeting'}</b><span>{fmtDay(peek?.slip_day)}</span></div>
           </div>
           <div className="sl-priv"><span aria-hidden="true">🔒</span><span>You won’t see who this belongs to. Only sign if they were at your meeting. Your <b>@handle</b> goes on their slip, and they may show it to a PO or program.</span></div>

@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import Player from './Player';
+import BrandName from '../components/BrandName';
 
 /* =====================================================================
    THE WALKTHROUGH — soberbook.app/tour
@@ -61,11 +62,11 @@ export default function TourPage() {
   return (
     <div className="tourpage">
       <div className="tmast">
-        <span className="tlg">🌱 SOBER BOOK</span>
+        <span className="tlg"><BrandName mark /></span>
       </div>
 
       <div className="tpad">
-        <h1 className="th">Everything you can do in Sober Book</h1>
+        <h1 className="th">Everything you can do in <BrandName /></h1>
         <p className="tsub">Three and a half minutes. Start to finish.</p>
 
         <Player />

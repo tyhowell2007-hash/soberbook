@@ -1,0 +1,40 @@
+/* =====================================================================
+   RECOVERY BELONGS — the in-app look. 13 Nov 2026. See lib/brand.js.
+   Every rule hangs off html[data-brand="rb"], which the root layout sets
+   ONLY inside the iPhone app. On the web nothing here matches anything.
+   The font is Jesse's logo lettering (lowercase only, no numbers), so
+   it is used for the name and nothing else.
+   ===================================================================== */
+@font-face{
+  font-family:'Recovery Belongs';
+  src:url('./fonts/recovery-belongs.woff2') format('woff2');
+  font-display:block;
+}
+html[data-brand="rb"] .mast .lg.rb-wm,
+html[data-brand="rb"] .rb-name{
+  font-family:'Recovery Belongs', 'SB Text', system-ui, sans-serif !important;
+  font-weight:400 !important;
+  text-transform:lowercase !important;
+  letter-spacing:0 !important;
+  font-style:normal;
+}
+html[data-brand="rb"] .mast .lg.rb-wm{
+  font-size:23px !important;
+  color:#00FF00 !important;
+  text-shadow:0 0 10px rgba(0,255,0,.25);
+  line-height:1;
+}
+@media (max-width:380px){ html[data-brand="rb"] .mast .lg.rb-wm{ font-size:20px !important; } }
+/* the sign-in page logo and the example phone's bar */
+html[data-brand="rb"] .lx-logo.rb-name{ color:#00FF00 !important; font-size:24px; }
+/* the tour page's own top bar */
+html[data-brand="rb"] .tmast .tlg{
+  font-family:'Recovery Belongs', system-ui, sans-serif !important;
+  text-transform:lowercase !important; letter-spacing:0 !important; font-weight:400 !important; color:#00FF00;
+}
+/* Ty, 13 Nov: "straight across. It doesn't have to be on an angle."
+   The old badge sat at -4deg on the sign-in page; the rb logo sits level. */
+html[data-brand="rb"] .lx-logo.rb-name,
+html[data-brand="rb"] .lx-logo.rb-name img,
+html[data-brand="rb"] .mast .lg.rb-wm,
+html[data-brand="rb"] .tmast .tlg{ transform:none !important; font-style:normal !important; }

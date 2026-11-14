@@ -35,6 +35,7 @@ import { pickRoom } from '../../lib/open-room';
    module (checked, not assumed — that is the 2 Sept bug that took /wall
    down for every member with a green build). */
 import { fetchFeedPosts } from '../../lib/feed-posts';
+import Wordmark from '../components/Wordmark';
 
 export const dynamic = 'force-dynamic';
 
@@ -350,7 +351,7 @@ export default async function WallPage() {
   return (
     <>
       <div className="mast">
-        <span className="lg">🌱 SOBER BOOK</span>
+        <Wordmark />
         {/* The ♫ used to open a shared playlist — a page listing everyone's
             song. That was the wrong container: a song isn't a row in a
             directory, it's what's playing when you walk into someone's

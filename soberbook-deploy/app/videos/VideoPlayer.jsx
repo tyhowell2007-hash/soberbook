@@ -8,6 +8,7 @@ import Coin from '../components/Coin';
 import CoinSheet from '../components/CoinSheet';
 import { COIN, coinTotal, topKinds, myCoin, applyCoin } from '../../lib/coins';
 import { cardColors } from '../../lib/video-colors';
+import { brandNow } from '../../lib/brand';
 
 /* =====================================================================
    THE FULL-SCREEN PLAYER.  31 Oct 2026 (0197) — piece 3, from the
@@ -411,7 +412,7 @@ function Slide({ v, meta, next, onNext, onSwipe, supabase, onCoin, say }) {
             <p className="vp-nobody">
               {v.is_mine
                 ? 'You see numbers and the coins people chose to send. Nobody, including you, can see who watched.'
-                : `Nobody sees who watched. Not ${who}, not other members, not the Sober Book team. Numbers only.`}
+                : `Nobody sees who watched. Not ${who}, not other members, not the ${brandNow().name} team. Numbers only.`}
             </p>
           </div>
         ) : null}

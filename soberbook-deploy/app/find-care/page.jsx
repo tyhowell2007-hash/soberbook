@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { serverClient } from '../../lib/supabase-server';
 import FindCare from './FindCare';
+import Wordmark from '../components/Wordmark';
 
 /* =====================================================================
    FIND CARE — the treatment and recovery-housing directory.
@@ -50,7 +51,7 @@ export default async function FindCarePage() {
   return (
     <>
       <div className="mast">
-        <span className="lg">🌱 SOBER BOOK</span>
+        <Wordmark />
         <Link href="/wall" className="back">←</Link>
       </div>
       <div className="bar">FIND CARE</div>

@@ -22,6 +22,7 @@ import { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { browserClient } from '../../lib/supabase-browser';
 import '../rules-agree.css';
+import BrandName from './BrandName';
 
 const OPEN = ['/login', '/rules', '/privacy', '/support', '/help', '/delete-account', '/reset', '/unsub', '/rm'];
 
@@ -65,10 +66,10 @@ export default function RulesGate() {
   return (
     <div className="rg-wrap" role="dialog" aria-modal="true" aria-labelledby="rg-h">
       <div className="rg-card">
-        <div className="rg-bar">Sober Book</div>
+        <div className="rg-bar"><BrandName /></div>
         <div className="rg-body">
           <h2 id="rg-h">One thing before you go on</h2>
-          <p>Sober Book only works if everyone here is safe. So we&apos;re asking every member to agree to the Rules:</p>
+          <p><BrandName /> only works if everyone here is safe. So we&apos;re asking every member to agree to the Rules:</p>
           <ul>
             <li>Zero tolerance for abuse, harassment, threats, hate, or sexual or objectionable content.</li>
             <li>Every report is reviewed within 24 hours. Content that breaks the Rules comes down, and the account that posted it is removed.</li>
@@ -77,7 +78,7 @@ export default function RulesGate() {
           <label className={'ra-box' + (tick ? ' on' : '')}>
             <input type="checkbox" checked={tick} onChange={(e) => setTick(e.target.checked)} />
             <span>
-              <b>I agree to the Sober Book Rules</b>
+              <b>I agree to the <BrandName /> Rules</b>
               <small><a href="/rules" target="_blank" rel="noopener noreferrer">Read the full Rules</a></small>
             </span>
           </label>

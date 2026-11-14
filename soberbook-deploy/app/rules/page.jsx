@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import BrandName from '../components/BrandName';
 
 /* =====================================================================
    THE RULES — the community guidelines page.
@@ -75,11 +76,11 @@ export default function Rules() {
       <h1>The rules here</h1>
 
       <p className="lead">
-        Sober Book has one promise: you never have to explain yourself.
+        <BrandName /> has one promise: you never have to explain yourself.
         Everything below exists to keep that true for the next person.
       </p>
 
-      <p className="upd">Sober Book · soberbook.app · last updated 8 September 2026</p>
+      <p className="upd"><BrandName /> · soberbook.app · last updated 8 September 2026</p>
 
       <h2>The short version</h2>
       <p>
@@ -176,7 +177,7 @@ export default function Rules() {
       <p>
         <strong>Every report is reviewed within 24 hours.</strong> When a post,
         reply, message or profile breaks these rules, it comes down, and the
-        account that posted it is removed from Sober Book. Anonymous posts
+        account that posted it is removed from <BrandName />. Anonymous posts
         follow the same rules: we can remove the post and the account behind
         it without ever showing anyone who wrote it.
       </p>
@@ -199,7 +200,7 @@ export default function Rules() {
         your wall straight away, only for you.
       </p>
       <p>
-        It goes to a queue only the person who runs Sober Book can see, and it is
+        It goes to a queue only the person who runs <BrandName /> can see, and it is
         read by a human, not a filter. Depending on what it is, the content comes
         down, the account is suspended, or both. There is no strike counter —
         rule 3 or rule 5 can end an account the first time.

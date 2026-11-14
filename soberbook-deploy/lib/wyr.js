@@ -1,3 +1,4 @@
+import { brandNow } from './brand';
 /* =====================================================================
    🎲 WOULD YOU RATHER — the reading half.
 
@@ -55,7 +56,7 @@ export function afterLine(q) {
   if (q.circle_a === null || q.circle_a === undefined) {
     const [pa, pb] = share(q.all_a, q.all_b);
     if (!pa && !pb) return 'You’re the first one here to answer this.';
-    return `Your circle is still answering. Across Sober Book it’s ${pa} to ${pb}.`;
+    return `Your circle is still answering. Across ${brandNow().name} it’s ${pa} to ${pb}.`;
   }
 
   const mine   = mineA ? q.circle_a : q.circle_b;

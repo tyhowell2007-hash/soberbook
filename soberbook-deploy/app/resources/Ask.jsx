@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { HELP_ANSWERS, NO_MATCH } from '../../lib/help-answers';
+import BrandName from '../components/BrandName';
 
 /* =====================================================================
    ASK ABOUT THE APP.  7 Sept.  Sage's first surface.
@@ -88,7 +89,7 @@ export default function Ask() {
     <div className="sg-wrap">
       <h2 className="sg-h">Ask about the app</h2>
       <p className="sg-lede">
-        Sage only knows how Sober Book works. It cannot see your posts,
+        Sage only knows how <BrandName /> works. It cannot see your posts,
         your messages, your date, or anything you wrote when you pledged.
       </p>
 

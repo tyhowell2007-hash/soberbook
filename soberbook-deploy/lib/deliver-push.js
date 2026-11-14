@@ -1,5 +1,5 @@
 import { sendApns } from './apns';
-import { pushWords, PUSH_TITLE } from './push-words';
+import { pushWords, PUSH_TITLE, APP_PUSH_TITLE } from './push-words';
 
 /* =====================================================================
    ONE PLACE THAT DELIVERS TO A MEMBER'S DEVICES.  31 Oct 2026.
@@ -53,7 +53,7 @@ export async function deliverPush(admin, subs, rawTo) {
   }
 
   if (ios.length) {
-    const res = await sendApns(ios.map((s) => s.endpoint.slice(5)), { title: PUSH_TITLE, body, to, urgent });
+    const res = await sendApns(ios.map((s) => s.endpoint.slice(5)), { title: APP_PUSH_TITLE, body, to, urgent });
     res.forEach((r, i) => {
       const s = ios[i];
       iphone.push(r.ok ? 'ok' : `${r.status || ''} ${r.reason || ''}`.trim());

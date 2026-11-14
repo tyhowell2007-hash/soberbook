@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import Ask from './Ask';
+import Wordmark from '../components/Wordmark';
 
 export const dynamic = 'force-dynamic';
 
@@ -27,7 +28,7 @@ export default function Resources() {
     <>
       <div className="mast">
         <Link href="/wall" className="back" aria-label="Back to the wall">←</Link>
-        <span className="lg">🌱 SOBER BOOK</span>
+        <Wordmark />
         <span className="rt">help</span>
       </div>
       <div className="bar">Nothing you ask here is saved</div>

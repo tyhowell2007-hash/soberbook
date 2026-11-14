@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import BrandName from '../components/BrandName';
 
 /* =====================================================================
    LEAVING — the screen.
@@ -61,7 +62,7 @@ export default function DeleteAccount({ handle }) {
           Delete your account
         </button>
         <p className="hint">
-          Takes your account and your posts off Sober Book for good.
+          Takes your account and your posts off <BrandName /> for good.
         </p>
       </>
     );

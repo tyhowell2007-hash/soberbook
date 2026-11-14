@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import BrandName from '../components/BrandName';
 
 /* =====================================================================
    A CHECK-IN.  0194, 30 Oct 2026.
@@ -23,7 +24,7 @@ export default function Checkin() {
       <div className="ck-card">
         <h1>Hey. Checking in on you.</h1>
         <p>
-          Somebody at Sober Book saw what you wrote and wanted you to know
+          Somebody at <BrandName /> saw what you wrote and wanted you to know
           you&apos;re not on your own with it. Nobody here needs you to explain
           anything.
         </p>
@@ -38,7 +39,7 @@ export default function Checkin() {
           <Link className="ck-btn" href="/now">Open Right now</Link>
           <Link className="ck-btn ghost" href="/meetings">Find a meeting</Link>
         </div>
-        <p className="ck-sig">The Sober Book team</p>
+        <p className="ck-sig">The <BrandName /> team</p>
       </div>
     </div>
   );

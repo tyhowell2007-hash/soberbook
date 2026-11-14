@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import BrandName from './BrandName';
 
 /* =====================================================================
    SOMETHING TO WATCH, ON THE WALL.
@@ -174,7 +175,7 @@ export default function ContentCard({ item, thumbBase, canHide = false, pinned =
             posts with no explanation reads as the feed being broken or as
             an ad that snuck in. One word, in small caps, and it is the
             same word Ty would use. */}
-        {pinned && <p className="ccpinlabel">Pinned by Sober Book</p>}
+        {pinned && <p className="ccpinlabel">Pinned by <BrandName /></p>}
         <a href={item.url} target="_blank" rel="noopener noreferrer"
            /* ⚠️ no-referrer, same as every outbound link here: elsewhere
               the referrer is a statistic, here it tells a stranger's logs

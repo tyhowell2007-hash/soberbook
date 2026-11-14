@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { browserClient } from '../../../lib/supabase-browser';
 import './update.css';
+import BrandName from '../../components/BrandName';
 
 const MAX = 800;
 
@@ -71,7 +72,7 @@ export default function Update({ live }) {
 
       <h2>Post a new one</h2>
       <p className="hint">
-        It goes up as Sober Book with the official seal, above everybody’s feed,
+        It goes up as <BrandName /> with the official seal, above everybody’s feed,
         and it stays there until you replace it or take it down. Posting a new one
         replaces whatever is up — there is only ever one.
       </p>

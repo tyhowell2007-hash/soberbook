@@ -7,6 +7,7 @@ import { myProgram } from '../../lib/program';
    'use client' directive on purpose, so this file's server-rendered
    siblings could import it too without the 5 Sept named-export trap. */
 import { canShrink, shrinkVideo, probeVideo, planFor, SHRINK_ABOVE_BYTES } from '../../lib/shrink-video';
+import { brandNow } from '../../lib/brand';
 import { looksLikeVideo, streamDoor, putToStream, waitReady,
          tusUpload, TUS_ABOVE_BYTES } from '../../lib/stream-upload';
 
@@ -415,7 +416,7 @@ export default function PhotoUpload({
            a type that is not on it — at which point nothing about the
            file being "too big" or the network is true. */
         const mime = /mime|content.?type/i.test(why)
-          ? ` Sober Book can't take a ${file.type || 'file of that type'} yet.`
+          ? ` ${brandNow().name} can't take a ${file.type || 'file of that type'} yet.`
           : '';
         throw new Error(
           (why ? `That upload didn’t finish — ${why}.` : 'That upload didn’t finish.') + mime

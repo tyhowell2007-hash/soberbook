@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { catLabel, ticketNo } from '../../../lib/tickets';
+import Wordmark from '../../components/Wordmark';
 
 /* The board's client half. Every button posts to /api/ticket/act, which
    re-checks that you are Ty or Kenny before doing anything. */
@@ -53,7 +54,7 @@ export default function Board({ tickets }) {
   return (
     <>
       <div className="mast">
-        <span className="lg">🌱 SOBER BOOK</span>
+        <Wordmark />
         <Link href="/admin" className="rt melink">safety reports ›</Link>
       </div>
       <div className="bar">Problem tickets · {count((t) => t.status === 'new')} new</div>

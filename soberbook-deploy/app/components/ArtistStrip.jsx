@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { browserClient } from '../../lib/supabase-browser';
+import BrandName from './BrandName';
 
 /* =====================================================================
    "ARTISTS ON SOBER BOOK" — the strip under the story rail.  19 Sept.
@@ -56,7 +57,7 @@ export default function ArtistStrip() {
   return (
     <section className="art-strip" aria-label="Artists on Sober Book">
       <div className="art-band">
-        <span>♪ Artists on Sober Book</span>
+        <span>♪ Artists on <BrandName /></span>
         <button type="button" className="art-hide" onClick={hide}>Hide</button>
       </div>
       <div className="art-cards">

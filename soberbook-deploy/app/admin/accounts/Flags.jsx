@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { browserClient } from '../../../lib/supabase-browser';
+import Wordmark from '../../components/Wordmark';
 
 const KIND = {
   returning: { text: 'Possible returning', cls: 'tk-same' },
@@ -49,7 +50,7 @@ export default function Flags({ flags }) {
   return (
     <>
       <div className="mast">
-        <span className="lg">🌱 SOBER BOOK</span>
+        <Wordmark />
         <Link href="/admin" className="rt melink">safety reports ›</Link>
       </div>
       <div className="bar">Accounts · {count((f) => f.status === 'open')} need a look</div>

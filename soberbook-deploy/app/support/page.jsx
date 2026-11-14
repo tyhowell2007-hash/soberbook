@@ -4,6 +4,7 @@ import ReportForm from '../components/ReportForm';
 /* 0204 — TAKE IT DOWN Act request form. */
 import TakedownForm from '../components/TakedownForm';
 import '../tickets.css';
+import BrandName from '../components/BrandName';
 
 /* =====================================================================
    SUPPORT — the public page.
@@ -59,7 +60,7 @@ export default async function Support() {
         person reads that inbox — not a queue, not a bot.
       </p>
 
-      <p className="upd">Sober Book · soberbook.app · last updated 15 September 2026</p>
+      <p className="upd"><BrandName /> · soberbook.app · last updated 15 September 2026</p>
 
       <h2>If you need somebody right now</h2>
       <p>
@@ -148,8 +149,8 @@ export default async function Support() {
           or not; /support is on the middleware open list for exactly this. */}
       <h2 id="takedown">A private image of you was shared here</h2>
       <p>
-        If a nude or sexual image of you (real or faked) was posted on Sober
-        Book without your permission, ask us to take it down below. You
+        If a nude or sexual image of you (real or faked) was posted on <BrandName />{' '}
+        without your permission, ask us to take it down below. You
         don&apos;t need an account. We remove it, and any copies we find,
         within 48 hours, and email you when it&apos;s done.
       </p>
@@ -168,7 +169,7 @@ export default async function Support() {
         exactly what goes and what — in one case — stays.
       </p>
 
-      <h2>What Sober Book is not</h2>
+      <h2>What <BrandName /> is not</h2>
       <p>
         It is a place to talk to other people in recovery. It is{' '}
         <strong>not</strong> a treatment provider, not a crisis service, and

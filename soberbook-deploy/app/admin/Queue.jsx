@@ -4,6 +4,8 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { browserClient } from '../../lib/supabase-browser';
+import Wordmark from '../components/Wordmark';
+import { brandNow } from '../../lib/brand';
 
 /* 0194: what Sage's label says in the queue. ⚠️ "danger" has no "Sage:"
    in front, because it is usually NOT Sage's call: a "worried about them"
@@ -188,7 +190,7 @@ export default function Queue({ rows, urls, takedowns = [] }) {
   return (
     <>
       <div className="mast">
-        <span className="lg">🌱 SOBER BOOK</span>
+        <Wordmark />
         <Link href="/wall" className="rt melink">back to the wall ›</Link>
       </div>
       <div className="bar">Reports · {open.length} waiting</div>
@@ -331,7 +333,7 @@ export default function Queue({ rows, urls, takedowns = [] }) {
                   ? <span className="mq-prior">Checked in on them ✓</span>
                   : <button className="btn" disabled={busy === r.report_id}
                             onClick={() => act(r.report_id, 'mod_reach_out',
-                              'Send them a private check-in from Sober Book, with 988 on it? They are not told they were reported, and you are not told who they are.')}>
+                              `Send them a private check-in from ${brandNow().name}, with 988 on it? They are not told they were reported, and you are not told who they are.`)}>
                       Reach out
                     </button>
               )}

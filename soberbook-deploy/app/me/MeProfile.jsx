@@ -15,6 +15,7 @@ import { coinTotal, topKinds } from '../../lib/coins';
    me-cream.css the whole time; only these two lines were missing. */
 import PledgeRecord from './PledgeRecord';
 import People from './People';
+import Wordmark from '../components/Wordmark';
 
 function ago(iso) {
   const mins = Math.floor((Date.now() - new Date(iso).getTime()) / 60000);
@@ -69,7 +70,7 @@ export default function MeProfile({ profile, posts, avatarUrl, postPhotoUrls = {
     <>
       <div className="mast">
         <Link href="/wall" className="back" aria-label="Back to the wall">←</Link>
-        <span className="lg">🌱 SOBER BOOK</span>
+        <Wordmark />
         <span className="rt">you</span>
       </div>
       <div className="bar">Your profile · your posts</div>

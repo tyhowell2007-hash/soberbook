@@ -18,6 +18,7 @@ import Directory from '../chat/Directory';
    post could print two different words for one milestone. markLabel is
    the one answer. */
 import { markLabel } from '../../lib/milestones';
+import BrandName from '../components/BrandName';
 
 /* =====================================================================
    YOUR PEOPLE — sorted by silence.
@@ -192,7 +193,7 @@ export default function Friends({ initialFriends, initialRequests, everyone = []
           points DOWN the page instead of off it. */}
       {friends.length === 0 && (
         <p className="hint frnone">
-          No friends yet — that&apos;s fine. Everybody on Sober Book is
+          No friends yet — that&apos;s fine. Everybody on <BrandName /> is
           up there; say hi to anyone.
         </p>
       )}

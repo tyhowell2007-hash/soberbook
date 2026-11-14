@@ -1,4 +1,5 @@
 import './team-update.css';
+import BrandName from '../components/BrandName';
 
 /* =====================================================================
    A NOTE FROM THE TEAM, PINNED ABOVE THE WALL. 24 Oct (0191).
@@ -44,9 +45,9 @@ export default function TeamUpdate({ update }) {
               sprout is the app's mark and appears in the masthead six
               lines above this card; two of them on one screen reads as
               a repeat rather than as an identity. */}
-          <span className="tuav" aria-hidden="true">SB</span>
+          <span className="tuav" aria-hidden="true"><BrandName initials /></span>
           <span className="tuname">
-            Sober Book
+            <BrandName />
             {/* The seal. Deliberately NOT the gold check verified people
                 wear — see the note in components/ArtistCheck.jsx. If the
                 company wore the same mark, "verified" would stop meaning

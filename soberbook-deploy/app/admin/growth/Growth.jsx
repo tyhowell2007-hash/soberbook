@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { browserClient } from '../../../lib/supabase-browser';
+import Wordmark from '../../components/Wordmark';
 
 /* =====================================================================
    GROWTH & RETENTION — the client half.  18 Sept 2026.
@@ -66,7 +67,7 @@ export default function Growth({ initial, launch, today }) {
   return (
     <>
       <div className="mast">
-        <span className="lg">🌱 SOBER BOOK</span>
+        <Wordmark />
         <Link href="/wall" className="rt melink">back to the wall ›</Link>
       </div>
       <div className="bar">Growth &amp; retention</div>

@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { browserClient } from '../../../lib/supabase-browser';
+import Wordmark from '../../components/Wordmark';
 
 function ago(iso) {
   const m = Math.floor((Date.now() - new Date(iso).getTime()) / 60000);
@@ -29,7 +30,7 @@ export default function Live({ list }) {
   return (
     <>
       <div className="mast">
-        <span className="lg">🌱 SOBER BOOK</span>
+        <Wordmark />
         <Link href="/admin" className="rt melink">safety reports ›</Link>
       </div>
       <div className="bar">Live now · {list.length} room{list.length === 1 ? '' : 's'}</div>

@@ -14,6 +14,7 @@ import { fetchDrops } from '../../lib/drops';
 /* ☁️ A record whose video lives on Cloudflare. Same tap-to-play restraint
    as the Wall — nothing reaches Cloudflare until somebody asks. */
 import StreamVideo from './StreamVideo';
+import BrandName from './BrandName';
 
 /* =====================================================================
    A MEMBER'S RECORD, ON THE WALL. THE ONLY LOUD CARD HERE.
@@ -405,7 +406,7 @@ export default function DropCard({ drop, artUrl, mediaUrl }) {
               already public can have the poster without the claim. This
               line just has to respect it. */}
           <div className="dp-kicker">
-            {drop.exclusive_hours ? 'Sober Book first' : 'New release'}
+            {drop.exclusive_hours ? <><BrandName /> first</> : 'New release'}
           </div>
           <h3 className="dp-title">{drop.title}</h3>
           <div className="dp-artist">{drop.artist}</div>

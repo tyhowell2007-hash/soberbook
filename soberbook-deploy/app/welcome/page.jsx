@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { browserClient } from '../../lib/supabase-browser';
 import { makeHandles, createProfile, cleanHandle, explainProfileError } from '../../lib/first-run';
+import Wordmark from '../components/Wordmark';
 
 /* =====================================================================
    FIRST RUN.
@@ -208,7 +209,7 @@ export default function Welcome() {
 
   return (
     <>
-      <div className="mast"><span className="lg">🌱 SOBER BOOK</span></div>
+      <div className="mast"><Wordmark /></div>
       <div className="bar">All paths welcome — Suboxone included</div>
       <div className="pad">
 

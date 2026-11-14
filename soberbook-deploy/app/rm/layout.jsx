@@ -2,6 +2,7 @@ import './rm.css';
 import { base, lang, siteUrl } from '../../lib/rm/server';
 import { t } from '../../lib/rm/t';
 import { MenuButton, LangButton, QuickExit } from './Chrome';
+import BrandName from '../components/BrandName';
 
 /* =====================================================================
    RECOVERYMAP — the frame around every page.
@@ -43,7 +44,7 @@ export default function RmLayout({ children }) {
       {/* Inside Sober Book (soberbook.app/rm) there is no app tab bar here,
           so members get a way back. On myrecoverymap.org b is '' and this
           never shows: visitors there have never heard of Sober Book. */}
-      {b === '/rm' && <a className="sbback" href="/wall">← {L === 'es' ? 'Volver a Sober Book' : 'Back to Sober Book'}</a>}
+      {b === '/rm' && <a className="sbback" href="/wall">← {L === 'es' ? 'Volver a ' : 'Back to '}<BrandName /></a>}
       <header className="nav"><div className="wrap">
         <a className="brand" href={b || '/'}>
           <img src="/rm/icon-192.png" alt="" width="40" height="40" />

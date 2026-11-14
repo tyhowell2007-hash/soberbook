@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { browserClient } from '../../../lib/supabase-browser';
 import { REPORT_REASONS, phoneText, checkedText } from '../../../lib/centers';
+import Wordmark from '../../components/Wordmark';
 
 /* The list itself. Reuses the moderation queue's mq- styles from
    admin.css so this back room looks like the other one. */
@@ -44,7 +45,7 @@ export default function Listings({ initial, failed }) {
   return (
     <>
       <div className="mast">
-        <span className="lg">🌱 SOBER BOOK</span>
+        <Wordmark />
         <Link href="/admin" className="rt melink">the queue ›</Link>
       </div>
       <div className="bar">Find Care listing reports</div>

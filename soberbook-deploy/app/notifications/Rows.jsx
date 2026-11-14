@@ -7,6 +7,7 @@ import { browserClient } from '../../lib/supabase-browser';
 import PushAsk from '../components/PushAsk';
 import Coin from '../components/Coin';
 import { COIN, isCoin } from '../../lib/coins';
+import BrandName from '../components/BrandName';
 
 /* =====================================================================
    THE BELL'S LIST, AND THE BROOM.  31 Aug.
@@ -326,7 +327,7 @@ export default function Rows({ initial, askPush: askPushInitial }) {
           /* 0194, "Reach out". No actor and no mention of a report: the
              person being checked on is never told they were reported, and
              "Someone answered your post" would be the highlight bug again. */
-          : n.kind === 'checkin' ? 'Sober Book checked in on you'
+          : n.kind === 'checkin' ? <><BrandName /> checked in on you</>
           /* 0202 — a reply or a fix on your problem ticket. */
           : n.kind === 'ticket' ? 'Update on your problem ticket'
           : `${n.who} answered your post`;

@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { browserClient } from '../../lib/supabase-browser';
+import Wordmark from '../components/Wordmark';
 
 /* =====================================================================
    Where the reset link lands.
@@ -92,7 +93,7 @@ export default function ResetPassword() {
      an account, so there's no first-timer case to switch on. See door.css. */
   return (
     <div className="door back">
-      <div className="mast"><span className="lg">🌱 SOBER BOOK</span></div>
+      <div className="mast"><Wordmark /></div>
       <div className="bar">Nothing here is public</div>
       <div className="pad">
 

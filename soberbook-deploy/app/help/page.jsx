@@ -1,6 +1,8 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { serverClient } from '../../lib/supabase-server';
+import Wordmark from '../components/Wordmark';
+import BrandName from '../components/BrandName';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'If you need somebody — Sober Book' };
@@ -95,14 +97,14 @@ export default async function HelpPage() {
   return (
     <>
       <div className="mast">
-        <span className="lg">🌱 SOBER BOOK</span>
+        <Wordmark />
         <Link href="/friends" className="rt melink">‹ back</Link>
       </div>
       <div className="bar">Places that aren’t us</div>
 
       <div className="pad hpwrap">
         <p className="hplede">
-          Sober Book is a room full of people. Sometimes that isn’t the thing you
+          <BrandName /> is a room full of people. Sometimes that isn’t the thing you
           need. Everything on this page belongs to somebody else — we don’t run
           any of it, we aren’t connected to any of it, and nobody pays us to
           list them.
@@ -121,7 +123,7 @@ export default async function HelpPage() {
 
             ⭐ The directory is Dr. Nicole Labor's, which is why this belongs
             on the page of things that aren't us even though it opens in the
-            app. She gave RecoveryMap to Sober Book in Sept 2026 and asked for
+            app. She gave RecoveryMap to <BrandName /> in Sept 2026 and asked for
             it to live inside it.
 
             🔴 NO REFERRAL TRACKING HERE EITHER — same rule as every outbound
@@ -175,7 +177,7 @@ export default async function HelpPage() {
         ))}
 
         <p className="hpfoot">
-          None of these organisations are affiliated with Sober Book, and none of
+          None of these organisations are affiliated with <BrandName />, and none of
           them have endorsed it. They’re listed because they’re good, and because
           the thing you need at midnight might not be us.
         </p>

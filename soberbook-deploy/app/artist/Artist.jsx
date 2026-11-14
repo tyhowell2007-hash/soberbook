@@ -9,6 +9,7 @@ import { browserClient } from '../../lib/supabase-browser';
 import LookPicker from '../components/LookPicker';
 /* 🔴 THE REAL UPLOADER, NOT A LINK TO ONE. See the note where it renders. */
 import PhotoUpload from '../components/PhotoUpload';
+import BrandName from '../components/BrandName';
 
 const LABELS = ['Spotify', 'Apple Music', 'YouTube', 'SoundCloud', 'Instagram', 'TikTok', 'Facebook', 'Website', 'Merch', 'Bandcamp'];
 const blankLink = () => ({ label: 'Spotify', url: '' });
@@ -348,7 +349,7 @@ export default function Artist({ initial, handle, look = null, face = null,
     <form className="art-form" onSubmit={apply}>
       <p className="art-note">
         For musicians with a real following. Approved artists get a gold checkmark, an artist
-        section on their page with links and shows, a spot in the &quot;Artists on Sober Book&quot;
+        section on their page with links and shows, a spot in the &quot;Artists on <BrandName />&quot;
         strip, and followers. You don&apos;t have to be in recovery.
       </p>
       <label htmlFor="an">Artist or band name<input id="an" maxLength={60} required value={name} onChange={(e) => setName(e.target.value)} /></label>
@@ -364,7 +365,7 @@ export default function Artist({ initial, handle, look = null, face = null,
       </label>
       <label className="art-check" htmlFor="aa">
         <input id="aa" type="checkbox" checked={agree} onChange={(e) => setAgree(e.target.checked)} />
-        <span>I won&apos;t promote alcohol, drugs, gambling or paid treatment centres on Sober Book.</span>
+        <span>I won&apos;t promote alcohol, drugs, gambling or paid treatment centres on <BrandName />.</span>
       </label>
       {err && <p className="art-err" role="alert">{err}</p>}
       <button type="submit" className="art-btn" disabled={busy || !agree}>{busy ? 'Sending…' : 'Send application'}</button>

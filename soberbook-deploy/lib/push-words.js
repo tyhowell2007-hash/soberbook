@@ -15,6 +15,9 @@
    ===================================================================== */
 
 export const PUSH_TITLE = 'Sober Book';
+/* 13 Nov 2026 — alerts to the iPhone app carry the in-app name. Web push
+   (browsers, soberbook.app) keeps PUSH_TITLE. See lib/brand.js. */
+export const APP_PUSH_TITLE = 'Recovery Belongs';
 
 /** Only a same-site path is allowed through — no links out of the app. */
 export function safePath(to) {

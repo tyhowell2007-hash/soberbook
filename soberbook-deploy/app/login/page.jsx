@@ -9,6 +9,7 @@ import DatePick from '../components/DatePick';
 import OpenInBrowser from '../components/OpenInBrowser';
 import '../rules-agree.css';
 import { PROGRAM_FROM_URL } from '../../lib/program';
+import { useBrand } from '../components/BrandProvider';
 
 /* =====================================================================
    THE FRONT DOOR — Ty's warm landing, with real doors in it.
@@ -77,6 +78,7 @@ import { PROGRAM_FROM_URL } from '../../lib/program';
    labelled "Example screens", aria-hidden, and carry no real member.
    ===================================================================== */
 export default function Landing() {
+  const brand = useBrand();   // 13 Nov — Recovery Belongs inside the iPhone app
   const router = useRouter();
   const supabase = browserClient();
 
@@ -589,7 +591,7 @@ export default function Landing() {
 
         <div className="lx-wrap">
           <div className="lx-brand">
-            <div className="lx-logo"><img src="/icon-192.png" alt="" width="40" height="40" />SOBER BOOK</div>
+            <div className={'lx-logo' + (brand.key === 'rb' ? ' rb-name' : '')}><img src={brand.icon} alt="" width="40" height="40" />{brand.key === 'rb' ? 'recovery belongs' : 'SOBER BOOK'}</div>
             {!sent && <button type="button" className="lx-pill" onClick={() => goTo('in')}>Sign in</button>}
           </div>
 
@@ -613,7 +615,7 @@ export default function Landing() {
               aria-hidden, labelled, and none of it is a real member. */}
           <div className="lx-stage" aria-hidden="true">
             <div className="lx-phone"><div className="lx-scr">
-              <div className="lx-bar">SOBER BOOK<span>The wall</span></div>
+              <div className="lx-bar">{brand.key === 'rb' ? 'RECOVERY BELONGS' : 'SOBER BOOK'}<span>The wall</span></div>
               <div className="lx-clock"><small>SOBER RIGHT NOW</small>
                 <div className="lx-day">Day {clk.d}</div>
                 <div className="lx-hms"><div>{clk.h}<em>HRS</em></div><div>{clk.m}<em>MIN</em></div><div>{clk.s}<em>SEC</em></div></div>
@@ -668,7 +670,7 @@ export default function Landing() {
                   </p>
                   <p className="lx-said">
                     <strong>Look in your spam folder.</strong> It lands there
-                    more often than not — and it&rsquo;s from Sober Book.
+                    more often than not — and it&rsquo;s from {brand.name}.
                   </p>
                   <button className="lx-go" type="button" disabled={!!busy}
                           onClick={() => { setSent(''); setNote(''); setErr(''); }}>
@@ -737,14 +739,14 @@ export default function Landing() {
                 {under18 ? (
                   <div className="lx-count" role="alert"
                        style={{ background: '#FFF4DC', color: '#5A3600', fontWeight: 600, lineHeight: 1.5 }}>
-                    <b style={{ display: 'block' }}>Sober Book is for adults 18 and over.</b>
+                    <b style={{ display: 'block' }}>{brand.name} is for adults 18 and over.</b>
                     We can&rsquo;t make an account for you yet. If you&rsquo;re going through
                     something right now, you can call or text 988 any time. It&rsquo;s free,
                     and they talk with people of every age.
                   </div>
                 ) : (
                   <p className="lx-fine lx-left">
-                    Sober Book is for adults 18 and over. We check it here and keep only that you&rsquo;re 18+, never your birthday.
+                    {brand.name} is for adults 18 and over. We check it here and keep only that you&rsquo;re 18+, never your birthday.
                   </p>
                 )}
 
@@ -752,7 +754,7 @@ export default function Landing() {
                   <input type="checkbox" checked={upAgree}
                          onChange={(e) => setUpAgree(e.target.checked)} />
                   <span>
-                    <b>I agree to the Sober Book Rules</b>
+                    <b>I agree to the {brand.name} Rules</b>
                     <small>
                       Zero tolerance for abuse, harassment, threats, hate, or sexual or
                       objectionable content. Accounts that post it are removed.{' '}
@@ -871,7 +873,7 @@ export default function Landing() {
           <h2 className="lx-h2">All of it.<br />One app.</h2>
           <p className="lx-intro">
             Recovery isn’t only about not drinking or using. It’s about building
-            a life, and Sober Book helps with all of it.
+            a life, and {brand.name} helps with all of it.
           </p>
 
           <div className="lx-grid">
@@ -903,7 +905,7 @@ export default function Landing() {
             <div className="lx-rm-top">
               <img src="/rm/icon-192.png" alt="" width="56" height="56" />
               <div><div className="lx-rm-nm">RecoveryMap</div><div className="lx-rm-by">Find treatment near you</div></div>
-              <span className="lx-rm-new">INSIDE SOBER BOOK</span>
+              <span className="lx-rm-new">INSIDE {brand.name.toUpperCase()}</span>
             </div>
             <h3>Find care<br />near you.</h3>
             <p>Treatment, recovery housing, telehealth and free meetings.</p>
@@ -961,7 +963,7 @@ export default function Landing() {
         <div className="lx-wrap">
           <p className="lx-cofT">Help keep the lights on</p>
           <p className="lx-cofP">
-            Sober Book is free to use, and nobody sells anybody&apos;s
+            {brand.name} is free to use, and nobody sells anybody&apos;s
             information. It costs a little each month to run, and every
             coffee helps.
           </p>
@@ -974,7 +976,7 @@ export default function Landing() {
       )}
 
       <p className="lx-foot">
-        Sober Book · a safe place to be yourself · all paths welcome
+        {brand.name} · a safe place to be yourself · all paths welcome
         {' · '}<a href="/privacy">privacy</a>
         {/* ⚠️ /support is here because the person who most needs it is
             SIGNED OUT, and this is the only page they can reach. */}

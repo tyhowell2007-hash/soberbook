@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
 import { browserClient } from '../../../lib/supabase-browser';
+import Wordmark from '../../components/Wordmark';
 
 /* =====================================================================
    THE NUMBERS — the live half.
@@ -68,7 +69,7 @@ export default function Numbers({ initial }) {
   const shell = (kids) => (
     <>
       <div className="mast">
-        <span className="lg">🌱 SOBER BOOK</span>
+        <Wordmark />
         <Link href="/wall" className="rt melink">back to the wall ›</Link>
       </div>
       <div className="bar">The numbers</div>
