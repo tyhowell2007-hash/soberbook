@@ -42,6 +42,17 @@ import CoinRow from './CoinRow';
 import CoinSheet from '../components/CoinSheet';
 import CoinList from '../components/CoinList';
 import { applyCoin, myCoin } from '../../lib/coins';
+// 15 Nov: pins the wall while a reply thread is open, so scrolling moves the replies, not the feed (works in the iPhone app too)
+function useScrollLock(on) {
+  useEffect(() => {
+    if (!on) return undefined;
+    const b = document.body;
+    const y = window.scrollY;
+    const old = b.style.cssText;
+    b.style.cssText = old + ';position:fixed;top:-' + y + 'px;left:0;right:0;width:100%;overflow:hidden';
+    return () => { b.style.cssText = old; window.scrollTo(0, y); };
+  }, [on]);
+}
 
 /* A post, opened.
    ==========================================================================
@@ -67,6 +78,7 @@ function ago(iso) {
 
 export default function Thread({ post, onClose, onCountChange }) {
   const supabase = browserClient();
+  useScrollLock(true);
   /* 0195/0196 — the coins and stat strip, here too, so a post opened from
      a notification (/p/<id>) shows the same Seen · Coins · Replies and the
      same Send a coin / How it's doing as the wall. `shown` is a local copy
