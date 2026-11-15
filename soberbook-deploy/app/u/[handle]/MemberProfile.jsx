@@ -169,7 +169,7 @@ export default function MemberProfile({ profile, posts, photos, gallery = [], vi
 
                 return (
                   <li key={post.id}>
-                    {post.body ? <p className="mb">{post.body}</p> : null}
+                    {post.body ? <Link href={'/p/' + post.id} className="mlink" style={{ color: 'inherit', textDecoration: 'none', display: 'block' }}><p className="mb">{post.body}</p></Link> : null}
                     {photoPaths.length > 1 && (
                       <div className="pgrid" data-n={Math.min(photoPaths.length, 4)}>
                         {photoPaths.map((path, i) => (
@@ -195,7 +195,7 @@ export default function MemberProfile({ profile, posts, photos, gallery = [], vi
                         <video src={photos[post.video_url]} controls playsInline preload="none" />
                       </div>
                     )}
-                    <div className="mm">
+                    <Link href={'/p/' + post.id} className="mm" style={{ color: 'inherit', textDecoration: 'none', display: 'block' }}>
                       {new Date(post.created_at).toLocaleDateString('en-US', {
                         month: 'short', day: 'numeric',
                       })}
@@ -204,7 +204,7 @@ export default function MemberProfile({ profile, posts, photos, gallery = [], vi
                       {post.comment_count > 0
                         ? ` · ${post.comment_count} ${post.comment_count === 1 ? 'reply' : 'replies'}`
                         : ''}
-                    </div>
+                    </Link>
                   </li>
                 );
               })}
