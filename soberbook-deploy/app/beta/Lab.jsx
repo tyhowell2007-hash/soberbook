@@ -162,7 +162,13 @@ export function SurveyCard({ title, lede, survey, onDone, onSkip }) {
   const set = (id, v) => setAns((a) => ({ ...a, [id]: { ...a[id], ...v } }));
 
   async function submit() {
-    const p_answers = Object.entries(ans).map(([question_id, v]) => ({ question_id, score: v.score ?? null, text: v.text ?? null }));
+    /* "multi" questions (pick all that apply, Ty 15 Nov) send one answer row
+       per choice under the same question id, so the report can count each. */
+    const p_answers = Object.entries(ans).flatMap(([question_id, v]) => {
+      const rows = (v.scores || []).map((n) => ({ question_id, score: n, text: null }));
+      if (v.score !== undefined || v.text) rows.push({ question_id, score: v.score ?? null, text: v.text ?? null });
+      return rows;
+    });
     if (!p_answers.length) { setErr('Answer at least one, or skip.'); return; }
     setBusy(true); setErr('');
     const { error } = await browserClient().rpc('submit_beta_survey', { p_survey: survey.id, p_answers, p_ctx: ctx() });
@@ -172,6 +178,15 @@ export function SurveyCard({ title, lede, survey, onDone, onSkip }) {
     setAns({}); onDone?.();
   }
 
+  const toggle = (q, n) => setAns((a) => {
+    const cur = a[q.id]?.scores || [];
+    const scores = cur.includes(n) ? cur.filter((x) => x !== n) : [...cur, n];
+    return { ...a, [q.id]: { ...a[q.id], scores } };
+  });
+  const pickMany = (q, n, label) => (
+    <button key={n} type="button" className="bl-chip" aria-pressed={(ans[q.id]?.scores || []).includes(n)}
+      onClick={() => toggle(q, n)}>{label}</button>
+  );
   const pick = (q, n, label) => (
     <button key={n} type="button" className="bl-chip" aria-pressed={ans[q.id]?.score === n}
       onClick={() => set(q.id, { score: n })}>{label}</button>
@@ -188,6 +203,10 @@ export function SurveyCard({ title, lede, survey, onDone, onSkip }) {
           {q.type === 'nps' && <div className="bl-scale">{[...Array(11).keys()].map((n) => pick(q, n, n))}</div>}
           {q.type === 'yesno' && <div className="bl-chips">{['No', 'Yes'].map((l, i) => pick(q, i, l))}</div>}
           {q.type === 'choice' && <div className="bl-chips">{(q.options || []).map((o, i) => pick(q, i, o))}</div>}
+          {q.type === 'multi' && <>
+            <div className="bl-small" style={{ margin: '-3px 0 7px' }}>Pick as many as you like</div>
+            <div className="bl-chips">{(q.options || []).map((o, i) => pickMany(q, i, o))}</div>
+          </>}
           {(q.type === 'text' || q.comment) && (
             <textarea className="bl-ta" maxLength={2000} placeholder="Optional"
               value={ans[q.id]?.text || ''} onChange={(e) => set(q.id, { text: e.target.value })} />
