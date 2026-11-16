@@ -20,6 +20,7 @@
    ===================================================================== */
 import { browserClient } from './supabase-browser';
 import { isIosApp } from './is-ios-app';
+import { isPhone } from './is-phone';
 
 const APP_VERSION = process.env.NEXT_PUBLIC_APP_VERSION || 'web';
 let sessionId = null;
@@ -62,6 +63,8 @@ function session() {
 /* Ask the server once whether this member's phone should send anything. */
 function checkAllowed() {
   if (allowed !== null) return Promise.resolve(allowed);
+  // Ty, 15 Nov: phones only. A computer never sends anything.
+  if (!isPhone()) { allowed = false; queue = []; return Promise.resolve(false); }
   if (asking) return asking;
   asking = browserClient().rpc('my_beta_status').then(({ data }) => {
     allowed = !!(data && data.agreed && data.tracking);

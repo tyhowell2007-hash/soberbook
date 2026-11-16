@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { browserClient } from '../../lib/supabase-browser';
 import BrandName from './BrandName';
+import { isPhone } from '../../lib/is-phone';
 import '../beta/beta.css';
 
 /* =====================================================================
@@ -19,6 +20,7 @@ export default function BetaInviteCard() {
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
+    if (!isPhone()) return;          // phones only (Ty, 15 Nov)
     browserClient().rpc('my_beta_invite').then(({ data }) => setShow(!!data)).catch(() => {});
   }, []);
 

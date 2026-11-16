@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { browserClient } from '../../lib/supabase-browser';
 import { isIosApp } from '../../lib/is-ios-app';
+import { isPhone } from '../../lib/is-phone';
 import { track, setActiveMission, refreshBetaStatus } from '../../lib/track';
 import BrandName from '../components/BrandName';
 
@@ -31,12 +32,21 @@ export default function Lab() {
   const [lab, setLab] = useState(undefined);
   const [msg, setMsg] = useState('');
   const [skipIntake, setSkipIntake] = useState(false);
+  const [phone, setPhone] = useState(true);
 
   async function load() {
     const { data } = await browserClient().rpc('my_beta_lab');
     setLab(data ?? null);
   }
-  useEffect(() => { load().catch(() => setLab(null)); }, []);
+  useEffect(() => {
+    if (!isPhone()) { setPhone(false); return; }   // phones only (Ty, 15 Nov)
+    load().catch(() => setLab(null));
+  }, []);
+
+  if (!phone) return (
+    <div className="bl-card"><h3>Beta Lab is on your phone</h3>
+      <p style={{ margin: 0 }}>Open the app on your phone to see your missions and check-ins.</p></div>
+  );
 
   if (lab === undefined) return <p className="bl-small" style={{ padding: 12 }}>One second…</p>;
   if (lab === null) return (
