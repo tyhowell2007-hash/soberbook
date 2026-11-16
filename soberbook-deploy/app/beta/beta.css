@@ -1,0 +1,61 @@
+/* 0206 — Kenny's beta: the invite card on the wall, Beta Lab, /admin/beta.
+   Own bl- classes only. Labels override the global uppercase caption style. */
+.bl-card{background:#fff;border-radius:20px;padding:15px;margin:0 0 12px;box-shadow:0 2px 10px rgba(10,20,90,.08);
+  color:#0A0A3A;text-transform:none;letter-spacing:normal}
+.bl-card h2,.bl-card h3{margin:0 0 6px;font-size:16.5px;font-weight:800;color:#050535;text-transform:none;letter-spacing:normal}
+.bl-card p{margin:0 0 9px;font-size:14px;line-height:1.5;color:#2B3266}
+.bl-invite{border:2px solid #00C84A;background:linear-gradient(160deg,#fff,#F1FFF4);margin:10px 12px}
+.bl-tag{display:inline-block;font-size:10.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;
+  background:#000080;color:#00FF00;padding:3px 9px;border-radius:20px;margin-bottom:7px}
+.bl-btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
+.bl-go,.bl-no{flex:1 1 120px;border:0;border-radius:14px;padding:12px;font:inherit;font-size:15px;font-weight:800;cursor:pointer}
+.bl-go{background:linear-gradient(180deg,#2BFF5A,#00C84A);color:#000060}
+.bl-no{background:#E6EAF8;color:#2B3266;font-weight:700}
+.bl-go:disabled,.bl-no:disabled{opacity:.6}
+.bl-intro{padding:12px 15px}
+.bl-wk{font-size:11.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#4A5180;margin:14px 4px 6px}
+.bl-ms{display:flex;gap:11px;align-items:flex-start;padding:10px 0;border-top:1px solid #EEF0F8}
+.bl-ms:first-child{border-top:0;padding-top:0}
+.bl-dot{flex:none;width:26px;height:26px;border-radius:50%;border:2px solid #C5CCEB;display:grid;place-items:center;
+  font-size:13px;font-weight:900;color:#fff;margin-top:1px}
+.bl-ms.done .bl-dot{background:#00C84A;border-color:#00C84A}
+.bl-ms.skip .bl-dot{background:#C5CCEB;color:#4A5180}
+.bl-t{font-weight:800;font-size:14.5px;color:#050535}
+.bl-b{font-size:13px;color:#4A5180;margin-top:2px}
+.bl-ms.done .bl-t,.bl-ms.skip .bl-t{color:#8A90B8;text-decoration:line-through}
+.bl-mini{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.bl-mini a,.bl-mini button{border:0;font:inherit;font-size:12.5px;font-weight:800;padding:6px 12px;border-radius:12px;
+  background:#E6EAF8;color:#1329B0;cursor:pointer;text-decoration:none}
+.bl-mini .g{background:linear-gradient(180deg,#2BFF5A,#00C84A);color:#000060}
+.bl-q{font-size:14px;font-weight:700;margin:12px 0 7px;color:#050535}
+.bl-chips{display:flex;flex-wrap:wrap;gap:6px}
+.bl-chip{border:1.5px solid #C5CCEB;background:#fff;color:#1329B0;border-radius:20px;padding:6px 12px;
+  font:inherit;font-size:13px;font-weight:700;cursor:pointer;text-transform:none}
+.bl-chip[aria-pressed="true"]{background:#1329B0;color:#fff;border-color:#1329B0}
+.bl-scale{display:flex;gap:5px;flex-wrap:wrap}
+.bl-scale .bl-chip{flex:1 0 32px;text-align:center;padding:8px 0;border-radius:10px}
+.bl-ta{display:block;width:100%;box-sizing:border-box;border:2px solid #C5CCEB;border-radius:12px;padding:9px 10px;
+  font:inherit;font-size:15px;color:#0A0A3A;background:#fff;min-height:64px;margin-top:6px;text-transform:none}
+.bl-ta:focus{outline:none;border-color:#1329B0}
+.bl-ag p{font-size:14px}
+.bl-ag b{color:#050535}
+.bl-tick{display:flex;gap:10px;align-items:center;font-size:14px;font-weight:700;margin:10px 0 12px;
+  text-transform:none;letter-spacing:normal;color:#050535;cursor:pointer}
+.bl-tick input{width:20px;height:20px;accent-color:#00C84A}
+.bl-ok{color:#0E5A2A;font-weight:800;font-size:14px;margin:0 4px 10px}
+.bl-err{color:#9A1B1B;font-weight:700;font-size:13.5px;margin:6px 0 0}
+.bl-link{font-weight:800;color:#1329B0}
+.bl-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;text-align:center}
+.bl-stats b{display:block;font-size:24px;font-weight:900;color:#1329B0;line-height:1.1}
+.bl-stats span{font-size:11.5px;color:#4A5180}
+.bl-in{display:block;width:100%;box-sizing:border-box;border:2px solid #C5CCEB;border-radius:12px;padding:10px 11px;
+  font:inherit;font-size:15px;color:#0A0A3A;background:#fff;text-transform:none}
+.bl-in:focus{outline:none;border-color:#1329B0}
+.bl-kv{display:flex;justify-content:space-between;gap:8px;font-size:14px;padding:5px 0;border-top:1px solid #EEF0F8}
+.bl-kv:first-of-type{border-top:0}
+.bl-small{font-size:12.5px;color:#4A5180}
+html[data-theme="black"] .bl-card{background:#1A1F2B;color:#E8ECF5}
+html[data-theme="black"] .bl-card h2,html[data-theme="black"] .bl-card h3,html[data-theme="black"] .bl-t,
+html[data-theme="black"] .bl-q,html[data-theme="black"] .bl-ag b{color:#fff}
+html[data-theme="black"] .bl-card p,html[data-theme="black"] .bl-b{color:#B8C0D8}
+html[data-theme="black"] .bl-invite{background:#132018}

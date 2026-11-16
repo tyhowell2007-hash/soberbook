@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import RmCard from '../components/RmCard';
 import CrisisRow from '../components/CrisisRow';
+import BetaRow from '../beta/BetaRow';
 
 /* =====================================================================
    /more — THE TAB THAT REPLACED THE UNLABELLED ☰, 20 Sept.
@@ -81,6 +82,8 @@ export default function MorePage() {
         {/* 988 first — moved here from the old ☰ drawer (CRCC ask, 29 Oct). */}
         <CrisisRow />
         <RmCard />
+        {/* 0206 — Beta Lab, testers only (renders nothing for everyone else). */}
+        <BetaRow />
 
         {GROUPS.map((g) => (
           <section key={g.head} className="mo-grp">

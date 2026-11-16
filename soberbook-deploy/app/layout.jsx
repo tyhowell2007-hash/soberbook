@@ -94,6 +94,7 @@ import AccountMark from './components/AccountMark';
 /* One guarded touch listener for every signed-in screen. It only claims a
    downward gesture when the document is already at the top. */
 import PullToRefresh from './components/PullToRefresh';
+import BetaTracker from './components/BetaTracker';
 
 export const metadata = {
   title: 'Sober Book',
@@ -264,6 +265,9 @@ export default async function RootLayout({ children }) {
         <PhotoBig />
         <DayMark on={signedIn} />
         <AccountMark on={signedIn} />
+        {/* 0206 — beta usage tracking. Sends nothing unless the server says
+            this member is a tester who agreed. See lib/track.js. */}
+        <BetaTracker on={signedIn} />
         <PullToRefresh on={signedIn} />
         <RegisterSW />
         <NativePush />

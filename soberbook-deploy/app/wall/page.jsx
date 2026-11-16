@@ -36,6 +36,7 @@ import { pickRoom } from '../../lib/open-room';
    down for every member with a green build). */
 import { fetchFeedPosts } from '../../lib/feed-posts';
 import Wordmark from '../components/Wordmark';
+import BetaInviteCard from '../components/BetaInviteCard';
 
 export const dynamic = 'force-dynamic';
 
@@ -437,6 +438,9 @@ export default async function WallPage() {
           card. The notes above and below still explain why each door
           exists; Doors.jsx explains the new shape. */}
       <Doors />
+      {/* 0206 — Kenny's beta invite. Renders nothing unless Ty or Kenny
+          invited this member from /admin/beta and they haven't answered. */}
+      <BetaInviteCard />
       {/* 🔴 THE SECOND ROW, 20 SEPT — THE DOORS NOBODY COULD FIND.
           Counted over 30 days, out of 339 members: Check in, which is
           one tap above this line, 114 people. Gratitude, Tenth step and

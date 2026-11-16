@@ -201,6 +201,8 @@ export default function Queue({ rows, urls, takedowns = [] }) {
         <Link href="/admin/accounts" className="melink">Accounts ›</Link>
         {' · '}
         <Link href="/admin/live" className="melink">Live now ›</Link>
+        {' · '}
+        <Link href="/admin/beta" className="melink">Beta ›</Link>
       </p>
 
       <div className="pad">
