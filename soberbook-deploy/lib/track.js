@@ -75,7 +75,10 @@ function checkAllowed() {
 }
 
 /* Call after "I agree" or the tracking switch so the answer is asked again. */
-export function refreshBetaStatus() { allowed = null; asking = null; }
+export function refreshBetaStatus() {
+  allowed = null; asking = null;
+  initTracking();   // 16 Nov fix: start right after "I agree", no reload needed
+}
 
 export function setActiveMission(id) { activeMission = id || null; }
 
@@ -130,10 +133,19 @@ export function trackError(where, code) {
   track('error', { where, code: String(code || '').slice(0, 40) });
 }
 
+/* Safe to call many times. Listeners are added once, and only after the
+   member has agreed with tracking on. Before the 16 Nov fix this gave up for
+   good on the first "no", so a member who tapped "I agree" sent nothing more
+   than screen views until the app was reopened. */
+let setupDone = false;
 export function initTracking() {
-  if (typeof window === 'undefined' || window.__sbTrack) return;
-  window.__sbTrack = true;
-  checkAllowed().then((ok) => { if (!ok) return; track('app.open'); setup(); });
+  if (typeof window === 'undefined' || setupDone) return;
+  checkAllowed().then((ok) => {
+    if (!ok || setupDone) return;
+    setupDone = true;
+    track('app.open');
+    setup();
+  });
 }
 
 function setup() {
