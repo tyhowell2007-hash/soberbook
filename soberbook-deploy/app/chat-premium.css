@@ -90,3 +90,18 @@ html[data-theme="black"] .chatx .pad > .btn.ghost, html[data-theme="black"] .cha
 html[data-theme="black"] .chatx .dmdock .cbar, html[data-theme="black"] .chatx .cnote{ background:#121630; border-color:#212645; color:#EEF2FF; }
 html[data-theme="black"] .chatx .cname, html[data-theme="black"] .chatx .cnamelink, html[data-theme="black"] .chatx .ib-title{ color:#EEF2FF; }
 html[data-theme="black"] .chatx .dmdock{ background:linear-gradient(0deg,#0B0C16 72%,rgba(14,19,16,0)); }
+
+/* 🦉 Night Owl (17 Nov 2026) — the after-hours auto-reply. Always labelled,
+   always darker than a person's bubble. */
+.owl{ align-self:flex-start; display:flex; flex-direction:column; gap:6px; max-width:86%; }
+.owl.mine{ align-self:flex-end; align-items:flex-end; }
+.owl-tag{ display:flex; align-items:center; gap:6px; font-size:12.5px; font-weight:700; color:#3B4A7A; }
+.owl-dot{ width:22px; height:22px; border-radius:11px; background:#B8FF2E; color:#061941; display:grid; place-items:center; }
+.owl-bub{ background:#10224F; color:#fff; border-radius:6px 20px 20px 20px; padding:11px 14px; font-size:15px; line-height:1.5; }
+.owl-bub.crisis{ background:#7A1F2B; }
+.owl-btns{ display:flex; flex-wrap:wrap; gap:8px; }
+.owl-btn{ text-decoration:none; background:#fff; color:#061941; border:1px solid #C9D0E8; font-weight:700; font-size:14px; border-radius:22px; padding:10px 16px; min-height:44px; box-sizing:border-box; display:inline-flex; align-items:center; }
+.owl-btn.main{ background:#B8FF2E; border-color:#B8FF2E; color:#061941; font-weight:800; }
+.owl-btn.crisis{ color:#7A1F2B; border-color:#E5B8BE; }
+.owl-btn.crisis.main{ background:#7A1F2B; border-color:#7A1F2B; color:#fff; }
+html[data-theme="black"] .owl-tag{ color:#B9C3E6; }

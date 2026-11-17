@@ -403,6 +403,11 @@ export default function Convo({ thread, initial }) {
           <p className="cnote">Say hello.</p>
         )}
         {msgs.map((m) => {
+          /* 🦉 NIGHT OWL (0207, 17 Nov 2026). The after-hours auto-reply in
+             Ty's and Kenny's chats. The words are the database's fixed
+             text; this only labels it and adds the buttons, so nobody ever
+             mistakes it for Ty or Kenny. */
+          if (m.bot) return <OwlBubble key={m.id} m={m} />;
           const pics = (m.photo_urls || []).filter(Boolean);
           return (
             <div key={m.id} className={'bub' + (m.is_mine ? ' mine' : '')}>
@@ -582,5 +587,51 @@ export default function Convo({ thread, initial }) {
 
       </div>{/* .dmdock */}
     </>
+  );
+}
+
+/* =====================================================================
+   NIGHT OWL'S BUBBLE.  17 Nov 2026 (prototype "Night Owl", screen 7).
+
+   Always labelled "Night Owl · AI helper" and drawn darker than a person's
+   message. The buttons depend on which reply it is:
+     night_owl         → a meeting, the Rooms, 988
+     night_owl_crisis  → call 988, text 988
+     night_owl_meds    → Poison Control
+   ===================================================================== */
+const OWL_BUTTONS = {
+  night_owl: [
+    { href: '/meetings', label: 'Find a meeting now', main: true },
+    { href: '/friends', label: 'Front Room' },
+    { href: 'tel:988', label: 'Call or text 988', crisis: true },
+  ],
+  night_owl_crisis: [
+    { href: 'tel:988', label: 'Call 988', crisis: true, main: true },
+    { href: 'sms:988', label: 'Text 988', crisis: true, main: true },
+  ],
+  night_owl_meds: [
+    { href: 'tel:18002221222', label: 'Call Poison Control' },
+  ],
+};
+
+function OwlBubble({ m }) {
+  const buttons = OWL_BUTTONS[m.bot] || [];
+  return (
+    <div className={'owl' + (m.is_mine ? ' mine' : '')}>
+      <div className="owl-tag">
+        <span className="owl-dot" aria-hidden="true">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z" /></svg>
+        </span>
+        Night Owl · AI helper
+      </div>
+      <div className={'owl-bub' + (m.bot === 'night_owl_crisis' ? ' crisis' : '')}>{m.body}</div>
+      {buttons.length > 0 && (
+        <div className="owl-btns">
+          {buttons.map((b) => (b.href.startsWith('/')
+            ? <Link key={b.href} href={b.href} className={'owl-btn' + (b.main ? ' main' : '')}>{b.label}</Link>
+            : <a key={b.href} href={b.href} className={'owl-btn' + (b.crisis ? ' crisis' : '') + (b.main ? ' main' : '')}>{b.label}</a>))}
+        </div>
+      )}
+    </div>
   );
 }
