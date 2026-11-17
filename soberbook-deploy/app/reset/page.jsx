@@ -33,7 +33,7 @@ export default function ResetPassword() {
   const router = useRouter();
   const supabase = browserClient();
 
-  const [state, setState] = useState('checking');   // checking · ready · expired
+  const [state, setState] = useState('checking');   // checking · ready · expired · done
   const [pw, setPw] = useState('');
   const [pw2, setPw2] = useState('');
   const [err, setErr] = useState('');
@@ -95,11 +95,20 @@ export default function ResetPassword() {
     try {
       const { error } = await supabase.auth.updateUser({ password: pw });
       if (error) throw error;
-      /* Straight in. Ty, 17 Nov 2026: "put in your new password and put it
-         in again for confirm and then go right back into Soberbook." They
-         came here to get back in, not to be congratulated. */
-      router.push('/wall');
-      router.refresh();
+      /* Inside the app: straight to the Wall. They came here to get back
+         in, not to be congratulated and asked to sign in again.
+         ⭐ 17 Nov 2026 — in a plain browser (the usual case now, because the
+         email opens in Gmail or Safari) say plainly that it's done and that
+         the app wants the new password, with a way to carry on here too.
+         Ty approved this screen: "Save it and take me in, and then you're
+         all set, or keep going here." */
+      if (/SoberBookiOS|SoberBookAndroid|RecoveryBelongs/.test(navigator.userAgent || '')) {
+        router.push('/wall');
+        router.refresh();
+      } else {
+        setState('done');
+        setBusy(false);
+      }
     } catch (e2) {
       const m = String(e2.message || '');
       setErr(
@@ -142,6 +151,18 @@ export default function ResetPassword() {
           </>
         )}
 
+        {state === 'done' && (
+          <>
+            <h1>You're all set</h1>
+            <p className="sub">
+              Your new password is saved. Open the app on your phone and sign in
+              with your email and your new password.
+            </p>
+            <button className="btn" type="button" onClick={() => { router.push('/wall'); router.refresh(); }}>
+              Or keep going here
+            </button>
+          </>
+        )}
         {state === 'ready' && (
           <>
             <h1>Pick a new password</h1>
