@@ -19,13 +19,29 @@ import { safePath } from '../../lib/push-words';
       somebody who turned alerts OFF in the menu must stay off, even
       though iOS still has the permission.
 
+   3. THE RED BUBBLE ON THE ICON (16 Nov 2026). Opening the app — or
+      coming back to it — clears it: /api/push/badge sends this member's
+      own phones a silent "badge 0". Also clears the stacked alerts in
+      Notification Center. At most once every 30 seconds.
+
    Renders nothing. Does nothing at all outside the iPhone app.
    ===================================================================== */
+const CLEAR_GAP_MS = 30 * 1000;
+let lastClear = 0;
+async function clearBadge(P) {
+  if (Date.now() - lastClear < CLEAR_GAP_MS) return;
+  lastClear = Date.now();
+  try { await P.removeAllDeliveredNotifications(); } catch { /* older plugin */ }
+  try { await fetch('/api/push/badge', { method: 'POST', credentials: 'same-origin' }); } catch { /* offline */ }
+}
 export default function NativePush() {
   useEffect(() => {
     const P = nativePush();
     if (!P) return undefined;
     let handle = null;
+    const onVisible = () => { if (document.visibilityState === 'visible') clearBadge(P); };
+    document.addEventListener('visibilitychange', onVisible);
+    clearBadge(P);
 
     (async () => {
       try {
@@ -46,7 +62,10 @@ export default function NativePush() {
       } catch { /* never block the app on this */ }
     })();
 
-    return () => { try { handle && handle.remove(); } catch { /* gone */ } };
+    return () => {
+      document.removeEventListener('visibilitychange', onVisible);
+      try { handle && handle.remove(); } catch { /* gone */ }
+    };
   }, []);
 
   return null;

@@ -86,7 +86,7 @@ async function batch(host, tokens, body, headers) {
  * Send one alert to several iPhone tokens.
  * @returns {Array<{token:string, ok:boolean, dead:boolean}>}
  */
-export async function sendApns(tokens, { title, body, to, urgent }) {
+export async function sendApns(tokens, { title, body, to, urgent, badge }) {
   if (!tokens.length) return [];
   /* Not set up in Vercel yet: say so instead of going silent, so the
      route's reply shows it. Never counts against the member's device. */
@@ -100,6 +100,10 @@ export async function sendApns(tokens, { title, body, to, urgent }) {
       /* Same idea as the website's single tag: the everyday alerts stack
          into one thread rather than eleven separate buzzes. */
       'thread-id': urgent ? 'soberbook-urgent' : 'soberbook',
+      /* 16 Nov 2026 — the red bubble on the app icon. Only set when the
+         caller passes one (member alerts do; admin alerts don't, so they
+         leave whatever the icon already says). Capped by the caller. */
+      ...(Number.isInteger(badge) ? { badge } : {}),
     },
     to,
   };
@@ -135,4 +139,45 @@ export async function sendApns(tokens, { title, body, to, urgent }) {
     status: r.status,
     reason: r.reason,
   }));
+}
+
+/* =====================================================================
+   THE RED BUBBLE ON THE APP ICON.  16 Nov 2026.
+
+   Ty's call, after seeing the prototype ("App Icon Badge"): the bubble
+   counts what is waiting, but NEVER PAST 3. 1, 2, 3 — and 3 means "3 or
+   more". The app's rule is still "a dot, not a number" (BottomNav.jsx):
+   a count that climbs forever is a score. Three is as far as it goes.
+
+   ⚠️ The cap lives here, once. Every caller goes through capBadge().
+   ===================================================================== */
+export const BADGE_MAX = 3;
+export function capBadge(n) {
+  const v = Math.floor(Number(n) || 0);
+  return Math.max(0, Math.min(BADGE_MAX, v));
+}
+
+/**
+ * Set the icon bubble without showing an alert — used to CLEAR it (0) when
+ * the member opens the app. A badge-only push: no sound, no words, nothing
+ * on the lock screen. Same bookkeeping shape as sendApns.
+ */
+export async function sendApnsBadge(tokens, badge) {
+  if (!tokens.length || !apnsConfigured()) return [];
+  const payload = { aps: { badge: capBadge(badge) } };
+  const headers = {
+    authorization: `bearer ${bearer()}`,
+    'apns-topic': process.env.APNS_TOPIC || 'app.soberbook',
+    'apns-push-type': 'alert',
+    'apns-priority': '5',
+    'apns-collapse-id': 'soberbook-badge',
+  };
+  const first = await batch(PROD, tokens, payload, headers);
+  const out = first.map((r, i) => ({ token: tokens[i], ...r }));
+  const retry = out.filter((r) => r.status === 400 && r.reason === 'BadDeviceToken');
+  if (retry.length) {
+    const second = await batch(SANDBOX, retry.map((r) => r.token), payload, headers);
+    second.forEach((r, i) => Object.assign(retry[i], r));
+  }
+  return out.map((r) => ({ token: r.token, ok: r.status === 200, status: r.status, reason: r.reason }));
 }

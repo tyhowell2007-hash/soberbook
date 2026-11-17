@@ -18,7 +18,9 @@ import { pushWords, PUSH_TITLE, APP_PUSH_TITLE } from './push-words';
    One bad ten minutes at a push service never costs somebody their alerts.
    ===================================================================== */
 
-export async function deliverPush(admin, subs, rawTo) {
+/* `opts.badge` (16 Nov 2026): the icon bubble for the iPhone app, already
+   capped by capBadge(). Left out → the icon is not touched. */
+export async function deliverPush(admin, subs, rawTo, opts = {}) {
   const { to, body, urgent } = pushWords(rawTo);
   const web = subs.filter((s) => !String(s.endpoint).startsWith('apns:'));
   const ios = subs.filter((s) => String(s.endpoint).startsWith('apns:'));
@@ -53,7 +55,7 @@ export async function deliverPush(admin, subs, rawTo) {
   }
 
   if (ios.length) {
-    const res = await sendApns(ios.map((s) => s.endpoint.slice(5)), { title: APP_PUSH_TITLE, body, to, urgent });
+    const res = await sendApns(ios.map((s) => s.endpoint.slice(5)), { title: APP_PUSH_TITLE, body, to, urgent, badge: opts.badge });
     res.forEach((r, i) => {
       const s = ios[i];
       iphone.push(r.ok ? 'ok' : `${r.status || ''} ${r.reason || ''}`.trim());

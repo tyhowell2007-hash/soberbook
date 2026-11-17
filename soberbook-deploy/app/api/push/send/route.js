@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { adminClient, adminConfigured } from '../../../../lib/supabase-admin';
 import { deliverPush } from '../../../../lib/deliver-push';
+import { capBadge } from '../../../../lib/apns';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -94,7 +95,18 @@ export async function POST(req) {
 
   /* 31 Oct 2026: website AND iPhone-app devices, one implementation —
      see lib/deliver-push.js. Same retire/count rules as before. */
-  const { ok, retired, iphone } = await deliverPush(admin, subs, to);
+  /* 16 Nov 2026 — the red bubble on the app icon: how many of this
+     member's notifications are still unread, capped at 3 (lib/apns.js).
+     A count, never a name. If the count fails, the alert still goes. */
+  let badge;
+  if (subs.some((s) => String(s.endpoint).startsWith('apns:'))) {
+    const { count } = await admin.from('notifications')
+      .select('id', { count: 'exact', head: true })
+      .eq('user_id', n.user_id).is('read_at', null);
+    badge = capBadge(Math.max(1, count ?? 1));
+  }
+
+  const { ok, retired, iphone } = await deliverPush(admin, subs, to, { badge });
   if (ok) {
     await admin.from('push_subscriptions')
       .update({ last_ok_at: new Date().toISOString(), failures: 0 })
