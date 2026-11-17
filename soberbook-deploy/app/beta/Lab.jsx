@@ -4,7 +4,8 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { browserClient } from '../../lib/supabase-browser';
 import { isIosApp } from '../../lib/is-ios-app';
-import { isPhone } from '../../lib/is-phone';
+import { isPhone, isIPhoneBrowser } from '../../lib/is-phone';
+import GetApp from './GetApp';
 import { track, setActiveMission, refreshBetaStatus } from '../../lib/track';
 import BrandName from '../components/BrandName';
 
@@ -55,6 +56,8 @@ export default function Lab() {
   );
 
   if (!lab.agreed_at) {
+    // 16 Nov: on an iPhone browser, first get them into the app (Ty's join flow).
+    if (isIPhoneBrowser()) return <GetApp />;
     const intake = lab.track === 'current' && (lab.surveys || []).find((s) => s.kind === 'intake');
     if (intake && !lab.intake_done && !skipIntake) return (
       <>

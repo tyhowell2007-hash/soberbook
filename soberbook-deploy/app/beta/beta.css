@@ -59,3 +59,67 @@ html[data-theme="black"] .bl-card h2,html[data-theme="black"] .bl-card h3,html[d
 html[data-theme="black"] .bl-q,html[data-theme="black"] .bl-ag b{color:#fff}
 html[data-theme="black"] .bl-card p,html[data-theme="black"] .bl-b{color:#B8C0D8}
 html[data-theme="black"] .bl-invite{background:#132018}
+/* 16 Nov 2026 — Beta join flow (Ty's approved prototype): invite card + Get the app */
+.bl-inv2{position:relative;overflow:hidden;margin:10px 12px;border-radius:22px;color:#fff;
+  background:linear-gradient(165deg,#121A6E 0%,#000080 55%,#050540 100%);box-shadow:0 10px 30px rgba(0,0,96,.28)}
+.bl-inv2::before{content:"";position:absolute;right:-40px;top:-50px;width:180px;height:180px;border-radius:50%;
+  background:radial-gradient(circle,rgba(0,255,0,.22),rgba(0,255,0,0) 70%)}
+.bl-inv2-in{position:relative;padding:20px 20px 16px;display:flex;flex-direction:column;gap:14px}
+.bl-badge{align-self:flex-start;display:inline-flex;gap:6px;align-items:center;font-size:11px;font-weight:800;letter-spacing:.12em;
+  text-transform:uppercase;color:#00FF00;border:1px solid rgba(0,255,0,.45);padding:5px 10px;border-radius:20px}
+.bl-inv2 h3{margin:0 0 8px;font-size:23px;line-height:1.2;font-weight:800;color:#fff;text-transform:none;letter-spacing:-.01em}
+.bl-inv2 p{margin:0;font-size:14.5px;line-height:1.55;color:#C9D1FF}
+.bl-facts{display:flex;flex-direction:column;gap:10px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:14px}
+.bl-fact{display:flex;gap:11px;align-items:center;font-size:14px;font-weight:600;color:#fff}
+.bl-fact i{flex:none;width:30px;height:30px;border-radius:9px;background:rgba(0,255,0,.14);display:grid;place-items:center;font-style:normal}
+.bl-inv2 .bl-go{display:block;width:100%;padding:15px;font-size:16px;box-shadow:0 6px 16px rgba(0,200,74,.35)}
+.bl-quiet{border:0;background:transparent;color:#AEB8F0;font:inherit;font-size:14px;font-weight:600;padding:8px;cursor:pointer}
+.bl-remind{border:2px solid #00C84A;margin:10px 12px}
+.bl-remind-top{display:flex;gap:12px;align-items:center;margin-bottom:10px}
+.bl-remind-top small{display:block;font-size:11.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#00A83E}
+.bl-remind-top b{display:block;font-size:16.5px;color:#050535}
+
+.ga{display:flex;flex-direction:column;gap:16px;padding:6px 4px 18px;color:#0A0A3A;text-transform:none;letter-spacing:normal}
+.ga-eyebrow{font-size:12px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#00A83E;margin-bottom:-8px}
+.ga-prog{display:flex;flex-direction:column;gap:8px}
+.ga-prog-t{font-size:13px;font-weight:800;color:#4A5180}
+.ga-bar{display:flex;gap:6px}
+.ga-bar span{flex:1;height:6px;border-radius:3px;background:#C5CCEB}
+.ga-bar span.on{background:#00C84A}
+.ga-h{margin:0;font-size:27px;line-height:1.18;font-weight:800;color:#050535;letter-spacing:-.01em;text-transform:none}
+.ga-p{margin:-6px 0 0;font-size:16px;line-height:1.5;color:#2B3266}
+.ga-p b{color:#050535}
+.ga-pic{background:#fff;border:1px solid #D5DBF2;border-radius:20px;padding:18px 16px;display:flex;flex-direction:column;gap:14px;box-shadow:0 2px 12px rgba(10,20,90,.06)}
+.ga-row{display:flex;gap:14px;align-items:center}
+.ga-name{flex:1;min-width:0;display:flex;flex-direction:column}
+.ga-name b{font-size:16px;color:#050535}
+.ga-name span{font-size:13px;color:#6A7099}
+.ga-ic{flex:none;display:grid;place-items:center;border-radius:23%;color:#fff;font-weight:800;letter-spacing:-.04em}
+.ga-tf{background:linear-gradient(160deg,#3EA8FF,#1066E5)}
+.ga-rb{background:linear-gradient(160deg,#1329B0,#000060)}
+.ga-pill{background:#E7F0FF;color:#0A6CF0;font-weight:800;font-size:14px;padding:7px 18px;border-radius:20px}
+.ga-ring{box-shadow:0 0 0 4px #FFB020,0 0 0 8px rgba(255,176,32,.3)}
+.ga-back{font-size:14px;font-weight:700;color:#0A6CF0;padding:4px 8px;border-radius:8px;margin:4px 0 0 4px}
+.ga-two{display:flex;gap:10px}
+.ga-blue{flex:1;text-align:center;background:#0A6CF0;color:#fff;font-weight:800;font-size:14.5px;padding:11px;border-radius:11px}
+.ga-signin{align-items:stretch}
+.ga-signin .ga-rb{align-self:center}
+.ga-wm{text-align:center;font-size:18px;font-weight:800;color:#050535;margin-top:-4px}
+.ga-field{border:1.5px solid #D5DBF2;border-radius:12px;padding:12px 14px;font-size:14.5px;color:#6A7099}
+.ga-fake-go{text-align:center;background:linear-gradient(180deg,#2BFF5A,#00C84A);color:#000060;font-weight:800;font-size:15px;padding:12px;border-radius:12px}
+.ga-cap{margin:-8px 0 0;font-size:12.5px;color:#6A7099;text-align:center}
+.ga-tip{display:flex;gap:10px;align-items:flex-start;background:#FFF6E0;border-radius:14px;padding:12px 14px;font-size:14px;line-height:1.5;color:#5A4300}
+.ga-tip>b:first-child{color:#A86A00;font-weight:900}
+.ga-btn{display:block;width:100%;box-sizing:border-box;text-align:center;text-decoration:none;border:0;border-radius:16px;padding:17px;
+  font:inherit;font-size:17px;font-weight:800;cursor:pointer;background:linear-gradient(180deg,#2BFF5A,#00C84A);color:#000060;box-shadow:0 6px 16px rgba(0,200,74,.3)}
+.ga-btn.ga-dark{background:#050535;color:#fff;box-shadow:none}
+.ga-btn.ga-off{background:#E6EAF8;color:#6A7099;box-shadow:none}
+.ga-small{margin:-6px 0 0;font-size:14px;line-height:1.5;color:#4A5180;text-align:center}
+.ga-link{border:0;background:none;padding:0;font:inherit;font-weight:800;color:#1329B0;cursor:pointer;text-decoration:underline}
+.ga-done{display:flex;gap:10px;align-items:center;background:#F1FFF4;border-radius:12px;padding:11px 12px;font-size:14px;line-height:1.45;color:#0E5A2A}
+.ga-help{margin-top:6px}
+html[data-theme="black"] .ga{color:#E8ECF5}
+html[data-theme="black"] .ga-h,html[data-theme="black"] .ga-name b,html[data-theme="black"] .ga-wm,html[data-theme="black"] .ga-p b{color:#fff}
+html[data-theme="black"] .ga-p,html[data-theme="black"] .ga-small{color:#B8C0D8}
+html[data-theme="black"] .ga-pic{background:#1A1F2B;border-color:#2A3142}
+html[data-theme="black"] .bl-remind-top b{color:#fff}
