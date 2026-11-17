@@ -16,3 +16,12 @@ export function isPhone() {
   return /iPhone|iPod|Android.+Mobile|Windows Phone|Mobile Safari/i.test(navigator.userAgent || '')
     && !/iPad|Tablet/i.test(navigator.userAgent || '');
 }
+
+/* An iPhone, but in Safari or another browser — NOT inside our app.
+   16 Nov 2026: these testers get the "Get the app" steps (TestFlight)
+   before Beta Lab. Android and the iPhone app go straight to Beta Lab. */
+export function isIPhoneBrowser() {
+  if (typeof navigator === 'undefined') return false;
+  if (isIosApp()) return false;
+  return /iPhone|iPod/i.test(navigator.userAgent || '');
+}
