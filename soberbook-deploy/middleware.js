@@ -440,5 +440,10 @@ export const config = {
      real member appears anywhere. It also means the browser can make
      range requests straight to the CDN, so seeking works and none of it
      burns an edge invocation per chunk. */
-  matcher: ['/((?!_next/static|_next/image|favicon.ico|manifest\\.webmanifest|sw\\.js|offline\\.html|home\\.html|\\.well-known|.*\\.(?:svg|png|jpg|jpeg|gif|webp|mp4|webmanifest|ico)$).*)'],
+  /* ⭐ 17 Nov 2026 — .apk joins the list. The Android beta email's green
+   button points at /get/recovery-belongs-beta-7q4k.apk. Without this a
+   tester who is not signed in on their phone's browser (all of them) is
+   bounced to /login and never gets the app. The app itself still needs a
+   Sober Book account to get past the sign-in screen. */
+matcher: ['/((?!_next/static|_next/image|favicon.ico|manifest\\.webmanifest|sw\\.js|offline\\.html|home\\.html|\\.well-known|.*\\.(?:svg|png|jpg|jpeg|gif|webp|mp4|webmanifest|ico|apk)$).*)'],
 };
