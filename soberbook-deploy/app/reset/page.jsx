@@ -42,6 +42,29 @@ export default function ResetPassword() {
   useEffect(() => {
     let settled = false;
 
+    /* ⭐ 17 Nov 2026 — THE LINK NOW CARRIES ITS OWN SESSION. Reset emails
+       are asked for by the server (app/auth/forgot) with the implicit
+       flow, so the address arrives as /reset#access_token=…&refresh_token=…
+       and works in ANY browser — not only the one that asked. Pick the
+       tokens out ourselves: the PKCE browser client won't, and wipe them
+       from the address bar straight away. A link that was already used or
+       ran out arrives as #error=…, which is the 'expired' screen at once,
+       not after a four-second wait. */
+    const hash = new URLSearchParams(window.location.hash.replace(/^#/, ''));
+    if (hash.get('access_token') && hash.get('refresh_token')) {
+      const access_token = hash.get('access_token');
+      const refresh_token = hash.get('refresh_token');
+      window.history.replaceState(null, '', window.location.pathname);
+      supabase.auth.setSession({ access_token, refresh_token }).then(({ data, error }) => {
+        settled = true;
+        setState(!error && data?.session ? 'ready' : 'expired');
+      });
+    } else if (hash.get('error') || hash.get('error_code')) {
+      window.history.replaceState(null, '', window.location.pathname);
+      settled = true;
+      setState('expired');
+    }
+
     /* The recovery token arrives in the URL and the client swaps it for a
        session, firing PASSWORD_RECOVERY when it lands. */
     const { data: sub } = supabase.auth.onAuthStateChange((event, session) => {
@@ -72,8 +95,9 @@ export default function ResetPassword() {
     try {
       const { error } = await supabase.auth.updateUser({ password: pw });
       if (error) throw error;
-      /* Straight to the Wall. They came here to get back in, not to be
-         congratulated and then asked to sign in all over again. */
+      /* Straight in. Ty, 17 Nov 2026: "put in your new password and put it
+         in again for confirm and then go right back into Soberbook." They
+         came here to get back in, not to be congratulated. */
       router.push('/wall');
       router.refresh();
     } catch (e2) {
