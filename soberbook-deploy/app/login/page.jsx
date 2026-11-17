@@ -472,10 +472,15 @@ export default function Landing() {
          suspects their brother, their boss or their ex has an account
          here could confirm it by typing their address in. "If that
          address has an account" is doing real work in that sentence. */
-      const { error } = await supabase.auth.resetPasswordForEmail(inEmail, {
-        redirectTo: `${window.location.origin}/reset`,
+      /* ⭐ 17 Nov 2026: asked for by the server, not this browser, so the
+         link works wherever the email gets opened — see app/auth/forgot. */
+      const r = await fetch('/auth/forgot', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: inEmail }),
       });
-      if (error) throw error;
+      if (r.status === 429) throw new Error('rate limit');
+      if (r.status === 400) throw new Error('invalid email');
+      if (!r.ok) throw new Error('reset failed');
       setNote('If that address has an account, a reset link is on its way. '
             + 'Check your spam folder too.');
     } catch (e2) { setErr(humanise(e2)); }
