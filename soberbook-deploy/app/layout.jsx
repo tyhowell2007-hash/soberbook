@@ -32,6 +32,11 @@ import './crisis-sheet.css';
    rule hangs off html[data-brand="rb"]; on the web it matches nothing.
    Imported last so it wins over type.css. See lib/brand.js. */
 import './brand.css';
+/* ⭐ 18 Nov 2026 — Jesse's brand guide across the whole beta app (colours +
+   fonts), Ty: "Make the colors and fonts consistent throughout the whole app."
+   Every rule hangs off html[data-brand="rb"], so the website is untouched.
+   Generated; see the header of app/rb-look.css. Remove this line to undo. */
+import './rb-look.css';
 import { serverClient } from '../lib/supabase-server';
 import { serverBrand } from '../lib/brand-server';
 import { BrandProvider } from './components/BrandProvider';
