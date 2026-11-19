@@ -1,0 +1,834 @@
+/* =====================================================================
+   RECOVERY BELONGS — Jesse's brand guide, the whole beta app. 18 Nov 2026.
+   Ty: "Make the colors and fonts consistent throughout the whole app."
+   GENERATED from every stylesheet in app/ (not RecoveryMap, not the black
+   theme). Every rule hangs off html[data-brand="rb"], which the root layout
+   sets ONLY inside the Recovery Belongs app, so soberbook.app in a browser
+   is untouched. Re-run the generator after CSS changes; don't hand-edit.
+   Palette: stygian #060935 · electric green #BAFE2B · yinmn #265EF7 · cloud #D7EEF4.
+   Type: headlines in Jesse's font (lowercase), body in Barlow, standing in for
+   Bahnschrift (a Microsoft font with no web license here).
+   ===================================================================== */
+@font-face{font-family:'RB Body';src:url('./fonts/barlow-400.woff2') format('woff2');font-weight:400;font-display:swap}
+@font-face{font-family:'RB Body';src:url('./fonts/barlow-500.woff2') format('woff2');font-weight:500;font-display:swap}
+@font-face{font-family:'RB Body';src:url('./fonts/barlow-600.woff2') format('woff2');font-weight:600;font-display:swap}
+@font-face{font-family:'RB Body';src:url('./fonts/barlow-700.woff2') format('woff2');font-weight:700 900;font-display:swap}
+html[data-brand="rb"] body{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+/* adcard.css */
+html[data-brand="rb"] .ccbtn{color:#EEF8FB}
+html[data-brand="rb"] .ccbtn:active{background:#060935}
+/* admin.css */
+html[data-brand="rb"] .nm-big{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .nm-lbl{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .nm-since{background:#060935}
+html[data-brand="rb"] .nm-n{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .nm-l{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .nm-plbl{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .nm-ppct{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .tvwrap{color:#D7EEF4}
+html[data-brand="rb"] .tvhead{border-bottom:2px solid #BAFE2B}
+html[data-brand="rb"] .tvtitle{font-family:'Recovery Belongs', 'RB Body', Barlow, system-ui, sans-serif;color:#BAFE2B;text-transform:lowercase;letter-spacing:0;font-weight:400;font-style:normal}
+html[data-brand="rb"] .tvback{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .tvcard span{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .tvcard.tvhero b{color:#BAFE2B}
+html[data-brand="rb"] .tvlabel{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .tvchart i.tvnow,html[data-brand="rb"]  .tvspark i.tvnow{background:#BAFE2B}
+html[data-brand="rb"] .tvaxis .tvtoday{color:#BAFE2B}
+html[data-brand="rb"] .tvptitle{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .tvname{color:#D7EEF4}
+html[data-brand="rb"] .tvchip{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .tvchip.tvopen{color:#BAFE2B}
+html[data-brand="rb"] .tvdid{color:#BAFE2B}
+html[data-brand="rb"] .tvsplit i.a{background:#BAFE2B}
+html[data-brand="rb"] .tvkey b{color:#D7EEF4}
+html[data-brand="rb"] .tvkey b.a{color:#BAFE2B}
+html[data-brand="rb"] .tvrow > span{color:#D7EEF4}
+html[data-brand="rb"] .tvrow u{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+/* admin/update/update.css */
+html[data-brand="rb"] .tuadmin h2{font-family:'Recovery Belongs', 'RB Body', Barlow, system-ui, sans-serif;text-transform:lowercase;letter-spacing:0;font-weight:400;font-style:normal}
+html[data-brand="rb"] .tuadmin .fld{font-family:'Recovery Belongs', 'RB Body', Barlow, system-ui, sans-serif;text-transform:lowercase;letter-spacing:0;font-weight:400;font-style:normal}
+html[data-brand="rb"] .tuadmin textarea{background:var(--boxfill, #EEF8FB);font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+/* artists.css */
+html[data-brand="rb"] .art-band{background:#060935}
+html[data-brand="rb"] .art-cover{background:linear-gradient(135deg,#060935 0%,#1B278B 55%,#8A5A00 130%)}
+html[data-brand="rb"] .art-av{font-family:'Recovery Belongs', 'RB Body', Barlow, system-ui, sans-serif;text-transform:lowercase;letter-spacing:0;font-weight:400;font-style:normal}
+html[data-brand="rb"] .art-title{font-family:'Recovery Belongs', 'RB Body', Barlow, system-ui, sans-serif;text-transform:lowercase;letter-spacing:0;font-weight:400;font-style:normal}
+html[data-brand="rb"] .art-page .art-cover{background:linear-gradient(135deg,#1C2891 0%,#2E42EC 50%,#BAFE2B 115%)}
+html[data-brand="rb"] .art-page .art-sub{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .art-spine{font-family:'Recovery Belongs', 'RB Body', Barlow, system-ui, sans-serif;text-transform:lowercase;letter-spacing:0;font-weight:400;font-style:normal}
+html[data-brand="rb"] .art-page .art-follow{background:var(--acc,#265EF7);border-color:var(--acc,#265EF7)}
+html[data-brand="rb"] .art-page .art-follow[aria-pressed="true"]{color:var(--acc,#265EF7);border-color:var(--acc,#265EF7)}
+html[data-brand="rb"] .art-page .art-sect{border-left:3px solid var(--acc,#265EF7)}
+/* beta/app/beta/beta.css */
+html[data-brand="rb"] .bl-card{color:#060935}
+html[data-brand="rb"] .bl-card h2,html[data-brand="rb"] .bl-card h3{color:#060935}
+html[data-brand="rb"] .bl-invite{border:2px solid #BAFE2B}
+html[data-brand="rb"] .bl-tag{background:#060935;color:#BAFE2B}
+html[data-brand="rb"] .bl-go{background:linear-gradient(180deg,#BAFE2B,#BAFE2B);color:#060935}
+html[data-brand="rb"] .bl-ms.done .bl-dot{background:#BAFE2B;border-color:#BAFE2B}
+html[data-brand="rb"] .bl-t{color:#060935}
+html[data-brand="rb"] .bl-mini a,html[data-brand="rb"] .bl-mini button{color:#265EF7}
+html[data-brand="rb"] .bl-mini .g{background:linear-gradient(180deg,#BAFE2B,#BAFE2B);color:#060935}
+html[data-brand="rb"] .bl-q{color:#060935}
+html[data-brand="rb"] .bl-chip{color:#265EF7}
+html[data-brand="rb"] .bl-chip[aria-pressed="true"]{background:#265EF7;border-color:#265EF7}
+html[data-brand="rb"] .bl-ta{color:#060935}
+html[data-brand="rb"] .bl-ta:focus{border-color:#265EF7}
+html[data-brand="rb"] .bl-ag b{color:#060935}
+html[data-brand="rb"] .bl-tick{color:#060935}
+html[data-brand="rb"] .bl-tick input{accent-color:#BAFE2B}
+html[data-brand="rb"] .bl-link{color:#265EF7}
+html[data-brand="rb"] .bl-stats b{color:#265EF7}
+html[data-brand="rb"] .bl-in{color:#060935}
+html[data-brand="rb"] .bl-in:focus{border-color:#265EF7}
+html[data-brand="rb"] .bl-inv2{background:linear-gradient(165deg,#121A6E 0%,#060935 55%,#050540 100%)}
+html[data-brand="rb"] .bl-inv2::before{background:radial-gradient(circle,rgba(186,254,43,.22),rgba(186,254,43,0) 70%)}
+html[data-brand="rb"] .bl-badge{color:#BAFE2B;border:1px solid rgba(186,254,43,.45)}
+html[data-brand="rb"] .bl-fact i{background:rgba(186,254,43,.14)}
+html[data-brand="rb"] .bl-remind{border:2px solid #BAFE2B}
+html[data-brand="rb"] .bl-remind-top b{color:#060935}
+html[data-brand="rb"] .ga{color:#060935}
+html[data-brand="rb"] .ga-bar span.on{background:#BAFE2B}
+html[data-brand="rb"] .ga-h{color:#060935}
+html[data-brand="rb"] .ga-p b{color:#060935}
+html[data-brand="rb"] .ga-name b{color:#060935}
+html[data-brand="rb"] .ga-rb{background:linear-gradient(160deg,#265EF7,#060935)}
+html[data-brand="rb"] .ga-wm{color:#060935}
+html[data-brand="rb"] .ga-fake-go{background:linear-gradient(180deg,#BAFE2B,#BAFE2B);color:#060935}
+html[data-brand="rb"] .ga-btn{background:linear-gradient(180deg,#BAFE2B,#BAFE2B);color:#060935}
+html[data-brand="rb"] .ga-btn.ga-dark{background:#060935}
+html[data-brand="rb"] .ga-link{color:#265EF7}
+/* beta/beta.css */
+html[data-brand="rb"] .bl-card{color:#060935}
+html[data-brand="rb"] .bl-card h2,html[data-brand="rb"] .bl-card h3{color:#060935}
+html[data-brand="rb"] .bl-invite{border:2px solid #BAFE2B}
+html[data-brand="rb"] .bl-tag{background:#060935;color:#BAFE2B}
+html[data-brand="rb"] .bl-go{background:linear-gradient(180deg,#BAFE2B,#BAFE2B);color:#060935}
+html[data-brand="rb"] .bl-ms.done .bl-dot{background:#BAFE2B;border-color:#BAFE2B}
+html[data-brand="rb"] .bl-t{color:#060935}
+html[data-brand="rb"] .bl-mini a,html[data-brand="rb"] .bl-mini button{color:#265EF7}
+html[data-brand="rb"] .bl-mini .g{background:linear-gradient(180deg,#BAFE2B,#BAFE2B);color:#060935}
+html[data-brand="rb"] .bl-q{color:#060935}
+html[data-brand="rb"] .bl-chip{color:#265EF7}
+html[data-brand="rb"] .bl-chip[aria-pressed="true"]{background:#265EF7;border-color:#265EF7}
+html[data-brand="rb"] .bl-ta{color:#060935}
+html[data-brand="rb"] .bl-ta:focus{border-color:#265EF7}
+html[data-brand="rb"] .bl-ag b{color:#060935}
+html[data-brand="rb"] .bl-tick{color:#060935}
+html[data-brand="rb"] .bl-tick input{accent-color:#BAFE2B}
+html[data-brand="rb"] .bl-link{color:#265EF7}
+html[data-brand="rb"] .bl-stats b{color:#265EF7}
+html[data-brand="rb"] .bl-in{color:#060935}
+html[data-brand="rb"] .bl-in:focus{border-color:#265EF7}
+html[data-brand="rb"] .bl-inv2{background:linear-gradient(165deg,#121A6E 0%,#060935 55%,#050540 100%)}
+html[data-brand="rb"] .bl-inv2::before{background:radial-gradient(circle,rgba(186,254,43,.22),rgba(186,254,43,0) 70%)}
+html[data-brand="rb"] .bl-badge{color:#BAFE2B;border:1px solid rgba(186,254,43,.45)}
+html[data-brand="rb"] .bl-fact i{background:rgba(186,254,43,.14)}
+html[data-brand="rb"] .bl-remind{border:2px solid #BAFE2B}
+html[data-brand="rb"] .bl-remind-top b{color:#060935}
+html[data-brand="rb"] .ga{color:#060935}
+html[data-brand="rb"] .ga-bar span.on{background:#BAFE2B}
+html[data-brand="rb"] .ga-h{color:#060935}
+html[data-brand="rb"] .ga-p b{color:#060935}
+html[data-brand="rb"] .ga-name b{color:#060935}
+html[data-brand="rb"] .ga-rb{background:linear-gradient(160deg,#265EF7,#060935)}
+html[data-brand="rb"] .ga-wm{color:#060935}
+html[data-brand="rb"] .ga-fake-go{background:linear-gradient(180deg,#BAFE2B,#BAFE2B);color:#060935}
+html[data-brand="rb"] .ga-btn{background:linear-gradient(180deg,#BAFE2B,#BAFE2B);color:#060935}
+html[data-brand="rb"] .ga-btn.ga-dark{background:#060935}
+html[data-brand="rb"] .ga-link{color:#265EF7}
+/* chat-premium.css */
+html[data-brand="rb"] .chatx{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .chatx > .mast{background:linear-gradient(180deg,#060935,#265EF7)}
+html[data-brand="rb"] .chatx > .mast .lg{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .chatx > .mast .rt{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .chatx > .bar{color:#265EF7;font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .chatx .pad > .btn.ghost{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .chatx .ib-title{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .chatx .cname{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .chatx .clast{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .chatx .cdot{background:#265EF7}
+html[data-brand="rb"] .chatx .dgo{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif;color:#265EF7}
+html[data-brand="rb"] .chatx .dchip{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .chatx .creqt{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .chatx .cyes{background:#265EF7}
+html[data-brand="rb"] .chatx .bub.mine{background:linear-gradient(160deg,#3D63E0,#265EF7);box-shadow:0 6px 16px rgba(38,94,247,.22)}
+html[data-brand="rb"] .chatx .cnote{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .chatx .cbar textarea{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .chatx .cbar button[type="submit"]{background:linear-gradient(145deg,#3D63E0,#265EF7);box-shadow:0 6px 16px rgba(38,94,247,.35)}
+html[data-brand="rb"][data-theme="black"] .chatx .crow, html[data-brand="rb"][data-theme="black"] .chatx .bub:not(.mine),
+html[data-brand="rb"][data-theme="black"] .chatx .pad > .btn.ghost, html[data-brand="rb"][data-theme="black"] .chatx .ib-find,
+html[data-brand="rb"][data-theme="black"] .chatx .dmdock .cbar, html[data-brand="rb"][data-theme="black"] .chatx .cnote{color:#D7EEF4}
+html[data-brand="rb"][data-theme="black"] .chatx .cname, html[data-brand="rb"][data-theme="black"] .chatx .cnamelink, html[data-brand="rb"][data-theme="black"] .chatx .ib-title{color:#D7EEF4}
+/* chat/inbox.css */
+html[data-brand="rb"] .ib-title{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .ib-count{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .ib-find{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+/* checkin.css */
+html[data-brand="rb"] .ck-card h1{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+/* circle/challenge.css */
+html[data-brand="rb"] .cc-wrap,html[data-brand="rb"] .cc-pass,html[data-brand="rb"] .cc-win,html[data-brand="rb"] .cc-glass{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .cc-wrap,html[data-brand="rb"] .cc-pass{background:linear-gradient(160deg,#1A2CB8 0%,#060935 55%,#060A3C 100%)}
+html[data-brand="rb"] .cc-dot{background:#BAFE2B}
+html[data-brand="rb"] .cc-go{background:linear-gradient(180deg,#BAFE2B,#BAFE2B)}
+html[data-brand="rb"] .cc-ctr b{font-family:'Recovery Belongs', 'RB Body', Barlow, system-ui, sans-serif;text-transform:lowercase;letter-spacing:0;font-weight:400;font-style:normal}
+html[data-brand="rb"] .cc-ms{background:#060935}
+html[data-brand="rb"] .cc-stats b{font-family:'Recovery Belongs', 'RB Body', Barlow, system-ui, sans-serif;text-transform:lowercase;letter-spacing:0;font-weight:400;font-style:normal}
+html[data-brand="rb"] .cc-coin b{font-family:'Recovery Belongs', 'RB Body', Barlow, system-ui, sans-serif;text-transform:lowercase;letter-spacing:0;font-weight:400;font-style:normal}
+html[data-brand="rb"] .cc-win .cc-wt{font-family:'Recovery Belongs', 'RB Body', Barlow, system-ui, sans-serif;text-transform:lowercase;letter-spacing:0;font-weight:400;font-style:normal}
+html[data-brand="rb"] .cc-mini b{font-family:'Recovery Belongs', 'RB Body', Barlow, system-ui, sans-serif;text-transform:lowercase;letter-spacing:0;font-weight:400;font-style:normal}
+/* coins.css */
+html[data-brand="rb"] .coinsendbtn{color:var(--gt, #060935)}
+html[data-brand="rb"] .coinsendbtn:focus-visible{outline:3px solid var(--gd, #265EF7)}
+html[data-brand="rb"] button.coincount{color:var(--gt, #060935)}
+html[data-brand="rb"] .coinsheet{color:var(--gt, #060935)}
+html[data-brand="rb"] .coinpick{color:var(--gt, #060935)}
+html[data-brand="rb"] .coinpick:focus-visible{outline:3px solid var(--gd, #265EF7)}
+html[data-brand="rb"] .coinwords-l{color:var(--gt, #060935)}
+html[data-brand="rb"] .coinwords{color:var(--gt, #060935)}
+html[data-brand="rb"] .coinsend{background:var(--gd, #265EF7)}
+html[data-brand="rb"] .cointake{color:var(--gt, #060935)}
+html[data-brand="rb"] .statv{color:var(--gt, #060935)}
+html[data-brand="rb"] .statk.solo{color:var(--gt, #060935)}
+html[data-brand="rb"] .statnew{background:var(--gd, #265EF7)}
+html[data-brand="rb"] .howbtn{background:var(--gd, #265EF7)}
+html[data-brand="rb"] .vfull{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif;color:var(--gt,#060935)}
+/* components/LiveSoberCounter.module.css */
+html[data-brand="rb"] .sc{--c:var(--acc, #265EF7)}
+/* components/open-in-browser.css */
+html[data-brand="rb"] .oib .oib-go{background:#060935}
+/* components/phone-setup.css */
+html[data-brand="rb"] .ps-sheet{color:#060935}
+html[data-brand="rb"] .ps-big{color:#060935}
+html[data-brand="rb"] .ps-go{background:linear-gradient(180deg,#BAFE2B,#BAFE2B)}
+html[data-brand="rb"] .ps-prog i{background:#BAFE2B}
+html[data-brand="rb"] .ps-ring{border:3px solid #BAFE2B}
+html[data-brand="rb"] .ps-app{border:3px solid #BAFE2B}
+html[data-brand="rb"] .ps-bubble{background:#BAFE2B}
+html[data-brand="rb"] .ps-bubble::after{border-top-color:#BAFE2B}
+html[data-brand="rb"] .ps-guide{color:#060935}
+html[data-brand="rb"] .ps-guide em{background:#BAFE2B}
+html[data-brand="rb"] .ps-card{color:#060935}
+/* components/video-cards.css */
+html[data-brand="rb"] .vcard:focus-visible{outline:3px solid #060935}
+html[data-brand="rb"] .vcard-day{font-family:'Recovery Belongs', 'RB Body', Barlow, system-ui, sans-serif;text-transform:lowercase;letter-spacing:0;font-weight:400;font-style:normal}
+html[data-brand="rb"] .vcard-day small{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .vcard-len{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .vcard-foot{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .vcards-note{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+/* crisis-sheet.css */
+html[data-brand="rb"] .cs-ok{color:#265EF7;border:2px solid #265EF7}
+html[data-brand="rb"] .dmf-opt.sel{border-color:#265EF7}
+html[data-brand="rb"] .dmf-opt.sel .dmf-radio{border-color:#265EF7}
+html[data-brand="rb"] .dmf-opt.sel .dmf-radio::after{background:#265EF7}
+html[data-brand="rb"] .dmf-note{color:#265EF7}
+/* door.css */
+html[data-brand="rb"] .door.first .slab .kick{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .door.first form input[type=text],html[data-brand="rb"] 
+.door.first form input[type=email],html[data-brand="rb"] 
+.door.first form input[type=password]{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .door.back h1{font-family:'Recovery Belongs', 'RB Body', Barlow, system-ui, sans-serif;text-transform:lowercase;letter-spacing:0;font-weight:400;font-style:normal}
+html[data-brand="rb"] .door.back .porch{font-family:'Recovery Belongs', 'RB Body', Barlow, system-ui, sans-serif;text-transform:lowercase;letter-spacing:0;font-weight:400;font-style:normal}
+/* dropsheet.css */
+html[data-brand="rb"] .casrec .asme.on{background:#BAFE2B}
+html[data-brand="rb"] .ds{color:#EEF8FB;border-top:4px solid #BAFE2B}
+html[data-brand="rb"] .ds-kick{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif;color:#BAFE2B}
+html[data-brand="rb"] .ds-lab{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .ds-in{color:#EEF8FB}
+html[data-brand="rb"] .ds-in:focus-visible{border-color:#BAFE2B}
+html[data-brand="rb"] .ds-seg button.on{background:#BAFE2B;border-color:#BAFE2B}
+html[data-brand="rb"] .ds-pick{color:#EEF8FB}
+html[data-brand="rb"] .ds-note{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .ds-sign{border-top:2px solid #BAFE2B}
+html[data-brand="rb"] .ds-claim{color:#EEF8FB}
+html[data-brand="rb"] .ds-siginput{border-color:#BAFE2B;color:#BAFE2B}
+html[data-brand="rb"] .ds-go{background:#BAFE2B;font-family:'Recovery Belongs', 'RB Body', Barlow, system-ui, sans-serif;text-transform:lowercase;letter-spacing:0;font-weight:400;font-style:normal}
+html[data-brand="rb"] .ds-why{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .cchide button{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .ccgone{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .cas-one .asme.rec.on{background:#BAFE2B}
+/* emoji.css */
+html[data-brand="rb"] .emp-tab.on{background:#265EF7}
+html[data-brand="rb"] .emp-one:hover{background:#EEF8FB}
+html[data-brand="rb"] .emp-one:focus-visible{outline:2px solid #265EF7}
+html[data-brand="rb"] .emp-green .emp-one:focus-visible{outline-color:#265EF7}
+/* findcare.css */
+html[data-brand="rb"] .fc-name{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+/* friends.css */
+html[data-brand="rb"] .frsec{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .room{background:#060935}
+html[data-brand="rb"] .roomname{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif;color:#D7EEF4}
+html[data-brand="rb"] .rbub{color:#D7EEF4}
+html[data-brand="rb"] .rmsg.mine .rbub{color:#D7EEF4}
+html[data-brand="rb"] .rin{color:#D7EEF4}
+html[data-brand="rb"] .rin:focus{color:#D7EEF4;caret-color:#D7EEF4;outline:2px solid #265EF7}
+html[data-brand="rb"] .rgo{background:#265EF7;font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .rmsgdots:focus-visible{outline:2px solid #265EF7}
+html[data-brand="rb"] .rheart:focus-visible{outline:2px solid #265EF7}
+html[data-brand="rb"] .rpic{background:#060935}
+html[data-brand="rb"] .rpic:focus-visible{outline:2px solid #265EF7}
+html[data-brand="rb"] .rtray-x{color:#D7EEF4}
+html[data-brand="rb"] .rpick{color:#D7EEF4}
+html[data-brand="rb"] .rta{border:2px solid #265EF7;color:#D7EEF4;caret-color:#D7EEF4}
+html[data-brand="rb"] .rta:focus,html[data-brand="rb"]  .redit .rta:focus{color:#D7EEF4;caret-color:#D7EEF4;outline:2px solid #265EF7}
+html[data-brand="rb"] .lnk:hover{color:#D7EEF4}
+html[data-brand="rb"] .rtab.on{color:#D7EEF4;border-color:#265EF7}
+html[data-brand="rb"] .rtab:focus-visible{outline:2px solid #265EF7}
+html[data-brand="rb"] .roomhelp a:hover{color:#D7EEF4}
+html[data-brand="rb"] .rxp{color:#D7EEF4;font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .rxp.on{border-color:#265EF7}
+html[data-brand="rb"] .rxp.on .rxn{color:#D7EEF4}
+html[data-brand="rb"] .rxadd:hover,html[data-brand="rb"]  .rxadd.open{color:#D7EEF4}
+html[data-brand="rb"] .rxpick:focus-visible,html[data-brand="rb"]  .rxp:focus-visible,html[data-brand="rb"]  .rxadd:focus-visible{outline:2px solid #265EF7}
+html[data-brand="rb"] .rfaceltr{color:#060935;font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .rtime{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .rnew span{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+/* globals.css */
+html[data-brand="rb"]{--boxfill:#EEF8FB;--slab:#060935;--slab-edge:#060935;--paper:#EEF8FB;--acid:#BAFE2B;--acid-ink:#060935}
+html[data-brand="rb"] body{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .mast .lg{font-family:'Recovery Belongs', 'RB Body', Barlow, system-ui, sans-serif;text-shadow:2px 2px 0 rgba(186,254,43,.85);text-transform:lowercase;letter-spacing:0;font-weight:400;font-style:normal}
+html[data-brand="rb"] .mast .rt{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .bar{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] h1{font-family:'Recovery Belongs', 'RB Body', Barlow, system-ui, sans-serif;text-transform:lowercase;letter-spacing:0;font-weight:400;font-style:normal}
+html[data-brand="rb"] .sub{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] label{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] input[type=text],html[data-brand="rb"]  input[type=email],html[data-brand="rb"]  input[type=password],html[data-brand="rb"]  input[type=date]{background:#EEF8FB;font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .hint{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .btn{font-family:'Recovery Belongs', 'RB Body', Barlow, system-ui, sans-serif;text-transform:lowercase;letter-spacing:0;font-weight:400;font-style:normal}
+html[data-brand="rb"] .linkbtn{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .choice .ct{font-family:'Recovery Belongs', 'RB Body', Barlow, system-ui, sans-serif;text-transform:lowercase;letter-spacing:0;font-weight:400;font-style:normal}
+html[data-brand="rb"] .legal{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .legal a{color:#265EF7}
+html[data-brand="rb"] .legal hr{border-top:1px solid #D7EEF4}
+html[data-brand="rb"] .mm-scrim{background:rgba(6,9,53,.42)}
+html[data-brand="rb"] .mm-panel{box-shadow:-12px 0 28px rgba(6,9,53,.18)}
+html[data-brand="rb"] .mm-title{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .mm-grp{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .mm-feat-t{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .pbig-x{background:#265EF7;font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .ph-why{color:#265EF7}
+/* gratitude.css */
+html[data-brand="rb"] .gr-eyebrow{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .gr-head{font-family:'Recovery Belongs', 'RB Body', Barlow, system-ui, sans-serif;text-transform:lowercase;letter-spacing:0;font-weight:400;font-style:normal}
+html[data-brand="rb"] .gr-go{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .gr-mine{font-family:'Recovery Belongs', 'RB Body', Barlow, system-ui, sans-serif;text-transform:lowercase;letter-spacing:0;font-weight:400;font-style:normal}
+html[data-brand="rb"] .gr-wall-head{font-family:'Recovery Belongs', 'RB Body', Barlow, system-ui, sans-serif;text-transform:lowercase;letter-spacing:0;font-weight:400;font-style:normal}
+/* help.css */
+html[data-brand="rb"] .hpsec{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .hptel{color:#EEF8FB;font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .hpsite{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+/* inline-reply.css */
+html[data-brand="rb"] .qreply-box{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+/* invite.css */
+html[data-brand="rb"] .ivcard{background:var(--gd, #265EF7)}
+html[data-brand="rb"] .ivTtl{color:#EEF8FB}
+html[data-brand="rb"] .ivBtn.go{background:#EEF8FB;color:#265EF7;border-color:#EEF8FB}
+html[data-brand="rb"] .ivBtn.no{color:#EEF8FB}
+html[data-brand="rb"] .ivLink{color:#EEF8FB}
+/* landing.css */
+html[data-brand="rb"] .lx{--lx-forest:#060935;--lx-night:#060935;--lx-green:#265EF7;--lx-lime:#BAFE2B}
+html[data-brand="rb"] .lx-inp:focus{box-shadow:0 0 0 4px rgba(38,94,247,.15)}
+html[data-brand="rb"] .lx .mdy select:focus{box-shadow:0 0 0 4px rgba(38,94,247,.15)}
+html[data-brand="rb"] .lx-count{background:#D7EEF4}
+html[data-brand="rb"] .lx-ok{background:#D7EEF4}
+html[data-brand="rb"] .lx input.lx-inp:focus{box-shadow:0 0 0 4px rgba(38,94,247,.15)}
+html[data-brand="rb"] .lx .lx-eye{background:#D7EEF4;color:#265EF7}
+html[data-brand="rb"] .lx .lx-eye:focus-visible{outline:3px solid #265EF7}
+html[data-brand="rb"] .lx .lx-back{background:#D7EEF4;color:#060935}
+/* look.css */
+html[data-brand="rb"] .lookp-cov:first-child{background:var(--gl,#D7EEF4)}
+html[data-brand="rb"] .lookp-cov:first-child span{color:var(--gt,#060935)}
+html[data-brand="rb"] .lookp-cov.sel{border-color:var(--gd,#265EF7)}
+html[data-brand="rb"] .lookp-cov:first-child.sel::after{color:var(--gt,#060935)}
+html[data-brand="rb"] .lookp-cov:focus-visible{outline:3px solid var(--gd,#265EF7)}
+html[data-brand="rb"] .lookp-mv:focus-visible{outline:3px solid var(--gd,#265EF7)}
+html[data-brand="rb"] .lookp-sw{background:#D7EEF4}
+html[data-brand="rb"] .lookp-sw.on{background:var(--gd,#265EF7);border-color:var(--gd,#265EF7)}
+html[data-brand="rb"] .lookp-sw:focus-visible{outline:3px solid var(--gd,#265EF7)}
+/* me/me-cream.css */
+html[data-brand="rb"] .mecream{--cr-page:#EEF8FB}
+html[data-brand="rb"] .mecream .bar{background:#D7EEF4}
+html[data-brand="rb"] .mecream .count{background:#BAFE2B}
+html[data-brand="rb"] .mecream .deets,html[data-brand="rb"]  .mecream .pcard,html[data-brand="rb"]  .mecream .item,html[data-brand="rb"]  .mecream .empty,html[data-brand="rb"] 
+.mecream .facepick,html[data-brand="rb"]  .mecream .facegrid{background:#D7EEF4}
+html[data-brand="rb"] .mecream .msec{background:#D7EEF4}
+html[data-brand="rb"] .mecream .msec[data-tint="acid"]{background:#BAFE2B}
+html[data-brand="rb"] .mecream .msec[data-tint="cream"]{background:#D7EEF4}
+html[data-brand="rb"] .mecream .msum{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .mecream .sbpill:hover{background:#D7EEF4}
+html[data-brand="rb"] .mecream .eye{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .mecream .pphead{background:#265EF7}
+html[data-brand="rb"] .mecream .pplink:focus-visible{outline:3px solid #265EF7}
+html[data-brand="rb"] .mecream .pp-green{background:#D7EEF4;color:#060935}
+html[data-brand="rb"] .mecream .ppall{color:#265EF7}
+html[data-brand="rb"] .mecream .ppall:focus-visible{outline:3px solid #265EF7}
+html[data-brand="rb"] .mecream .ppfind{background:#265EF7}
+/* meetings.css */
+html[data-brand="rb"] .mt-id{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .mt-cantget{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .mt-nowh{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .rmsec{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .rm-mast .rm-title{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .mt-keyv{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .mt-hero,html[data-brand="rb"]  .mt-item,html[data-brand="rb"]  .mt-herogo{--mt-acid:#BAFE2B;--mt-acid-ink:#060935}
+html[data-brand="rb"] .mt-kick{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .mt-herogo:hover{background:#BAFE2B}
+html[data-brand="rb"] .mt-rail{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .mt-tally{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .mt-item .mt-tag{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .rmsec{color:var(--mt-acid, #BAFE2B);font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .rmstart .btn{background:#BAFE2B;color:#060935}
+html[data-brand="rb"] .rmstart .btn:hover{background:#BAFE2B;color:#060935}
+/* meetings/checkin.css */
+html[data-brand="rb"] .mc-card{color:#060935;font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .mc-card .mc-hd{font-family:'Recovery Belongs', 'RB Body', Barlow, system-ui, sans-serif;color:#060935;text-transform:lowercase;letter-spacing:0;font-weight:400;font-style:normal}
+html[data-brand="rb"] .mc-card .mc-in{color:#060935}
+html[data-brand="rb"] .mc-card .mc-in:focus{border-color:#265EF7}
+html[data-brand="rb"] .mc-card .mc-go{background:linear-gradient(180deg,#BAFE2B,#BAFE2B);color:#060935}
+html[data-brand="rb"] .mc-card .mc-go:focus-visible,html[data-brand="rb"] .mc-card .mc-undo:focus-visible{outline:3px solid #265EF7}
+html[data-brand="rb"] .mc-card .mc-done b{color:#060935}
+html[data-brand="rb"] .mc-card .mc-counts b{font-family:'Recovery Belongs', 'RB Body', Barlow, system-ui, sans-serif;color:#060935;text-transform:lowercase;letter-spacing:0;font-weight:400;font-style:normal}
+html[data-brand="rb"] .mc-card .mc-slip{color:#265EF7}
+html[data-brand="rb"] .mc-card .mc-plus{background:linear-gradient(160deg,#1A2CB8,#060935)}
+html[data-brand="rb"] .mc-card .mc-pc{background:#BAFE2B}
+html[data-brand="rb"] .mc-card .mc-pbar i{background:linear-gradient(90deg,#BAFE2B,#BAFE2B)}
+html[data-brand="rb"] .mc-card .mc-circle{border-top:1px solid #D7EEF4}
+html[data-brand="rb"] .mc-card .mc-circle b{color:#060935}
+html[data-brand="rb"] .mc-card .mc-circle a{color:#265EF7}
+html[data-brand="rb"] .mc-card .mc-tg[aria-checked="true"]{background:linear-gradient(180deg,#BAFE2B,#BAFE2B)}
+html[data-brand="rb"] .mc-card .mc-tg:focus-visible{outline:3px solid #265EF7}
+/* notifications.css */
+html[data-brand="rb"] .ntfwhen{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+/* now.css */
+html[data-brand="rb"] .nw-head{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .nw-lbl{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .nw-988 b{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .nw-stepn{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+/* openroom.css */
+html[data-brand="rb"] .orcard{background:var(--gd, #265EF7)}
+html[data-brand="rb"] .orcard:hover{background:var(--gt, #060935)}
+html[data-brand="rb"] .orTtl{color:#EEF8FB}
+html[data-brand="rb"] .orGo{color:#EEF8FB}
+/* p/[id]/stats/stats.css */
+html[data-brand="rb"] .rpl{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .rpl-hero{background:linear-gradient(150deg, #060935, #265EF7 70%, #3D63E0);box-shadow:0 10px 26px rgba(38,94,247,.25)}
+html[data-brand="rb"] .rpl-hero p b{color:#BAFE2B}
+html[data-brand="rb"] .rpl-chip{color:#265EF7}
+html[data-brand="rb"] .rpl-chip > span{background:#265EF7}
+html[data-brand="rb"] .rpl-chip.lock{background:#EEF8FB}
+html[data-brand="rb"] .rpl-felt{border-bottom:2px solid #D7EEF4}
+html[data-brand="rb"] .rpl-area{fill:#D7EEF4}
+html[data-brand="rb"] .rpl-line{stroke:#265EF7}
+html[data-brand="rb"] .rpl-trio div{background:#EEF8FB}
+html[data-brand="rb"] .rpl-col i{background:#D7EEF4}
+html[data-brand="rb"] .rpl-col.today i{background:#265EF7}
+html[data-brand="rb"] .rpl-col.today span{color:#265EF7}
+html[data-brand="rb"] .rpl-foot{border-top:1px solid #EEF8FB}
+html[data-brand="rb"] .rpl-crow + .rpl-crow{border-top:1px solid #EEF8FB}
+html[data-brand="rb"] .rpl-bub{background:#EEF8FB}
+html[data-brand="rb"] .rpl-link{color:#265EF7}
+html[data-brand="rb"] .rpl-ctl + .rpl-ctl{border-top:1px solid #EEF8FB}
+html[data-brand="rb"] .rpl-cico{background:#EEF8FB}
+html[data-brand="rb"] .rpl-ctl input:checked{background:#265EF7}
+html[data-brand="rb"][data-theme="black"] .rpl{color:#D7EEF4}
+html[data-brand="rb"][data-theme="black"] .rpl-sh h2, html[data-brand="rb"][data-theme="black"] .rpl-crow b, html[data-brand="rb"][data-theme="black"] .rpl-foot b,
+html[data-brand="rb"][data-theme="black"] .rpl-bub a, html[data-brand="rb"][data-theme="black"] .rpl-bub b, html[data-brand="rb"][data-theme="black"] .rpl-ctl,
+html[data-brand="rb"][data-theme="black"] .rpl-col em, html[data-brand="rb"][data-theme="black"] .rpl-crow, html[data-brand="rb"][data-theme="black"] .rpl-priv{color:#D7EEF4}
+/* photos.css */
+html[data-brand="rb"] .composer .camera{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .delh{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .ccpin .ccflyerlink{border-left:3px solid var(--acid, #BAFE2B)}
+html[data-brand="rb"] .ucover.flat{background:var(--acc,#265EF7)}
+html[data-brand="rb"] .ucount{background:var(--acc,#265EF7)}
+html[data-brand="rb"] .pad h2.sec{border-bottom-color:var(--acc,#265EF7)}
+html[data-brand="rb"] .pad .fstat b{color:var(--acc,#265EF7)}
+/* plan.css */
+html[data-brand="rb"] .pn-lbl{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .pn-sn{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+/* pledge.css */
+html[data-brand="rb"] .pl-day{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .pl-head{font-family:'Recovery Belongs', 'RB Body', Barlow, system-ui, sans-serif;text-transform:lowercase;letter-spacing:0;font-weight:400;font-style:normal}
+html[data-brand="rb"] .pl-streak{font-family:'Recovery Belongs', 'RB Body', Barlow, system-ui, sans-serif;text-transform:lowercase;letter-spacing:0;font-weight:400;font-style:normal}
+html[data-brand="rb"] .plr-lbl{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .plr-n{font-family:'Recovery Belongs', 'RB Body', Barlow, system-ui, sans-serif;text-transform:lowercase;letter-spacing:0;font-weight:400;font-style:normal}
+/* polish.css */
+html[data-brand="rb"]:not([data-theme="black"]){--pl-line:rgba(6,9,53, .10);--pl-shadow:0 2px 4px rgba(6,9,53, .05), 0 12px 28px rgba(6,9,53, .10);--pl-green-grad:linear-gradient(180deg, #BAFE2B, #BAFE2B);--pl-action-ink:#060935}
+html[data-brand="rb"]:not([data-theme="black"]) .mast{background:linear-gradient(180deg, #1a36cf 0%, #060935 100%);border-bottom:2px solid #BAFE2B;box-shadow:0 2px 14px rgba(186,254,43, .28), 0 2px 10px rgba(0, 0, 60, .3)}
+html[data-brand="rb"]:not([data-theme="black"]) .bar:not(.bar-doors):not(.bar-today){background:#D7EEF4}
+html[data-brand="rb"]:not([data-theme="black"]) .bar-doors,
+html[data-brand="rb"]:not([data-theme="black"]) .bar-today{background:#D7EEF4}
+html[data-brand="rb"]:not([data-theme="black"]) .bar-doors .dr{box-shadow:0 1px 2px rgba(6,9,53, .08), inset 0 0 0 1px var(--pl-line)}
+html[data-brand="rb"]:not([data-theme="black"]) .bar-doors .dr-in,
+html[data-brand="rb"]:not([data-theme="black"]) .bar-doors .dr-ask{color:#060935}
+html[data-brand="rb"]:not([data-theme="black"]) .bar-today .td{box-shadow:0 1px 2px rgba(6,9,53, .06), inset 0 0 0 1px rgba(6,9,53, .08)}
+html[data-brand="rb"]:not([data-theme="black"]) .tupd > :first-child{background:linear-gradient(90deg, #060935, #1a36cf)}
+html[data-brand="rb"]:not([data-theme="black"]) :is(.mt-hero.mt-heronone, .rd-ask){background:radial-gradient(120% 90% at 100% 0%, rgba(186,254,43, .14), transparent 55%), linear-gradient(160deg, #0D24AA, #060935)}
+html[data-brand="rb"]:not([data-theme="black"]) .tabbar{box-shadow:0 8px 28px rgba(6,9,53, .18)}
+html[data-brand="rb"]:not([data-theme="black"]) .tabbar .on .tl{color:#060935}
+html[data-brand="rb"]:not([data-theme="black"]) .mast .lg{color:#BAFE2B;text-shadow:0 0 10px rgba(186,254,43, .25)}
+html[data-brand="rb"]:not([data-theme="black"]) .mast .rt,
+html[data-brand="rb"]:not([data-theme="black"]) .mast .melink{background:rgba(186,254,43, .14);color:#BAFE2B}
+html[data-brand="rb"]:not([data-theme="black"]) .art-band{background:linear-gradient(90deg, #060935, #1a36cf);color:#BAFE2B}
+html[data-brand="rb"]:not([data-theme="black"]) .art-band span{color:#BAFE2B}
+html[data-brand="rb"]:not([data-theme="black"]) .tupd > :first-child,
+html[data-brand="rb"]:not([data-theme="black"]) .tupd > :first-child *{color:#BAFE2B}
+html[data-brand="rb"]:not([data-theme="black"]) .sea-turn{background:linear-gradient(135deg, #060935, #1a36cf)}
+html[data-brand="rb"]:not([data-theme="black"]) :is(.mt-hero, .mt-item, .mt-herogo){--mt-acid:#BAFE2B;--mt-acid-ink:#060935;--mt-near:#060935}
+html[data-brand="rb"]:not([data-theme="black"]) .tk-mcard{background:radial-gradient(120% 80% at 100% 0%, rgba(186,254,43, .2), transparent 60%), linear-gradient(160deg, #0D24AA, #00004a)}
+html[data-brand="rb"]:not([data-theme="black"]) .tk-mcard .tk-mic{background:linear-gradient(145deg, #BAFE2B, #00B83C)}
+html[data-brand="rb"]:not([data-theme="black"]) [class*="LiveSoberCounter_dot"]{background:#BAFE2B}
+html[data-brand="rb"]:not([data-theme="black"]) .mt-item .mt-rail{background:#060935}
+html[data-brand="rb"]:not([data-theme="black"]) .mt-item.live .mt-rail{background:linear-gradient(180deg, #1a36cf, #060935);box-shadow:inset 4px 0 0 #BAFE2B}
+html[data-brand="rb"]:not([data-theme="black"]) .mt-item.live .mt-rail b{color:#BAFE2B}
+html[data-brand="rb"]:not([data-theme="black"]) .rd-nobody{border-color:#BAFE2B;box-shadow:inset 5px 0 0 #BAFE2B}
+html[data-brand="rb"]:not([data-theme="black"]) .rd-nobody :is(.rd-nlabel, .rd-ntext){color:#060935}
+/* readings.css */
+html[data-brand="rb"] .rd-wrap,html[data-brand="rb"]  .rd-one{background:#D7EEF4}
+html[data-brand="rb"] .rd-kicker{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif;background:#BAFE2B}
+html[data-brand="rb"] .rd-h1{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .rd-item{background:#EEF8FB}
+html[data-brand="rb"] .rd-item:hover{background:#BAFE2B}
+html[data-brand="rb"] .rd-iref{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .rd-ititle{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .rd-out{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .rd-back{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .rd-ref{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif;background:#BAFE2B}
+html[data-brand="rb"] .rd-title{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .rd-vn{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .rd-nobody{background:#BAFE2B}
+html[data-brand="rb"] .rd-nlabel{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif;color:#060935}
+html[data-brand="rb"] .rd-ntext{color:#060935}
+html[data-brand="rb"] .rd-src{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .rd-done{color:#BAFE2B;font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .rd-listen{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif;background:#EEF8FB}
+html[data-brand="rb"] .rd-listen:hover{background:#BAFE2B}
+html[data-brand="rb"] .rd-listen[data-on="1"]{color:#BAFE2B}
+html[data-brand="rb"] .rd-listen:disabled:hover{background:#EEF8FB}
+html[data-brand="rb"] .rd-asklabel{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif;color:#BAFE2B}
+html[data-brand="rb"] .rd-asktext{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .rd-asknote{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .rd-talk{background:#EEF8FB}
+html[data-brand="rb"] .rd-talk:hover{background:#BAFE2B}
+html[data-brand="rb"] .rd-talktext b{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .rd-talkarrow{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .rd-h2{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+/* resume/resume.css */
+html[data-brand="rb"] .rs{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .rs button{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .rs .rs-hero{background:linear-gradient(160deg,#1A2CB8 0%,#060935 55%,#060A3C 100%)}
+html[data-brand="rb"] .rs .rs-prog i.on{background:linear-gradient(90deg,#BAFE2B,#BAFE2B)}
+html[data-brand="rb"] .rs .rs-sug button[aria-pressed="true"] b{background:#BAFE2B}
+html[data-brand="rb"] .rs .rs-toggle[aria-checked="true"]{background:linear-gradient(180deg,#BAFE2B,#BAFE2B)}
+html[data-brand="rb"] .rs .rs-meter b{font-family:'Recovery Belongs', 'RB Body', Barlow, system-ui, sans-serif;color:#BAFE2B;text-transform:lowercase;letter-spacing:0;font-weight:400;font-style:normal}
+html[data-brand="rb"] .rs .rs-look.modern i::before{background:#265EF7}
+html[data-brand="rb"] .rs .rs-look.bold i{background:linear-gradient(#060935 0 22%,#fff 22%)}
+html[data-brand="rb"] .rs .rs-check div::before{color:#BAFE2B}
+html[data-brand="rb"] .rs .rs-go{background:linear-gradient(180deg,#BAFE2B,#BAFE2B)}
+html[data-brand="rb"] .rs .rs-next{background:linear-gradient(180deg,#BAFE2B,#BAFE2B)}
+html[data-brand="rb"] .rs .rs-tabs button[aria-pressed="true"]{color:#060935}
+html[data-brand="rb"] .rp.rp-modern .rp-name{color:#060935}
+html[data-brand="rb"] .rp.rp-modern .rp-title{color:#265EF7}
+html[data-brand="rb"] .rp.rp-modern .rp-h{color:#265EF7;border-bottom:2px solid #265EF7}
+html[data-brand="rb"] .rp.rp-bold .rp-head{background:#060935}
+html[data-brand="rb"] .rp.rp-bold .rp-h{color:#060935;border-bottom:3px solid #BAFE2B}
+/* room-premium.css */
+html[data-brand="rb"] .roomscreen .room{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif;background:radial-gradient(120% 60% at 100% 0%, rgba(38,54,193,.20), transparent 60%),
+    radial-gradient(90% 50% at 0% 40%, rgba(240,195,90,.06), transparent 60%),
+    #060935}
+html[data-brand="rb"] .roomscreen .rtab{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .roomscreen .rtab.on{background:linear-gradient(135deg,#3D63E0,#265EF7)}
+html[data-brand="rb"] .roomscreen .roomemoji{background:linear-gradient(145deg,#265EF7,#265EF7 60%,#060935)}
+html[data-brand="rb"] .roomscreen .rtime{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .roomscreen .rxp{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .roomscreen .rnew span{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .roomscreen .rgo{background:linear-gradient(145deg,#265EF7,#265EF7);font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .roomscreen .rbar:focus-within{border-color:rgba(186,254,43,.55);box-shadow:0 0 0 3px rgba(186,254,43,.10), 0 10px 28px rgba(0,0,30,.4)}
+html[data-brand="rb"] .roomscreen .rgo{background:linear-gradient(180deg,#BAFE2B,#BAFE2B);color:#060935}
+/* rules-agree.css */
+html[data-brand="rb"] .ra-box.on{border-color:#060935}
+html[data-brand="rb"] .ra-box input{accent-color:#060935}
+html[data-brand="rb"] .ra-box a{color:#060935}
+html[data-brand="rb"] .rg-card{background:#EEF8FB;font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .rg-bar{color:#BAFE2B;font-family:'Recovery Belongs', 'RB Body', Barlow, system-ui, sans-serif;text-transform:lowercase;letter-spacing:0;font-weight:400;font-style:normal}
+html[data-brand="rb"] .rg-body h2{font-family:'Recovery Belongs', 'RB Body', Barlow, system-ui, sans-serif;text-transform:lowercase;letter-spacing:0;font-weight:400;font-style:normal}
+html[data-brand="rb"] .rg-body a{color:#060935}
+html[data-brand="rb"] .rg-go{color:#BAFE2B}
+/* share/share.css */
+html[data-brand="rb"] .shc{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .shc .shcard{background:linear-gradient(160deg,#265EF7,#3D63E0 60%,#E0B23E 140%);box-shadow:0 10px 26px rgba(38,94,247,.28)}
+html[data-brand="rb"] .shc .shface{background:#060935}
+html[data-brand="rb"] .shc .shtog.shon{background:#265EF7}
+html[data-brand="rb"] .shc .shjoin{background:#265EF7}
+html[data-brand="rb"] .shc .shjoin.shghost{color:#265EF7;border:2px solid #265EF7}
+html[data-brand="rb"] .shc h1.sh-h{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+/* slip/slip.css */
+html[data-brand="rb"] .sl-wrap{--sl-lime:#BAFE2B;font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .sl-wrap .sl-go{background:linear-gradient(180deg,#BAFE2B,#BAFE2B)}
+html[data-brand="rb"] .sl-wrap .sl-pass{background:linear-gradient(160deg,#1A2CB8 0%,#060935 55%,#060A3C 100%)}
+html[data-brand="rb"] .sl-wrap .sl-logo{font-family:'Recovery Belongs', 'RB Body', Barlow, system-ui, sans-serif;text-transform:lowercase;letter-spacing:0;font-weight:400;font-style:normal}
+html[data-brand="rb"] .sl-wrap .sl-seal b{font-family:'Recovery Belongs', 'RB Body', Barlow, system-ui, sans-serif;text-transform:lowercase;letter-spacing:0;font-weight:400;font-style:normal}
+html[data-brand="rb"] .sl-wrap .sl-hold i{background:linear-gradient(90deg,#BAFE2B,#BAFE2B)}
+html[data-brand="rb"] .sl-wrap .sl-stat b{font-family:'Recovery Belongs', 'RB Body', Barlow, system-ui, sans-serif;text-transform:lowercase;letter-spacing:0;font-weight:400;font-style:normal}
+html[data-brand="rb"] .sl-wrap .sl-d{background:#060935}
+html[data-brand="rb"] .sl-wrap .sl-toggle[aria-checked="true"]{background:linear-gradient(180deg,#BAFE2B,#BAFE2B)}
+html[data-brand="rb"] .sl-pub{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .sl-pub .sl-logo{font-family:'Recovery Belongs', 'RB Body', Barlow, system-ui, sans-serif;color:#BAFE2B;text-transform:lowercase;letter-spacing:0;font-weight:400;font-style:normal}
+html[data-brand="rb"] .sl-pub .sl-dt{color:#265EF7}
+html[data-brand="rb"] .sl-pub .sl-sig{color:#265EF7}
+/* stories.css */
+html[data-brand="rb"] .sty-item{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .sty-face{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+/* survey/survey.css */
+html[data-brand="rb"] .sv-send{color:#EEF8FB}
+/* talk-entry.css */
+html[data-brand="rb"] .tk-strip{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .tk-strip .tk-sgo{background:linear-gradient(135deg,#265EF7,#1C288E)}
+html[data-brand="rb"] .tk-wallcard{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .tk-wallcard .tk-wic{background:linear-gradient(145deg,#265EF7,#265EF7)}
+html[data-brand="rb"] .tk-wallcard .tk-wgo{background:linear-gradient(135deg,#265EF7,#1C288E)}
+html[data-brand="rb"] .tk-mcard{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .tk-mcard .tk-mic{background:linear-gradient(145deg,#265EF7,#265EF7)}
+html[data-brand="rb"] .tk-mcard .tk-mgo{background:linear-gradient(135deg,#265EF7,#1C288E)}
+/* talks.css */
+html[data-brand="rb"] .talkx{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .talkx .tk-cover{background:linear-gradient(145deg,#265EF7,#265EF7 60%,#060935)}
+html[data-brand="rb"] .talkx .tk-startcard{background:linear-gradient(135deg,rgba(38,54,193,.35),rgba(38,94,247,.18))}
+html[data-brand="rb"] .talkx .tk-join{background:linear-gradient(135deg,#265EF7,#1C288E)}
+html[data-brand="rb"] .talkx .tk-sheet{background:#060935}
+html[data-brand="rb"] .talkx .tk-go{background:linear-gradient(145deg,#265EF7,#265EF7)}
+html[data-brand="rb"] .talkx .tk-ctl.mic.on{background:linear-gradient(145deg,#265EF7,#265EF7)}
+html[data-brand="rb"] .talkx .tk-seat{background:#060935}
+html[data-brand="rb"] .talkx .tk-vo{background:radial-gradient(circle at 50% 42%,color-mix(in srgb,var(--tk-tint) 28%,transparent),transparent 62%),#060935}
+html[data-brand="rb"] .talkx .tk-hroom{color:#D7EEF4}
+html[data-brand="rb"] .talkx .tk-prev{background:#060935}
+html[data-brand="rb"] .talkx .tk-only{color:#D7EEF4}
+html[data-brand="rb"] .talkx .tk-alt{color:#D7EEF4}
+/* tenth.css */
+html[data-brand="rb"] .tenth-eyebrow{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .tenth-head{font-family:'Recovery Belongs', 'RB Body', Barlow, system-ui, sans-serif;text-transform:lowercase;letter-spacing:0;font-weight:400;font-style:normal}
+html[data-brand="rb"] .tenth-go{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .tenth-yn{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .tenth-said{font-family:'Recovery Belongs', 'RB Body', Barlow, system-ui, sans-serif;text-transform:lowercase;letter-spacing:0;font-weight:400;font-style:normal}
+/* theme-green.css */
+html[data-brand="rb"]{--gd:#265EF7;--gl:#D7EEF4;--gt:#060935;--paper:#EEF8FB;--line:#D7EEF4;--acid:#D7EEF4;--acid-ink:#060935}
+html[data-brand="rb"]{background:#D7EEF4}
+html[data-brand="rb"] .mast{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .mast .lg{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .bar{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .mstone-body h3{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .mstone-body p{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .soff{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .nm,html[data-brand="rb"]  .pname,html[data-brand="rb"]  .stitle,html[data-brand="rb"]  .fplab,html[data-brand="rb"]  .btn,html[data-brand="rb"]  .sgo,html[data-brand="rb"]  .h,html[data-brand="rb"]  .empty .h{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .item.poster{background:#EEF8FB}
+html[data-brand="rb"] .item.screened{background:#EEF8FB}
+html[data-brand="rb"] .tab .tl{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .pface{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .pn{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .cbar input,html[data-brand="rb"]  .cbar textarea{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .cbar input[disabled],html[data-brand="rb"]  .cbar textarea[disabled]{background:#D7EEF4}
+html[data-brand="rb"] .cbar button{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .idea{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .ctab{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .dgo{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .dchip{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .dchip{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .tdot{background:var(--gd, #265EF7)}
+html[data-brand="rb"] .paskh{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .paskbtn.go{color:#EEF8FB}
+html[data-brand="rb"] .rmenu-who{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .sbpill:hover{border-color:var(--gd, #265EF7)}
+html[data-brand="rb"] .sbpill.sel{background:var(--gd, #265EF7);border-color:var(--gd, #265EF7)}
+html[data-brand="rb"] .thChip.sel{border-color:var(--gd, #265EF7);background:var(--gl, #D7EEF4)}
+html[data-brand="rb"] .composer .ctop .cemo,html[data-brand="rb"] 
+.replybar .remo,html[data-brand="rb"]  .replybar .rpick{color:#060935}
+/* tickets.css */
+html[data-brand="rb"] .tk-chip{color:#265EF7}
+html[data-brand="rb"] .tk-chip.on{background:#265EF7;border-color:#265EF7}
+html[data-brand="rb"] .tk-ta,html[data-brand="rb"] .tk-in{color:#060935}
+html[data-brand="rb"] .tk-ta:focus,html[data-brand="rb"] .tk-in:focus{border-color:#265EF7}
+html[data-brand="rb"] .tk-shot{color:#265EF7}
+html[data-brand="rb"] .tk-st-new{color:#265EF7}
+html[data-brand="rb"] .tk-tab.on{background:#265EF7}
+/* tour.css */
+html[data-brand="rb"] .tourpage{background:var(--paper, #EEF8FB)}
+html[data-brand="rb"] .th{font-family:'Recovery Belongs', 'RB Body', Barlow, system-ui, sans-serif;text-transform:lowercase;letter-spacing:0;font-weight:400;font-style:normal}
+html[data-brand="rb"] .tchap:hover{background:#D7EEF4}
+/* type.css */
+html[data-brand="rb"] .mast .lg{font-family:'Recovery Belongs', 'RB Body', Barlow, system-ui, sans-serif !important;text-transform:lowercase;letter-spacing:0;font-weight:400;font-style:normal}
+html[data-brand="rb"]:not([data-theme="black"]) .wall .item .nm,
+html[data-brand="rb"]:not([data-theme="black"]) .wall .item .nm a{color:#060935}
+html[data-brand="rb"]:not([data-theme="black"]) .wall .item .bd{color:#060935}
+html[data-brand="rb"]:not([data-theme="black"]) .rpvr{color:#060935}
+html[data-brand="rb"]:not([data-theme="black"]) .rpvw{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+/* u/[handle]/profile-tabs.css */
+html[data-brand="rb"] .ptab{font-family:'Recovery Belongs', 'RB Body', Barlow, system-ui, sans-serif;text-transform:lowercase;letter-spacing:0;font-weight:400;font-style:normal}
+/* u/[handle]/their-people.css */
+html[data-brand="rb"] .tp-green{background:#D7EEF4;color:#060935}
+html[data-brand="rb"][data-theme="black"] .tptitle{color:#D7EEF4}
+/* videos/videos.css */
+html[data-brand="rb"] .vp{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .vp-iconbtn:focus-visible{outline:3px solid #BAFE2B}
+html[data-brand="rb"] .vp-title{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .vp-pos{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .vp-poster:focus-visible{outline:3px solid #BAFE2B}
+html[data-brand="rb"] .vp-pday{font-family:'Recovery Belongs', 'RB Body', Barlow, system-ui, sans-serif;color:#EEF8FB;text-transform:lowercase;letter-spacing:0;font-weight:400;font-style:normal}
+html[data-brand="rb"] .vp-plabel{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .vp-quiet{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .vp-rbtn:focus-visible .vp-ring,html[data-brand="rb"] .vp-rbtn:focus-visible .vp-ic{outline:3px solid #BAFE2B}
+html[data-brand="rb"] .vp-felt{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .vp-end h2{font-family:'Recovery Belongs', 'RB Body', Barlow, system-ui, sans-serif;color:#EEF8FB;text-transform:lowercase;letter-spacing:0;font-weight:400;font-style:normal}
+html[data-brand="rb"] .vp-ebtn:focus-visible,html[data-brand="rb"] .vp-next:focus-visible{outline:3px solid #BAFE2B}
+html[data-brand="rb"] .vp-next small{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .vp-nobody{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .vp-chip{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif;background:#060935}
+html[data-brand="rb"] .vp-meta{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .vp-peak{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .vp-times{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .vp-toast{background:#EEF8FB}
+html[data-brand="rb"] .vp-small{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+/* wall-ridge.css */
+html[data-brand="rb"]:not([data-theme="black"]) body:has(.wall) .art-band{font-family:'Recovery Belongs', 'RB Body', Barlow, system-ui, sans-serif;text-transform:lowercase;letter-spacing:0;font-weight:400;font-style:normal}
+@media (prefers-reduced-transparency: reduce){html[data-brand="rb"]:not([data-theme="black"]) body:has(.wall) .art-band{background:#060935}}
+/* wall.css */
+html[data-brand="rb"] .item.poster{background:#EEF8FB}
+html[data-brand="rb"] .item .nm{font-family:'Recovery Belongs', 'RB Body', Barlow, system-ui, sans-serif;text-transform:lowercase;letter-spacing:0;font-weight:400;font-style:normal}
+html[data-brand="rb"] .item .mt{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .item .ft{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .item .tape{background:rgba(186,254,43,.5)}
+html[data-brand="rb"] .empty .h{font-family:'Recovery Belongs', 'RB Body', Barlow, system-ui, sans-serif;text-transform:lowercase;letter-spacing:0;font-weight:400;font-style:normal}
+html[data-brand="rb"] .empty .p{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .cbox{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .composer button{font-family:'Recovery Belongs', 'RB Body', Barlow, system-ui, sans-serif;text-transform:lowercase;letter-spacing:0;font-weight:400;font-style:normal}
+html[data-brand="rb"] .anontoggle button{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .replies{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .threadbar .tt{font-family:'Recovery Belongs', 'RB Body', Barlow, system-ui, sans-serif;text-transform:lowercase;letter-spacing:0;font-weight:400;font-style:normal}
+html[data-brand="rb"] .origmeta{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .loading{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .nosilence{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .nosilence b{font-family:'Recovery Belongs', 'RB Body', Barlow, system-ui, sans-serif;text-transform:lowercase;letter-spacing:0;font-weight:400;font-style:normal}
+html[data-brand="rb"] .rwho{font-family:'Recovery Belongs', 'RB Body', Barlow, system-ui, sans-serif;text-transform:lowercase;letter-spacing:0;font-weight:400;font-style:normal}
+html[data-brand="rb"] .rwhen{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .ranon{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .replybar input{background:#EEF8FB;font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .replybar button[type=submit]{font-family:'Recovery Belongs', 'RB Body', Barlow, system-ui, sans-serif;text-transform:lowercase;letter-spacing:0;font-weight:400;font-style:normal}
+html[data-brand="rb"] .mast .back{font-family:'Recovery Belongs', 'RB Body', Barlow, system-ui, sans-serif;text-transform:lowercase;letter-spacing:0;font-weight:400;font-style:normal}
+html[data-brand="rb"] .count .cn{font-family:'Recovery Belongs', 'RB Body', Barlow, system-ui, sans-serif;text-transform:lowercase;letter-spacing:0;font-weight:400;font-style:normal}
+html[data-brand="rb"] .count .cl{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif;color:#060935}
+html[data-brand="rb"] .count .cols{border-top:1px solid rgba(6,9,53,.22)}
+html[data-brand="rb"] .count .col + .col{border-left:1px solid rgba(6,9,53,.22)}
+html[data-brand="rb"] .count .col .v{font-family:'Recovery Belongs', 'RB Body', Barlow, system-ui, sans-serif;text-transform:lowercase;letter-spacing:0;font-weight:400;font-style:normal}
+html[data-brand="rb"] .count .col .k{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif;color:#060935}
+html[data-brand="rb"] h2.sec{font-family:'Recovery Belongs', 'RB Body', Barlow, system-ui, sans-serif;text-transform:lowercase;letter-spacing:0;font-weight:400;font-style:normal}
+html[data-brand="rb"] .mm{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .nvm{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .dr{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .heart{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .item.poster .heart{color:#060935}
+html[data-brand="rb"] .dots{font-family:'Recovery Belongs', 'RB Body', Barlow, system-ui, sans-serif;text-transform:lowercase;letter-spacing:0;font-weight:400;font-style:normal}
+html[data-brand="rb"] .item.poster .dots{color:#060935}
+html[data-brand="rb"] .mt2{font-family:'Recovery Belongs', 'RB Body', Barlow, system-ui, sans-serif;text-transform:lowercase;letter-spacing:0;font-weight:400;font-style:normal}
+html[data-brand="rb"] .mnote{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .back2{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .waiting{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif;color:#060935}
+html[data-brand="rb"] .rule .rt2{font-family:'Recovery Belongs', 'RB Body', Barlow, system-ui, sans-serif;text-transform:lowercase;letter-spacing:0;font-weight:400;font-style:normal}
+html[data-brand="rb"] .rule b{font-family:'Recovery Belongs', 'RB Body', Barlow, system-ui, sans-serif;text-transform:lowercase;letter-spacing:0;font-weight:400;font-style:normal}
+html[data-brand="rb"] .pname{font-family:'Recovery Belongs', 'RB Body', Barlow, system-ui, sans-serif;text-transform:lowercase;letter-spacing:0;font-weight:400;font-style:normal}
+html[data-brand="rb"] .phandle{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .sbar{box-shadow:0 0 10px rgba(186,254,43,.45)}
+html[data-brand="rb"] .stitle{font-family:'Recovery Belongs', 'RB Body', Barlow, system-ui, sans-serif;text-transform:lowercase;letter-spacing:0;font-weight:400;font-style:normal}
+html[data-brand="rb"] .sok{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif;color:#060935}
+html[data-brand="rb"] .sgo{font-family:'Recovery Belongs', 'RB Body', Barlow, system-ui, sans-serif;text-transform:lowercase;letter-spacing:0;font-weight:400;font-style:normal}
+html[data-brand="rb"] .swho{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .stag.full{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .sout{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .snote{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .mstone-body h3{font-family:'Recovery Belongs', 'RB Body', Barlow, system-ui, sans-serif;text-transform:lowercase;letter-spacing:0;font-weight:400;font-style:normal}
+html[data-brand="rb"] .mstone-body p{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .soff{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .schip{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .total .tn{font-family:'Recovery Belongs', 'RB Body', Barlow, system-ui, sans-serif;text-transform:lowercase;letter-spacing:0;font-weight:400;font-style:normal}
+html[data-brand="rb"] .total .tl{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .ask .askq{font-family:'Recovery Belongs', 'RB Body', Barlow, system-ui, sans-serif;text-transform:lowercase;letter-spacing:0;font-weight:400;font-style:normal}
+html[data-brand="rb"] .count .mnext{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif;color:#060935}
+html[data-brand="rb"] .chip{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .tab .tl{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .pface{font-family:'Recovery Belongs', 'RB Body', Barlow, system-ui, sans-serif;text-transform:lowercase;letter-spacing:0;font-weight:400;font-style:normal}
+html[data-brand="rb"] .pn{font-family:'Recovery Belongs', 'RB Body', Barlow, system-ui, sans-serif;text-transform:lowercase;letter-spacing:0;font-weight:400;font-style:normal}
+html[data-brand="rb"] .deets h3{font-family:'Recovery Belongs', 'RB Body', Barlow, system-ui, sans-serif;text-transform:lowercase;letter-spacing:0;font-weight:400;font-style:normal}
+html[data-brand="rb"] .deet.sponsor{font-family:'Recovery Belongs', 'RB Body', Barlow, system-ui, sans-serif;text-transform:lowercase;letter-spacing:0;font-weight:400;font-style:normal}
+html[data-brand="rb"] .facepick:hover{background:#EEF8FB}
+html[data-brand="rb"] .fplab{font-family:'Recovery Belongs', 'RB Body', Barlow, system-ui, sans-serif;text-transform:lowercase;letter-spacing:0;font-weight:400;font-style:normal}
+html[data-brand="rb"] .fpsub{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .facegrp{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .facenone{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .cname{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .clast{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .cdot{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .csent{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .cnum{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .creqt{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .creqs{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .cbtns button{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .cgate{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .bub{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .cnote{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .cbar input{background:#EEF8FB;font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .cbar button{font-family:'Recovery Belongs', 'RB Body', Barlow, system-ui, sans-serif;text-transform:lowercase;letter-spacing:0;font-weight:400;font-style:normal}
+html[data-brand="rb"] .idea{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .ctab{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .dchip{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .dgo{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .dchip{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .lkh{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .plyb{border:2px solid var(--gd,#265EF7)}
+html[data-brand="rb"] .plyb:hover{background:var(--gl,#D7EEF4)}
+html[data-brand="rb"] .plyt{background:var(--gd,#265EF7);color:var(--gl,#D7EEF4)}
+html[data-brand="rb"] .plyl{color:var(--gt,#060935)}
+html[data-brand="rb"] .plys{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .rpvw{font-family:'Recovery Belongs', 'RB Body', Barlow, system-ui, sans-serif;text-transform:lowercase;letter-spacing:0;font-weight:400;font-style:normal}
+html[data-brand="rb"] .rpvm{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .cc{box-shadow:0 1px 2px rgba(6,9,53,.10), 0 12px 28px -8px rgba(6,9,53,.26)}
+html[data-brand="rb"] .ccshelf{background:#BAFE2B}
+html[data-brand="rb"] .shsrc{font-family:'Recovery Belongs', 'RB Body', Barlow, system-ui, sans-serif;text-transform:lowercase;letter-spacing:0;font-weight:400;font-style:normal}
+html[data-brand="rb"] .shcat{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .ccdose{color:#BAFE2B;font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .ccplay:focus-visible{outline:3px solid var(--gd,#265EF7)}
+html[data-brand="rb"] .ccnone{background:linear-gradient(160deg,#265EF7,#060935)}
+html[data-brand="rb"] .ccsrc{font-family:'Recovery Belongs', 'RB Body', Barlow, system-ui, sans-serif;text-transform:lowercase;letter-spacing:0;font-weight:400;font-style:normal}
+html[data-brand="rb"] .cccat{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif;color:#EEF8FB}
+html[data-brand="rb"] .cctitle{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .ccnote{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .ccout{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .ccout:hover{color:var(--gd,#265EF7)}
+html[data-brand="rb"] .ccout:focus-visible{outline:3px solid var(--gd,#265EF7)}
+html[data-brand="rb"] .dp{color:#EEF8FB}
+html[data-brand="rb"] .dp-dots{background-image:radial-gradient(rgba(186,254,43,.13) 1px, transparent 1.4px)}
+html[data-brand="rb"] .dp-kicker{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif;color:#BAFE2B}
+html[data-brand="rb"] .dp-title{font-family:'Recovery Belongs', 'RB Body', Barlow, system-ui, sans-serif;color:#EEF8FB;text-transform:lowercase;letter-spacing:0;font-weight:400;font-style:normal}
+html[data-brand="rb"] .dp-artist{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .dp-clabel{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .dp-nums{color:#BAFE2B}
+html[data-brand="rb"] .dp-nums b{font-family:'Recovery Belongs', 'RB Body', Barlow, system-ui, sans-serif;text-transform:lowercase;letter-spacing:0;font-weight:400;font-style:normal}
+html[data-brand="rb"] .dp-nums i{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .dp-play:focus-visible{outline:3px solid #BAFE2B}
+html[data-brand="rb"] .dp-only{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif;background:#BAFE2B}
+html[data-brand="rb"] .dp-btn{background:#BAFE2B}
+html[data-brand="rb"] .dp-link{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif;color:#BAFE2B}
+html[data-brand="rb"] .dp-link:hover{color:#EEF8FB}
+html[data-brand="rb"] .dp-link:focus-visible{outline:3px solid #BAFE2B}
+html[data-brand="rb"] .td{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+/* wall/team-update.css */
+html[data-brand="rb"] .tutag{background:var(--deep, #060935);font-family:'Recovery Belongs', 'RB Body', Barlow, system-ui, sans-serif;text-transform:lowercase;letter-spacing:0;font-weight:400;font-style:normal}
+html[data-brand="rb"] .tuwhen{font-family:'RB Body', Barlow, 'Segoe UI', system-ui, sans-serif}
+html[data-brand="rb"] .tuav{background:var(--deep, #060935)}
+html[data-brand="rb"] .tuseal circle{fill:var(--deep, #060935)}
+html[data-brand="rb"] .tuseal path{stroke:var(--acid, #BAFE2B)}
+html[data-brand="rb"] .tuav{font-family:'Recovery Belongs', 'RB Body', Barlow, system-ui, sans-serif;color:var(--acid, #BAFE2B);text-transform:lowercase;letter-spacing:0;font-weight:400;font-style:normal}
+
+/* ---- the guide's frame: one navy header band, the blue wordmark, cloud pages ---- */
+html[data-brand="rb"]:not([data-theme="black"]) .mast,
+html[data-brand="rb"]:not([data-theme="black"]) .chatx > .mast{background:#060935 !important;box-shadow:none !important}
+html[data-brand="rb"] .mast .lg.rb-wm{color:#265EF7 !important;text-shadow:none !important}
+html[data-brand="rb"]:not([data-theme="black"]) .mast .rt,
+html[data-brand="rb"]:not([data-theme="black"]) .mast .melink{background:#BAFE2B !important;color:#060935 !important}
+html[data-brand="rb"] .lx-logo.rb-name{color:#BAFE2B !important}
