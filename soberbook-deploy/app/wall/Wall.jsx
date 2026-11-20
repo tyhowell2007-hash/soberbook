@@ -41,6 +41,7 @@ import CoinSheet from '../components/CoinSheet';
 import CoinList from '../components/CoinList';
 import { applyCoin, myCoin } from '../../lib/coins';
 import StatStrip from './StatStrip';
+import Banner from '../components/Banner';
 import { observeSeen, videoHandlers } from '../../lib/watch';
 
 function ago(iso) {
@@ -2015,6 +2016,11 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
         </div>
       </section>
 
+      {/* ⭐ 20 Nov 2026 — Jesse's banner test (0208): the question banner,
+          UNDER the posting box, never over it. Renders nothing unless the
+          member has it to see. See components/Banner.jsx for the rules. */}
+      <Banner page="home" kind="prompt" />
+
       {/* ⭐ 9 Nov 2026 — NEW HERE: SAY HI (Kenny). Somebody's first post,
           picked by page.jsx, with a one-tap way into its replies. It sits
           straight under the say-it card because a first reply is the most
@@ -2115,7 +2121,9 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
             the wall has singled out for being unanswered. */}
         {/* ⭐ 9 Nov 2026 — the artists strip is spliced in after the first
             three rows (spliceIn) instead of sitting above the wall. */}
-        {spliceIn(mixFeed(posts, content, { lonelyId }).map((row) => {
+        {/* ⭐ 20 Nov 2026 — the partner banner (0208) goes after the 2nd
+            row: a whole card, never between a post and its replies. */}
+        {spliceIn(spliceIn(mixFeed(posts, content, { lonelyId }).map((row) => {
           if (row.type === 'content') {
             /* ⚠️ `pinned` is passed, not derived from item.pinned_at.
                Several items can be pinned; only ONE is shown as the pin,
@@ -2615,7 +2623,7 @@ export default function Wall({ initial, me = { name: null, avatar: null, handle:
               </div>
             </article>
           );
-        }), 3, artists && <div key="artists-in-feed" className="wall-artists">{artists}</div>)}
+        }), 3, artists && <div key="artists-in-feed" className="wall-artists">{artists}</div>), 2, posts.length >= 2 && <Banner key="bnr-feed" page="feed" kind="partner" />)}
       </div>
 
       {/* The composer and the anonymous toggle used to live down here.
