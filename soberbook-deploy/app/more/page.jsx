@@ -2,6 +2,7 @@ import Link from 'next/link';
 import RmCard from '../components/RmCard';
 import CrisisRow from '../components/CrisisRow';
 import BetaRow from '../beta/BetaRow';
+import Banner from '../components/Banner';
 
 /* =====================================================================
    /more — THE TAB THAT REPLACED THE UNLABELLED ☰, 20 Sept.
@@ -98,6 +99,11 @@ export default function MorePage() {
             </div>
           </section>
         ))}
+
+        {/* ⭐ 20 Nov 2026 — Jesse's banner test (0208): whichever banner
+            this member hasn't hidden, at the bottom, well away from the
+            988 row at the top. */}
+        <Banner page="more" />
       </div>
     </>
   );
