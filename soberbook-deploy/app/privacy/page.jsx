@@ -62,6 +62,18 @@ export default function Privacy() {
           learn which parts of the app help and which don&apos;t. Only Kenny
           and Ty can see these counts; no member can see anyone&apos;s taps,
           including their own.</li>
+        {/* ⭐ 20 Nov 2026 — the banner test (0208). Keep in step with
+            banner_mark() and banner_answer(). */}
+        <li><strong>Banner counts</strong>: how many times each banner was
+          shown, tapped, hidden or reported, added up by day. No names are
+          attached to these numbers. If you hide a banner, we remember that
+          you hid it, so it stays hidden for you.</li>
+        <li><strong>Your answer to a question banner</strong>, if you send
+          one: your words, an optional tag for how you relate to recovery,
+          and the day. Your name is never stored with it, so we can&apos;t
+          tell who wrote it. Only Kenny and Ty read the answers. We only use
+          your words in our materials if you ticked the box saying we
+          can.</li>
         {/* 0203, 13 Nov 2026 — Ty approved this wording. Keep it true to
             record_account_mark(): salted SHA-256, 90 days, only compared
             with suspended accounts. */}
