@@ -200,6 +200,7 @@ export default function Numbers({ initial }) {
             because this row is already where the back rooms are listed,
             and a screen nobody can find is a screen nobody uses. */}
         <Link href="/admin/update" className="btn">Team update</Link>
+        <Link href="/admin/banners" className="btn">Banner test</Link>
         <Link href="/admin" className="btn">
           {s.reports_open > 0
             ? `${s.reports_open} report${s.reports_open === 1 ? '' : 's'} waiting`
