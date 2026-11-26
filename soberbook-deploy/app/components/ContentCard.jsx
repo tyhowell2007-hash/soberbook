@@ -82,6 +82,8 @@ import BrandName from './BrandName';
 const DOSE = {
   recovery: 'Daily dose of recovery',
   break:    'Daily dose of not thinking about it',
+  /* 25 Nov (Kenny): women-hosted shows, peppered into the same rotation. */
+  women:    'From women, for women',
 };
 
 const CHIP = {
@@ -176,6 +178,8 @@ export default function ContentCard({ item, thumbBase, canHide = false, pinned =
             an ad that snuck in. One word, in small caps, and it is the
             same word Ty would use. */}
         {pinned && <p className="ccpinlabel">Pinned by <BrandName /></p>}
+        {/* 25 Nov: podcast episodes render as flyers, so the band shows here too. */}
+        {DOSE[item.dose] && <p className="ccdose">{DOSE[item.dose]}</p>}
         <a href={item.url} target="_blank" rel="noopener noreferrer"
            /* ⚠️ no-referrer, same as every outbound link here: elsewhere
               the referrer is a statistic, here it tells a stranger's logs
