@@ -33,6 +33,7 @@ export default function Lab() {
   const [lab, setLab] = useState(undefined);
   const [msg, setMsg] = useState('');
   const [skipIntake, setSkipIntake] = useState(false);
+  const [belongSent, setBelongSent] = useState(false);
   const [phone, setPhone] = useState(true);
 
   async function load() {
@@ -70,6 +71,8 @@ export default function Lab() {
 
   const pulse = (lab.surveys || []).find((s) => s.kind === 'pulse');
   const weekly = (lab.surveys || []).find((s) => s.kind === 'weekly');
+  /* 25 Nov (Kenny): belonging survey, women & LGBTQ+ support. Counts only. */
+  const belong = (lab.surveys || []).find((s) => s.kind === 'feature' && s.feature === 'belong');
   const weeks = [...new Set((lab.missions || []).map((m) => m.week))];
 
   async function mission(m, action, extra = {}) {
@@ -101,6 +104,7 @@ export default function Lab() {
 
       {pulse && <SurveyCard title="Quick check (30 seconds)" survey={pulse} onDone={() => setMsg('Thanks!')} />}
       {weekly && <SurveyCard title="Weekly check-in (2 minutes)" survey={weekly} onDone={() => setMsg('Thanks!')} />}
+      {belong && !lab.belong_done && !belongSent && <SurveyCard title="Help us make room for everyone (1 minute)" lede="We want Sober Book to feel like home for women and LGBTQ+ members in recovery. Your answers help us decide what to build. Skip anything you like." survey={belong} onDone={() => { setBelongSent(true); setMsg('Thank you!'); }} />}
 
       <div className="bl-card">
         <h3>Found a problem or have an idea?</h3>
