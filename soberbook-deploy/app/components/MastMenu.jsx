@@ -67,6 +67,7 @@ const GROUPS = [
          icon was Ty's call and travels with the label. */
       { href: '/quiet',     label: '⛪ Quiet',        sub: 'No advice, no fixing' },
       { href: '/readings',  label: 'Daily readings',  sub: 'Something to read' },
+      { href: '/library',   label: '📚 The Library',  sub: 'Free books and guides' },
       { href: '/resources', label: '◆ Ask Sage',      sub: 'Answers, any time' },
     ],
   },
