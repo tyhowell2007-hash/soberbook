@@ -1,0 +1,112 @@
+/* =====================================================================
+   FOR YOU (/more) — 27 Nov 2026. Every class here starts fy-, so nothing
+   leaks into the rest of the app (the scoping rule in Ty's guide).
+   Colours come from theme-green.css (loaded by more/layout.jsx) and the
+   acid green from globals, with fallbacks so a missing token can't blank
+   a button.
+   ===================================================================== */
+.fy-pad{ padding-bottom:24px; }
+.fy{ margin-top:12px; }
+
+.fy-chip{
+  display:inline-block; background:#fff; color:var(--gt,#000080);
+  font-weight:800; border-top:3px solid var(--acid,#00FF00);
+  border-radius:6px; padding:0 7px; line-height:1.5;
+}
+
+.fy-welcome{
+  background:var(--acid,#00FF00); color:var(--acid-ink,#000060);
+  border-radius:16px; padding:16px; margin-bottom:14px;
+}
+.fy-welcome p{ margin:6px 0 12px; font-size:14px; line-height:1.5; }
+.fy-wt{ font-size:17px; }
+.fy-wbtns{ display:flex; gap:8px; flex-wrap:wrap; }
+.fy-go{
+  min-height:44px; padding:0 16px; border:0; border-radius:12px;
+  background:var(--gd,#1329B0); color:#fff; font:inherit; font-weight:800; cursor:pointer;
+}
+.fy-later{
+  min-height:44px; padding:0 14px; border:0; background:transparent;
+  color:var(--acid-ink,#000060); font:inherit; font-weight:700; cursor:pointer;
+}
+
+.fy-head{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin:6px 2px 8px; }
+.fy-h{ margin:0; font-size:15px; font-weight:800; color:var(--body,#121630); }
+.fy-arr{
+  min-height:40px; padding:0 14px; border-radius:10px; cursor:pointer;
+  border:1px solid var(--line,#DDE3F5); background:var(--paper2,#fff);
+  color:var(--gt,#000080); font:inherit; font-weight:800;
+}
+.fy-arr.on{ background:var(--gd,#1329B0); color:#fff; border-color:var(--gd,#1329B0); }
+.fy-tip{ margin:0 2px 10px; font-size:13px; line-height:1.45; color:var(--soft,#5E6788); }
+
+.fy-grid{
+  list-style:none; margin:0; padding:0;
+  display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px;
+}
+.fy-tile{
+  background:var(--paper2,#fff); border:1px solid var(--line,#DDE3F5);
+  border-radius:14px; min-width:0;
+}
+.fy-tile.big{ grid-column:span 2; }
+.fy-tile.hot{ background:var(--acid,#00FF00); border:2px solid var(--gt,#000080); }
+.fy-in{ display:flex; flex-direction:column; gap:4px; padding:14px; min-height:76px; box-sizing:border-box; }
+.fy-tile.big .fy-in{ min-height:96px; }
+.fy-link{ text-decoration:none; color:var(--body,#121630); border-radius:14px; }
+.fy-link:hover{ background:var(--gl,#EEF2FF); }
+.fy-tile.hot .fy-link{ color:var(--acid-ink,#000060); }
+.fy-tile.hot .fy-link:hover{ background:transparent; text-decoration:underline; }
+.fy-link:focus-visible{ outline:3px solid var(--gd,#1329B0); outline-offset:2px; }
+.fy-t{ font-size:15px; }
+.fy-tile.big .fy-t{ font-size:17px; }
+.fy-s{ font-size:12.5px; line-height:1.35; color:var(--soft,#5E6788); }
+.fy-tile.hot .fy-s{ color:var(--acid-ink,#000060); }
+
+.fy-ctl{ display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; }
+.fy-ctl button{
+  min-width:44px; min-height:40px; padding:0 10px; border-radius:9px; cursor:pointer;
+  border:1px solid var(--line,#DDE3F5); background:#fff; color:var(--gt,#000080);
+  font:inherit; font-size:13px; font-weight:700;
+}
+.fy-ctl button:disabled{ opacity:.4; cursor:default; }
+.fy-ctl .fy-hide{ color:#A32D2D; }
+
+.fy-hidden{ margin-top:16px; }
+.fy-hh{ margin:0 2px 8px; font-size:12px; letter-spacing:.06em; text-transform:uppercase; color:var(--soft,#5E6788); }
+.fy-hrow{ display:flex; flex-wrap:wrap; gap:8px; }
+.fy-add{
+  min-height:40px; padding:0 14px; border-radius:999px; cursor:pointer;
+  border:1px dashed var(--gt,#000080); background:#fff; color:var(--gt,#000080);
+  font:inherit; font-size:13px; font-weight:700;
+}
+.fy-reset{
+  display:block; margin:16px auto 0; min-height:40px; padding:0 12px; border:0; background:transparent;
+  color:var(--soft,#5E6788); font:inherit; font-size:13px; text-decoration:underline; cursor:pointer;
+}
+
+.fy-foot{ display:flex; flex-wrap:wrap; justify-content:center; gap:6px 16px; margin:22px 0 6px; }
+.fy-foot a{ font-size:13px; color:var(--soft,#5E6788); padding:8px 2px; }
+
+html[data-theme="black"] .fy-tile, html[data-theme="black"] .fy-arr, html[data-theme="black"] .fy-ctl button, html[data-theme="black"] .fy-add{ background:#14161f; }
+html[data-theme="black"] .fy-link, html[data-theme="black"] .fy-h{ color:#e8eaf4; }
+
+@media (max-width:340px){ .fy-grid{ grid-template-columns:1fr; } .fy-tile.big{ grid-column:auto; } }
+
+/* The wall's "Did you know?" card (components/ForYouNudge.jsx). */
+.fy-nudge{
+  background:var(--gd,#1329B0); color:#fff; border-radius:16px;
+  padding:16px; margin:12px 0;
+}
+.fy-nk{ font-size:11px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; color:var(--acid,#00FF00); }
+.fy-nt{ margin:6px 0 4px; font-size:17px; font-weight:800; line-height:1.35; }
+.fy-ns{ margin:0 0 12px; font-size:13px; line-height:1.45; color:#D6DDFF; }
+.fy-nb{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+.fy-ngo{
+  display:inline-flex; align-items:center; min-height:44px; padding:0 16px; border-radius:12px;
+  background:var(--acid,#00FF00); color:var(--acid-ink,#000060); font-weight:800; text-decoration:none;
+}
+.fy-ngo:focus-visible{ outline:3px solid #fff; outline-offset:2px; }
+.fy-nno{
+  min-height:44px; padding:0 8px; border:0; background:transparent; color:#D6DDFF;
+  font:inherit; font-size:13px; font-weight:700; cursor:pointer;
+}
