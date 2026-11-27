@@ -1,0 +1,3 @@
+/* 27 Nov 2026 — the For You tab reads bold on every page, on or off, so
+   members notice the new door (Kenny). Scoped to .tab-fy; nothing else. */
+.tabbar .tab.tab-fy .tl{ font-weight:800; }
