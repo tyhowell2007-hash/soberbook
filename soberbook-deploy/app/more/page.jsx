@@ -24,8 +24,8 @@ import './foryou.css';
    hide the small row of rules, privacy and support at the bottom.
 
    🔴 ONLY TOOLS THAT EXIST. Same rule as the bar (BottomNav): no tile for
-   a page that isn't built. The Library joined in drop 2 (27 Nov); the
-   private spaces join in the drop that ships them, not before.
+   a page that isn't built. The Library joined in drop 2 and the private
+   spaces in drop 3b (both 27 Nov).
 
    ⚠️ The drawer (MastMenu) still lists the same destinations. If a tool
    is added here, add it there too.
@@ -40,6 +40,8 @@ const TOOLS = [
   { id: 'care',     href: '/rm',            label: 'Find care',        sub: 'Treatment near you, from Dr. Nicole Labor’s directory', big: true },
   /* 27 Nov, drop 2 — the Library joins now that it exists. */
   { id: 'library',  href: '/library',       label: 'The Library',      sub: 'Free books and guides, read here or from the source', big: true },
+  /* 27 Nov, drop 3b — members-only rooms, now that they exist. */
+  { id: 'spaces',   href: '/spaces',        label: 'Private spaces',   sub: 'The Women’s Room and the LGBTQ+ Room, members only' },
   { id: 'checkin',  href: '/wall#pledge',   label: 'Check in',         sub: 'How you’re doing today' },
   { id: 'plan',     href: '/plan',          label: 'Your safety plan', sub: 'What to do on a hard day' },
   { id: 'readings', href: '/readings',      label: 'Daily readings',   sub: 'Something to read today' },
