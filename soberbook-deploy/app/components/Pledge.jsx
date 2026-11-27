@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { browserClient } from '../../lib/supabase-browser';
 import { tap } from '../../lib/tap';
+import { moment } from '../../lib/right-moment';
 
 /* =====================================================================
    ONE MORE DAY — the daily pledge.  1 Sept.
@@ -189,6 +190,10 @@ export default function Pledge({ onStatus } = {}) {
       await browserClient().rpc('pledge_today',
         { p_why: why || null, p_craving: craving });
       await load();
+      /* 27 Nov, drop 3 — a Strong or Rough craving opens the "Right
+         moment resources" sheet: 988 first, then the craving page, your
+         plan and a meeting. Uses the level they tapped, never the words. */
+      if (craving === 'strong' || craving === 'rough') moment('hard_checkin');
       setWhy('');
       setCraving(null);
     } catch { /* leave the form up; a reload tells the truth */ }

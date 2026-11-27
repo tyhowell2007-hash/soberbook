@@ -100,6 +100,7 @@ import AccountMark from './components/AccountMark';
    downward gesture when the document is already at the top. */
 import PullToRefresh from './components/PullToRefresh';
 import BetaTracker from './components/BetaTracker';
+import RightMoment from './components/RightMoment';
 
 export const metadata = {
   title: 'Sober Book',
@@ -273,6 +274,8 @@ export default async function RootLayout({ children }) {
         {/* 0206 — beta usage tracking. Sends nothing unless the server says
             this member is a tester who agreed. See lib/track.js. */}
         <BetaTracker on={signedIn} />
+        {/* 27 Nov, drop 3 — the "Right moment resources" pop-up. */}
+        <RightMoment on={signedIn} />
         <PullToRefresh on={signedIn} />
         <RegisterSW />
         <NativePush />
