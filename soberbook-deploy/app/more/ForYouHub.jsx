@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { track } from '../../lib/track';
+import BrandName from '../components/BrandName';
 
 /* =====================================================================
    THE FOR YOU HUB — the arrangeable list on /more. 27 Nov 2026.
@@ -96,7 +97,7 @@ export default function ForYouHub({ tools = [] }) {
       {!st.welcomed && (
         <div className="fy-welcome" role="note">
           <b className="fy-wt">Welcome to <span className="fy-chip">For You</span></b>
-          <p>Here’s everything Sober Book offers, with a line on what each one does. Make it yours: move what you use to the top, make it big or small, and hide what you don’t need.</p>
+          <p>Here’s everything <BrandName /> offers, with a line on what each one does. Make it yours: move what you use to the top, make it big or small, and hide what you don’t need.</p>
           <div className="fy-wbtns">
             <button type="button" className="fy-go" onClick={startArranging}>Make it mine</button>
             <button type="button" className="fy-later" onClick={dismissWelcome}>Not now</button>
