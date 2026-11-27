@@ -544,7 +544,12 @@ export default function Room({ room, initial, meHandle, members, signed, spokenH
             many people are in the room is a fact about the room; who is in
             it at 11pm is a fact about them — that is the presence-dot
             argument, and it hasn't changed. */}
-        {members > 0 && (
+        {/* 27 Nov — a private space never shows the whole community's
+            count (it read "529 members" for a room three people joined).
+            It says what it is instead. */}
+        {room.members_only ? (
+          <span className="roomcount">🔒 Members only</span>
+        ) : members > 0 && (
           <span className="roomcount">{members} member{members === 1 ? '' : 's'}</span>
         )}
       </div>

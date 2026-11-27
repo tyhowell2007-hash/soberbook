@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { BOOKS, byId } from '../books';
 import SaveButton from '../SaveButton';
+import BrandName from '../../components/BrandName';
 
 /* /library/<id> — one book. Hosted books: Start reading. Linked books:
    open the publisher's own free page, labelled with who it's from, with
@@ -29,7 +30,7 @@ export default function BookPage({ params }) {
           <div>
             <h1 className="lb-title">{b.title}</h1>
             <p className="lb-sub">{b.author}{b.extra ? ` · ${b.extra}` : ''}</p>
-            <span className="lb-tag">{b.kind === 'hosted' ? 'Read in Sober Book' : `Free from ${b.from}`}</span>
+            <span className="lb-tag">{b.kind === 'hosted' ? <>Read in <BrandName /></> : `Free from ${b.from}`}</span>
           </div>
         </div>
         <p className="lb-note"><b>Librarian’s note:</b> {b.note}</p>
@@ -45,7 +46,7 @@ export default function BookPage({ params }) {
         <p className="lb-small lb-center">
           {b.kind === 'hosted'
             ? <>From <a href={b.fromUrl} target="_blank" rel="noopener noreferrer" referrerPolicy="no-referrer">{b.from}</a>. Free to read and share.</>
-            : <>Opens {b.from}’s own free page. Sober Book doesn’t see what you read there.</>}
+            : <>Opens {b.from}’s own free page. <BrandName /> doesn’t see what you read there.</>}
         </p>
       </div>
     </>

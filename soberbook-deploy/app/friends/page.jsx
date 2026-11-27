@@ -67,7 +67,7 @@ export default async function FriendsPage({ searchParams }) {
        behave differently in a room that hides handles — and the component
        must be told, never left to infer it from whether a handle happens
        to be null on the messages it can see. */
-    supabase.from('rooms').select('id, slug, emoji, name, blurb, anonymous')
+    supabase.from('rooms').select('id, slug, emoji, name, blurb, anonymous, members_only')
             .eq('active', true).order('sort').order('created_at'),
   ]);
 
