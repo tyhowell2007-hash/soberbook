@@ -1,108 +1,82 @@
 import Link from 'next/link';
-import RmCard from '../components/RmCard';
 import CrisisRow from '../components/CrisisRow';
 import BetaRow from '../beta/BetaRow';
 import Banner from '../components/Banner';
+import ForYouHub from './ForYouHub';
+import './foryou.css';
 
 /* =====================================================================
-   /more — THE TAB THAT REPLACED THE UNLABELLED ☰, 20 Sept.
+   /more — FOR YOU. 27 Nov 2026 (Kenny, Ty on board).
 
-   🔴 WHY THIS PAGE EXISTS. Everything a member does daily except the
-   check-in lived behind a 52px hamburger with no word on it. Counted
-   over 30 days, out of 339 members: Check in (a door on the home
-   screen) 114 people, Gratitude 20, Tenth step 9, Your plan 2 ever.
-   Same members, same app; the only difference was whether the door was
-   on a screen they already look at.
+   This page was "More", the tab that replaced the unlabelled ☰ on
+   20 Sept. Same address on purpose: every back arrow, the drawer and old
+   links still land here. What changed is the shape:
 
-   ⚠️ IT IS A PAGE, NOT A SHEET, AND THAT IS DELIBERATE. The drawer
-   (MastMenu) still opens from the masthead and lists the same rows —
-   but a drawer cannot be linked to, cannot be a tab, and disappears on
-   any page without a masthead. This page can be reached by the bar from
-   anywhere, and the back arrow returns you to the wall.
+   ⭐ ONE PLACE THAT EXPLAINS EVERYTHING. On a first open every tool is
+   listed with one plain line on what it does, so nobody has to guess.
+   Then the member can make it theirs: move what they use to the top,
+   make a tool big or small, hide what they don't need. That arrangement
+   is kept ON THIS PHONE only (localStorage), never in our database,
+   because what somebody uses in recovery is nobody's business.
 
-   ⚠️ IF YOU ADD A ROW HERE, ADD IT TO MastMenu TOO. Two lists is the
-   price of having both a tab and a drawer; a row in only one of them is
-   the "everything built except the way in" bug wearing a new hat.
+   🔴 988 STAYS FIRST. The CRCC ask (29 Oct) put the crisis row at the
+   top of this page, and arranging can never move or hide it. Nor can it
+   hide the small row of rules, privacy and support at the bottom.
+
+   🔴 ONLY TOOLS THAT EXIST. Same rule as the bar (BottomNav): no tile for
+   a page that isn't built. The Library and the private spaces join this
+   list in the drops that ship them, not before.
+
+   ⚠️ The drawer (MastMenu) still lists the same destinations. If a tool
+   is added here, add it there too.
    ===================================================================== */
-const GROUPS = [
-  {
-    head: 'Your day',
-    items: [
-      { href: '/wall#pledge',   label: 'Check in',          sub: 'How you’re doing today' },
-      { href: '/gratitude', label: 'Gratitude',         sub: 'One good thing' },
-      { href: '/tenth',     label: 'Tenth step',        sub: 'Look back at your day' },
-      { href: '/plan',      label: 'Your safety plan',  sub: 'What to do on a hard day' },
-      { href: '/resume',    label: '📝 Resume builder', sub: 'Free, professional, ready in minutes' },
-    ],
-  },
-  {
-    head: 'Quiet things',
-    items: [
-      { href: '/quiet',     label: '⛪ Quiet',          sub: 'No advice, no fixing' },
-      { href: '/readings',  label: 'Daily readings',    sub: 'Something to read' },
-      { href: '/resources', label: '◆ Ask Sage',        sub: 'Answers, any time' },
-    ],
-  },
-  {
-    head: 'People',
-    items: [
-      { href: '/find',          label: 'Find someone',   sub: 'Search by name or handle' },
-      { href: '/circle',        label: '⭕ Your circle',  sub: 'The people who started when you did' },
-      { href: '/notifications', label: 'What you missed', sub: 'Replies, messages, hellos' },
-    ],
-  },
-  {
-    head: 'This place',
-    items: [
-      { href: '/help',    label: 'Hotlines and help', sub: 'Places that aren’t us' },
-      { href: '/rules',   label: 'The rules',         sub: 'What gets you removed' },
-      { href: '/privacy', label: 'Privacy',           sub: 'What we keep, what we don’t' },
-      /* 0202 — problem tickets. Report a problem goes straight to Ty and Kenny. */
-      { href: '/report',  label: '🛠️ Report a problem', sub: 'Ty and Kenny see it right away' },
-      { href: '/tickets', label: 'My tickets',          sub: 'Problems you’ve told us about' },
-      { href: '/support', label: 'Support',             sub: 'Help with your account' },
-    ],
-  },
+
+/* The order here is the order a new member sees. The resume builder
+   leads and starts big: Kenny's ask, the tool he most wants people to
+   know about. `id` must never change once shipped — it is the key a
+   member's saved arrangement uses. */
+const TOOLS = [
+  { id: 'resume',   href: '/resume',        label: 'Resume builder',   sub: 'A professional resume, ready to send in minutes', hot: true, big: true },
+  { id: 'care',     href: '/rm',            label: 'Find care',        sub: 'Treatment near you, from Dr. Nicole Labor’s directory', big: true },
+  { id: 'checkin',  href: '/wall#pledge',   label: 'Check in',         sub: 'How you’re doing today' },
+  { id: 'plan',     href: '/plan',          label: 'Your safety plan', sub: 'What to do on a hard day' },
+  { id: 'readings', href: '/readings',      label: 'Daily readings',   sub: 'Something to read today' },
+  { id: 'gratitude',href: '/gratitude',     label: 'Gratitude',        sub: 'One good thing' },
+  { id: 'tenth',    href: '/tenth',         label: 'Tenth step',       sub: 'Look back at your day' },
+  { id: 'quiet',    href: '/quiet',         label: '⛪ Quiet',          sub: 'No advice, no fixing' },
+  { id: 'sage',     href: '/resources',     label: 'Ask Sage',         sub: 'Answers, any time' },
+  { id: 'circle',   href: '/circle',        label: 'Your circle',      sub: 'The people who started when you did' },
+  { id: 'find',     href: '/find',          label: 'Find someone',     sub: 'Search by name or handle' },
+  { id: 'missed',   href: '/notifications', label: 'What you missed',  sub: 'Replies, messages, hellos' },
+  { id: 'help',     href: '/help',          label: 'Hotlines and help',sub: 'Places that aren’t us' },
 ];
 
-export const metadata = { title: 'More · Sober Book' };
+const FOOT = [
+  { href: '/rules',   label: 'Rules' },
+  { href: '/privacy', label: 'Privacy' },
+  { href: '/report',  label: 'Report a problem' },
+  { href: '/tickets', label: 'My tickets' },
+  { href: '/support', label: 'Support' },
+];
 
-export default function MorePage() {
+export const metadata = { title: 'For You · Sober Book' };
+
+export default function ForYouPage() {
   return (
     <>
       <div className="mast">
         <Link href="/wall" className="back" aria-label="Back to the wall">←</Link>
-        <span className="lg">more</span>
+        <span className="lg">for you</span>
       </div>
-      <div className="bar">Everything else the app does</div>
-
-      <div className="pad">
-        {/* Her map leads, exactly as it does in the drawer — same row,
-            same words. See MastMenu for why it claims she built the
-            directory and not that she endorses Sober Book. */}
-        {/* 988 first — moved here from the old ☰ drawer (CRCC ask, 29 Oct). */}
+      <div className="bar">Everything Sober Book offers, in one place</div>
+      <div className="pad fy-pad">
         <CrisisRow />
-        <RmCard />
         {/* 0206 — Beta Lab, testers only (renders nothing for everyone else). */}
         <BetaRow />
-
-        {GROUPS.map((g) => (
-          <section key={g.head} className="mo-grp">
-            <h2 className="mm-grp" style={{ padding: '14px 2px 4px' }}>{g.head}</h2>
-            <div className="mo-card">
-              {g.items.map((it) => (
-                <Link key={it.href} href={it.href} className="mm-row mo-row">
-                  <span className="mm-rt">{it.label}</span>
-                  <span className="mm-rs">{it.sub}</span>
-                </Link>
-              ))}
-            </div>
-          </section>
-        ))}
-
-        {/* ⭐ 20 Nov 2026 — Jesse's banner test (0208): whichever banner
-            this member hasn't hidden, at the bottom, well away from the
-            988 row at the top. */}
+        <ForYouHub tools={TOOLS} />
+        <nav className="fy-foot" aria-label="About Sober Book">
+          {FOOT.map((f) => <Link key={f.href} href={f.href}>{f.label}</Link>)}
+        </nav>
         <Banner page="more" />
       </div>
     </>

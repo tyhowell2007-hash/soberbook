@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import './fy-tab.css';
 
 /* =====================================================================
    THE BOTTOM BAR.
@@ -48,6 +49,14 @@ const TABS = [
     said: 'someone replied to your post' },
   { href: '/chat',     icon: '💬', label: 'Messages',  dot: 'chat',
     said: 'you have a new message' },
+  /* ⭐ 27 Nov 2026 (Kenny, Ty on board) — MORE BECAME FOR YOU, AND MOVED
+     HERE, BETWEEN MESSAGES AND MEETINGS.
+     Same seat, same /more address (every back arrow and link still works),
+     a word people understand and a page that explains every tool once.
+     Still six words on the bar, the ceiling set on 22 Aug. Bold on
+     purpose, for now: Kenny wants members to notice the new door.
+     `bold` is read below and adds .tab-fy (fy-tab.css). */
+  { href: '/more',     icon: '✦', label: 'For You', bold: true },
   /* Aug 17. The second tab to earn its way in. It lists real meetings
      from NA's own open data — nothing here is a picture of a button.
      A chair, because that is what the room is: chairs in a circle. */
@@ -111,7 +120,6 @@ const TABS = [
      seat could be spent. It is now the first row under "Quiet things"
      on /more, with the ⛪ beside it. */
   { href: '/me',       icon: '🙂', label: 'You'  },
-  { href: '/more',     icon: '⋯', label: 'More' },
 ];
 
 /* =====================================================================
@@ -145,7 +153,7 @@ export default function BottomNav({ dots = {} }) {
           : path === t.href || path.startsWith(t.href + '/');
         return (
           <Link key={t.href} href={t.href}
-                className={'tab' + (active ? ' on' : '')}
+                className={'tab' + (active ? ' on' : '') + (t.bold ? ' tab-fy' : '')}
                 /* aria-current is what actually tells assistive tech which
                    one you're on. The colour change is for everybody else. */
                 aria-current={active ? 'page' : undefined}>
