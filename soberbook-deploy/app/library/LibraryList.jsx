@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { BOOKS, SHELVES, byId } from './books';
 import { shelf } from './shelf-store';
 import { track } from '../../lib/track';
+import BrandName from '../components/BrandName';
 
 /* The Library's list, with search and "pick up where you left off".
    The resume card is Kenny's ask: the one tool he wants everybody to
@@ -49,7 +50,7 @@ export default function LibraryList() {
                     <span className="lb-meta">
                       <b>{b.title}</b>
                       <span className="lb-sub">{b.author}</span>
-                      <span className="lb-tag">{b.kind === 'hosted' ? 'Read in Sober Book' : `Free from ${b.from}`}</span>
+                      <span className="lb-tag">{b.kind === 'hosted' ? <>Read in <BrandName /></> : `Free from ${b.from}`}</span>
                     </span>
                   </Link>
                 </li>
