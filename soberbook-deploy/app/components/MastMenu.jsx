@@ -68,6 +68,7 @@ const GROUPS = [
       { href: '/quiet',     label: '⛪ Quiet',        sub: 'No advice, no fixing' },
       { href: '/readings',  label: 'Daily readings',  sub: 'Something to read' },
       { href: '/library',   label: '📚 The Library',  sub: 'Free books and guides' },
+      { href: '/spaces',    label: '🔒 Private spaces', sub: 'Members-only rooms' },
       { href: '/resources', label: '◆ Ask Sage',      sub: 'Answers, any time' },
     ],
   },

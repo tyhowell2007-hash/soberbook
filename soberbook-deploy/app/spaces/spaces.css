@@ -1,0 +1,19 @@
+/* PRIVATE SPACES — every class starts sp-. 27 Nov 2026. */
+.sp-pad{ padding-bottom:24px; }
+.sp-intro{ margin:12px 0 14px; font-size:14px; line-height:1.5; color:var(--gt,#000080); }
+.sp-list{ list-style:none; margin:0; padding:0; display:grid; gap:12px; }
+.sp-card{ background:#fff; border:1px solid var(--line,#DCE2FA); border-radius:16px; padding:14px; }
+.sp-top{ display:flex; gap:12px; align-items:flex-start; }
+.sp-emoji{ font-size:28px; line-height:1; }
+.sp-name{ margin:0; font-size:17px; font-weight:800; color:var(--gt,#000080); }
+.sp-blurb{ margin:4px 0 0; font-size:13px; line-height:1.45; color:#4A5280; }
+.sp-acts{ display:flex; gap:10px; align-items:center; margin-top:12px; }
+.sp-go{
+  display:inline-flex; align-items:center; min-height:44px; padding:0 16px; border:0; border-radius:12px;
+  background:var(--gd,#1329B0); color:#fff; font:inherit; font-weight:800; text-decoration:none; cursor:pointer;
+}
+.sp-go:disabled{ opacity:.6; }
+.sp-leave{ min-height:44px; padding:0 10px; border:0; background:transparent; color:#4A5280; font:inherit; font-weight:700; cursor:pointer; }
+.sp-go:focus-visible,.sp-leave:focus-visible{ outline:3px solid var(--acid,#00FF00); outline-offset:2px; }
+.sp-empty,.sp-err{ font-size:14px; color:#4A5280; }
+.sp-err{ color:#B00020; }
