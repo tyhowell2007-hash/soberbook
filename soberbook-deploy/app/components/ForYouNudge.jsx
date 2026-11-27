@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { track } from '../../lib/track';
+import BrandName from './BrandName';
 import '../more/foryou.css';
 
 /* =====================================================================
@@ -68,7 +69,7 @@ export default function ForYouNudge() {
   return (
     <aside className="fy-nudge" aria-label="Did you know">
       <span className="fy-nk">Did you know?</span>
-      <p className="fy-nt">Everything Sober Book offers lives in <span className="fy-chip">For You</span></p>
+      <p className="fy-nt">Everything <BrandName /> offers lives in <span className="fy-chip">For You</span></p>
       <p className="fy-ns">Books, care, your resume and more, explained in one place. Make it yours.</p>
       <div className="fy-nb">
         <Link href="/more" className="fy-ngo"
