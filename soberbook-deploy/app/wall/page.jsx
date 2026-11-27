@@ -37,6 +37,7 @@ import { pickRoom } from '../../lib/open-room';
 import { fetchFeedPosts } from '../../lib/feed-posts';
 import Wordmark from '../components/Wordmark';
 import BetaInviteCard from '../components/BetaInviteCard';
+import ForYouNudge from '../components/ForYouNudge';
 
 export const dynamic = 'force-dynamic';
 
@@ -441,6 +442,9 @@ export default async function WallPage() {
       {/* 0206 — Kenny's beta invite. Renders nothing unless Ty or Kenny
           invited this member from /admin/beta and they haven't answered. */}
       <BetaInviteCard />
+      {/* 27 Nov — "Did you know?" For You card. Shows only to members who
+          have never opened For You, on at most two days a week. */}
+      <ForYouNudge />
       {/* 🔴 THE SECOND ROW, 20 SEPT — THE DOORS NOBODY COULD FIND.
           Counted over 30 days, out of 339 members: Check in, which is
           one tap above this line, 114 people. Gratitude, Tenth step and
