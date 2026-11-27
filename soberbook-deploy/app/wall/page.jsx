@@ -38,6 +38,7 @@ import { fetchFeedPosts } from '../../lib/feed-posts';
 import Wordmark from '../components/Wordmark';
 import BetaInviteCard from '../components/BetaInviteCard';
 import ForYouNudge from '../components/ForYouNudge';
+import ToolNudge from '../components/ToolNudge';
 
 export const dynamic = 'force-dynamic';
 
@@ -445,6 +446,10 @@ export default async function WallPage() {
       {/* 27 Nov — "Did you know?" For You card. Shows only to members who
           have never opened For You, on at most two days a week. */}
       <ForYouNudge />
+      {/* 27 Nov, drop 3 — once For You has been opened, the same slot
+          introduces one untried tool (resume first), same two-a-week cap.
+          It also hands today's milestone to the Right moment pop-up. */}
+      <ToolNudge days={Number.isFinite(days) ? days : null} mark={mark ? mark.days : null} />
       {/* 🔴 THE SECOND ROW, 20 SEPT — THE DOORS NOBODY COULD FIND.
           Counted over 30 days, out of 339 members: Check in, which is
           one tap above this line, 114 people. Gratitude, Tenth step and
